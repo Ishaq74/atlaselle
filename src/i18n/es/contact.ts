@@ -2,7 +2,7 @@ import type { ContactTranslations } from '../config';
 
 export default {
   meta: {
-    title: 'Contacto — KLAN',
+    title: 'Contacto — ATLASELLE',
     description: 'Contáctenos para hablar de su proyecto o solicitar un presupuesto.',
   },
   badge: 'Contacto',

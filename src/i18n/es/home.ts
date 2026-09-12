@@ -7,7 +7,7 @@ export default {
     badge: 'Construir juntos',
     title: 'La civilización se construye por estratos',
     description:
-      'KLAN acompaña a las comunidades que construyen sobre el legado de quienes les precedieron. Cada generación añade su piedra al edificio común.',
+      'ATLASELLE acompaña a las comunidades que construyen sobre el legado de quienes les precedieron. Cada generación añade su piedra al edificio común.',
     ctaPrimary: 'Unirse al movimiento',
     ctaSecondary: 'Descubrir nuestra visión',
     socialProofHeading: 'Únete a 10.000+ constructores',
@@ -25,7 +25,7 @@ export default {
   ],
   pillars: {
     badge: 'Pilares fundadores',
-    title: 'Los cimientos de KLAN',
+    title: 'Los cimientos de ATLASELLE',
     description: 'Cuatro principios guían nuestra misión de construcción colectiva.',
     items: [
       { icon: 'mdi:account-group', title: 'Comunidad', description: 'Reunir a quienes comparten una visión común y construyen juntos.' },
@@ -36,20 +36,20 @@ export default {
   },
   testimonials: {
     badge: 'Testimonios',
-    heading: 'Construyen con KLAN',
+    heading: 'Construyen con ATLASELLE',
     description: 'Descubre cómo nuestra comunidad de constructores forja el futuro juntos.',
     items: [
       {
         name: 'Amina Belkacem',
         role: 'Fundadora, Colectivo Raíces',
-        content: 'KLAN nos ayudó a estructurar nuestra transmisión intergeneracional. Cada estrato de saber se preserva y es accesible.',
+        content: 'ATLASELLE nos ayudó a estructurar nuestra transmisión intergeneracional. Cada estrato de saber se preserva y es accesible.',
         rating: 5,
         image: avatar1,
       },
       {
         name: 'Youssef Mansouri',
         role: 'Director, Instituto Memoria',
-        content: 'La visión de KLAN resuena profundamente con nuestra misión. Construir sobre los cimientos de quienes nos precedieron.',
+        content: 'La visión de ATLASELLE resuena profundamente con nuestra misión. Construir sobre los cimientos de quienes nos precedieron.',
         rating: 5,
         image: avatar2,
       },
@@ -63,7 +63,7 @@ export default {
       {
         name: 'Karim Ouadah',
         role: 'Arquitecto, Alianza Constructores',
-        content: 'KLAN encarna lo que toda plataforma comunitaria debería ser: un edificio colectivo donde cada uno aporta su piedra.',
+        content: 'ATLASELLE encarna lo que toda plataforma comunitaria debería ser: un edificio colectivo donde cada uno aporta su piedra.',
         rating: 5,
         image: avatar1,
       },
@@ -112,8 +112,8 @@ export default {
   },
   ctaBanner: {
     title: '¿Listo para construir tu estrato?',
-    description: 'Únete a miles de constructores que forjan el futuro juntos con KLAN.',
-    primaryButton: { text: 'Unirse a KLAN', href: '#' },
+    description: 'Únete a miles de constructores que forjan el futuro juntos con ATLASELLE.',
+    primaryButton: { text: 'Unirse a ATLASELLE', href: '#' },
     secondaryButton: { text: 'Saber más →', href: '#' },
   },
 } satisfies HomeTranslations;

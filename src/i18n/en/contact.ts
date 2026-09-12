@@ -2,7 +2,7 @@ import type { ContactTranslations } from '../config';
 
 export default {
   meta: {
-    title: 'Contact — KLAN',
+    title: 'Contact — ATLASELLE',
     description: 'Get in touch with us to discuss your project or request a quote.',
   },
   badge: 'Contact',

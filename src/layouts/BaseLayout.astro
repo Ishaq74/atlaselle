@@ -45,7 +45,7 @@ const [siteData, dbSocialLinks, headerNav, footerPrimary, footerSecondary, foote
   getConsentSettings(locale),
 ]);
 
-const siteName = siteData?.siteName ?? "";
+const siteName = siteData?.siteName ?? "ATLASELLE";
 const metaTitle = titleOverride ?? siteData?.metaTitle ?? t.meta.title;
 const metaDesc = descriptionOverride ?? siteData?.metaDescription ?? t.meta.description;
 
@@ -59,7 +59,14 @@ function toNavLinks(tree: NavTreeItem[]): NavLink[] {
   }));
 }
 
-const links: NavLink[] = toNavLinks(headerNav);
+const publicNav = locale === "fr"
+  ? [{ label: "Voyages", href: "/fr/voyages/sicile-malte" }, { label: "FAQ", href: "/fr/faq" }, { label: "Conditions", href: "/fr/conditions" }]
+  : locale === "ar"
+    ? [{ label: "الرحلات", href: "/ar/trips/sicily-malta" }, { label: "الأسئلة الشائعة", href: "/ar/faq" }, { label: "الشروط", href: "/ar/conditions" }]
+    : locale === "es"
+      ? [{ label: "Viajes", href: "/es/trips/sicily-malta" }, { label: "Preguntas frecuentes", href: "/es/faq" }, { label: "Condiciones", href: "/es/terms" }]
+      : [{ label: "Journeys", href: "/en/trips/sicily-malta" }, { label: "FAQ", href: "/en/faq" }, { label: "Terms", href: "/en/terms" }];
+const links: NavLink[] = headerNav.length > 0 ? toNavLinks(headerNav) : publicNav;
 
 // Map DB nav items → FooterLink[]
 function toFooterLinks(tree: NavTreeItem[]): FooterLink[] {
@@ -70,7 +77,7 @@ function toFooterLinks(tree: NavTreeItem[]): FooterLink[] {
   }));
 }
 
-const footerNavLinks: FooterLink[] = toFooterLinks(footerPrimary);
+const footerNavLinks: FooterLink[] = footerPrimary.length > 0 ? toFooterLinks(footerPrimary) : publicNav;
 const footerNavLinksSecondary: FooterLink[] = toFooterLinks(footerSecondary);
 const footerLegalLinks: FooterLink[] = toFooterLinks(footerLegal);
 
@@ -92,7 +99,7 @@ const legalHeading = footerLegalMeta?.showHeading !== false
   ? (siteData?.footerLegalHeading || footerLegalMeta?.displayLabel || t.footer.legalHeading)
   : undefined;
 
-const canonicalUrl = Astro.url.pathname;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.url.origin).href;
 ---
 
 <html lang={locale} dir={direction}>
@@ -147,7 +154,7 @@ const canonicalUrl = Astro.url.pathname;
         logoDarkUrl={siteData?.logoDark}
         links={links}
         ctaText={siteData?.headerCtaText || t.cta.getStarted}
-        ctaHref={siteData?.headerCtaUrl || "#get-started"}
+        ctaHref={siteData?.headerCtaUrl || `/${locale}/`}
         secondaryText={siteData?.headerSecondaryText || undefined}
         secondaryHref={siteData?.headerSecondaryUrl || undefined}
         user={user}

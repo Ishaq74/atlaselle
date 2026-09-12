@@ -4,13 +4,13 @@ import { avatar1, avatar2, avatar3 } from '../../assets/images/avatars';
 
 export default {
   meta: {
-    title: 'À Propos – KLAN',
-    description: 'Découvrez l\'histoire, la mission et l\'équipe derrière KLAN. Nous bâtissons ensemble une civilisation par strates.',
+    title: 'À Propos – ATLASELLE',
+    description: 'Découvrez l\'histoire, la mission et l\'équipe derrière ATLASELLE. Nous bâtissons ensemble une civilisation par strates.',
   },
   hero: {
     eyebrow: 'Notre histoire',
     title: 'Bâtir une civilisation par strates',
-    description: 'KLAN est né d\'une conviction : chaque génération se construit sur les fondations laissées par celles qui l\'ont précédée. Notre mission est de structurer cette transmission pour que chaque strate de savoir, de culture et d\'expérience soit préservée et accessible.',
+    description: 'ATLASELLE est né d\'une conviction : chaque génération se construit sur les fondations laissées par celles qui l\'ont précédée. Notre mission est de structurer cette transmission pour que chaque strate de savoir, de culture et d\'expérience soit préservée et accessible.',
   },
   mission: {
     eyebrow: 'Notre raison d\'être',
@@ -32,7 +32,7 @@ export default {
   values: {
     eyebrow: 'Ce qui nous définit',
     title: 'Nos Valeurs',
-    description: 'Les principes fondateurs qui guident KLAN au quotidien.',
+    description: 'Les principes fondateurs qui guident ATLASELLE au quotidien.',
     items: [
       {
         title: 'Héritage',
@@ -48,7 +48,7 @@ export default {
       },
       {
         title: 'Communauté',
-        description: 'Seul on va vite, ensemble on va loin. KLAN place la communauté au centre de tout. C\'est dans le collectif que naissent les projets les plus ambitieux et les plus durables.',
+        description: 'Seul on va vite, ensemble on va loin. ATLASELLE place la communauté au centre de tout. C\'est dans le collectif que naissent les projets les plus ambitieux et les plus durables.',
         image: houseCivilization,
         value: 'community',
       },
@@ -63,7 +63,7 @@ export default {
   team: {
     eyebrow: 'Les bâtisseurs',
     title: 'Notre Équipe',
-    description: 'Des passionnés qui œuvrent chaque jour pour donner vie à la vision de KLAN.',
+    description: 'Des passionnés qui œuvrent chaque jour pour donner vie à la vision de ATLASELLE.',
     members: [
       {
         name: 'Youssef Mansouri',
@@ -100,7 +100,7 @@ export default {
       {
         name: 'Sarah Dupont',
         role: 'Responsable Communauté',
-        bio: 'Animatrice de communautés engagée, elle tisse les liens entre les membres de KLAN.',
+        bio: 'Animatrice de communautés engagée, elle tisse les liens entre les membres de ATLASELLE.',
         image: avatar1,
         socials: [
           { name: 'LinkedIn', icon: 'linkedin', href: '#' },
@@ -111,9 +111,9 @@ export default {
     ],
   },
   cta: {
-    title: 'Rejoignez l\'aventure KLAN',
+    title: 'Rejoignez l\'aventure ATLASELLE',
     description: 'Devenez acteur de cette construction collective. Chaque pierre compte dans l\'édifice commun.',
-    primaryButton: { text: 'Rejoindre KLAN', href: '#' },
+    primaryButton: { text: 'Rejoindre ATLASELLE', href: '#' },
     secondaryButton: { text: 'Nous contacter', href: '#' },
   },
 } satisfies AboutTranslations;

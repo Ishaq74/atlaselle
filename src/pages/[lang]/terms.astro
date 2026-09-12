@@ -1,0 +1,7 @@
+---
+import { toLocale } from "@i18n/utils";
+import BaseLayout from "@layouts/BaseLayout.astro";
+const locale = toLocale(Astro.params.lang);
+const content = locale === "fr" ? {title:"Conditions de voyage",text:"Votre réservation est confirmée après acceptation de votre candidature et réception de l’acompte. Les conditions définitives, assurances, annulations et informations de sécurité vous sont communiquées avant paiement."} : locale === "ar" ? {title:"شروط السفر",text:"يتأكد حجزك بعد قبول طلبك واستلام الدفعة المقدمة. نرسل لك الشروط النهائية والتأمينات والإلغاءات ومعلومات السلامة قبل الدفع."} : {title:"Travel terms",text:"Your reservation is confirmed after your application is accepted and the deposit is received. Final conditions, insurance, cancellations and safety information are supplied before payment."};
+---
+<BaseLayout title={`${content.title} — ATLASELLE`} description={content.text}><section class="mx-auto max-w-3xl px-6 py-20"><h1 class="text-4xl font-bold">{content.title}</h1><p class="mt-8 text-lg leading-relaxed text-muted-foreground">{content.text}</p></section></BaseLayout>

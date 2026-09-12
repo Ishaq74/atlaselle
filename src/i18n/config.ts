@@ -2,7 +2,7 @@ import type { ImageMetadata } from 'astro';
 
 export const LOCALES = ['fr', 'en', 'es', 'ar'] as const;
 export type Locale = (typeof LOCALES)[number];
-export const DEFAULT_LOCALE: Locale = 'fr';
+export const DEFAULT_LOCALE: Locale = 'en';
 export const RTL_LOCALES: Locale[] = ['ar'];
 
 export const LOCALE_LABELS: Record<Locale, string> = {
