@@ -35,7 +35,7 @@ export default defineConfig({
 
   i18n: {
     locales: ['fr', 'en', 'es', 'ar'],
-    defaultLocale: 'fr',
+    defaultLocale: 'en',
     routing: {
       prefixDefaultLocale: true,
       redirectToDefaultLocale: true,
@@ -52,7 +52,7 @@ export default defineConfig({
         `${process.env.SITE_URL || 'http://localhost:4321'}/sitemap-cms.xml`,
       ],
       i18n: {
-        defaultLocale: 'fr',
+        defaultLocale: 'en',
         locales: {
           fr: 'fr-FR',
           en: 'en-US',

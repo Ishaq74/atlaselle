@@ -14,7 +14,6 @@ import { safeUrl } from '@lib/sanitize';
 import IconLogout from '@tabler/icons/outline/logout.svg';
 import IconDashboard from '@tabler/icons/outline/layout-dashboard.svg';
 import IconShield from '@tabler/icons/outline/shield.svg';
-import IconBuilding from '@tabler/icons/outline/building.svg';
 
 interface Props {
   user: App.Locals['user'];
@@ -27,7 +26,6 @@ const { user, authTranslations: authT, locale } = Astro.props;
 const signInUrl = getAuthUrl(locale, 'sign-in', authT);
 const dashboardUrl = getAuthUrl(locale, 'dashboard', authT);
 const adminUrl = getAuthUrl(locale, 'admin', authT);
-const organizationsUrl = getAuthUrl(locale, 'organizations', authT);
 
 const initials = user?.name
   ? user.name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
@@ -54,10 +52,6 @@ const initials = user?.name
       <DropdownItem as="a" href={dashboardUrl}>
         <IconDashboard class="size-4" />
         {authT.userMenu.dashboard}
-      </DropdownItem>
-      <DropdownItem as="a" href={organizationsUrl}>
-        <IconBuilding class="size-4" />
-        {authT.userMenu.organizations}
       </DropdownItem>
       {user.role === 'admin' && (
         <DropdownItem as="a" href={adminUrl}>

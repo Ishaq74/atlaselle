@@ -11,7 +11,6 @@ import ForgotPasswordPage from '@pages/auth/ForgotPasswordPage.astro';
 import ResetPasswordPage from '@pages/auth/ResetPasswordPage.astro';
 import VerifyEmailPage from '@pages/auth/VerifyEmailPage.astro';
 import ProfilePage from '@pages/auth/ProfilePage.astro';
-import { fetchUserOrganizations, fetchUserInvitations, type Invitation } from '@/lib/auth-data';
 
 export const prerender = false;
 
@@ -30,18 +29,7 @@ const user = Astro.locals.user;
 if (pageId === 'admin') {
   return Astro.redirect(`/${locale}/admin/stats`);
 }
-if (pageId === 'organizations') {
-  const orgSlug = Astro.url.searchParams.get('org');
-  if (orgSlug) {
-    return Astro.redirect(
-      `/${locale}/organizations/${orgSlug}/members` +
-      (Astro.url.searchParams.get('invitation')
-        ? `?invitation=${encodeURIComponent(Astro.url.searchParams.get('invitation')!)}`
-        : '')
-    );
-  }
-  return Astro.redirect(`/${locale}/auth/${authT.routes['dashboard']}`);
-}
+if (pageId === 'organizations') return Astro.redirect(`/${locale}/auth/${authT.routes['dashboard']}`);
 
 // Route protection
 const isGuest = !user;
@@ -55,18 +43,6 @@ if ((pageId === 'dashboard' || pageId === 'profile') && isGuest) {
 }
 
 // reset-password and verify-email are accessible to anyone (token-based)
-
-// ─── Dashboard: server-side data fetching ───
-let organizations: unknown[] = [];
-let userInvitations: Invitation[] = [];
-
-if (pageId === 'dashboard' && user) {
-  const headers = Astro.request.headers;
-  [organizations, userInvitations] = await Promise.all([
-    fetchUserOrganizations(headers),
-    fetchUserInvitations(headers),
-  ]);
-}
 
 const metaKeys: Record<string, keyof typeof authT.meta> = {
   'sign-in': 'signIn',
@@ -97,10 +73,7 @@ const Page = pages[pageId as FlowPageId];
 if (!Page) return Astro.redirect(`/${locale}/`);
 
 // Build extra props
-const extraProps = pageId === 'dashboard' ? {
-  organizations,
-  userInvitations,
-} : {};
+const extraProps = {};
 
 const needsSidebar = pageId === 'dashboard' || pageId === 'profile';
 ---

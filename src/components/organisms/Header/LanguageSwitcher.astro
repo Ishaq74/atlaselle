@@ -3,6 +3,7 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import { Icon } from 'astro-icon/components';
 import { LOCALES, LOCALE_LABELS, type Locale } from '@i18n/config';
 import { toLocale } from '@i18n/utils';
+import { getTripBySlug, tripUrl } from '@/data/trips';
 import {
   Dropdown,
   DropdownContent,
@@ -27,6 +28,21 @@ const { label = 'Switch language' } = Astro.props;
 
 // Extract the path after the locale prefix (e.g. /fr/about → /about)
 const pathWithoutLocale = currentPath.replace(new RegExp(`^/${currentLocale}(?=/|$)`), '') || '/';
+
+function localizedHref(loc: Locale): string {
+  const tripMatch = currentPath.match(/^\/(?:en|fr|es|ar)\/(?:trips|voyages)\/([^/]+)$/);
+  if (tripMatch) {
+    const trip = getTripBySlug(currentLocale, tripMatch[1]);
+    if (trip) return tripUrl(loc, trip);
+  }
+  const isApply = currentPath.match(/^\/(?:en|fr|es|ar)\/(?:apply|candidature)\/([^/]+)$/);
+  if (isApply) {
+    const trip = getTripBySlug(currentLocale, isApply[1]);
+    if (trip) return loc === 'fr' ? `/fr/candidature/${trip.translations.fr.slug}` : `/${loc}/apply/${loc === 'es' ? trip.id : trip.translations[loc as Exclude<Locale, 'es'>].slug}`;
+  }
+  if (pathWithoutLocale === '/conditions' || pathWithoutLocale === '/terms') return loc === 'fr' ? '/fr/conditions' : `/${loc}/terms`;
+  return getRelativeLocaleUrl(loc, pathWithoutLocale);
+}
 ---
 
 <Dropdown>
@@ -39,7 +55,7 @@ const pathWithoutLocale = currentPath.replace(new RegExp(`^/${currentLocale}(?=/
   <DropdownContent align="end">
     {LOCALES.map((loc: Locale) => {
       const isActive = loc === currentLocale;
-      const href = getRelativeLocaleUrl(loc, pathWithoutLocale);
+      const href = localizedHref(loc);
       return (
         <DropdownItem
           as="a"

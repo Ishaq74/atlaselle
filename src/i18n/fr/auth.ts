@@ -2,15 +2,15 @@ import type { AuthTranslations } from '../config';
 
 export default {
   meta: {
-    signIn: { title: 'Connexion — Atomic', description: 'Connectez-vous à votre compte.' },
-    signUp: { title: 'Inscription — Atomic', description: 'Créez votre compte.' },
-    dashboard: { title: 'Tableau de bord — Atomic', description: 'Gérez votre compte et vos organisations.' },
-    admin: { title: 'Administration — Atomic', description: 'Panneau d\'administration.' },
-    forgotPassword: { title: 'Mot de passe oublié — Atomic', description: 'Réinitialisez votre mot de passe.' },
-    resetPassword: { title: 'Réinitialiser le mot de passe — Atomic', description: 'Choisissez un nouveau mot de passe.' },
-    verifyEmail: { title: 'Vérification de l\'email — Atomic', description: 'Confirmez votre adresse email.' },
-    profile: { title: 'Mon profil — Atomic', description: 'Gérez vos informations personnelles.' },
-    organizations: { title: 'Organisations — Atomic', description: 'Gérez vos organisations.' },
+    signIn: { title: 'Connexion — ATLASELLE', description: 'Connectez-vous à votre compte.' },
+    signUp: { title: 'Inscription — ATLASELLE', description: 'Créez votre compte.' },
+    dashboard: { title: 'Tableau de bord — ATLASELLE', description: 'Gérez votre compte et vos organisations.' },
+    admin: { title: 'Administration — ATLASELLE', description: 'Panneau d\'administration.' },
+    forgotPassword: { title: 'Mot de passe oublié — ATLASELLE', description: 'Réinitialisez votre mot de passe.' },
+    resetPassword: { title: 'Réinitialiser le mot de passe — ATLASELLE', description: 'Choisissez un nouveau mot de passe.' },
+    verifyEmail: { title: 'Vérification de l\'email — ATLASELLE', description: 'Confirmez votre adresse email.' },
+    profile: { title: 'Mon profil — ATLASELLE', description: 'Gérez vos informations personnelles.' },
+    organizations: { title: 'Organisations — ATLASELLE', description: 'Gérez vos organisations.' },
   },
   routes: {
     'sign-in': 'connexion',

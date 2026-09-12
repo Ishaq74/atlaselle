@@ -7,7 +7,7 @@ export default {
     badge: 'Bâtir ensemble',
     title: 'La civilisation se construit par strates',
     description:
-      'KLAN accompagne les communautés qui bâtissent sur l\'héritage de ceux qui les ont précédées. Chaque génération ajoute sa pierre à l\'édifice commun.',
+      'ATLASELLE accompagne les communautés qui bâtissent sur l\'héritage de ceux qui les ont précédées. Chaque génération ajoute sa pierre à l\'édifice commun.',
     ctaPrimary: 'Rejoindre le mouvement',
     ctaSecondary: 'Découvrir notre vision',
     socialProofHeading: 'Rejoignez 10 000+ bâtisseurs',
@@ -25,7 +25,7 @@ export default {
   ],
   pillars: {
     badge: 'Piliers fondateurs',
-    title: 'Les fondations de KLAN',
+    title: 'Les fondations de ATLASELLE',
     description: 'Quatre principes guident notre mission de construction collective.',
     items: [
       { icon: 'mdi:account-group', title: 'Communauté', description: 'Rassembler ceux qui partagent une vision commune et bâtissent ensemble.' },
@@ -36,20 +36,20 @@ export default {
   },
   testimonials: {
     badge: 'Témoignages',
-    heading: 'Ils bâtissent avec KLAN',
+    heading: 'Ils bâtissent avec ATLASELLE',
     description: 'Découvrez comment notre communauté de bâtisseurs construit l\'avenir ensemble.',
     items: [
       {
         name: 'Amina Belkacem',
         role: 'Fondatrice, Collectif Racines',
-        content: 'KLAN nous a permis de structurer notre transmission intergénérationnelle. Chaque strate de savoir est préservée et accessible.',
+        content: 'ATLASELLE nous a permis de structurer notre transmission intergénérationnelle. Chaque strate de savoir est préservée et accessible.',
         rating: 5,
         image: avatar1,
       },
       {
         name: 'Youssef Mansouri',
         role: 'Directeur, Institut Mémoire',
-        content: 'La vision de KLAN résonne profondément avec notre mission. Bâtir sur les fondations de ceux qui nous ont précédés.',
+        content: 'La vision de ATLASELLE résonne profondément avec notre mission. Bâtir sur les fondations de ceux qui nous ont précédés.',
         rating: 5,
         image: avatar2,
       },
@@ -63,7 +63,7 @@ export default {
       {
         name: 'Karim Ouadah',
         role: 'Architecte, Alliance Bâtisseurs',
-        content: 'KLAN incarne ce que devrait être toute plateforme communautaire : un édifice collectif où chacun apporte sa pierre.',
+        content: 'ATLASELLE incarne ce que devrait être toute plateforme communautaire : un édifice collectif où chacun apporte sa pierre.',
         rating: 5,
         image: avatar1,
       },
@@ -112,8 +112,8 @@ export default {
   },
   ctaBanner: {
     title: 'Prêt à bâtir votre strate ?',
-    description: 'Rejoignez des milliers de bâtisseurs qui construisent l\'avenir ensemble avec KLAN.',
-    primaryButton: { text: 'Rejoindre KLAN', href: '#' },
+    description: 'Rejoignez des milliers de bâtisseurs qui construisent l\'avenir ensemble avec ATLASELLE.',
+    primaryButton: { text: 'Rejoindre ATLASELLE', href: '#' },
     secondaryButton: { text: 'En savoir plus →', href: '#' },
   },
 } satisfies HomeTranslations;

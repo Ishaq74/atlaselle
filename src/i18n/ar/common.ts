@@ -2,8 +2,8 @@ import type { CommonTranslations } from '../config';
 
 export default {
   meta: {
-    title: 'Starwind Pro — سرّع عملية التطوير',
-    description: 'أنشئ تطبيقات جاهزة للإنتاج في نصف الوقت.',
+    title: 'ATLASELLE — رحلات ثقافية لمجموعات صغيرة',
+    description: 'رحلات مصممة بعناية عبر أفريقيا والبحر المتوسط.',
   },
   pageRoutes: {
     about: 'من-نحن',
@@ -55,7 +55,7 @@ export default {
     },
   },
   rss: {
-    title: 'Starwind Pro \u2014 خلاصة RSS',
-    description: 'أحدث المحتويات المنشورة على Starwind Pro',
+    title: 'ATLASELLE \u2014 خلاصة RSS',
+    description: 'أحدث المحتويات المنشورة على ATLASELLE',
   },
 } satisfies CommonTranslations;
