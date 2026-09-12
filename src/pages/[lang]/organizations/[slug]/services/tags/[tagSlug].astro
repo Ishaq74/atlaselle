@@ -1,0 +1,27 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { getDrizzle } from "@database/drizzle";
+import { organization } from "@database/schemas";
+import { eq } from "drizzle-orm";
+import { getServices, getServiceTags } from "@/modules/services/loaders";
+import ServicesListingPage from "@/modules/services/components/lists/ServicesListingPage.astro";
+import { getServiceTranslations } from "@/modules/services/i18n";
+import type { Locale } from "@i18n/config";
+export const prerender = false;
+const locale = (Astro.params.lang ?? "fr") as Locale;
+const orgSlug = Astro.params.slug!;
+const tagSlug = Astro.params.tagSlug!;
+const page = Math.max(1, Number(Astro.url.searchParams.get("page") ?? "1") || 1);
+const db = getDrizzle();
+const [org] = await db.select({ id: organization.id, name: organization.name, slug: organization.slug }).from(organization).where(eq(organization.slug, orgSlug)).limit(1);
+if (!org) return Astro.redirect(`/${locale}/services`);
+const t = getServiceTranslations(locale);
+const tags = await getServiceTags(locale, org.id);
+const tag = tags.find((row) => (row.translation?.slug ?? row.tag.slug) === tagSlug);
+if (!tag) return Astro.redirect(`/${locale}/organizations/${orgSlug}/services`);
+const data = await getServices({ organizationId: org.id, tagId: tag.tag.id, page }, locale, true);
+const title = `#${tag.translation?.name ?? tag.tag.slug}`;
+---
+<BaseLayout title={`${title} - ${org.name}`} description={t.meta.description}>
+  <main><ServicesListingPage locale={locale} title={title} items={data.items} meta={data} baseUrl={`/${locale}/organizations/${org.slug}/services/tags/${tagSlug}`} organizationSlug={org.slug} organizationName={org.name} activeTagSlug={tagSlug} /></main>
+</BaseLayout>

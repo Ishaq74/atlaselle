@@ -1,0 +1,86 @@
+[dotenv@17.3.1] injecting env (15) from .env -- tip: ÔÜÖ´©Å  load multiple .env files with { path: ['.env.local', '.env'] }
+
+Running 14 tests using 1 worker
+
+[1A[2K[1/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:385:3 ÔÇ║ Blog surfaces ÔÇ║ global public blog shows the global post only
+[1A[2K[chromium] ÔÇ║ tests\e2e\blog.spec.ts:385:3 ÔÇ║ Blog surfaces ÔÇ║ global public blog shows the global post only
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  write to custom object with { processEnv: myObject }
+
+[1A[2K[2/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:399:3 ÔÇ║ Blog surfaces ÔÇ║ global public blog post detail redirects to the canonical category URL
+[1A[2K[3/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:407:3 ÔÇ║ Blog surfaces ÔÇ║ organization public blog shows the org post only
+[1A[2K[4/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:421:3 ÔÇ║ Blog surfaces ÔÇ║ organization public blog post detail redirects to the canonical category URL
+[1A[2K[5/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:429:3 ÔÇ║ Blog surfaces ÔÇ║ global admin blog shows global tenant posts
+[1A[2K[6/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:445:3 ÔÇ║ Blog surfaces ÔÇ║ organization admin blog shows org tenant posts
+[1A[2K[7/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:461:3 ÔÇ║ Blog surfaces ÔÇ║ global admin can create and edit a draft workflow post
+[1A[2K[8/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:494:3 ÔÇ║ Blog surfaces ÔÇ║ global admin can publish the workflow post and it appears on the public blog
+[1A[2K[9/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:528:3 ÔÇ║ Blog surfaces ÔÇ║ guest comment stays pending until moderation
+[1A[2K[10/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:549:3 ÔÇ║ Blog surfaces ÔÇ║ global admin can approve the pending comment and it becomes public
+[1A[2K[11/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:573:3 ÔÇ║ Blog surfaces ÔÇ║ authenticated user can submit a pending review and a reaction on the global post
+[1A[2K[12/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:605:3 ÔÇ║ Blog surfaces ÔÇ║ global admin can approve the review and the helpful vote persists
+[1A[2K[13/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:647:3 ÔÇ║ Blog surfaces ÔÇ║ global admin can delete the workflow post and it disappears from public pages
+[1A[2K[14/14] [chromium] ÔÇ║ tests\e2e\blog.spec.ts:674:3 ÔÇ║ Blog surfaces ÔÇ║ organization admin can create publish isolate and delete an organization workflow post
+[1A[2K[15/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:385:3 ÔÇ║ Blog surfaces ÔÇ║ global public blog shows the global post only (retry #1)
+[1A[2K[dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  load multiple .env files with { path: ['.env.local', '.env'] }
+
+[1A[2K  1) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:385:3 ÔÇ║ Blog surfaces ÔÇ║ global public blog shows the global post only 
+
+    Error: No session cookie returned for seeded admin user
+
+      77 |   if (!setCookie.length) {
+      78 |     await context.close();
+    > 79 |     throw new Error('No session cookie returned for seeded admin user');
+         |           ^
+      80 |   }
+      81 |
+      82 |   await context.addCookies(setCookie.map(parseSetCookie));
+        at createAdminStorageState (C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:79:11)
+        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:360:25
+
+
+[1A[2K[16/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:399:3 ÔÇ║ Blog surfaces ÔÇ║ global public blog post detail redirects to the canonical category URL (retry #1)
+[1A[2K[17/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:407:3 ÔÇ║ Blog surfaces ÔÇ║ organization public blog shows the org post only (retry #1)
+[1A[2K[18/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:421:3 ÔÇ║ Blog surfaces ÔÇ║ organization public blog post detail redirects to the canonical category URL (retry #1)
+[1A[2K[19/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:429:3 ÔÇ║ Blog surfaces ÔÇ║ global admin blog shows global tenant posts (retry #1)
+[1A[2K[20/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:445:3 ÔÇ║ Blog surfaces ÔÇ║ organization admin blog shows org tenant posts (retry #1)
+[1A[2K[21/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:461:3 ÔÇ║ Blog surfaces ÔÇ║ global admin can create and edit a draft workflow post (retry #1)
+[1A[2K  2) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:461:3 ÔÇ║ Blog surfaces ÔÇ║ global admin can create and edit a draft workflow post 
+
+    Retry #1 ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open 'C:\Users\Utilisateur\Documents\atomic\test-results\.playwright-artifacts-1\traces\a378e5ce917615b4b643-868b69004e33a5dc8fd5-retry1-recording7.trace'
+
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open 'C:\Users\Utilisateur\Documents\atomic\test-results\.playwright-artifacts-1\traces\a378e5ce917615b4b643-868b69004e33a5dc8fd5-retry1-recording7.trace'
+
+    Error: browserContext.close: Target page, context or browser has been closed
+
+      488 |       await expect.poll(async () => getTranslationTitle(seeded.globalWorkflow.id!)).toBe(seeded.globalWorkflow.editedTitle);
+      489 |     } finally {
+    > 490 |       await context.close();
+          |       ^
+      491 |     }
+      492 |   });
+      493 |
+        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:490:7
+
+    Error: ENOENT: no such file or directory, open 'C:\Users\Utilisateur\Documents\atomic\test-results\.playwright-artifacts-1\d1c6cd9a59f42a8b5517845a0bdfaa50.zip'
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+
+[1A[2K[22/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:494:3 ÔÇ║ Blog surfaces ÔÇ║ global admin can publish the workflow post and it appears on the public blog (retry #1)
+[1A[2K[23/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:528:3 ÔÇ║ Blog surfaces ÔÇ║ guest comment stays pending until moderation (retry #1)
+[1A[2K[24/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:549:3 ÔÇ║ Blog surfaces ÔÇ║ global admin can approve the pending comment and it becomes public (retry #1)
+[1A[2K[25/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:573:3 ÔÇ║ Blog surfaces ÔÇ║ authenticated user can submit a pending review and a reaction on the global post (retry #1)
+[1A[2K[26/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:605:3 ÔÇ║ Blog surfaces ÔÇ║ global admin can approve the review and the helpful vote persists (retry #1)
+[1A[2K[27/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:647:3 ÔÇ║ Blog surfaces ÔÇ║ global admin can delete the workflow post and it disappears from public pages (retry #1)
+[1A[2K[28/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:674:3 ÔÇ║ Blog surfaces ÔÇ║ organization admin can create publish isolate and delete an organization workflow post (retry #1)
+[1A[2K  1 failed
+    [chromium] ÔÇ║ tests\e2e\blog.spec.ts:461:3 ÔÇ║ Blog surfaces ÔÇ║ global admin can create and edit a draft workflow post 
+  1 flaky
+    [chromium] ÔÇ║ tests\e2e\blog.spec.ts:385:3 ÔÇ║ Blog surfaces ÔÇ║ global public blog shows the global post only 
+  7 did not run
+  5 passed (1.8m)
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m

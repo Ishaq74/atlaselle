@@ -1,0 +1,224 @@
+---
+title: Payload CMS & Astro
+description: Ajouter du contenu à votre projet Astro en utilisant Payload comme CMS
+sidebar:
+  label: Payload CMS
+type: cms
+stub: true
+logo: payload
+i18nReady: true
+---
+
+
+[PayloadCMS](https://payloadcms.com/) est un système de gestion de contenu open-source qui peut être utilisé pour fournir du contenu à votre projet Astro.
+
+## Intégration avec Astro
+
+### Prérequis
+
+1. **Un projet Astro** - Si vous n'avez pas encore de projet Astro, notre [guide d'installation](/fr/install-and-setup/) vous permettra d'être opérationnel en un rien de temps.
+2. **Une base de données MongoDB** - PayloadCMS vous demandera une chaîne de connexion MongoDB lors de la création d'un nouveau projet. Vous pouvez en installer une localement ou utiliser [MongoDBAtlas](https://www.mongodb.com/) pour héberger une base de données sur le web gratuitement.
+3. **Une API REST PayloadCMS** - Créez un projet [PayloadCMS](https://payloadcms.com/docs/getting-started/installation) et connectez-le à votre base de données MongoDB pendant l'installation.
+
+:::note[Choix d'un modèle]
+Lors de l'installation de PayloadCMS, il vous sera demandé si vous souhaitez utiliser un modèle.
+
+Le choix d'un des modèles disponibles à cette étape (tel que 'blog') génère automatiquement des collections supplémentaires que vous pouvez utiliser. Sinon, vous devrez créer manuellement vos collections PayloadCMS.
+:::
+
+### Configurer Astro pour votre collection PayloadCMS
+
+Votre modèle de projet Payload contiendra un fichier appelé Posts.ts dans `src/collections/`. Si vous n'avez pas choisi un modèle lors de l'installation qui a créé une collection de contenu pour vous, vous pouvez créer une nouvelle collection Payload CMS en ajoutant ce fichier de configuration manuellement. L'exemple ci-dessous montre ce fichier pour une collection appelée `posts` qui nécessite les champs `title`, `content` et `slug` :
+
+```ts title="src/collections/Posts.ts"
+import { CollectionConfig } from "payload/types";
+
+const Posts: CollectionConfig = {
+  slug: "posts",
+  admin: {
+    useAsTitle: "title",
+  },
+  access: {
+    read: () => true,
+  },
+
+  fields: [
+    {
+      name: "title",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "content",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "slug",
+      type: "text",
+      required: true,
+    },
+  ],
+};
+
+export default Posts;
+```
+
+
+1. Importez et ajoutez `Users` (disponible dans tous les projets PayloadCMS) et toutes les autres collections (par exemple `Posts`) aux collections disponibles dans le fichier `payload.config.ts`.
+    ```ts title="src/payload.config.ts" ins={4, 5, 12}
+    import { buildConfig } from "payload/config";
+    import path from "path";
+
+    import Users from "./collections/Users";
+    import Posts from "./collections/Posts";
+
+    export default buildConfig({
+      serverURL: "http://localhost:4321",
+      admin: {
+        user: Users.slug,
+      },
+      collections: [Users, Posts],
+      typescript: {
+        outputFile: path.resolve(__dirname, "payload-types.ts"),
+      },
+      graphQL: {
+        schemaOutputFile: path.resolve(__dirname, "generated-schema.graphql"),
+      },
+    });
+    ```
+
+    Une nouvelle collection appelée « Posts » apparaîtra dans votre tableau de bord PayloadCMS à côté de la collection « Users ». 
+
+2. Entrez dans la collection « Posts » et créez un nouveau message. Après l'avoir enregistré, vous remarquerez que l'URL de l'API apparaît dans le coin inférieur droit.
+
+3. Avec le serveur de développement en cours d'exécution, ouvrez `http://localhost:4321/api/posts` dans votre navigateur. Vous devriez voir un fichier JSON contenant le message que vous avez créé en tant qu'objet.
+    ```json
+    {
+      "docs":[
+          {
+            "id":"64098b16483b0f06a7e20ed4",
+            "title":"Astro & PayloadCMS Title 🚀",
+            "content":"Astro & PayloadCMS Content",
+            "slug":"astro-payloadcms-slug",
+            "createdAt":"2023-03-09T07:30:30.837Z",
+            "updatedAt":"2023-03-09T07:30:30.837Z"
+          }
+      ],
+      "totalDocs":1,
+      "limit":10,
+      "totalPages":1,
+      "page":1,
+      "pagingCounter":1,
+      "hasPrevPage":false,
+      "hasNextPage":false,
+      "prevPage":null,
+      "nextPage":null
+    }
+    ```
+
+
+:::tip
+Par défaut, Astro et PayloadCMS utilisent le port 4321. Vous pouvez changer le port de PayloadCMS dans le fichier `src/server.ts`. N'oubliez pas de mettre à jour le `serverURL` dans `src/payload.config.ts` également.
+:::
+
+### Récupérer des données
+
+Récupérez les données de PayloadCMS via l'URL unique de l'API REST de votre site et la route de votre contenu (par défaut, PayloadCMS monte toutes les routes via `/api`). Ensuite, vous pouvez rendre les propriétés de vos données en utilisant la directive Astro `set:html=""`.
+
+Avec votre article, PayloadCMS renverra des métadonnées de premier niveau. Les documents réels sont imbriqués dans le tableau `docs`.
+
+Par exemple, pour afficher une liste de titres d'articles et leur contenu :
+
+```astro title="src/pages/index.astro"
+---
+import HomeLayout from "../layouts/HomeLayout.astro";
+
+const res = await fetch("http://localhost:5000/api/posts") // http://localhost:4321/api/posts par défaut
+const posts = await res.json()
+---
+
+<HomeLayout title='Blog Astro'>
+	{
+    posts.docs.map((post) => (
+        <h2 set:html={post.title} />
+        <p set:html={post.content} />
+    ))
+	}
+</HomeLayout>
+```
+
+## Créer un blog avec PayloadCMS et Astro
+
+Créez une page d'index de blog `src/pages/index.astro` pour lister chacun de vos articles avec un lien vers sa propre page.
+
+La recherche via l'API renvoie un tableau d'objets (posts) qui incluent, entre autres, les propriétés suivantes :
+
+- `title`
+- `content`
+- `slug`
+
+```astro title="src/pages/index.astro"
+---
+import HomeLayout from "../layouts/HomeLayout.astro";
+
+const res = await fetch("http://localhost:5000/api/posts") // http://localhost:4321/api/posts par défaut
+const posts = await res.json()
+---
+
+<HomeLayout title='Astro Blog'>
+	<h1>Astro + PayloadCMS 🚀</h1>
+	<h2>Liste d'articles de blog :</h2>
+	<ul>
+		{
+			posts.docs.map((post) =>(
+				<li>
+					<a href={`posts/${post.slug}`} set:html={post.title} />
+				</li>
+			))
+		}
+	</ul>
+</HomeLayout>
+```
+
+### Utiliser l'API PayloadCMS pour générer des pages
+
+Créer une page `src/pages/posts/[slug].astro` pour [générer dynamiquement une page](/fr/guides/routing/#routes-dynamiques) pour chaque article.
+
+```astro title="src/pages/posts/[slug].astro"
+---
+import PostLayout from "../../layouts/PostLayout.astro"
+
+const {title, content} = Astro.props
+
+// La fonction getStaticPaths() est nécessaire pour les sites statiques sous Astro.
+// Si vous utilisez le SSR, vous n'aurez pas besoin de cette fonction.
+export async function getStaticPaths() {
+    let data = await fetch("http://localhost:5000/api/posts")
+    let posts = await data.json()
+
+    return posts.docs.map((post) => {
+        return {
+            params: {slug: post.slug},
+            props: {title: post.title, content: post.content},
+        };
+    });
+} 
+---
+<PostLayout title={title}>
+    <article>
+        <h1 set:html={title} />
+        <p set:html={content} />
+    </article>
+</PostLayout>
+```
+
+### Publier votre site
+
+Pour déployer votre site, consultez notre [guide de déploiement](/fr/guides/deploy/) et suivez les instructions de votre hébergeur préféré.
+
+## Ressources communautaires 
+
+- Découvrez [l'intégration Astro officielle du CMS Payload](https://github.com/payloadcms/payload/tree/main/examples/astro).
+- Essayez ce [template Payload CMS & Astro](https://github.com/Lambdo-Labs/payloadcms-astro-template).
+- Consultez [Astroad](https://github.com/mooxl/astroad) pour un développement facile et un déploiement VPS avec Docker.

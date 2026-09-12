@@ -1,0 +1,809 @@
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════
+  LIGHTHOUSE CI PERFORMANCE & QUALITY REPORT
+  Generated: 2026-09-06 18:05:55
+  Pages audited: 36
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  CATEGORY SCORES
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Page                                    Perf  A11y  BP    SEO
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ✅ ar--auth--انشاء-حساب                  99    100   93    92
+  ✅ ar--auth--تسجيل-الدخول                99    100   93    92
+  ✅ ar--auth--نسيت-كلمة-المرور            97    100   93    92
+  ✅ ar--blog                              99    95    93    85
+  ❌ ar--home                              88    100   93    92
+  ✅ ar--اتصل-بنا                          91    100   93    85
+  ✅ ar--الشروط-القانونية                  97    100   93    85
+  ❌ ar--من-نحن                            81    100   93    85
+  ❌ en--about                             83    100   93    85
+  ✅ en--auth--forgot-password             99    100   93    92
+  ✅ en--auth--sign-in                     99    100   93    92
+  ✅ en--auth--sign-up                     97    100   93    92
+  ✅ en--blog                              98    95    93    85
+  ✅ en--contact                           97    100   93    92
+  ❌ en--home                              87    100   93    92
+  ✅ en--legal-notice                      96    100   93    85
+  ❌ es--acerca-de                         86    100   93    85
+  ✅ es--auth--contrasena-olvidada         99    100   93    92
+  ✅ es--auth--iniciar-sesion              95    100   93    92
+  ✅ es--auth--registro                    99    100   93    92
+  ✅ es--aviso-legal                       96    100   93    85
+  ✅ es--blog                              99    95    93    85
+  ✅ es--contacto                          92    100   93    85
+  ✅ es--home                              90    100   93    92
+  ❌ fr--a-propos                          78    100   93    92
+  ✅ fr--admin--navigation                 98    97    93    61
+  ✅ fr--admin--site                       91    100   93    61
+  ✅ fr--admin--stats                      99    100   93    61
+  ✅ fr--admin--theme                      92    100   93    61
+  ✅ fr--auth--connexion                   99    100   93    92
+  ✅ fr--auth--inscription                 98    100   93    92
+  ✅ fr--auth--mot-de-passe-oublie         99    100   93    92
+  ✅ fr--blog                              98    95    93    85
+  ✅ fr--contact                           98    100   93    92
+  ❌ fr--home                              76    100   93    92
+  ✅ fr--mentions-legales                  98    100   93    85
+
+  CORE WEB VITALS
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Page                                    FCP       LCP       SI        TBT       CLS
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ar--auth--انشاء-حساب                    🟢602ms   🟢922ms   🟢602ms   🟢0ms     🟢0.000   
+  ar--auth--تسجيل-الدخول                  🟢523ms   🟢923ms   🟢523ms   🟢0ms     🟢0.000   
+  ar--auth--نسيت-كلمة-المرور              🟢841ms   🟢1.2s    🟢841ms   🟢0ms     🟢0.000   
+  ar--blog                                🟢626ms   🟢906ms   🟢760ms   🟢0ms     🟢0.000   
+  ar--home                                🟢1.1s    🟢1.5s    🟢2.3s    🟢0ms     🟢0.000   
+  ar--اتصل-بنا                            🟢963ms   🟢1.6s    🟢1.5s    🟢0ms     🟢0.006   
+  ar--الشروط-القانونية                    🟢682ms   🟢882ms   🟢682ms   🟢0ms     🟢0.094   
+  ar--من-نحن                              🟢939ms   🟢1.8s    🟢2.6s    🟢175ms   🟢0.008   
+  en--about                               🟢979ms   🟢2.1s    🟢2.6s    🟢0ms     🟢0.002   
+  en--auth--forgot-password               🟢596ms   🟢996ms   🟢596ms   🟢0ms     🟢0.000   
+  en--auth--sign-in                       🟢641ms   🟢921ms   🟢641ms   🟢0ms     🟢0.000   
+  en--auth--sign-up                       🟢812ms   🟢1.2s    🟢812ms   🟢0ms     🟢0.000   
+  en--blog                                🟢716ms   🟢996ms   🟢887ms   🟢0ms     🟢0.000   
+  en--contact                             🟢749ms   🟢1.1s    🟢1.4s    🟢0ms     🟢0.011   
+  en--home                                🟢1.2s    🟢1.6s    🟢2.3s    🟢0ms     🟢0.000   
+  en--legal-notice                        🟢732ms   🟢932ms   🟢783ms   🟢0ms     🟡0.105   
+  es--acerca-de                           🟢928ms   🟢1.8s    🟢2.5s    🟢0ms     🟢0.000   
+  es--auth--contrasena-olvidada           🟢582ms   🟢942ms   🟢582ms   🟢0ms     🟢0.000   
+  es--auth--iniciar-sesion                🟢919ms   🟢1.4s    🟢919ms   🟢0ms     🟢0.000   
+  es--auth--registro                      🟢691ms   🟢871ms   🟢691ms   🟢0ms     🟢0.000   
+  es--aviso-legal                         🟢722ms   🟢882ms   🟢722ms   🟢0ms     🟡0.103   
+  es--blog                                🟢624ms   🟢944ms   🟢809ms   🟢0ms     🟢0.000   
+  es--contacto                            🟢1.0s    🟢1.5s    🟢1.4s    🟢0ms     🟢0.010   
+  es--home                                🟢804ms   🟢1.8s    🟢1.6s    🟢0ms     🟢0.000   
+  fr--a-propos                            🟢869ms   🟢1.7s    🟢2.7s    🟡237ms   🟢0.002   
+  fr--admin--navigation                   🟢767ms   🟢1.0s    🟢794ms   🟢0ms     🟢0.000   
+  fr--admin--site                         🟢1.1s    🟢1.7s    🟢1.1s    🟢0ms     🟢0.000   
+  fr--admin--stats                        🟢637ms   🟢877ms   🟢744ms   🟢0ms     🟢0.000   
+  fr--admin--theme                        🟢1.2s    🟢1.5s    🟢1.2s    🟢0ms     🟢0.000   
+  fr--auth--connexion                     🟢582ms   🟢942ms   🟢582ms   🟢0ms     🟢0.000   
+  fr--auth--inscription                   🟢677ms   🟢1.1s    🟢677ms   🟢0ms     🟢0.000   
+  fr--auth--mot-de-passe-oublie           🟢622ms   🟢942ms   🟢622ms   🟢0ms     🟢0.000   
+  fr--blog                                🟢743ms   🟢963ms   🟢835ms   🟢0ms     🟢0.000   
+  fr--contact                             🟢758ms   🟢938ms   🟢1.2s    🟢0ms     🟢0.009   
+  fr--home                                🟢1.4s    🟡2.8s    🟢2.2s    🟢0ms     🟢0.000   
+  fr--mentions-legales                    🟢735ms   🟢895ms   🟢735ms   🟢0ms     🟢0.071   
+
+  Thresholds: 🟢 Good  🟡 Needs Improvement  🔴 Poor
+    Largest Contentful Paint: 🟢 ≤2500ms  🟡 ≤4000ms  🔴 >4000ms
+    First Contentful Paint: 🟢 ≤1800ms  🟡 ≤3000ms  🔴 >3000ms
+    Speed Index: 🟢 ≤3400ms  🟡 ≤5800ms  🔴 >5800ms
+    Total Blocking Time: 🟢 ≤200ms  🟡 ≤600ms  🔴 >600ms
+    Cumulative Layout Shift: 🟢 ≤0.1  🟡 ≤0.25  🔴 >0.25
+
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════
+  SUMMARY
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  Performance          >= 90:  29/36  ⚠️
+  Accessibility        >= 90:  36/36  ✅
+  Best-practices       >= 90:  36/36  ✅
+  Seo                  >= 90:  19/36  ⚠️
+
+  Averages:
+    Performance          94.1
+    Accessibility        99.4
+    Best-practices       93.0
+    Seo                  86.0
+
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════
+  FAILED AUDITS (score < 90)
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  📄 ar--auth--انشاء-حساب
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Reduce unused JavaScript (Est savings of 78 KiB)
+      0  Enable text compression (Est savings of 297 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+
+  📄 ar--auth--تسجيل-الدخول
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Reduce unused JavaScript (Est savings of 78 KiB)
+      0  Enable text compression (Est savings of 295 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+
+  📄 ar--auth--نسيت-كلمة-المرور
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Reduce unused JavaScript (Est savings of 78 KiB)
+      0  Enable text compression (Est savings of 295 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+
+  📄 ar--blog
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Heading elements are not in a sequentially-descending order
+      0  Touch targets do not have sufficient size or spacing.
+      0  Reduce unused JavaScript (Est savings of 24 KiB)
+      0  Enable text compression (Est savings of 282 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+
+  📄 ar--home
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (1,510 ms)
+      0  Enable text compression (Est savings of 352 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     50  Serve images in next-gen formats (Est savings of 879 KiB)
+     50  Efficiently encode images (Est savings of 148 KiB)
+     50  Properly size images (Est savings of 750 KiB)
+     50  Avoid an excessive DOM size (945 elements)
+     51  Speed Index (2.3 s)
+     80  Largest Contentful Paint (1.5 s)
+     83  First Contentful Paint (1.1 s)
+
+  📄 ar--اتصل-بنا
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (1,580 ms)
+      0  Reduce unused JavaScript (Est savings of 24 KiB)
+      0  Enable text compression (Est savings of 289 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     77  Largest Contentful Paint (1.6 s)
+     84  Speed Index (1.5 s)
+     88  First Contentful Paint (1.0 s)
+
+  📄 ar--الشروط-القانونية
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Enable text compression (Est savings of 298 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+
+  📄 ar--من-نحن
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (1,790 ms)
+      0  Enable text compression (Est savings of 295 KiB)
+      0  Properly size images (Est savings of 224 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     11  Max Potential First Input Delay (460 ms)
+     38  Speed Index (2.6 s)
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     70  Largest Contentful Paint (1.8 s)
+     85  Total Blocking Time (170 ms)
+     89  First Contentful Paint (0.9 s)
+
+  📄 en--about
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (2,090 ms)
+      0  Reduce unused JavaScript (Est savings of 24 KiB)
+      0  Enable text compression (Est savings of 294 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     39  Speed Index (2.6 s)
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Properly size images (Est savings of 208 KiB)
+     60  Largest Contentful Paint (2.1 s)
+     87  First Contentful Paint (1.0 s)
+
+  📄 en--auth--forgot-password
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Reduce unused JavaScript (Est savings of 78 KiB)
+      0  Enable text compression (Est savings of 293 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+
+  📄 en--auth--sign-in
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Reduce unused JavaScript (Est savings of 78 KiB)
+      0  Enable text compression (Est savings of 293 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+
+  📄 en--auth--sign-up
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Reduce unused JavaScript (Est savings of 78 KiB)
+      0  Enable text compression (Est savings of 295 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+
+  📄 en--blog
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Heading elements are not in a sequentially-descending order
+      0  Touch targets do not have sufficient size or spacing.
+      0  Enable text compression (Est savings of 280 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+
+  📄 en--contact
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Enable text compression (Est savings of 286 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     88  Speed Index (1.4 s)
+
+  📄 en--home
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (1,650 ms)
+      0  Enable text compression (Est savings of 351 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     50  Serve images in next-gen formats (Est savings of 879 KiB)
+     50  Efficiently encode images (Est savings of 148 KiB)
+     50  Properly size images (Est savings of 750 KiB)
+     50  Avoid an excessive DOM size (945 elements)
+     51  Speed Index (2.3 s)
+     75  Largest Contentful Paint (1.6 s)
+     78  First Contentful Paint (1.2 s)
+
+  📄 en--legal-notice
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Avoid large layout shifts (2 layout shifts found)
+      0  Enable text compression (Est savings of 293 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     88  Cumulative Layout Shift (0.105)
+
+  📄 es--acerca-de
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (1,770 ms)
+      0  Enable text compression (Est savings of 294 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     41  Speed Index (2.5 s)
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     50  Properly size images (Est savings of 208 KiB)
+     71  Largest Contentful Paint (1.8 s)
+
+  📄 es--auth--contrasena-olvidada
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Reduce unused JavaScript (Est savings of 78 KiB)
+      0  Enable text compression (Est savings of 293 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+
+  📄 es--auth--iniciar-sesion
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (1,400 ms)
+      0  Reduce unused JavaScript (Est savings of 78 KiB)
+      0  Enable text compression (Est savings of 294 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     84  Largest Contentful Paint (1.4 s)
+
+  📄 es--auth--registro
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Reduce unused JavaScript (Est savings of 78 KiB)
+      0  Enable text compression (Est savings of 295 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+
+  📄 es--aviso-legal
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Avoid large layout shifts (3 layout shifts found)
+      0  Enable text compression (Est savings of 295 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     89  Cumulative Layout Shift (0.103)
+
+  📄 es--blog
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Heading elements are not in a sequentially-descending order
+      0  Touch targets do not have sufficient size or spacing.
+      0  Enable text compression (Est savings of 281 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+
+  📄 es--contacto
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (1,540 ms)
+      0  Reduce unused JavaScript (Est savings of 24 KiB)
+      0  Enable text compression (Est savings of 287 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     79  Largest Contentful Paint (1.5 s)
+     84  First Contentful Paint (1.0 s)
+     85  Speed Index (1.4 s)
+
+  📄 es--home
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (1,770 ms)
+      0  Enable text compression (Est savings of 351 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     50  Serve images in next-gen formats (Est savings of 879 KiB)
+     50  Efficiently encode images (Est savings of 148 KiB)
+     50  Properly size images (Est savings of 750 KiB)
+     50  Avoid an excessive DOM size (945 elements)
+     71  Largest Contentful Paint (1.8 s)
+     79  Speed Index (1.6 s)
+
+  📄 fr--a-propos
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (1,690 ms)
+      0  Enable text compression (Est savings of 294 KiB)
+      0  Properly size images (Est savings of 208 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     37  Speed Index (2.7 s)
+     44  Max Potential First Input Delay (270 ms)
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     72  Total Blocking Time (240 ms)
+     74  Largest Contentful Paint (1.7 s)
+
+  📄 fr--admin--navigation
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Touch targets do not have sufficient size or spacing.
+      0  Enable text compression (Est savings of 472 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Page is blocked from indexing
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     50  Avoid an excessive DOM size (1,308 elements)
+
+  📄 fr--admin--site
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (1,710 ms)
+      0  Enable text compression (Est savings of 554 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Page is blocked from indexing
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     50  Avoid an excessive DOM size (1,633 elements)
+     73  Largest Contentful Paint (1.7 s)
+     79  First Contentful Paint (1.1 s)
+
+  📄 fr--admin--stats
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Reduce unused JavaScript (Est savings of 24 KiB)
+      0  Enable text compression (Est savings of 371 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Page is blocked from indexing
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Avoid an excessive DOM size (836 elements)
+
+  📄 fr--admin--theme
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (1,470 ms)
+      0  Enable text compression (Est savings of 554 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Page is blocked from indexing
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     50  Avoid an excessive DOM size (2,091 elements)
+     77  First Contentful Paint (1.2 s)
+     81  Largest Contentful Paint (1.5 s)
+
+  📄 fr--auth--connexion
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Reduce unused JavaScript (Est savings of 78 KiB)
+      0  Enable text compression (Est savings of 294 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+
+  📄 fr--auth--inscription
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Reduce unused JavaScript (Est savings of 78 KiB)
+      0  Enable text compression (Est savings of 295 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+
+  📄 fr--auth--mot-de-passe-oublie
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Reduce unused JavaScript (Est savings of 78 KiB)
+      0  Enable text compression (Est savings of 293 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+
+  📄 fr--blog
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Heading elements are not in a sequentially-descending order
+      0  Touch targets do not have sufficient size or spacing.
+      0  Enable text compression (Est savings of 281 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+
+  📄 fr--contact
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Enable text compression (Est savings of 286 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+
+  📄 fr--home
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Largest Contentful Paint element (2,800 ms)
+      0  Enable text compression (Est savings of 351 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document does not have a valid `rel=canonical`
+     38  Largest Contentful Paint (2.8 s)
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+     50  Serve images in next-gen formats (Est savings of 879 KiB)
+     50  Efficiently encode images (Est savings of 148 KiB)
+     50  Properly size images (Est savings of 750 KiB)
+     50  Avoid an excessive DOM size (945 elements)
+     52  Speed Index (2.2 s)
+     63  First Contentful Paint (1.4 s)
+     84  Time to Interactive (2.8 s)
+
+  📄 fr--mentions-legales
+  ──────────────────────────────────────────────────────────────────────
+      0  Browser errors were logged to the console
+      0  Enable text compression (Est savings of 295 KiB)
+      0  Issues were logged in the `Issues` panel in Chrome Devtools
+      0  Document doesn't have a valid `hreflang`
+      0  Document does not have a valid `rel=canonical`
+     50  Image elements do not have explicit `width` and `height`
+     50  Eliminate render-blocking resources (Est savings of 0 ms)
+     50  Reduce unused JavaScript (Est savings of 24 KiB)
+
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════
+  ACCESSIBILITY ISSUES
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+  📄 ar--blog  (4 issues)
+  ──────────────────────────────────────────────────────────────────────
+    Rule:     heading-order
+    Title:    Heading elements are not in a sequentially-descending order
+    Selector: div.grid > article.group > div.flex > h3.line-clamp-2
+    Element:  <h3 class="line-clamp-2 font-heading text-base font-semibold leading-snug tracking-ti…">
+    Issue:    Fix any of the following:
+  Heading order invalid
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: article.group > div.flex > div.flex > a.starwind-badge
+    Element:  <a class="starwind-badge inline-flex items-center gap-1.5 font-medium whitespace-now…" data-slot="badge" href="/ar/blog/
+    Issue:    Fix any of the following:
+  Target has insufficient size (76.4px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: article.group > div.flex > div.flex > a.starwind-badge
+    Element:  <a class="starwind-badge inline-flex items-center gap-1.5 font-medium whitespace-now…" data-slot="badge" href="/ar/blog/
+    Issue:    Fix any of the following:
+  Target has insufficient size (141.1px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diamete
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: article.group > div.flex > div.flex > a.starwind-badge
+    Element:  <a class="starwind-badge inline-flex items-center gap-1.5 font-medium whitespace-now…" data-slot="badge" href="/ar/blog/
+    Issue:    Fix any of the following:
+  Target has insufficient size (117.1px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diamete
+
+
+  📄 en--blog  (4 issues)
+  ──────────────────────────────────────────────────────────────────────
+    Rule:     heading-order
+    Title:    Heading elements are not in a sequentially-descending order
+    Selector: div.grid > article.group > div.flex > h3.line-clamp-2
+    Element:  <h3 class="line-clamp-2 font-heading text-base font-semibold leading-snug tracking-ti…">
+    Issue:    Fix any of the following:
+  Heading order invalid
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: article.group > div.flex > div.flex > a.starwind-badge
+    Element:  <a class="starwind-badge inline-flex items-center gap-1.5 font-medium whitespace-now…" data-slot="badge" href="/en/blog/
+    Issue:    Fix any of the following:
+  Target has insufficient size (127.5px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diamete
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: article.group > div.flex > div.flex > a.starwind-badge
+    Element:  <a class="starwind-badge inline-flex items-center gap-1.5 font-medium whitespace-now…" data-slot="badge" href="/en/blog/
+    Issue:    Fix any of the following:
+  Target has insufficient size (106.8px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diamete
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: article.group > div.flex > div.flex > a.starwind-badge
+    Element:  <a class="starwind-badge inline-flex items-center gap-1.5 font-medium whitespace-now…" data-slot="badge" href="/en/blog/
+    Issue:    Fix any of the following:
+  Target has insufficient size (149.2px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diamete
+
+
+  📄 es--blog  (4 issues)
+  ──────────────────────────────────────────────────────────────────────
+    Rule:     heading-order
+    Title:    Heading elements are not in a sequentially-descending order
+    Selector: div.grid > article.group > div.flex > h3.line-clamp-2
+    Element:  <h3 class="line-clamp-2 font-heading text-base font-semibold leading-snug tracking-ti…">
+    Issue:    Fix any of the following:
+  Heading order invalid
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: article.group > div.flex > div.flex > a.starwind-badge
+    Element:  <a class="starwind-badge inline-flex items-center gap-1.5 font-medium whitespace-now…" data-slot="badge" href="/es/blog/
+    Issue:    Fix any of the following:
+  Target has insufficient size (147.2px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diamete
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: article.group > div.flex > div.flex > a.starwind-badge
+    Element:  <a class="starwind-badge inline-flex items-center gap-1.5 font-medium whitespace-now…" data-slot="badge" href="/es/blog/
+    Issue:    Fix any of the following:
+  Target has insufficient size (99.9px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: article.group > div.flex > div.flex > a.starwind-badge
+    Element:  <a class="starwind-badge inline-flex items-center gap-1.5 font-medium whitespace-now…" data-slot="badge" href="/es/blog/
+    Issue:    Fix any of the following:
+  Target has insufficient size (160.6px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diamete
+
+
+  📄 fr--admin--navigation  (8 issues)
+  ──────────────────────────────────────────────────────────────────────
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: div.flex > div.flex > div.flex > button.nav-move-up
+    Element:  <button type="button" class="nav-move-up inline-flex items-center justify-center size-5 rounded text-mu…">
+    Issue:    Fix any of the following:
+  Target has insufficient size (20px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter o
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: div.flex > div.flex > div.flex > button.nav-move-down
+    Element:  <button type="button" class="nav-move-down inline-flex items-center justify-center size-5 rounded text-…">
+    Issue:    Fix any of the following:
+  Target has insufficient size (20px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter o
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: div.flex > div.flex > div.flex > button.nav-move-up
+    Element:  <button type="button" class="nav-move-up inline-flex items-center justify-center size-5 rounded text-mu…">
+    Issue:    Fix any of the following:
+  Target has insufficient size (20px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter o
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: div.flex > div.flex > div.flex > button.nav-move-down
+    Element:  <button type="button" class="nav-move-down inline-flex items-center justify-center size-5 rounded text-…">
+    Issue:    Fix any of the following:
+  Target has insufficient size (20px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter o
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: div.flex > div.flex > div.flex > button.nav-move-up
+    Element:  <button type="button" class="nav-move-up inline-flex items-center justify-center size-5 rounded text-mu…">
+    Issue:    Fix any of the following:
+  Target has insufficient size (20px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter o
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: div.flex > div.flex > div.flex > button.nav-move-down
+    Element:  <button type="button" class="nav-move-down inline-flex items-center justify-center size-5 rounded text-…">
+    Issue:    Fix any of the following:
+  Target has insufficient size (20px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter o
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: div.flex > div.flex > div.flex > button.nav-move-up
+    Element:  <button type="button" class="nav-move-up inline-flex items-center justify-center size-5 rounded text-mu…">
+    Issue:    Fix any of the following:
+  Target has insufficient size (20px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter o
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: div.flex > div.flex > div.flex > button.nav-move-down
+    Element:  <button type="button" class="nav-move-down inline-flex items-center justify-center size-5 rounded text-…">
+    Issue:    Fix any of the following:
+  Target has insufficient size (20px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter o
+
+
+  📄 fr--blog  (4 issues)
+  ──────────────────────────────────────────────────────────────────────
+    Rule:     heading-order
+    Title:    Heading elements are not in a sequentially-descending order
+    Selector: div.grid > article.group > div.flex > h3.line-clamp-2
+    Element:  <h3 class="line-clamp-2 font-heading text-base font-semibold leading-snug tracking-ti…">
+    Issue:    Fix any of the following:
+  Heading order invalid
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: article.group > div.flex > div.flex > a.starwind-badge
+    Element:  <a class="starwind-badge inline-flex items-center gap-1.5 font-medium whitespace-now…" data-slot="badge" href="/fr/blog/
+    Issue:    Fix any of the following:
+  Target has insufficient size (137px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diameter 
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: article.group > div.flex > div.flex > a.starwind-badge
+    Element:  <a class="starwind-badge inline-flex items-center gap-1.5 font-medium whitespace-now…" data-slot="badge" href="/fr/blog/
+    Issue:    Fix any of the following:
+  Target has insufficient size (123.7px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diamete
+
+    Rule:     target-size
+    Title:    Touch targets do not have sufficient size or spacing.
+    Selector: article.group > div.flex > div.flex > a.starwind-badge
+    Element:  <a class="starwind-badge inline-flex items-center gap-1.5 font-medium whitespace-now…" data-slot="badge" href="/fr/blog/
+    Issue:    Fix any of the following:
+  Target has insufficient size (158.9px by 20px, should be at least 24px by 24px)
+  Target has insufficient space to its closest neighbors. Safe clickable space has a diamete
+
+
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════
+  PAGES PASSING ALL GATES
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════
+  ✅ ar--auth--انشاء-حساب  (99/100/93/92)
+  ✅ ar--auth--تسجيل-الدخول  (99/100/93/92)
+  ✅ ar--auth--نسيت-كلمة-المرور  (97/100/93/92)
+  ✅ en--auth--forgot-password  (99/100/93/92)
+  ✅ en--auth--sign-in  (99/100/93/92)
+  ✅ en--auth--sign-up  (97/100/93/92)
+  ✅ en--contact  (97/100/93/92)
+  ✅ es--auth--contrasena-olvidada  (99/100/93/92)
+  ✅ es--auth--iniciar-sesion  (95/100/93/92)
+  ✅ es--auth--registro  (99/100/93/92)
+  ✅ es--home  (90/100/93/92)
+  ✅ fr--auth--connexion  (99/100/93/92)
+  ✅ fr--auth--inscription  (98/100/93/92)
+  ✅ fr--auth--mot-de-passe-oublie  (99/100/93/92)
+  ✅ fr--contact  (98/100/93/92)
+
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════
+  END OF REPORT — 120/144 checks passed across 36 pages
+  HTML reports available in: tests/reports/lighthouse/
+══════════════════════════════════════════════════════════════════════════════════════════════════════════════

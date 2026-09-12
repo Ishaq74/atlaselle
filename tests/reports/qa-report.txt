@@ -1,0 +1,46 @@
+══════════════════════════════════════════════════════════════════════════════════
+  ATOMIC — GLOBAL QA REPORT
+  Generated: 2026-09-06 18:06:11
+══════════════════════════════════════════════════════════════════════════════════
+
+  ✅ Type & Template Check (astro check)
+     0 errors, 0 warnings, 53 hints
+
+  ✅ Lint (ESLint)
+     0 errors, 21 warnings
+
+  ✅ Unit & Integration Tests (Vitest)
+     1309/1309 passed
+
+  ✅ End-to-End Tests (Playwright)
+     0/0 passed
+
+  ✅ Accessibility Audit (Pa11y — WCAG 2.1 AAA)
+     60/60 URLs clean
+
+  ❌ Performance & Quality Audit (Lighthouse CI)
+     36 page(s) audited, 7 below threshold (≥90)
+
+  • 7 page(s) scored below the 90 threshold (see lighthouse-report.txt for detail)
+
+══════════════════════════════════════════════════════════════════════════════════
+  GLOBAL STATUS
+══════════════════════════════════════════════════════════════════════════════════
+
+  Reports in scope: 6/6 (check, lint, vitest, playwright, pa11y, lighthouse)
+  Overall:           ❌ ISSUES DETECTED
+
+  ┌─────────────────────────────────────────────┬──────────────┬─────────┐
+  │ Report                                      │ Status       │ Result  │
+  ├─────────────────────────────────────────────┼──────────────┼─────────┤
+  │ Astro check                                 │ GREEN        │ 0 error │
+  │ ESLint                                      │ GREEN        │ 0 error │
+  │ Vitest (unit/integration)                   │ GREEN        │ 1309/13 │
+  │ Playwright (e2e)                            │ GREEN        │ 0/0 pas │
+  │ Pa11y (a11y)                                │ GREEN        │ 60/60 U │
+  │ Lighthouse (perf)                           │ RED          │ 36 page │
+  └─────────────────────────────────────────────┴──────────────┴─────────┘
+
+══════════════════════════════════════════════════════════════════════════════════
+  END OF GLOBAL REPORT — ACTION REQUIRED
+══════════════════════════════════════════════════════════════════════════════════

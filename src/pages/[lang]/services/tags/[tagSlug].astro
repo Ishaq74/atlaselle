@@ -1,0 +1,20 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { getServices, getServiceTags } from "@/modules/services/loaders";
+import ServicesListingPage from "@/modules/services/components/lists/ServicesListingPage.astro";
+import { getServiceTranslations } from "@/modules/services/i18n";
+import type { Locale } from "@i18n/config";
+export const prerender = false;
+const locale = (Astro.params.lang ?? "fr") as Locale;
+const tagSlug = Astro.params.tagSlug!;
+const t = getServiceTranslations(locale);
+const page = Math.max(1, Number(Astro.url.searchParams.get("page") ?? "1") || 1);
+const tags = await getServiceTags(locale, null);
+const tag = tags.find((row) => (row.translation?.slug ?? row.tag.slug) === tagSlug);
+if (!tag) return Astro.redirect(`/${locale}/services`);
+const data = await getServices({ tagId: tag.tag.id, page }, locale, true);
+const title = `#${tag.translation?.name ?? tag.tag.slug}`;
+---
+<BaseLayout title={title} description={t.meta.description}>
+  <main><ServicesListingPage locale={locale} title={title} items={data.items} meta={data} baseUrl={`/${locale}/services/tags/${tagSlug}`} activeTagSlug={tagSlug} /></main>
+</BaseLayout>

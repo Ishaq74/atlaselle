@@ -1,0 +1,234 @@
+---
+title: Umbraco & Astro
+description: Ajouter du contenu à votre projet Astro en utilisant Umbraco comme CMS
+sidebar:
+  label: Umbraco
+type: cms
+stub: false
+logo: umbraco
+i18nReady: true
+---
+import { FileTree, Steps } from '@astrojs/starlight/components';
+import ReadMore from '~/components/ReadMore.astro';
+
+
+[Umbraco CMS](https://umbraco.com/) est un CMS ASP.NET Core open source. Par défaut, Umbraco utilise des pages Razor pour son interface, mais peut être utilisé comme un CMS headless.
+
+## Intégration avec Astro
+
+Dans cette section, vous utiliserez l'API de [diffusion de contenu](https://docs.umbraco.com/umbraco-cms/reference/content-delivery-api) native d'Umbraco pour fournir du contenu à votre projet Astro.
+
+### Prérequis
+
+Pour commencer, vous devez disposer des éléments suivants :
+
+1. **Un projet Astro** - Si vous n'avez pas encore de projet Astro, notre [guide d'installation](/fr/install-and-setup/) vous permettra d'être opérationnel en un rien de temps.
+2. **Un projet Umbraco (v12+)** - Si vous n'avez pas encore de projet Umbraco, veuillez consulter ce [guide d'installation](https://docs.umbraco.com/umbraco-cms/fundamentals/setup/install/).
+
+### Configuration de l'API de diffusion de contenu
+
+Pour activer l'API de diffusion de contenu, mettez à jour le fichier `appsettings.json` de votre projet Umbraco :
+
+```json title="appsettings.json"
+{
+  "Umbraco": {
+    "CMS": {
+      "DeliveryApi": {
+        "Enabled": true,
+        "PublicAccess": true
+      }
+    }
+  }
+}
+```
+
+Vous pouvez configurer des options supplémentaires selon vos besoins, telles que l'accès public, les clés API, les types de contenu autorisés, l'autorisation des membres, etc. Voir la [documentation de l'API de diffusion de contenu Umbraco](https://docs.umbraco.com/umbraco-cms/reference/content-delivery-api) pour plus d'informations.
+
+### Récupération de données
+
+Utilisez un appel `fetch()` à l'API de diffusion de contenu pour accéder à votre contenu et le mettre à la disposition de vos composants Astro.
+
+L'exemple suivant affiche une liste d'articles récupérés, y compris des propriétés telles que la date et le contenu de l'article.
+
+```astro title="src/pages/index.astro"
+---
+const res = await fetch('http://localhost/umbraco/delivery/api/v2/content?filter=contentType:article');
+const articles = await res.json();
+---
+<h1>Astro + Umbraco 🚀</h1>
+{
+  articles.items.map((article) => (
+      <h1>{article.name}</h1>
+      <p>{article.properties.articleDate}</p>
+      <div set:html={article.properties.content?.markup}></div>
+  ))
+}
+```
+
+
+<ReadMore>En savoir plus sur [la récupération de données dans Astro](/fr/guides/data-fetching/).</ReadMore>
+
+## Créer un blog avec Umbraco et Astro
+
+### Prérequis
+
+- Un projet Astro** - Si vous n'avez pas encore de projet Astro, notre [guide d'installation](/fr/install-and-setup/) vous permettra d'être opérationnel en un rien de temps.
+
+- Un projet Umbraco (v12+)** avec l'API de diffusion de contenu activée - Suivez ce [guide d'installation](https://docs.umbraco.com/umbraco-cms/fundamentals/setup/install/) pour créer un nouveau projet.
+
+### Créer des articles de blog dans Umbraco
+
+Depuis le [back-office d'Umbraco](https://docs.umbraco.com/umbraco-cms/fundamentals/backoffice), créez un type de document pour un simple article de blog appelé 'Article'.
+
+
+1. Configurez votre type de document "Article" avec les propriétés suivantes :
+
+		- Title (DataType: Textstring)
+		- Article Date (DataType: Date Picker)
+		- Content (DataType: Richtext Editor)
+
+2. Basculez « Allow as root » à `true` sur le type de document 'Article'.
+
+3. Dans la section « Content » du back-office d'Umbraco, [créez et publiez votre premier article de blog](https://docs.umbraco.com/umbraco-cms/fundamentals/data/defining-content). Répétez le processus autant de fois que vous le souhaitez.
+
+
+
+Pour plus d'informations, regardez le [guide vidéo sur la création de types de documents](https://www.youtube.com/watch?v=otRuIkN80qM).
+
+### Afficher une liste d'articles de blog dans Astro
+
+Créez un dossier `src/layouts/`, puis ajoutez un nouveau fichier `Layout.astro` avec le code suivant :
+
+```astro title="src/layouts/Layout.astro"
+---
+---
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Mon blog avec Astro et Umbraco</title>
+</head>
+<body>
+    <main>
+        <slot />
+    </main>
+</body>
+</html>
+```
+
+Votre projet doit maintenant contenir les fichiers suivants :
+
+<FileTree>
+- src/
+  - **layouts/**
+    - **Layout.astro**
+  - pages/
+    - index.astro
+</FileTree>
+
+Pour créer une liste d'articles de blog, il faut d'abord appeler le point de terminaison `content` de l'API de diffusion de contenu (Content Delivery API) et filtrer par le type de contenu 'article'. Les objets article incluront les propriétés et le contenu définis dans le CMS. Vous pouvez ensuite parcourir les articles en boucle et afficher chaque titre avec un lien vers son article.
+
+Remplacez le contenu par défaut de `index.astro` par le code suivant :
+
+```astro title="src/pages/index.astro"
+---
+import Layout from '../layouts/Layout.astro';
+const res = await fetch('http://localhost/umbraco/delivery/api/v2/content?filter=contentType:article');
+const articles = await res.json();
+---
+<Layout>
+	<h2>Articles de blog</h2>
+	{
+        articles.items.map((article: any) => (
+            <div>
+                <h3>{article.properties.title}</h3>
+                <p>{article.properties.articleDate}</p>
+                <a href={article.route.path}>Lire la suite</a>
+            </div>
+        ))
+    }
+</Layout>
+```
+
+### Générer des articles de blog individuels
+
+Créez le fichier `[...slug].astro` à la racine du répertoire `/pages/`. Ce fichier sera utilisé pour [générer dynamiquement les pages individuelles du blog](/fr/guides/routing/#routes-dynamiques).
+
+Notez que la propriété `params`, qui génère le chemin de l'URL de la page, contient `article.route.path` de l'API. De même, la propriété `props` doit inclure l'intégralité de `article` lui-même afin que vous puissiez accéder à toutes les informations dans votre entrée CMS.
+
+Ajoutez le code suivant à `[...slug].astro` qui créera vos pages individuelles d'articles de blog :
+
+```astro title="[...slug].astro"
+---
+import Layout from '../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+    let data = await fetch("http://localhost/umbraco/delivery/api/v2/content?filter=contentType:article");
+    let articles = await data.json();
+    
+    return articles.items.map((article: any) => ({
+        params: { slug: article.route.path },
+        props: { article: article },
+    }));
+}
+
+const { article } = Astro.props;
+---
+
+<Layout>
+  <h1>{article.properties.title}</h1>
+  <p>{article.properties.articleDate}</p>
+  <div set:html={article.properties.content?.markup}></div>
+</Layout>
+```
+
+Votre projet doit maintenant contenir les fichiers suivants :
+
+<FileTree>
+- src/
+  - layouts/
+    - Layout.astro
+  - pages/
+    - index.astro
+    - **[...slug].astro**
+</FileTree>
+
+Avec le serveur de développement en marche, vous devriez maintenant être en mesure de voir votre contenu créé par Umbraco dans l'aperçu du navigateur de votre projet Astro. Félicitations ! 🚀
+
+
+## Publier votre site
+
+Pour déployer votre site, consultez nos [guides de déploiement](/fr/guides/deploy/) et suivez les instructions de votre hébergeur préféré.
+
+## Développement local, HTTPS et certificats SSL auto-signés
+
+Si vous utilisez le point de terminaison HTTPS d'Umbraco localement, toute requête `fetch` résultera en un `fetch failed` avec le code `DEPTH_ZERO_SELF_SIGNED_CERT`. Ceci est dû au fait que Node (sur lequel Astro est construit) n'accepte pas les certificats auto-signés par défaut. Pour éviter cela, utilisez le point de terminaison HTTP d'Umbraco pour le développement local.
+
+Alternativement, vous pouvez mettre `NODE_TLS_REJECT_UNAUTHORIZED=0` dans un fichier `env.development` et mettre à jour `astro.config.js` comme indiqué :
+
+```ini title=".env.development"
+NODE_TLS_REJECT_UNAUTHORIZED=0
+```
+
+```js title="astro.config.mjs"
+import { defineConfig } from 'astro/config';
+import { loadEnv } from "vite";
+
+const { NODE_TLS_REJECT_UNAUTHORIZED } = loadEnv(process.env.NODE_ENV, process.cwd(), "");
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = NODE_TLS_REJECT_UNAUTHORIZED;
+// https://astro.build/config
+export default defineConfig({});
+```
+
+Cette méthode est décrite plus en détail dans ce [billet de blog montrant comment configurer votre projet pour les certificats auto-signés](https://kjac.dev/posts/jamstack-for-free-with-azure-and-cloudflare/), avec un [dépôt GitHub pour vous accompagner](https://github.com/kjac/UmbracoAzureCloudflare).
+
+## Documentation officielle
+- [API de diffusion de contenu - Documentation d'Umbraco](https://docs.umbraco.com/umbraco-cms/reference/content-delivery-api) (Anglais)
+
+## Ressources communautaires
+
+- [Sites web astro-nomiquement performants utilisant l'API de diffusion de contenu - Louis Richardson](https://24days.in/umbraco-cms/2023/sustainable-performant/astronomically-performant/) (Anglais)
+- [Génération d'un client TypeScript OpenAPI à partir de l'API de diffusion de contenu d'Umbraco - Rick Butterfield](https://rickbutterfield.dev/blog/typescript-openapi-umbraco-content-delivery/) (Anglais)
+- [Jamstack gratuit avec Azure et CloudFlare - Kenn Jacobsen](https://kjac.dev/posts/jamstack-for-free-with-azure-and-cloudflare/) (Anglais)
+- [Blog rapide avec Astro et Umbraco - Kenn Jacobsen](https://kjac.dev/posts/quick-n-dirty-blog-with-astro-and-umbraco/) (Anglais)
+- [Présentation : Cuisinez au lieu de frire - Astro et l'API de diffusion de contenu - Adam Prendergast](https://www.youtube.com/watch?v=zNxqI25dtx4) (Anglais)
