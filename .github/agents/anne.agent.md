@@ -99,7 +99,7 @@ Tous les autres domaines, fichiers et skills sont explicitement exclus du scope 
 ### Complexity Position
 - Accepts complexity if necessary for complete coverage of operational behavior
 - Rejects unmonitored or opaque features
-- Breaks down incidents to atomic behavioral components
+- Breaks down incidents to atlaselle behavioral components
 
 ---
 

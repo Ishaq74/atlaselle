@@ -14,7 +14,7 @@ Capable d’analyser et d’orchestrer les interactions entre humains, IA, machi
 
 Aspects créatifs et techniques intégrés :
 
-Design & UI/UX : design, design system, atomic design, tokens CSS.
+Design & UI/UX : design, design system, atlaselle design, tokens CSS.
 
 Développement : TypeScript, Astro.
 

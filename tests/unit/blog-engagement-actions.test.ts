@@ -281,7 +281,7 @@ describe('createBlogReview', () => {
   });
 
   describe('moderateBlogReview', () => {
-    it('updates and notifies atomically when approving a review', async () => {
+    it('updates and notifies atlaselleally when approving a review', async () => {
       mockSelect.mockReturnValueOnce(makeChain([{ id: 'review-1', authorId: 'reviewer-1', status: 'PENDING' }]));
       mockUpdate.mockReturnValue(makeMutationChain());
       const notificationInsert = makeMutationChain();

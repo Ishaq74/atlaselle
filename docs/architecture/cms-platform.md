@@ -1,12 +1,12 @@
-# Atomic CMS Platform Architecture
+# Atlaselle CMS Platform Architecture
 
-Atomic is a multi-tenant SSR application whose CMS is a platform for explicit domain modules. Blog and Services are the first two complete modules. Future Formations, Courses, Shop and Events must consume the same platform rather than create parallel mini-CMS implementations.
+Atlaselle is a multi-tenant SSR application whose CMS is a platform for explicit domain modules. Blog and Services are the first two complete modules. Future Formations, Courses, Shop and Events must consume the same platform rather than create parallel mini-CMS implementations.
 
-For the concrete implementation inventory of the current reference modules, see [CMS Implementation Matrix](./cms-implementation.md). For the product-level synthesis of Concordia patterns, see [Concordia → Atomic synthesis](./concordia-synthesis.md).
+For the concrete implementation inventory of the current reference modules, see [CMS Implementation Matrix](./cms-implementation.md). For the product-level synthesis of Concordia patterns, see [Concordia → Atlaselle synthesis](./concordia-synthesis.md).
 
 ## Module contract
 
-Every module owns its domain schema, actions, loaders, validation, permissions, routes, i18n and domain presentation. Shared capabilities are provided by Atomic Core.
+Every module owns its domain schema, actions, loaders, validation, permissions, routes, i18n and domain presentation. Shared capabilities are provided by Atlaselle Core.
 
 The contract exposes:
 
@@ -77,7 +77,7 @@ taxonomy
 workflow
 ```
 
-The Core layer provides contracts and invariants while established Atomic implementations remain the implementation authority when they already exist. This avoids “folder theater”: moving code merely to make directory names symmetrical is not a goal.
+The Core layer provides contracts and invariants while established Atlaselle implementations remain the implementation authority when they already exist. This avoids “folder theater”: moving code merely to make directory names symmetrical is not a goal.
 
 ## Presentation grammar
 

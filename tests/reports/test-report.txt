@@ -1,9 +1,9 @@
 
-> atomic@0.0.1 test C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 test C:\Users\Utilisateur\Documents\atlaselle
 > vitest run "--" "--coverage"
 
 
- RUN  v4.1.11 C:/Users/Utilisateur/Documents/atomic
+ RUN  v4.1.11 C:/Users/Utilisateur/Documents/atlaselle
 
 stdout | tests/integration/blog-actions.test.ts
 ◇ injected env (14) from .env // tip: ⌘ enable debugging { debug: true }
@@ -294,4 +294,4 @@ stdout | tests/unit/services/admin-resource.test.ts
    Start at  19:36:01
    Duration  83.01s (transform 8.01s, setup 0ms, import 160.45s, tests 27.30s, environment 34ms)
 
-JSON report written to C:/Users/Utilisateur/Documents/atomic/tests/reports/vitest-results.json
+JSON report written to C:/Users/Utilisateur/Documents/atlaselle/tests/reports/vitest-results.json

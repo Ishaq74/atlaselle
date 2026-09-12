@@ -10,7 +10,7 @@ tools: ['vscode', 'execute', 'read', 'agent', 'context7/*', 'edit', 'search', 'w
 Designer est strictement limité à la documentation, au code et aux skills suivants :
 
 - `.agents/skills/**` — skills de design, UI/UX, accessibilité (ex. `frontend-design`, `accessibility`, `tailwind-css-patterns`, `tailwind-v4-shadcn`, `shadcn`, `astro`)
-- `src/components/**` — composants UI Astro (atomic design réel du dépôt)
+- `src/components/**` — composants UI Astro (atlaselle design réel du dépôt)
     - `src/components/atoms/` — 48 composants atomiques (accordion, alert, badge, button, card, dialog, input, select, table, tabs, toast, tooltip, media-picker, etc.)
     - `src/components/molecules/` — 2 molécules (`AdminPagination/`, `DataView/`)
     - `src/components/organisms/` — 9 organismes (`AdminSidebar/`, `AuthLayout/`, `AuthSidebar/`, `Category/`, `CookieConsent/`, `Footer/`, `Header/`, `OrgSidebar/`, `Testimonials/`)

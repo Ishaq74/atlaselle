@@ -111,7 +111,7 @@ beforeEach(() => {
 });
 
 describe("services admin CRUD actions", () => {
-  it("creates a draft, translation, SEO row, and initial revision atomically", async () => {
+  it("creates a draft, translation, SEO row, and initial revision atlaselleally", async () => {
     insert.mockReturnValueOnce(mutation([{ id: "service-1" }])).mockReturnValue(mutation());
 
     await expect(create.handler(validCreate, context())).resolves.toEqual({ id: "service-1" });

@@ -1,6 +1,6 @@
 # Sécurité
 
-> **Projet** : Atomic  
+> **Projet** : Atlaselle  
 > **Stack** : Astro 6 (SSR) + better-auth + Drizzle/PostgreSQL  
 > **Objectif** : OWASP Top 10, WCAG AAA, sécurité multicouches
 

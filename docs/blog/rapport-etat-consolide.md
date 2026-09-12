@@ -19,7 +19,7 @@ présence fonctionnelle ne vaut pas certification de préparation production.
 | Autorisation | Permissions globales pour le site global; `hasPermission` Better Auth avec organisation explicite pour les sites d'organisation; capacités publier/supprimer calculées côté serveur. |
 | Isolation tenant | Contrôles parent/tenant sur articles, taxonomies, médias, galeries, traductions, liens, files de modération et notifications. |
 | Visibilité | Prédicat public commun incluant la date de publication, utilisé par les loaders, la recherche et les engagements publics. |
-| Atomicité | Transactions sur les écritures d'agrégat et les opérations multi-écritures P0. |
+| Atlaselleité | Transactions sur les écritures d'agrégat et les opérations multi-écritures P0. |
 | Données | Migration officielle `0005` avec préflight des doublons, backfill des scopes, index entité+locale et contrôles d'intégrité. |
 | Newsletter | Service métier partagé, origine configurée, tokens hashés et séparés par finalité, expiration et consommation atomique, compatibilité legacy explicite. |
 | Éditeur | Sortie HTML temporaire cohérente, attributs sanitizés, construction DOM sans interpolation HTML de données utilisateur, garde de formulaire modifié. |

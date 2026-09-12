@@ -68,4 +68,4 @@ The primary source of truth for Faqir is:
 - **README.md** - Comprehensive project documentation (auto-generated)
 
 For detailed status and recent updates, refer to:
-- **memories/repo/atomic-project-status.md** - Project status tracking
+- **memories/repo/atlaselle-project-status.md** - Project status tracking

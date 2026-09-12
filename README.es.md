@@ -1,4 +1,4 @@
-# Atomic
+# Atlaselle
 
 [EN](./README.md) | [FR](./README.fr.md) | [AR](./README.ar.md) | [**ES**](./README.es.md)
 
@@ -817,7 +817,7 @@ src/layouts/
 BaseLayout.astro
 ```
 
-Atomic CMS se organiza en capacidades compartidas de plataforma/CMS y módulos de dominio de primera clase. La base cubre contenido localizado, medios compartidos, taxonomía, SEO, búsqueda, flujo de publicación, revisiones, bloqueos, límites de interacción/moderación, notificaciones, auditoría, caché y el modelo reutilizable de Admin Resource. Blog es el primer módulo editorial completo; Services es el segundo módulo de validación. Los dominios transaccionales como reservas, inscripciones, inventario, pagos y pedidos permanecen como núcleos separados.
+Atlaselle CMS se organiza en capacidades compartidas de plataforma/CMS y módulos de dominio de primera clase. La base cubre contenido localizado, medios compartidos, taxonomía, SEO, búsqueda, flujo de publicación, revisiones, bloqueos, límites de interacción/moderación, notificaciones, auditoría, caché y el modelo reutilizable de Admin Resource. Blog es el primer módulo editorial completo; Services es el segundo módulo de validación. Los dominios transaccionales como reservas, inscripciones, inventario, pagos y pedidos permanecen como núcleos separados.
 
 ### Tests
 
@@ -1040,8 +1040,8 @@ tests/
 agents/
   akil.agent.md
   anne.agent.md
-  AtomicFullStackEngineer.agent.md
-  AtomicUIDesigner.agent.md
+  AtlaselleFullStackEngineer.agent.md
+  AtlaselleUIDesigner.agent.md
   designer.agent.md
   DevOpsExpert.agent.md
   elias.agent.md

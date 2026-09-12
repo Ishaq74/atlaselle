@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-Atomic Admin est un système de gestion de ressources utilisé par les capacités CMS natives et par les modules métier. Blog et Services sont les deux premiers consommateurs complets du modèle.
+Atlaselle Admin est un système de gestion de ressources utilisé par les capacités CMS natives et par les modules métier. Blog et Services sont les deux premiers consommateurs complets du modèle.
 
 Le principe est :
 

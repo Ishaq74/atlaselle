@@ -27,26 +27,26 @@ RUN pnpm prune --prod
 FROM node:22-slim AS runtime
 
 # Security: run as non-root user
-RUN groupadd --gid 1001 atomic && \
-    useradd --uid 1001 --gid atomic --shell /bin/false --create-home atomic
+RUN groupadd --gid 1001 atlaselle && \
+    useradd --uid 1001 --gid atlaselle --shell /bin/false --create-home atlaselle
 
 WORKDIR /app
 
 # Copy only what's needed to run
-COPY --from=builder --chown=atomic:atomic /app/dist ./dist
-COPY --from=builder --chown=atomic:atomic /app/node_modules ./node_modules
-COPY --from=builder --chown=atomic:atomic /app/package.json ./package.json
+COPY --from=builder --chown=atlaselle:atlaselle /app/dist ./dist
+COPY --from=builder --chown=atlaselle:atlaselle /app/node_modules ./node_modules
+COPY --from=builder --chown=atlaselle:atlaselle /app/package.json ./package.json
 
 # Database migrations & infra scripts (needed for entrypoint)
-COPY --from=builder --chown=atomic:atomic /app/src/database/migrations ./src/database/migrations
-COPY --from=builder --chown=atomic:atomic /app/src/database/infra ./src/database/infra
+COPY --from=builder --chown=atlaselle:atlaselle /app/src/database/migrations ./src/database/migrations
+COPY --from=builder --chown=atlaselle:atlaselle /app/src/database/infra ./src/database/infra
 
 # Create directories for uploads and logs with correct ownership
 RUN mkdir -p /app/public/uploads /app/logs && \
-    chown -R atomic:atomic /app/public /app/logs
+    chown -R atlaselle:atlaselle /app/public /app/logs
 
 # Switch to non-root
-USER atomic
+USER atlaselle
 
 # Astro standalone server
 ENV HOST=0.0.0.0

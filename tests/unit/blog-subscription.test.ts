@@ -60,7 +60,7 @@ function guestContext() {
       headers: { "user-agent": "newsletter-test" },
     }),
     clientAddress: "203.0.113.7",
-    site: new URL("https://atomic.example"),
+    site: new URL("https://atlaselle.example"),
   } as any;
 }
 
@@ -83,7 +83,7 @@ describe("blog newsletter actions", () => {
       email: "reader@example.com",
       locale: "fr",
       organizationId: null,
-      configuredSite: new URL("https://atomic.example"),
+      configuredSite: new URL("https://atlaselle.example"),
       audit: {
         ipAddress: "203.0.113.7",
         userAgent: "newsletter-test",

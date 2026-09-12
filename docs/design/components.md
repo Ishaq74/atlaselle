@@ -8,7 +8,7 @@
 
 ## Vue d'ensemble
 
-**47 composants** répartis selon l'Atomic Design :
+**47 composants** répartis selon l'Atlaselle Design :
 
 | Niveau | Emplacement | Composants |
 | :-- | :-- | --: |

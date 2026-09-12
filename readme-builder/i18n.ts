@@ -3,10 +3,10 @@ export type Lang = typeof LANGS[number];
 
 export const i18n = {
   projectName: {
-    en: 'Atomic',
-    fr: 'Atomic',
-    ar: 'Atomic',
-    es: 'Atomic',
+    en: 'Atlaselle',
+    fr: 'Atlaselle',
+    ar: 'Atlaselle',
+    es: 'Atlaselle',
   },
   description: {
     en: 'Full-stack SSR web application — authentication, organisations, CMS, media, SMTP and i18n across 4 locales.',

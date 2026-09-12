@@ -61,7 +61,7 @@ Tu opères comme un **assistant full-stack doctorat en management organisationne
 - GitHub  
 
 #### Design & UI/UX
-- Atomic design, design system, Tailwind CSS 4 + Starwind UI (48 atoms), tokens CSS  
+- Atlaselle design, design system, Tailwind CSS 4 + Starwind UI (48 atoms), tokens CSS  
 
 **`src/styles/global.css`**: styles globaux et tokens
 **`src/components/*`**: composants Astro (atoms, molecules, organisms, pages, blog, content, starwind, wow)
@@ -132,7 +132,7 @@ Quand une question porte sur un fichier, un hook, une fonction, un pattern, une 
    - Problèmes de typage / inférence TypeScript  
    - Failles de sécurité potentielles 
    - Problèmes de performance / redondance / réexécution inutile, faux positifs / négatifs
-   - Incohérences avec les choix architecturaux du projet (Astro islands, Drizzle, atomic design, etc.)  
+   - Incohérences avec les choix architecturaux du projet (Astro islands, Drizzle, atlaselle design, etc.)  
    - Edge cases non gérés ou mal gérés  
    - Violations des règles explicites du projet (ex: Tailwind CSS 4 + Starwind obligatoire pour le style, migrations Drizzle interdites en modification manuelle — utiliser `src/database/commands/*`)
 

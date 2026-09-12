@@ -33,8 +33,8 @@ Running 14 tests using 1 worker
       80 |   }
       81 |
       82 |   await context.addCookies(setCookie.map(parseSetCookie));
-        at createAdminStorageState (C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:79:11)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:360:25
+        at createAdminStorageState (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\blog.spec.ts:79:11)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\blog.spec.ts:360:25
 
 
 [1A[2K[16/14] (retries) [chromium] ÔÇ║ tests\e2e\blog.spec.ts:399:3 ÔÇ║ Blog surfaces ÔÇ║ global public blog post detail redirects to the canonical category URL (retry #1)
@@ -49,9 +49,9 @@ Running 14 tests using 1 worker
 
     [31mTest timeout of 30000ms exceeded.[39m
 
-    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open 'C:\Users\Utilisateur\Documents\atomic\test-results\.playwright-artifacts-1\traces\a378e5ce917615b4b643-868b69004e33a5dc8fd5-retry1-recording7.trace'
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open 'C:\Users\Utilisateur\Documents\atlaselle\test-results\.playwright-artifacts-1\traces\a378e5ce917615b4b643-868b69004e33a5dc8fd5-retry1-recording7.trace'
 
-    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open 'C:\Users\Utilisateur\Documents\atomic\test-results\.playwright-artifacts-1\traces\a378e5ce917615b4b643-868b69004e33a5dc8fd5-retry1-recording7.trace'
+    Error: browserContext._wrapApiCall: ENOENT: no such file or directory, open 'C:\Users\Utilisateur\Documents\atlaselle\test-results\.playwright-artifacts-1\traces\a378e5ce917615b4b643-868b69004e33a5dc8fd5-retry1-recording7.trace'
 
     Error: browserContext.close: Target page, context or browser has been closed
 
@@ -62,9 +62,9 @@ Running 14 tests using 1 worker
       491 |     }
       492 |   });
       493 |
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:490:7
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\blog.spec.ts:490:7
 
-    Error: ENOENT: no such file or directory, open 'C:\Users\Utilisateur\Documents\atomic\test-results\.playwright-artifacts-1\d1c6cd9a59f42a8b5517845a0bdfaa50.zip'
+    Error: ENOENT: no such file or directory, open 'C:\Users\Utilisateur\Documents\atlaselle\test-results\.playwright-artifacts-1\d1c6cd9a59f42a8b5517845a0bdfaa50.zip'
 
     [31mTest timeout of 30000ms exceeded.[39m
 

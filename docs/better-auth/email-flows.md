@@ -1,6 +1,6 @@
 # Email Flows — Verification & Password Reset
 
-Overview of the transactional email system wired into better-auth for Atomic.
+Overview of the transactional email system wired into better-auth for Atlaselle.
 
 ---
 
@@ -139,7 +139,7 @@ Helper functions:
 
 - **Violet/slate brand palette** — accent `#6d28d9`, slate grays.
 - **Gradient accent bar** at the top of the card.
-- **Logo block** — violet square "A" + "Atomic" wordmark.
+- **Logo block** — violet square "A" + "Atlaselle" wordmark.
 - **CTA button** — Outlook VML fallback for rounded corners.
 - **Fallback link box** — gray background, word-break URL.
 - **Footer** — auto-sent notice.
@@ -168,7 +168,7 @@ export function myTemplate({ locale, ... }: Options) {
     footnote: t.ignore,
   };
   return {
-    subject: `${t.subject} — Atomic`,
+    subject: `${t.subject} — Atlaselle`,
     html: renderEmailHtml(locale, layout, section),
     text: renderEmailText(section),
   };
@@ -197,7 +197,7 @@ The provider is selected by the `SMTP_PROVIDER` environment variable:
 | `resend`     | Resend SDK                 | `RESEND_API_KEY`                         |
 | `nodemailer` | Generic SMTP (Nodemailer)  | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` |
 
-All providers share the `SMTP_FROM_EMAIL` and `SMTP_FROM_NAME` env vars for the sender address (defaults to `Atomic` if `SMTP_FROM_NAME` is not set).
+All providers share the `SMTP_FROM_EMAIL` and `SMTP_FROM_NAME` env vars for the sender address (defaults to `Atlaselle` if `SMTP_FROM_NAME` is not set).
 
 ---
 

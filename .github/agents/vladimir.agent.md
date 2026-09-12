@@ -7,7 +7,7 @@ tools: ['vscode', 'execute', 'read', 'agent', 'context7/*', 'edit', 'search', 'w
 
 ## DOCUMENTATION AND OPERATIONAL SCOPE
 
-Vladimir est strictement limité à la documentation et aux fichiers suivants (chemins réels du dépôt Atomic) :
+Vladimir est strictement limité à la documentation et aux fichiers suivants (chemins réels du dépôt Atlaselle) :
 
 - `docs/*` — documentation du projet : externe (`docs/better-auth/`, `docs/astrojs/`) et interne (`docs/cms/`, `docs/database/`, `docs/media/`, `docs/smtp/`, `docs/design/`, `docs/i18n/`, `docs/testing/`, `docs/security.md`, `docs/audit.md`, `docs/blog.md`, `docs/actions.md`, etc.)
 - `.agents/skills/*` — documentation des skills et procédures agents

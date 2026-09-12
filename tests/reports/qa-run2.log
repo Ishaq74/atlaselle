@@ -1,10 +1,10 @@
 
-> atomic@0.0.1 qa C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 qa C:\Users\Utilisateur\Documents\atlaselle
 > node scripts/qa.mjs full
 
 
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
-ÔûÂ pnpm check  ÔåÆ  C:\Users\Utilisateur\Documents\atomic\tests\reports\check-report.txt
+ÔûÂ pnpm check  ÔåÆ  C:\Users\Utilisateur\Documents\atlaselle\tests\reports\check-report.txt
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 [ASTRO] SITE_URL is not set ÔÇö using http://localhost:4321 fallback. Set SITE_URL for production builds.
 
@@ -12,7 +12,7 @@
 ÔûÂ pnpm build
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 
-> atomic@0.0.1 build C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 build C:\Users\Utilisateur\Documents\atlaselle
 > astro build
 
 [ASTRO] SITE_URL is not set ÔÇö using http://localhost:4321 fallback. Set SITE_URL for production builds.
@@ -23,7 +23,7 @@
 [2m04:50:03[22m [34m[types][39m Generated [2m243ms[22m
 [2m04:50:03[22m [34m[build][39m output: [34m"server"[39m
 [2m04:50:03[22m [34m[build][39m mode: [34m"server"[39m
-[2m04:50:03[22m [34m[build][39m directory: [34mC:\Users\Utilisateur\Documents\atomic\dist\[39m
+[2m04:50:03[22m [34m[build][39m directory: [34mC:\Users\Utilisateur\Documents\atlaselle\dist\[39m
 [2m04:50:03[22m [34m[build][39m adapter: [32m@astrojs/node[39m
 [2m04:50:03[22m [34m[build][39m Collecting build info...
 [2m04:50:03[22m [34m[build][39m [32mÔ£ô Completed in 385ms.[39m
@@ -38,11 +38,11 @@
 [2m04:50:56[22m [34m[build][39m [1mComplete![22m
 
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
-ÔûÂ pnpm lint  ÔåÆ  C:\Users\Utilisateur\Documents\atomic\tests\reports\lint-report.txt
+ÔûÂ pnpm lint  ÔåÆ  C:\Users\Utilisateur\Documents\atlaselle\tests\reports\lint-report.txt
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
-ÔûÂ pnpm test -- --coverage  ÔåÆ  C:\Users\Utilisateur\Documents\atomic\tests\reports\test-report.txt
+ÔûÂ pnpm test -- --coverage  ÔåÆ  C:\Users\Utilisateur\Documents\atlaselle\tests\reports\test-report.txt
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 stderr | tests/integration/auth-advanced.test.ts > Auth ÔÇö Forget & Reset Password > requestPasswordReset for unknown email does not throw
 2026-07-12T02:51:20.682Z ERROR [Better Auth]: Reset Password: User not found { email: 'nonexistent@test.com' }
@@ -61,24 +61,24 @@ stderr | tests/integration/auth-flow.test.ts > Auth ÔÇö Sign-up & Sign-in flo
 
 stderr | tests/unit/upload.test.ts > processUpload > accepts a valid image upload
 [upload] WebP generation failed for 0bb224ff-c2cb-400a-82c6-c65a9e4fdc1e.jpg: Error: Input buffer has corrupt header: VipsJpeg: premature end of JPEG image
-    at Sharp.toFile (C:\Users\Utilisateur\Documents\atomic\node_modules\.pnpm\sharp@0.34.5\node_modules\sharp\lib\output.js:90:19)
-    at processUpload (C:/Users/Utilisateur/Documents/atomic/src/media/upload.ts:121:49)
-    at C:/Users/Utilisateur/Documents/atomic/tests/unit/upload.test.ts:54:20
-    at file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:20
+    at Sharp.toFile (C:\Users\Utilisateur\Documents\atlaselle\node_modules\.pnpm\sharp@0.34.5\node_modules\sharp\lib\output.js:90:19)
+    at processUpload (C:/Users/Utilisateur/Documents/atlaselle/src/media/upload.ts:121:49)
+    at C:/Users/Utilisateur/Documents/atlaselle/tests/unit/upload.test.ts:54:20
+    at file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:20
 
 stderr | tests/unit/upload.test.ts > processUpload > generates UUID filename (not original name)
 [upload] WebP generation failed for 7b37f2ec-e1df-4f05-b20d-115b9f8f14bc.png: Error: Input buffer has corrupt header: pngload_buffer: end of stream
-    at Sharp.toFile (C:\Users\Utilisateur\Documents\atomic\node_modules\.pnpm\sharp@0.34.5\node_modules\sharp\lib\output.js:90:19)
-    at processUpload (C:/Users/Utilisateur/Documents/atomic/src/media/upload.ts:121:49)
-    at C:/Users/Utilisateur/Documents/atomic/tests/unit/upload.test.ts:161:20
-    at file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:20
+    at Sharp.toFile (C:\Users\Utilisateur\Documents\atlaselle\node_modules\.pnpm\sharp@0.34.5\node_modules\sharp\lib\output.js:90:19)
+    at processUpload (C:/Users/Utilisateur/Documents/atlaselle/src/media/upload.ts:121:49)
+    at C:/Users/Utilisateur/Documents/atlaselle/tests/unit/upload.test.ts:161:20
+    at file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:20
 
 stderr | tests/unit/upload.test.ts > deleteUpload > deletes companion WebP variant when deleting an image
 [upload] WebP generation failed for 0230a765-b9aa-4f3f-b027-eccfb4ba5545.jpg: Error: Input buffer has corrupt header: VipsJpeg: premature end of JPEG image
-    at Sharp.toFile (C:\Users\Utilisateur\Documents\atomic\node_modules\.pnpm\sharp@0.34.5\node_modules\sharp\lib\output.js:90:19)
-    at processUpload (C:/Users/Utilisateur/Documents/atomic/src/media/upload.ts:121:49)
-    at C:/Users/Utilisateur/Documents/atomic/tests/unit/upload.test.ts:226:20
-    at file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:20
+    at Sharp.toFile (C:\Users\Utilisateur\Documents\atlaselle\node_modules\.pnpm\sharp@0.34.5\node_modules\sharp\lib\output.js:90:19)
+    at processUpload (C:/Users/Utilisateur/Documents/atlaselle/src/media/upload.ts:121:49)
+    at C:/Users/Utilisateur/Documents/atlaselle/tests/unit/upload.test.ts:226:20
+    at file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:20
 
 stderr | tests/integration/blog-actions.test.ts > blog actions ÔÇö integration (real DB) > updateBlogReport resolves a PENDING report and persists it
 [test] no PENDING blog report seeded; skipping resolve assertion
@@ -91,17 +91,17 @@ stderr | tests/unit/smtp-providers.test.ts > Resend provider > verify() throws o
 
 stderr | tests/unit/admin-pages.test.ts > publishPage > publishes a page
 [pages] Auto-snapshot on publish failed: TypeError: Cannot read properties of undefined (reading 'from')
-    at Object.handler (C:/Users/Utilisateur/Documents/atomic/src/actions/admin/pages.ts:244:19)
+    at Object.handler (C:/Users/Utilisateur/Documents/atlaselle/src/actions/admin/pages.ts:244:19)
     at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at C:/Users/Utilisateur/Documents/atomic/tests/unit/admin-pages.test.ts:257:20
-    at file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:20
+    at C:/Users/Utilisateur/Documents/atlaselle/tests/unit/admin-pages.test.ts:257:20
+    at file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:20
 
 stderr | tests/unit/admin-pages.test.ts > bulkPublishPages > publishes multiple pages
 [pages] Bulk auto-snapshot failed for some pages: TypeError: Cannot read properties of undefined (reading 'from')
-    at Object.handler (C:/Users/Utilisateur/Documents/atomic/src/actions/admin/pages.ts:513:42)
+    at Object.handler (C:/Users/Utilisateur/Documents/atlaselle/src/actions/admin/pages.ts:513:42)
     at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at C:/Users/Utilisateur/Documents/atomic/tests/unit/admin-pages.test.ts:380:20
-    at file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:20
+    at C:/Users/Utilisateur/Documents/atlaselle/tests/unit/admin-pages.test.ts:380:20
+    at file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:20
 
 stderr | tests/unit/send-email.test.ts > sendEmail > retries on transient network error and eventually throws
 [SMTP] Attempt 1 failed, retrying in 1000ms... connect failed
@@ -138,10 +138,10 @@ stderr | tests/unit/send-email.test.ts > sendEmail > verifies exponential backof
 
 04:51:48 [vite] (ssr) warning: invalid import "../../src/i18n/${locale}/common". A file extension must be included in the static part of the import. For example: import(`./foo/${bar}.js`).
   Plugin: vite:dynamic-import-vars
-  File: C:/Users/Utilisateur/Documents/atomic/tests/unit/i18n-key-completeness.test.ts
+  File: C:/Users/Utilisateur/Documents/atlaselle/tests/unit/i18n-key-completeness.test.ts
 04:51:48 [vite] (ssr) warning: invalid import "../../src/i18n/blog/${locale}". A file extension must be included in the static part of the import. For example: import(`./foo/${bar}.js`).
   Plugin: vite:dynamic-import-vars
-  File: C:/Users/Utilisateur/Documents/atomic/tests/unit/i18n-key-completeness.test.ts
+  File: C:/Users/Utilisateur/Documents/atlaselle/tests/unit/i18n-key-completeness.test.ts
 stderr | tests/unit/db-env.test.ts > DB_ENV validation > defaults to LOCAL when DB_ENV is undefined
 ÔÜá´©Å  DB_ENV non d├®fini dans .env ÔÇö d├®faut : LOCAL
    Ajoutez DB_ENV=LOCAL|PROD|TEST dans votre fichier .env
@@ -152,16 +152,16 @@ stderr | tests/unit/db-env.test.ts > DB_ENV validation > defaults to LOCAL when 
 
 stderr | tests/unit/audit-fallback.test.ts > logAuditEvent ÔÇö JSONL fallback > writes to fallback file when DB insert fails
 [audit] Failed to log event: Error: DB connection lost
-    at Object.<anonymous> (C:/Users/Utilisateur/Documents/atomic/tests/unit/audit-fallback.test.ts:24:35)
-    at Object.Mock [as values] (file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/@vitest+spy@4.1.2/node_modules/@vitest/spy/dist/index.js:332:34)
-    at Module.logAuditEvent (C:/Users/Utilisateur/Documents/atomic/src/lib/audit.ts:156:31)
-    at C:/Users/Utilisateur/Documents/atomic/tests/unit/audit-fallback.test.ts:45:11
-    at file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
-    at file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:26
-    at file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:2316:20
+    at Object.<anonymous> (C:/Users/Utilisateur/Documents/atlaselle/tests/unit/audit-fallback.test.ts:24:35)
+    at Object.Mock [as values] (file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/@vitest+spy@4.1.2/node_modules/@vitest/spy/dist/index.js:332:34)
+    at Module.logAuditEvent (C:/Users/Utilisateur/Documents/atlaselle/src/lib/audit.ts:156:31)
+    at C:/Users/Utilisateur/Documents/atlaselle/tests/unit/audit-fallback.test.ts:45:11
+    at file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:26
+    at file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:2316:20
     at new Promise (<anonymous>)
-    at runWithCancel (file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:2313:10)
-    at file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:2295:20
+    at runWithCancel (file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:2313:10)
+    at file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.2/node_modules/@vitest/runner/dist/chunk-artifact.js:2295:20
 
 stderr | tests/unit/navigation-tree.test.ts > buildNavTree > detects self-referencing cycle and promotes to root
 [nav] Cycle detected for navigation item "a" (label: "a") ÔÇö treated as root.
@@ -188,16 +188,16 @@ stderr | tests/unit/loaders.test.ts > buildNavTree > detects cycles and promotes
 ÔûÂ pnpm test:report
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 
-> atomic@0.0.1 test:report C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 test:report C:\Users\Utilisateur\Documents\atlaselle
 > node tests/helpers/vitest-report.cjs
 
-Vitest text report saved: C:\Users\Utilisateur\Documents\atomic\tests\reports\vitest-report.txt
+Vitest text report saved: C:\Users\Utilisateur\Documents\atlaselle\tests\reports\vitest-report.txt
 
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 ÔûÂ pnpm test:e2e
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 
-> atomic@0.0.1 test:e2e C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 test:e2e C:\Users\Utilisateur\Documents\atlaselle
 > playwright test
 
 [1A[2K[WebServer] [ASTRO] SITE_URL is not set ÔÇö using http://localhost:4321 fallback. Set SITE_URL for production builds.
@@ -276,7 +276,7 @@ Running 153 tests using 1 worker
       491 |     }
       492 |   });
       493 |
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:490:7
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\blog.spec.ts:490:7
 
     Error Context: test-results\blog-Blog-surfaces-global--c7f3a--edit-a-draft-workflow-post-chromium\error-context.md
 
@@ -293,7 +293,7 @@ Running 153 tests using 1 worker
       491 |     }
       492 |   });
       493 |
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:490:7
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\blog.spec.ts:490:7
 
     Error Context: test-results\blog-Blog-surfaces-global--c7f3a--edit-a-draft-workflow-post-chromium-retry1\error-context.md
 
@@ -332,7 +332,7 @@ Running 153 tests using 1 worker
       92 |     await signInAsAdmin(page);
       93 |   });
       94 |
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:91:8
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:91:8
 
     Error: page.goto: Target page, context or browser has been closed
 
@@ -343,8 +343,8 @@ Running 153 tests using 1 worker
       15 |     await page.locator('input[name="email"]').fill(SEED_EMAIL);
       16 |     await page.locator('input[name="password"]').fill(SEED_PASSWORD);
       17 |     const submitBtn = page.locator('button[type="submit"], form button').first();
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:14:16)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:92:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:14:16)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:92:5
 
     Error Context: test-results\cms-admin-CMS-Theme-page-theme-page-loads-successfully-chromium\error-context.md
 
@@ -421,8 +421,8 @@ Running 153 tests using 1 worker
       176 | }
       177 |
       178 | async function updatePostTitle(page: import('@playwright/test').Page, title: string) {
-        at fillPostForm (C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:175:39)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:468:7
+        at fillPostForm (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\blog.spec.ts:175:39)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\blog.spec.ts:468:7
 
     Error Context: test-results\blog-Blog-surfaces-global--c7f3a--edit-a-draft-workflow-post-firefox\error-context.md
 
@@ -442,8 +442,8 @@ Running 153 tests using 1 worker
       176 | }
       177 |
       178 | async function updatePostTitle(page: import('@playwright/test').Page, title: string) {
-        at fillPostForm (C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:175:39)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:468:7
+        at fillPostForm (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\blog.spec.ts:175:39)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\blog.spec.ts:468:7
 
     Error Context: test-results\blog-Blog-surfaces-global--c7f3a--edit-a-draft-workflow-post-firefox-retry1\error-context.md
 
@@ -482,7 +482,7 @@ Running 153 tests using 1 worker
       92 |     await signInAsAdmin(page);
       93 |   });
       94 |
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:91:8
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:91:8
 
     Error: page.goto: Target page, context or browser has been closed
 
@@ -493,8 +493,8 @@ Running 153 tests using 1 worker
       15 |     await page.locator('input[name="email"]').fill(SEED_EMAIL);
       16 |     await page.locator('input[name="password"]').fill(SEED_PASSWORD);
       17 |     const submitBtn = page.locator('button[type="submit"], form button').first();
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:14:16)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:92:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:14:16)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:92:5
 
     Error Context: test-results\cms-admin-CMS-Theme-page-theme-page-loads-successfully-firefox\error-context.md
 
@@ -530,8 +530,8 @@ Running 153 tests using 1 worker
       40 |     submitBtn.click(),
       41 |   ]);
       42 |   await page.waitForLoadState('networkidle');
-        at signUp (C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:39:10)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:63:5
+        at signUp (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:39:10)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:63:5
 
     Error Context: test-results\auth-Sign-up-flow-sign-up--1bb74-d-redirects-to-sign-in-page-webkit\error-context.md
 
@@ -549,8 +549,8 @@ Running 153 tests using 1 worker
       40 |     submitBtn.click(),
       41 |   ]);
       42 |   await page.waitForLoadState('networkidle');
-        at signUp (C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:39:10)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:63:5
+        at signUp (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:39:10)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:63:5
 
     Error Context: test-results\auth-Sign-up-flow-sign-up--1bb74-d-redirects-to-sign-in-page-webkit-retry1\error-context.md
 
@@ -579,8 +579,8 @@ Running 153 tests using 1 worker
       40 |     submitBtn.click(),
       41 |   ]);
       42 |   await page.waitForLoadState('networkidle');
-        at signUp (C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:39:10)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:68:5
+        at signUp (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:39:10)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:68:5
 
     Error Context: test-results\auth-Sign-up-flow-sign-in-form-rejects-unverified-email-webkit\error-context.md
 
@@ -598,8 +598,8 @@ Running 153 tests using 1 worker
       40 |     submitBtn.click(),
       41 |   ]);
       42 |   await page.waitForLoadState('networkidle');
-        at signUp (C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:39:10)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:68:5
+        at signUp (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:39:10)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:68:5
 
     Error Context: test-results\auth-Sign-up-flow-sign-in-form-rejects-unverified-email-webkit-retry1\error-context.md
 
@@ -628,8 +628,8 @@ Running 153 tests using 1 worker
       54 |     submitBtn.click(),
       55 |   ]);
       56 |   await page.waitForLoadState('networkidle');
-        at signIn (C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:53:10)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:85:5
+        at signIn (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:53:10)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:85:5
 
     Error Context: test-results\auth-Authenticated-flow-ve-b6e83-sign-in-and-reach-dashboard-webkit\error-context.md
 
@@ -647,8 +647,8 @@ Running 153 tests using 1 worker
       54 |     submitBtn.click(),
       55 |   ]);
       56 |   await page.waitForLoadState('networkidle');
-        at signIn (C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:53:10)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:85:5
+        at signIn (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:53:10)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:85:5
 
     Error Context: test-results\auth-Authenticated-flow-ve-b6e83-sign-in-and-reach-dashboard-webkit-retry1\error-context.md
 
@@ -677,8 +677,8 @@ Running 153 tests using 1 worker
       54 |     submitBtn.click(),
       55 |   ]);
       56 |   await page.waitForLoadState('networkidle');
-        at signIn (C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:53:10)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:90:5
+        at signIn (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:53:10)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:90:5
 
     Error Context: test-results\auth-Authenticated-flow-au-56eb5-ser-can-access-profile-page-webkit\error-context.md
 
@@ -696,8 +696,8 @@ Running 153 tests using 1 worker
       54 |     submitBtn.click(),
       55 |   ]);
       56 |   await page.waitForLoadState('networkidle');
-        at signIn (C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:53:10)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:90:5
+        at signIn (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:53:10)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:90:5
 
     Error Context: test-results\auth-Authenticated-flow-au-56eb5-ser-can-access-profile-page-webkit-retry1\error-context.md
 
@@ -726,7 +726,7 @@ Running 153 tests using 1 worker
       114 |       page.locator('input[name="password"]').press('Enter'),
       115 |     ]);
       116 |     await page.waitForLoadState('networkidle');
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:113:12
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:113:12
 
     Error Context: test-results\auth-Enter-key-submission-sign-in-form-submits-on-Enter-key-webkit\error-context.md
 
@@ -744,7 +744,7 @@ Running 153 tests using 1 worker
       114 |       page.locator('input[name="password"]').press('Enter'),
       115 |     ]);
       116 |     await page.waitForLoadState('networkidle');
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:113:12
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:113:12
 
     Error Context: test-results\auth-Enter-key-submission-sign-in-form-submits-on-Enter-key-webkit-retry1\error-context.md
 
@@ -773,7 +773,7 @@ Running 153 tests using 1 worker
       132 |       page.locator('input[name="password"]').press('Enter'),
       133 |     ]);
       134 |     await page.waitForLoadState('networkidle');
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:131:12
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:131:12
 
     Error Context: test-results\auth-Enter-key-submission-sign-up-form-submits-on-Enter-key-webkit\error-context.md
 
@@ -791,7 +791,7 @@ Running 153 tests using 1 worker
       132 |       page.locator('input[name="password"]').press('Enter'),
       133 |     ]);
       134 |     await page.waitForLoadState('networkidle');
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:131:12
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:131:12
 
     Error Context: test-results\auth-Enter-key-submission-sign-up-form-submits-on-Enter-key-webkit-retry1\error-context.md
 
@@ -819,7 +819,7 @@ Running 153 tests using 1 worker
       150 |   });
       151 | });
       152 |
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:149:42
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:149:42
 
     Error Context: test-results\auth-Enter-key-submission--2e425-d-form-submits-on-Enter-key-webkit\error-context.md
 
@@ -836,7 +836,7 @@ Running 153 tests using 1 worker
       150 |   });
       151 | });
       152 |
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\auth.spec.ts:149:42
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\auth.spec.ts:149:42
 
     Error Context: test-results\auth-Enter-key-submission--2e425-d-form-submits-on-Enter-key-webkit-retry1\error-context.md
 
@@ -901,7 +901,7 @@ Running 153 tests using 1 worker
       491 |     }
       492 |   });
       493 |
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:490:7
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\blog.spec.ts:490:7
 
     Error Context: test-results\blog-Blog-surfaces-global--c7f3a--edit-a-draft-workflow-post-webkit\error-context.md
 
@@ -923,7 +923,7 @@ Running 153 tests using 1 worker
       491 |     }
       492 |   });
       493 |
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\blog.spec.ts:490:7
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\blog.spec.ts:490:7
 
     Error Context: test-results\blog-Blog-surfaces-global--c7f3a--edit-a-draft-workflow-post-webkit-retry1\error-context.md
 
@@ -957,8 +957,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:44:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:44:5
 
     Error Context: test-results\cms-admin-CMS-Site-setting-038a6-ite-page-loads-successfully-webkit\error-context.md
 
@@ -973,8 +973,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:44:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:44:5
 
     Error Context: test-results\cms-admin-CMS-Site-setting-038a6-ite-page-loads-successfully-webkit-retry1\error-context.md
 
@@ -1000,8 +1000,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:44:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:44:5
 
     Error Context: test-results\cms-admin-CMS-Site-setting-45d1d-page-contains-settings-form-webkit\error-context.md
 
@@ -1016,8 +1016,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:44:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:44:5
 
     Error Context: test-results\cms-admin-CMS-Site-setting-45d1d-page-contains-settings-form-webkit-retry1\error-context.md
 
@@ -1043,8 +1043,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:44:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:44:5
 
     Error Context: test-results\cms-admin-CMS-Site-setting-bcfa2-tabs-for-settings-and-hours-webkit\error-context.md
 
@@ -1059,8 +1059,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:44:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:44:5
 
     Error Context: test-results\cms-admin-CMS-Site-setting-bcfa2-tabs-for-settings-and-hours-webkit-retry1\error-context.md
 
@@ -1086,8 +1086,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:72:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:72:5
 
     Error Context: test-results\cms-admin-CMS-Navigation-p-75571-ion-page-loads-successfully-webkit\error-context.md
 
@@ -1102,8 +1102,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:72:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:72:5
 
     Error Context: test-results\cms-admin-CMS-Navigation-p-75571-ion-page-loads-successfully-webkit-retry1\error-context.md
 
@@ -1129,8 +1129,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:72:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:72:5
 
     Error Context: test-results\cms-admin-CMS-Navigation-p-e390a-page-contains-management-UI-webkit\error-context.md
 
@@ -1145,8 +1145,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:72:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:72:5
 
     Error Context: test-results\cms-admin-CMS-Navigation-p-e390a-page-contains-management-UI-webkit-retry1\error-context.md
 
@@ -1172,8 +1172,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:92:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:92:5
 
     Error Context: test-results\cms-admin-CMS-Theme-page-theme-page-loads-successfully-webkit\error-context.md
 
@@ -1188,8 +1188,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:92:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:92:5
 
     Error Context: test-results\cms-admin-CMS-Theme-page-theme-page-loads-successfully-webkit-retry1\error-context.md
 
@@ -1215,8 +1215,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:92:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:92:5
 
     Error Context: test-results\cms-admin-CMS-Theme-page-theme-page-contains-form-webkit\error-context.md
 
@@ -1231,8 +1231,8 @@ Running 153 tests using 1 worker
       27 |     }
       28 |   }
       29 | }
-        at signInAsAdmin (C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:26:32)
-        at C:\Users\Utilisateur\Documents\atomic\tests\e2e\cms-admin.spec.ts:92:5
+        at signInAsAdmin (C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:26:32)
+        at C:\Users\Utilisateur\Documents\atlaselle\tests\e2e\cms-admin.spec.ts:92:5
 
     Error Context: test-results\cms-admin-CMS-Theme-page-theme-page-contains-form-webkit-retry1\error-context.md
 
@@ -1279,16 +1279,16 @@ To open last HTML report run:
 ÔûÂ pnpm test:e2e:report
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 
-> atomic@0.0.1 test:e2e:report C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 test:e2e:report C:\Users\Utilisateur\Documents\atlaselle
 > node tests/helpers/playwright-report.cjs
 
-Playwright text report saved: C:\Users\Utilisateur\Documents\atomic\tests\reports\playwright-report.txt
+Playwright text report saved: C:\Users\Utilisateur\Documents\atlaselle\tests\reports\playwright-report.txt
 
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 ÔûÂ pnpm a11y
 ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 
-> atomic@0.0.1 a11y C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 a11y C:\Users\Utilisateur\Documents\atlaselle
 > node tests/a11y/run.cjs
 
 [36m[a11y][0m Ensuring port 4321 is free before starting preview...
@@ -1296,7 +1296,7 @@ Playwright text report saved: C:\Users\Utilisateur\Documents\atomic\tests\report
 [36m[a11y][0m Building project...
 [36m[a11y][0m Running: build
 
-> atomic@0.0.1 build C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 build C:\Users\Utilisateur\Documents\atlaselle
 > astro build
 
 [ASTRO] SITE_URL is not set ÔÇö using http://localhost:4321 fallback. Set SITE_URL for production builds.
@@ -1308,7 +1308,7 @@ Playwright text report saved: C:\Users\Utilisateur\Documents\atomic\tests\report
 [2m05:10:09[22m [34m[types][39m Generated [2m799ms[22m
 [2m05:10:09[22m [34m[build][39m output: [34m"server"[39m
 [2m05:10:09[22m [34m[build][39m mode: [34m"server"[39m
-[2m05:10:09[22m [34m[build][39m directory: [34mC:\Users\Utilisateur\Documents\atomic\dist\[39m
+[2m05:10:09[22m [34m[build][39m directory: [34mC:\Users\Utilisateur\Documents\atlaselle\dist\[39m
 [2m05:10:09[22m [34m[build][39m adapter: [32m@astrojs/node[39m
 [2m05:10:09[22m [34m[build][39m Collecting build info...
 [2m05:10:09[22m [34m[build][39m [32mÔ£ô Completed in 948ms.[39m
@@ -1327,19 +1327,19 @@ Playwright text report saved: C:\Users\Utilisateur\Documents\atomic\tests\report
 [36m[a11y][0m Setting up a11y test users...
 [36m[a11y][0m Running: a11y:setup
 
-> atomic@0.0.1 a11y:setup C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 a11y:setup C:\Users\Utilisateur\Documents\atlaselle
 > tsx tests/a11y/setup.ts
 
 [a11y] Creating seed usersÔÇª
 [dotenv@17.3.1] injecting env (15) from .env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
-[a11y] Cookies written to C:\Users\Utilisateur\Documents\atomic\.a11y-cookies.json
+[a11y] Cookies written to C:\Users\Utilisateur\Documents\atlaselle\.a11y-cookies.json
 [36m[a11y][0m ÔöÇÔöÇÔöÇ Pa11y-ci ÔöÇÔöÇÔöÇ
 [36m[a11y][0m Running: pa11y-ci --json
 npm warn Unknown env config "npm-globalconfig". This will stop working in the next major version of npm.
 npm warn Unknown env config "verify-deps-before-run". This will stop working in the next major version of npm.
 npm warn Unknown env config "_jsr-registry". This will stop working in the next major version of npm.
-[36m[a11y][0m Pa11y report saved: C:\Users\Utilisateur\Documents\atomic\tests\reports\pa11y-report.txt
-[36m[a11y][0m Pa11y JSON saved:   C:\Users\Utilisateur\Documents\atomic\tests\reports\pa11y-results.json
+[36m[a11y][0m Pa11y report saved: C:\Users\Utilisateur\Documents\atlaselle\tests\reports\pa11y-report.txt
+[36m[a11y][0m Pa11y JSON saved:   C:\Users\Utilisateur\Documents\atlaselle\tests\reports\pa11y-results.json
 
   Pa11y: 60/60 URLs passed Ô£à
 
@@ -1347,7 +1347,7 @@ npm warn Unknown env config "_jsr-registry". This will stop working in the next 
 [36m[a11y][0m ÔöÇÔöÇÔöÇ Lighthouse CI (public) ÔöÇÔöÇÔöÇ
 [36m[a11y][0m Running: lighthouse
 
-> atomic@0.0.1 a11y:lighthouse C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 a11y:lighthouse C:\Users\Utilisateur\Documents\atlaselle
 > lhci autorun --config lighthouserc.cjs
 
 Ô£à  .lighthouseci/ directory writable
@@ -1363,7 +1363,7 @@ Run #1...done.
 Running Lighthouse 1 time(s) on http://localhost:4321/fr/contact
 Run #1...failed!
 Error: Lighthouse failed with exit code 1
-    at ChildProcess.<anonymous> (C:\Users\Utilisateur\Documents\atomic\node_modules\.pnpm\@lhci+cli@0.15.1\node_modules\@lhci\cli\src\collect\node-runner.js:120:21)
+    at ChildProcess.<anonymous> (C:\Users\Utilisateur\Documents\atlaselle\node_modules\.pnpm\@lhci+cli@0.15.1\node_modules\@lhci\cli\src\collect\node-runner.js:120:21)
     at ChildProcess.emit (node:events:519:28)
     at ChildProcess._handle.onexit (node:internal/child_process:293:12)
 {
@@ -1431,7 +1431,7 @@ Error: Lighthouse failed with exit code 1
       "score": null,
       "scoreDisplayMode": "error",
       "errorMessage": "Something went wrong with recording the trace over your page load. Please run Lighthouse again. (NO_NAVSTART)",
-      "errorStack": "LighthouseError: NO_NAVSTART\n    at LHTraceProcessor.createNoNavstartError (file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/lighthouse@12.6.1/node_modules/lighthouse/core/lib/lh-trace-processor.js:17:12)\n    at LHTraceProcessor.computeTimeOrigin (file:///C:/Users/Utilisateur/Documents/atomic/node_modules/.pnpm/lighthouse@12.6.1/node_modules/lighthouse/core
+      "errorStack": "LighthouseError: NO_NAVSTART\n    at LHTraceProcessor.createNoNavstartError (file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/lighthouse@12.6.1/node_modules/lighthouse/core/lib/lh-trace-processor.js:17:12)\n    at LHTraceProcessor.computeTimeOrigin (file:///C:/Users/Utilisateur/Documents/atlaselle/node_modules/.pnpm/lighthouse@12.6.1/node_modules/lighthouse/core
 2026-07-12T03:17:30.150Z LH:ChromeLauncher Waiting for browser.
 2026-07-12T03:17:30.152Z LH:ChromeLauncher Waiting for browser...
 2026-07-12T03:17:30.674Z LH:ChromeLauncher Waiting for browser.....
@@ -1722,7 +1722,7 @@ Runtime error encountered: Something went wrong with recording the trace over yo
 [36m[a11y][0m Lighthouse public: exit error ignored (reports exist)
 [36m[a11y][0m Running: lighthouse:rename
 
-> atomic@0.0.1 a11y:lighthouse:rename C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 a11y:lighthouse:rename C:\Users\Utilisateur\Documents\atlaselle
 > node tests/a11y/lhci-rename.cjs
 
   lhr-1783826209454.json ÔåÆ fr--home.json (http://localhost:4321/fr/)
@@ -1734,7 +1734,7 @@ Renamed 4 report(s).
 [36m[a11y][0m ÔöÇÔöÇÔöÇ Lighthouse CI (authenticated) ÔöÇÔöÇÔöÇ
 [36m[a11y][0m Running: lighthouse:authed
 
-> atomic@0.0.1 a11y:lighthouse:authed C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 a11y:lighthouse:authed C:\Users\Utilisateur\Documents\atlaselle
 > node tests/a11y/lhci-authed.cjs
 
 

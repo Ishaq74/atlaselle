@@ -28,7 +28,7 @@ rapport d'exécution associé au changement.
 - Les catégories, tags, médias, galeries, traductions et liens explicites sont
   contrôlés dans le tenant attendu avant leur écriture.
 
-### Atomicité et visibilité publique
+### Atlaselleité et visibilité publique
 
 - Les agrégats article, les modérations avec notifications, les compteurs de
   vues et les autres écritures multi-étapes concernées sont transactionnels.

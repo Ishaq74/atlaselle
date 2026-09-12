@@ -195,7 +195,7 @@ Use `aria-live` to announce dynamic content changes to screen readers without mo
 
 ```html
 <!-- Status updates (polite — waits for pause in speech) -->
-<div aria-live="polite" aria-atomic="true" class="status">
+<div aria-live="polite" aria-atlaselle="true" class="status">
   <!-- Content updates announced to screen readers -->
 </div>
 

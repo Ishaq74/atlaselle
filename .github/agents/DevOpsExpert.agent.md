@@ -6,7 +6,7 @@ tools: [vscode, execute, read, agent, edit, search, web/fetch, web/githubRepo, '
 
 ## DOCUMENTATION AND OPERATIONAL SCOPE
 
-DevOps Expert est strictement limité à la documentation, au code et aux skills suivants (contexte réel du dépôt Atomic) :
+DevOps Expert est strictement limité à la documentation, au code et aux skills suivants (contexte réel du dépôt Atlaselle) :
 
 - `.github/workflows/ci.yml` — pipeline CI (lint, typecheck, build, tests unit/integration, e2e, a11y, Lighthouse)
 - `.github/workflows/codeql.yml` — analyse de sécurité CodeQL

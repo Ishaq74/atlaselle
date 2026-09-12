@@ -153,11 +153,11 @@ describe('hours — cross-field time validation', () => {
 describe('SMTP provider — from-name fallback', () => {
   it('regex strips all non-alphanumeric, fallback prevents empty', () => {
     const sanitize = (name: string) =>
-      name.replace(/[^a-zA-Z0-9 àâäéèêëïîôùûüÿçñ'\-]/g, '') || 'Atomic';
+      name.replace(/[^a-zA-Z0-9 àâäéèêëïîôùûüÿçñ'\-]/g, '') || 'Atlaselle';
 
     expect(sanitize('Mon Site')).toBe('Mon Site');
-    expect(sanitize('🚀🔥🎉')).toBe('Atomic');
-    expect(sanitize('')).toBe('Atomic');
+    expect(sanitize('🚀🔥🎉')).toBe('Atlaselle');
+    expect(sanitize('')).toBe('Atlaselle');
     expect(sanitize('Café André')).toBe('Café André');
     expect(sanitize('A')).toBe('A');
   });

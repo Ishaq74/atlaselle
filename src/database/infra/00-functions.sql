@@ -1,4 +1,4 @@
--- Triggers/functions shared by Atomic DB.
+-- Triggers/functions shared by Atlaselle DB.
 CREATE OR REPLACE FUNCTION current_user_id()
 RETURNS text
 LANGUAGE sql STABLE PARALLEL SAFE

@@ -1,5 +1,5 @@
 
-> atomic@0.0.1 check C:\Users\Utilisateur\Documents\atomic
+> atlaselle@0.0.1 check C:\Users\Utilisateur\Documents\atlaselle
 > astro check
 
 [2m19:34:03[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
@@ -11,7 +11,7 @@
 [2m19:34:04[22m [34m[content][39m Syncing content
 [2m19:34:04[22m [34m[content][39m Synced content
 [2m19:34:04[22m [34m[types][39m Generated [2m640ms[22m
-[2m19:34:04[22m [34m[check][39m Getting diagnostics for Astro files in C:\Users\Utilisateur\Documents\atomic...
+[2m19:34:04[22m [34m[check][39m Getting diagnostics for Astro files in C:\Users\Utilisateur\Documents\atlaselle...
 [96msrc/actions/services/_helpers.ts[0m:[93m15[0m:[93m10[0m - [93mwarning[0m[90m ts(6133): [0m'and' is declared but its value is never read.
 
 [7m15[0m import { and, eq } from "drizzle-orm";

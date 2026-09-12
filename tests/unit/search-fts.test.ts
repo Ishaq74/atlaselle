@@ -116,7 +116,7 @@ describe('buildTsQuery', () => {
 describe('GET blog publication scope', () => {
   it('uses IS NULL for global posts and excludes future publications', async () => {
     const response = await GET({
-      url: new URL('https://atomic.test/api/search?q=atomic&locale=fr'),
+      url: new URL('https://atlaselle.test/api/search?q=atlaselle&locale=fr'),
       clientAddress: '203.0.113.1',
     } as any);
 
@@ -132,7 +132,7 @@ describe('GET blog publication scope', () => {
     mockSelect.mockReturnValueOnce(makeOrganizationQuery([{ id: 'org-1' }]));
 
     const response = await GET({
-      url: new URL('https://atomic.test/api/search?q=atomic&locale=en&org=acme'),
+      url: new URL('https://atlaselle.test/api/search?q=atlaselle&locale=en&org=acme'),
       clientAddress: '203.0.113.2',
     } as any);
 

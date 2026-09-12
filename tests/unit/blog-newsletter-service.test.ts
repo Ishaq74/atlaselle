@@ -85,7 +85,7 @@ function sha256(value: string): string {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.stubEnv("SITE_URL", "https://atomic.example/application-path");
+  vi.stubEnv("SITE_URL", "https://atlaselle.example/application-path");
   selectResults = [];
   txUpdateResults = [];
   insertResults = [];
@@ -157,7 +157,7 @@ describe("blog newsletter business service", () => {
     };
     const confirmationToken = new URL(templateInput.confirmUrl).searchParams.get("token");
     const unsubscribeToken = new URL(templateInput.unsubscribeUrl).searchParams.get("token");
-    expect(new URL(templateInput.confirmUrl).origin).toBe("https://atomic.example");
+    expect(new URL(templateInput.confirmUrl).origin).toBe("https://atlaselle.example");
     expect(confirmationToken).toMatch(/^newsletter\.confirm\.v2\./);
     expect(unsubscribeToken).toMatch(/^newsletter\.unsubscribe\.v2\./);
     expect(confirmationToken).not.toBe(unsubscribeToken);
@@ -257,7 +257,7 @@ expect(insertedValues[0].token).toBeNull();
     expect(dbMocks.transaction).not.toHaveBeenCalled();
   });
 
-  it("atomically confirms only a pending, unused, unexpired v2 token", async () => {
+  it("atlaselleally confirms only a pending, unused, unexpired v2 token", async () => {
     rootUpdateResults.push([
       { id: "subscriber-1", organizationId: "organization-1" },
     ]);
@@ -310,7 +310,7 @@ expect(rootSets[0]).toMatchObject({
     expect(rootSets[0].tokenUsedAt).toBeInstanceOf(Date);
   });
 
-  it("consumes unsubscribe atomically while preserving confirmation history", async () => {
+  it("consumes unsubscribe atlaselleally while preserving confirmation history", async () => {
     rootUpdateResults.push([{ id: "subscriber-1", organizationId: null }]);
     const token = `newsletter.unsubscribe.v2.${"b".repeat(43)}`;
 

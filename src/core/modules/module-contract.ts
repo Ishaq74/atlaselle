@@ -1,7 +1,7 @@
-/** Capabilities that a first-class Atomic module may opt into. */
+/** Capabilities that a first-class Atlaselle module may opt into. */
 import type { SearchResourceDefinition } from "@/core/search";
 
-export interface AtomicModuleCapabilities {
+export interface AtlaselleModuleCapabilities {
   content: boolean;
   localization: boolean;
   media: boolean;
@@ -19,7 +19,7 @@ export interface AtomicModuleCapabilities {
   cache: boolean;
 }
 
-export interface AtomicModuleCapabilityProviders {
+export interface AtlaselleModuleCapabilityProviders {
   readonly content: string;
   readonly localization: string;
   readonly media: string;
@@ -37,29 +37,29 @@ export interface AtomicModuleCapabilityProviders {
   readonly cache: string;
 }
 
-export interface AtomicModulePresentations {
+export interface AtlaselleModulePresentations {
   readonly card: readonly string[];
   readonly list: readonly string[];
   readonly single: readonly string[];
   readonly ui: readonly string[];
 }
 
-export interface AtomicModuleDefinition {
+export interface AtlaselleModuleDefinition {
   readonly id: string;
   readonly entity: string;
-  readonly capabilities: Readonly<AtomicModuleCapabilities>;
-  readonly capabilityProviders: Readonly<AtomicModuleCapabilityProviders>;
-  readonly presentations: Readonly<AtomicModulePresentations>;
+  readonly capabilities: Readonly<AtlaselleModuleCapabilities>;
+  readonly capabilityProviders: Readonly<AtlaselleModuleCapabilityProviders>;
+  readonly presentations: Readonly<AtlaselleModulePresentations>;
   readonly searchDefinition?: Readonly<SearchResourceDefinition>;
 }
 
-export type ModuleCapability = keyof AtomicModuleCapabilities;
+export type ModuleCapability = keyof AtlaselleModuleCapabilities;
 
-export function defineModuleCapabilities<const T extends AtomicModuleCapabilities>(capabilities: T): Readonly<T> { return capabilities; }
-export function defineModuleCapabilityProviders<const T extends AtomicModuleCapabilityProviders>(providers: T): Readonly<T> { return providers; }
-export function defineModulePresentations<const T extends AtomicModulePresentations>(presentations: T): Readonly<T> { return presentations; }
+export function defineModuleCapabilities<const T extends AtlaselleModuleCapabilities>(capabilities: T): Readonly<T> { return capabilities; }
+export function defineModuleCapabilityProviders<const T extends AtlaselleModuleCapabilityProviders>(providers: T): Readonly<T> { return providers; }
+export function defineModulePresentations<const T extends AtlaselleModulePresentations>(presentations: T): Readonly<T> { return presentations; }
 
-export function assertModuleCapabilityProviders(module: AtomicModuleDefinition): void {
+export function assertModuleCapabilityProviders(module: AtlaselleModuleDefinition): void {
   for (const capability of Object.keys(module.capabilities) as ModuleCapability[]) {
     if (module.capabilities[capability] && !module.capabilityProviders[capability]) throw new Error(`Module ${module.id} enables ${capability} without a concrete provider.`);
   }

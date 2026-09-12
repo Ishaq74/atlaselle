@@ -2,16 +2,16 @@
   "config": {
     "argv": [
       "C:\\Users\\Utilisateur\\AppData\\Local\\Microsoft\\WinGet\\Packages\\OpenJS.NodeJS.22_Microsoft.Winget.Source_8wekyb3d8bbwe\\node-v22.22.0-win-x64\\node.exe",
-      "C:\\Users\\Utilisateur\\Documents\\atomic\\node_modules\\@playwright\\test\\cli.js",
+      "C:\\Users\\Utilisateur\\Documents\\atlaselle\\node_modules\\@playwright\\test\\cli.js",
       "test"
     ],
-    "configFile": "C:\\Users\\Utilisateur\\Documents\\atomic\\playwright.config.ts",
-    "rootDir": "C:/Users/Utilisateur/Documents/atomic/tests/e2e",
+    "configFile": "C:\\Users\\Utilisateur\\Documents\\atlaselle\\playwright.config.ts",
+    "rootDir": "C:/Users/Utilisateur/Documents/atlaselle/tests/e2e",
     "failOnFlakyTests": false,
     "forbidOnly": false,
     "fullyParallel": true,
-    "globalSetup": "C:\\Users\\Utilisateur\\Documents\\atomic\\tests\\e2e\\global-setup.ts",
-    "globalTeardown": "C:\\Users\\Utilisateur\\Documents\\atomic\\tests\\e2e\\global-teardown.ts",
+    "globalSetup": "C:\\Users\\Utilisateur\\Documents\\atlaselle\\tests\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\Users\\Utilisateur\\Documents\\atlaselle\\tests\\e2e\\global-teardown.ts",
     "globalTimeout": 0,
     "grep": {},
     "grepInvert": null,
@@ -20,13 +20,13 @@
     "preserveOutput": "always",
     "projects": [
       {
-        "outputDir": "C:/Users/Utilisateur/Documents/atomic/test-results",
+        "outputDir": "C:/Users/Utilisateur/Documents/atlaselle/test-results",
         "repeatEach": 1,
         "retries": 1,
         "metadata": {},
         "id": "chromium",
         "name": "chromium",
-        "testDir": "C:/Users/Utilisateur/Documents/atomic/tests/e2e",
+        "testDir": "C:/Users/Utilisateur/Documents/atlaselle/tests/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -34,13 +34,13 @@
         "timeout": 30000
       },
       {
-        "outputDir": "C:/Users/Utilisateur/Documents/atomic/test-results",
+        "outputDir": "C:/Users/Utilisateur/Documents/atlaselle/test-results",
         "repeatEach": 1,
         "retries": 1,
         "metadata": {},
         "id": "firefox",
         "name": "firefox",
-        "testDir": "C:/Users/Utilisateur/Documents/atomic/tests/e2e",
+        "testDir": "C:/Users/Utilisateur/Documents/atlaselle/tests/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -48,13 +48,13 @@
         "timeout": 30000
       },
       {
-        "outputDir": "C:/Users/Utilisateur/Documents/atomic/test-results",
+        "outputDir": "C:/Users/Utilisateur/Documents/atlaselle/test-results",
         "repeatEach": 1,
         "retries": 1,
         "metadata": {},
         "id": "webkit",
         "name": "webkit",
-        "testDir": "C:/Users/Utilisateur/Documents/atomic/tests/e2e",
+        "testDir": "C:/Users/Utilisateur/Documents/atlaselle/tests/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
