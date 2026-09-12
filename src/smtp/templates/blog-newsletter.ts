@@ -25,7 +25,7 @@ export function blogNewsletterConfirmTemplate({ locale, userName, confirmUrl, un
   };
 
   return {
-    subject: `${t.subject} — Atomic`,
+    subject: `${t.subject} — ATLASELLE`,
     html: renderEmailHtml(locale, layout, section),
     text: renderEmailText(section),
   };
@@ -51,7 +51,7 @@ export function blogNewsletterUnsubscribeTemplate({ locale, userName }: BlogNews
   };
 
   return {
-    subject: `${t.unsubscribedSubject} — Atomic`,
+    subject: `${t.unsubscribedSubject} — ATLASELLE`,
     html: renderEmailHtml(locale, layout, section),
     text: renderEmailText(section),
   };

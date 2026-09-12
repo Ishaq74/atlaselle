@@ -2,15 +2,15 @@ import type { AuthTranslations } from '../config';
 
 export default {
   meta: {
-    signIn: { title: 'Iniciar sesión — Atomic', description: 'Inicie sesión en su cuenta.' },
-    signUp: { title: 'Registro — Atomic', description: 'Cree su cuenta.' },
-    dashboard: { title: 'Panel — Atomic', description: 'Gestione su cuenta y organizaciones.' },
-    admin: { title: 'Administración — Atomic', description: 'Panel de administración.' },
-    forgotPassword: { title: 'Contraseña olvidada — Atomic', description: 'Restablezca su contraseña.' },
-    resetPassword: { title: 'Restablecer contraseña — Atomic', description: 'Elija una nueva contraseña.' },
-    verifyEmail: { title: 'Verificar correo — Atomic', description: 'Confirme su dirección de correo.' },
-    profile: { title: 'Mi perfil — Atomic', description: 'Gestione su información personal.' },
-    organizations: { title: 'Organizaciones — Atomic', description: 'Gestione sus organizaciones.' },
+    signIn: { title: 'Iniciar sesión — ATLASELLE', description: 'Inicie sesión en su cuenta.' },
+    signUp: { title: 'Registro — ATLASELLE', description: 'Cree su cuenta.' },
+    dashboard: { title: 'Panel — ATLASELLE', description: 'Gestione su cuenta y organizaciones.' },
+    admin: { title: 'Administración — ATLASELLE', description: 'Panel de administración.' },
+    forgotPassword: { title: 'Contraseña olvidada — ATLASELLE', description: 'Restablezca su contraseña.' },
+    resetPassword: { title: 'Restablecer contraseña — ATLASELLE', description: 'Elija una nueva contraseña.' },
+    verifyEmail: { title: 'Verificar correo — ATLASELLE', description: 'Confirme su dirección de correo.' },
+    profile: { title: 'Mi perfil — ATLASELLE', description: 'Gestione su información personal.' },
+    organizations: { title: 'Organizaciones — ATLASELLE', description: 'Gestione sus organizaciones.' },
   },
   routes: {
     'sign-in': 'iniciar-sesion',

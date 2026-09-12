@@ -2,15 +2,15 @@ import type { AuthTranslations } from '../config';
 
 export default {
   meta: {
-    signIn: { title: 'تسجيل الدخول — Atomic', description: 'سجّل الدخول إلى حسابك.' },
-    signUp: { title: 'إنشاء حساب — Atomic', description: 'أنشئ حسابك.' },
-    dashboard: { title: 'لوحة التحكم — Atomic', description: 'إدارة حسابك ومؤسساتك.' },
-    admin: { title: 'الإدارة — Atomic', description: 'لوحة الإدارة.' },
-    forgotPassword: { title: 'نسيت كلمة المرور — Atomic', description: 'أعد تعيين كلمة المرور.' },
-    resetPassword: { title: 'إعادة تعيين كلمة المرور — Atomic', description: 'اختر كلمة مرور جديدة.' },
-    verifyEmail: { title: 'تأكيد البريد الإلكتروني — Atomic', description: 'تأكيد عنوان بريدك الإلكتروني.' },
-    profile: { title: 'ملفي الشخصي — Atomic', description: 'إدارة معلوماتك الشخصية.' },
-    organizations: { title: 'المؤسسات — Atomic', description: 'إدارة مؤسساتك.' },
+    signIn: { title: 'تسجيل الدخول — ATLASELLE', description: 'سجّل الدخول إلى حسابك.' },
+    signUp: { title: 'إنشاء حساب — ATLASELLE', description: 'أنشئ حسابك.' },
+    dashboard: { title: 'لوحة التحكم — ATLASELLE', description: 'إدارة حسابك ومؤسساتك.' },
+    admin: { title: 'الإدارة — ATLASELLE', description: 'لوحة الإدارة.' },
+    forgotPassword: { title: 'نسيت كلمة المرور — ATLASELLE', description: 'أعد تعيين كلمة المرور.' },
+    resetPassword: { title: 'إعادة تعيين كلمة المرور — ATLASELLE', description: 'اختر كلمة مرور جديدة.' },
+    verifyEmail: { title: 'تأكيد البريد الإلكتروني — ATLASELLE', description: 'تأكيد عنوان بريدك الإلكتروني.' },
+    profile: { title: 'ملفي الشخصي — ATLASELLE', description: 'إدارة معلوماتك الشخصية.' },
+    organizations: { title: 'المؤسسات — ATLASELLE', description: 'إدارة مؤسساتك.' },
   },
   routes: {
     'sign-in': 'تسجيل-الدخول',

@@ -7,7 +7,7 @@ export default {
     badge: 'Building together',
     title: 'Civilization is built layer by layer',
     description:
-      'KLAN supports communities that build on the legacy of those who came before. Each generation adds its stone to the common edifice.',
+      'ATLASELLE supports communities that build on the legacy of those who came before. Each generation adds its stone to the common edifice.',
     ctaPrimary: 'Join the movement',
     ctaSecondary: 'Discover our vision',
     socialProofHeading: 'Join 10,000+ builders',
@@ -25,7 +25,7 @@ export default {
   ],
   pillars: {
     badge: 'Founding pillars',
-    title: 'The foundations of KLAN',
+    title: 'The foundations of ATLASELLE',
     description: 'Four principles guide our mission of collective building.',
     items: [
       { icon: 'mdi:account-group', title: 'Community', description: 'Bringing together those who share a common vision and build together.' },
@@ -36,20 +36,20 @@ export default {
   },
   testimonials: {
     badge: 'Testimonials',
-    heading: 'They build with KLAN',
+    heading: 'They build with ATLASELLE',
     description: 'Discover how our community of builders is shaping the future together.',
     items: [
       {
         name: 'Amina Belkacem',
         role: 'Founder, Roots Collective',
-        content: 'KLAN helped us structure our intergenerational transmission. Every layer of knowledge is preserved and accessible.',
+        content: 'ATLASELLE helped us structure our intergenerational transmission. Every layer of knowledge is preserved and accessible.',
         rating: 5,
         image: avatar1,
       },
       {
         name: 'Youssef Mansouri',
         role: 'Director, Memory Institute',
-        content: 'KLAN\'s vision deeply resonates with our mission. Building on the foundations of those who came before us.',
+        content: 'ATLASELLE\'s vision deeply resonates with our mission. Building on the foundations of those who came before us.',
         rating: 5,
         image: avatar2,
       },
@@ -63,7 +63,7 @@ export default {
       {
         name: 'Karim Ouadah',
         role: 'Architect, Builders Alliance',
-        content: 'KLAN embodies what every community platform should be: a collective edifice where everyone contributes their stone.',
+        content: 'ATLASELLE embodies what every community platform should be: a collective edifice where everyone contributes their stone.',
         rating: 5,
         image: avatar1,
       },
@@ -112,8 +112,8 @@ export default {
   },
   ctaBanner: {
     title: 'Ready to build your layer?',
-    description: 'Join thousands of builders shaping the future together with KLAN.',
-    primaryButton: { text: 'Join KLAN', href: '#' },
+    description: 'Join thousands of builders shaping the future together with ATLASELLE.',
+    primaryButton: { text: 'Join ATLASELLE', href: '#' },
     secondaryButton: { text: 'Learn more →', href: '#' },
   },
 } satisfies HomeTranslations;

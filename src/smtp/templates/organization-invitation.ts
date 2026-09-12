@@ -32,7 +32,7 @@ export function organizationInvitationTemplate({
   };
 
   return {
-    subject: `${subject} — Atomic`,
+    subject: `${subject} — ATLASELLE`,
     html: renderEmailHtml(locale, layout, section),
     text: renderEmailText(section),
   };

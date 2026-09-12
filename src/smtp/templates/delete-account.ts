@@ -24,7 +24,7 @@ export function deleteAccountTemplate({ locale, userName, deleteUrl }: DeleteAcc
   };
 
   return {
-    subject: `${t.subject} — Atomic`,
+    subject: `${t.subject} — ATLASELLE`,
     html: renderEmailHtml(locale, layout, section),
     text: renderEmailText(section),
   };

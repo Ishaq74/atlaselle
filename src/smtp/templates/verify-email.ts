@@ -23,7 +23,7 @@ export function verifyEmailTemplate({ locale, userName, verificationUrl }: Verif
   };
 
   return {
-    subject: `${t.subject} — Atomic`,
+    subject: `${t.subject} — ATLASELLE`,
     html: renderEmailHtml(locale, layout, section),
     text: renderEmailText(section),
   };

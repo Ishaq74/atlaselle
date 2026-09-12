@@ -1,0 +1,11 @@
+---
+import { getTripBySlug, tripUrl } from "@/data/trips";
+import { LOCALES } from "@i18n/config";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import TripPage from "@/components/pages/TripPage.astro";
+const trip = getTripBySlug("fr", Astro.params.slug ?? "");
+if (!trip) return Astro.rewrite("/404");
+const copy = trip.translations.fr;
+const alternateUrls = Object.fromEntries(LOCALES.map((loc) => [loc, tripUrl(loc, trip)]));
+---
+<BaseLayout title={`${copy.title} — ATLASELLE`} description={copy.summary} alternateUrls={alternateUrls}><TripPage trip={trip} locale="fr" /></BaseLayout>

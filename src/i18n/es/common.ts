@@ -2,7 +2,7 @@ import type { CommonTranslations } from '../config';
 
 export default {
   meta: {
-    title: 'Starwind Pro — Acelera tu desarrollo',
+    title: 'ATLASELLE — Acelera tu desarrollo',
     description: 'Construye aplicaciones listas para producción en la mitad del tiempo.',
   },
   pageRoutes: {
@@ -55,7 +55,7 @@ export default {
     },
   },
   rss: {
-    title: 'Starwind Pro \u2014 Fuente RSS',
-    description: '\u00daltimos contenidos publicados en Starwind Pro',
+    title: 'ATLASELLE \u2014 Fuente RSS',
+    description: '\u00daltimos contenidos publicados en ATLASELLE',
   },
 } satisfies CommonTranslations;

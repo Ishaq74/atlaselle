@@ -45,7 +45,7 @@ const [siteData, dbSocialLinks, headerNav, footerPrimary, footerSecondary, foote
   getConsentSettings(locale),
 ]);
 
-const siteName = siteData?.siteName ?? "";
+const siteName = siteData?.siteName ?? "ATLASELLE";
 const metaTitle = titleOverride ?? siteData?.metaTitle ?? t.meta.title;
 const metaDesc = descriptionOverride ?? siteData?.metaDescription ?? t.meta.description;
 
@@ -92,7 +92,7 @@ const legalHeading = footerLegalMeta?.showHeading !== false
   ? (siteData?.footerLegalHeading || footerLegalMeta?.displayLabel || t.footer.legalHeading)
   : undefined;
 
-const canonicalUrl = Astro.url.pathname;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.url.origin).href;
 ---
 
 <html lang={locale} dir={direction}>
@@ -147,7 +147,7 @@ const canonicalUrl = Astro.url.pathname;
         logoDarkUrl={siteData?.logoDark}
         links={links}
         ctaText={siteData?.headerCtaText || t.cta.getStarted}
-        ctaHref={siteData?.headerCtaUrl || "#get-started"}
+        ctaHref={siteData?.headerCtaUrl || `/${locale}/`}
         secondaryText={siteData?.headerSecondaryText || undefined}
         secondaryHref={siteData?.headerSecondaryUrl || undefined}
         user={user}
