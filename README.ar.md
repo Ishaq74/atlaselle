@@ -197,11 +197,11 @@ organisms/
   CookieConsent/
   Footer/
   Header/
-  OrgSidebar/
   Testimonials/
 pages/
   AboutPage/
   admin/
+  AtlaselleHome.astro
   auth/
   blog/
   cms/
@@ -210,12 +210,11 @@ pages/
   HomePage/
   LegalPage.astro
   org/
+  TripPage.astro
 services/
   AdminServiceForm.astro
   AdminServiceList.astro
   ServicesAdminPage.astro
-starwind/
-  blog/
 wow/
   AsyncButton.astro
   FallingParticles.astro
@@ -238,8 +237,8 @@ images/
 
 - **atoms/** — 48 components
 - **molecules/** — 3 components
-- **organisms/** — 12 components
-- **pages/** — 10 components
+- **organisms/** — 11 components
+- **pages/** — 12 components
 - **wow/** — 9 components
 
 ### الأنماط والرموز
@@ -284,6 +283,7 @@ commands/
   db.seed-media.ts
   db.seed.ts
   db.sync.ts
+  _migration-sql.ts
   _utils.ts
 data/
   00-media.data.ts
@@ -374,9 +374,9 @@ migrations/
   0004_flashy_ezekiel_stane.sql
   0005_hard_joseph.sql
   0006_services_module.sql
-  0007_services_search.sql
   0007_services_search_vector.sql
   0008_services_notification_targets.sql
+  0009_better_auth_account_issuer.sql
   meta/
     0000_snapshot.json
     0001_snapshot.json
@@ -405,7 +405,7 @@ schemas.ts
 **auth.schema.ts**
 - `user`: `id`, `name`, `email`, `emailVerified`, `image`, `createdAt`, `updatedAt`, `username`, `displayUsername`, `bio`, `website`, `twitter`, `linkedin`, `role`, `banned`, `banReason`, `banExpires` _(sessions: many, accounts: many, members: many, invitations: many)_
 - `session`: `id`, `expiresAt`, `token`, `createdAt`, `updatedAt`, `ipAddress`, `userAgent`, `userId`, `impersonatedBy`, `activeOrganizationId` _(user: one)_
-- `account`: `id`, `accountId`, `providerId`, `userId`, `accessToken`, `refreshToken`, `idToken`, `accessTokenExpiresAt`, `refreshTokenExpiresAt`, `scope`, `password`, `createdAt`, `updatedAt` _(user: one)_
+- `account`: `id`, `issuer`, `accountId`, `providerId`, `userId`, `accessToken`, `refreshToken`, `idToken`, `accessTokenExpiresAt`, `refreshTokenExpiresAt`, `scope`, `password`, `createdAt`, `updatedAt` _(user: one)_
 - `verification`: `id`, `identifier`, `value`, `expiresAt`, `createdAt`, `updatedAt`
 - `organization`: `id`, `name`, `slug`, `logo`, `createdAt`, `updatedAt`, `metadata` _(organizationRoles: many, members: many, invitations: many)_
 - `member`: `id`, `organizationId`, `userId`, `role`, `createdAt` _(organization: one, user: one)_
@@ -503,9 +503,9 @@ schemas.ts
 - `0004_flashy_ezekiel_stane.sql`
 - `0005_hard_joseph.sql`
 - `0006_services_module.sql`
-- `0007_services_search.sql`
 - `0007_services_search_vector.sql`
 - `0008_services_notification_targets.sql`
+- `0009_better_auth_account_issuer.sql`
 
 ### الأوامر
 
@@ -554,7 +554,6 @@ src/actions/
   admin/
   blog/
   index.ts
-  org/
   services/
 src/middleware.ts
 ```
@@ -709,6 +708,7 @@ services/
     lists/
       index.ts
       ServiceGrid.astro
+      ServicesListingPage.astro
     single/
       index.ts
       ServiceDetail.astro
@@ -752,6 +752,7 @@ api/
     [...all].ts
   blog/
     newsletter/
+  booking-quote.ts
   contact.ts
   content-export.ts
   content-import.ts
@@ -763,6 +764,14 @@ api/
   preview.ts
   search.ts
   upload.ts
+ar/
+  conditions.astro
+fr/
+  candidature/
+    [voyage].astro
+  conditions.astro
+  voyages/
+    [slug].astro
 index.astro
 robots.txt.ts
 rss.xml.ts
@@ -777,7 +786,6 @@ sitemap-services-org.xml.ts
     index.astro
     media.astro
     navigation.astro
-    organizations.astro
     pages.astro
     roles.astro
     services/
@@ -785,20 +793,24 @@ sitemap-services-org.xml.ts
     stats.astro
     theme.astro
     users.astro
+  apply/
+    [trip].astro
   auth/
     [slug].astro
   blog/
     index.astro
     [...slug].astro
   contact.astro
+  faq.astro
   index.astro
-  organizations/
-    [slug]/
   services/
     index.astro
     tags/
     [categorySlug]/
     [categorySlug].astro
+    [slug].astro
+  terms.astro
+  trips/
     [slug].astro
   [slug].astro
 src/layouts/
@@ -876,8 +888,6 @@ public/
 favicon.ico
 favicon.svg
 uploads/
-  images/
-  media/
 ```
 
 ### الرفع والمعالجة
@@ -1050,7 +1060,6 @@ agents/
   vladimir.agent.md
   yusra.agent.md
 dependabot.yml
-prompts/
 skills/
   accessibility/
     references/
