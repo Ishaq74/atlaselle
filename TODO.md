@@ -19,6 +19,14 @@ Ordre de priorité des arbitrages non explicitement tranchés : 1. simplicité ;
 
 Aucune donnée commerciale critique ne doit être définie à plusieurs endroits.
 
+0.3 Décisions actées (ne plus rouvrir sans arbitrage explicite)
+- Astro 7.3.1 (package.json fait foi, README à corriger) ; routage unique src/pages/[lang]/..., jamais de dossiers fr/en/es/ar en dur.
+- Locale par défaut = en ; x-default = en ; slugs voyage traduits (trip_translations.slug, UNIQUE(locale, slug), AR en ASCII EN) ; pas de 301 legacy (site pas encore en prod).
+- 11 modules voyage indépendants, pluggables/supprimables sans toucher à la base (zéro import DB croisé, interfaces + outbox uniquement) ; ne pas confondre src/modules/services/ (CMS vitrine inachevé) avec les nouveaux modules.
+- Paiement = module payments générique + adaptateur Stripe (pas le plugin better-auth-stripe).
+- Pricing 100 % administrable (deposit/singleSupplement/tax/fee/discount + pricingRules JSON Zod), montants en centimes, multi-devises EUR/USD V1 scalable ISO-4217.
+- Traveler découplé de user (userId nullable, UNIQUE(email CITEXT), pas de fusion auto) ; mode anonyme vs compte obligatoire paramétrable admin (global + surcharge par Trip).
+
 0.4 Sommaire
 Objet du document et règle de lecture
 
@@ -112,9 +120,11 @@ Le repo implémente aujourd'hui :
 
 ✅ un CMS éditorial générique (pages, sections, navigation, blog, services, médias, consentement, audit) ;
 
-✅ une brique ATLASELLE partielle : src/components/pages/AtlaselleHome.astro, src/components/pages/TripPage.astro, src/pages/[lang]/trips/[slug].astro, src/pages/[lang]/apply/[trip].astro, src/pages/api/booking-quote.ts ;
+✅ une brique ATLASELLE partielle : src/components/pages/AtlaselleHome.astro, src/components/pages/TripPage.astro, src/pages/[lang]/trips/[slug].astro, src/pages/[lang]/apply/[trip].astro ;
 
-🟡 des routes legacy src/pages/fr/... et src/pages/ar/... à supprimer (à remplacer par le routage [lang]) ;
+⚠️ src/pages/api/booking-quote.ts = mock statique sur src/data/trips (pas de DB, pas de service) — à supprimer/remplacer par PricingService + AvailabilityService ;
+
+🟡 des routes legacy src/pages/fr/... et src/pages/ar/... à supprimer. Routage unique : src/pages/[lang]/... (Astro dynamique, jamais de dossiers fr/en/es/ar en dur). Pas de redirection 301 : le site n'existe pas encore en production ;
 
 ❌ aucun schéma DB voyage (Trip, Departure, Itinerary, Traveler, Application, Reservation, Payment, SeatHold) ;
 
@@ -140,7 +150,7 @@ Le site n'est jamais un site anglais avec trois traductions annexes : c'est un s
 
 ✅ RTL_LOCALES (arabe) — détection RTL en place
 
-⚠️ Locale par défaut = fr (README + repo). Le chapitre 7.1 est aligné sur fr.
+✅ Locale par défaut = en (src/i18n/config.ts DEFAULT_LOCALE = en — décision actée). README mentionne fr : obsolète, à corriger. Le chapitre 7.1 est aligné sur en.
 
 ❌ Tables de traduction métier (trip_translations, itinerary_day_translations, etc.) : à créer
 
@@ -190,11 +200,12 @@ Actions / loaders	src/actions/, src/database/loaders/, src/modules/*/loaders/	�
 Domain services	src/modules/*/domain/ + src/modules/*/actions/	🟡 (blog/services), ❌ (ATLASELLE)
 Repositories / DB	src/database/schemas/, src/database/commands/, src/database/loaders/	✅
 Core partagé	src/core/ (admin, cache, revision, search, seo, i18n, …)	✅
-Décision : les services de domaine ATLASELLE vivent dans src/modules/<domain>/ (comme blog et services aujourd'hui). Chaque module ATLASELLE aura : schema/, domain/, actions/, loaders/, validation/, i18n/, admin/, components/, permissions/, seo/, module.ts.
+Décision : les 11 modules voyage vivent dans src/modules/<domain>/ (trips, departures, itinerary, pricing, availability, travelers, applications, reservations, payments, policies-voyage, outbox, email-voyage). Chaque module aura : schema/, domain/, actions/, loaders/, validation/, i18n/, admin/, components/, permissions/, seo/, module.ts.
+Attention : ne pas confondre avec src/modules/services/ existant = module CMS générique vitrine (services commerciaux, inachevé), sans rapport avec les domain services voyage. On ne touche pas à services/ sauf pour le garder isolé. Les nouveaux modules doivent être pluggables et supprimables sans toucher à la base : aucune importation DB croisée, communication via interfaces + outbox_events uniquement. Le module payments doit être réutilisable tel quel dans d'autres projets.
 
 3.4 Stack technique réelle
 text
-Core         : Astro 6.x, TypeScript strict, pnpm, Node.js ≥ 22.12.0
+Core         : Astro 7.3.1 (package.json), TypeScript strict, pnpm, Node.js ≥ 22.12.0
 Adapter      : @astrojs/node (SSR)
 Data         : PostgreSQL 16, Drizzle ORM, Drizzle Kit
 Validation   : Zod
@@ -208,7 +219,7 @@ Rate limit   : src/lib/rate-limit.ts (in-memory)
 Audit        : src/lib/audit.ts + table audit_log
 Recherche    : PostgreSQL FTS (search_vector)
 Médias       : Sharp, upload dans public/uploads/
-⚠️ La mention « Astro 7 » a été retirée : la version réelle est Astro 6.
+Version réelle : Astro 7.3.1 + @astrojs/node 11.1.5 (vérifié package.json). README mentionne Astro 6 : obsolète, à corriger.
 
 4. STRUCTURE RÉELLE DU REPOSITORY
 4.1 Structure actuelle
@@ -242,7 +253,7 @@ src/
 │   ├── migrations/             (0000 → 0009)
 │   └── cache.ts, drizzle.ts, env.ts
 ├── i18n/                       ✅
-│   ├── config.ts               (LOCALES, DEFAULT_LOCALE = fr, RTL_LOCALES = [ar])
+│   ├── config.ts               (LOCALES, DEFAULT_LOCALE = en, RTL_LOCALES = [ar])
 │   ├── utils.ts
 │   ├── {fr,en,es,ar}/          (about, auth, common, contact, home)
 │   └── blog/                   (fr, en, es, ar)
@@ -364,9 +375,9 @@ Policies (voyage)	❌
 7.1 Locales officielles
 text
 Locales            : fr, en, es, ar
-Locale par défaut  : fr
+Locale par défaut  : en
 Sens d'écriture    : fr → LTR, en → LTR, es → LTR, ar → RTL
-Aligné sur le README et src/i18n/config.ts.
+Aligné sur src/i18n/config.ts (décision actée EN). README mentionne fr : obsolète.
 
 Toutes les surfaces sont localisées : public, formulaires, erreurs, emails, métadonnées, données structurées, messages système. Le back-office administrateur est une surface distincte (§7.7).
 
@@ -377,7 +388,7 @@ Segments d'URL des langues latines (FR, ES) : traduits.
 
 Segments d'URL arabes : anglais translittéré ASCII (fiabilité partage / copier-coller / indexation). Contenu de la page : entièrement en arabe.
 
-Routage technique : segment dynamique [lang] unique. Table centralisée dans src/i18n/routes.ts (❌ à créer).
+Routage technique : segment dynamique [lang] unique OBLIGATOIRE. Interdit : dossiers statiques src/pages/fr/, src/pages/en/, src/pages/es/, src/pages/ar/. Toute page publique et admin vit sous src/pages/[lang]/.... Table centralisée dans src/i18n/routes.ts (❌ à créer). Décision : slugs voyage traduits par langue (trip_translations.slug, UNIQUE(locale, slug)) ; slugs AR en ASCII anglais.
 
 Zone	FR	EN	AR	ES
 Accueil	/fr/	/en/	/ar/	/es/
@@ -403,7 +414,7 @@ Cette table est la référence unique. Elle doit être encodée dans src/i18n/ro
 7.3 RTL — exigences spécifiques à l'arabe
 Exigence de premier ordre :
 
-<html lang="ar" dir="rtl"> posé par le middleware / layout pour toute route /ar/... ;
+<html lang="ar" dir="rtl"> posé par le layout (BaseLayout.astro:105 dir={direction} via getDirection — ✅ déjà en place) pour toute route /ar/... ; middleware ne pose pas dir (vérifié) ;
 
 mise en page miroir : navigation, icônes directionnelles, ordre des colonnes ;
 
@@ -417,7 +428,7 @@ ordre de tabulation logique en RTL ;
 
 tests visuels de non-régression RTL.
 
-État : 🟡 RTL_LOCALES détecté, attribut dir à confirmer dans BaseLayout.astro.
+État : ✅ RTL_LOCALES + dir={direction} déjà en place dans BaseLayout.astro:105. Reste : audit propriétés logiques CSS, isolation bidi, ordre tabulation, tests visuels RTL.
 
 7.4 Polices
 La police doit couvrir : latin étendu (é, à, ç, ñ, ¿, ¡) et écriture arabe. Si nécessaire, pile de secours par script, font-display: swap, subsetting par langue.
@@ -446,7 +457,7 @@ Langue de travail du back-office : décision distincte. Hypothèse retenue : int
 Les permissions peuvent être portées par langue de contenu (rôle « éditrice contenu AR »), sans complexifier la V1 : un rôle editor gère les 4 langues de contenu.
 
 7.8 SEO multilingue
-createSeoMetadata() produit les alternates hreflang uniquement pour les locales localeVisible, plus x-default.
+createSeoMetadata() produit les alternates hreflang uniquement pour les locales localeVisible, plus x-default = en (décision actée ; BaseLayout.astro:117 pointe encore fr : à corriger).
 
 Le sitemap n'inclut que les combinaisons page × locale publiées et indexables.
 
@@ -459,29 +470,32 @@ Emails transactionnels sélectionnés selon traveler.locale, avec repli contrôl
 Un Trip n'est ni une réservation, ni une date, ni un prix.
 
 text
-Trip
-  id, slug, status
-  countryCode, defaultCurrency, heroMediaId
+Trip (faits, jamais de texte traduit ici)
+  id, status
+  countryCode (ISO-3166-1 alpha-2), defaultCurrency (ISO-4217), heroMediaId
   durationDays, durationNights
-  groupMin, groupMax
-  difficulty, difficultyLevel
+  groupMin, groupMax (cadrage catalogue ; seuils opérationnels sur Departure)
+  difficulty, difficultyLevel (score 1-5 + label)
   arrivalAirport, departureAirport
   accommodationStyle
   publishedAt, createdAt, updatedAt
 Table : trips — Drizzle : src/modules/trips/schema/trips.schema.ts.
+Pas de colonne slug ici (décision slugs traduits) : voir TripTranslation.slug.
 
 8.2 TripTranslation — ❌ à créer
 text
 TripTranslation
   tripId, locale (∈ { fr, en, es, ar })
+  slug (traduit par langue, ASCII ; AR = slug EN translittéré ; décision actée)
   title, shortTitle, summary, overview
   highlights, experience, fitness, preparation, lodging, food, faithConsiderations
   metaTitle, metaDescription
   localeVisible (cf. 7.5)
   createdAt, updatedAt
 
-Contrainte : UNIQUE(tripId, locale)
+Contraintes : UNIQUE(tripId, locale), UNIQUE(locale, slug)
 Table : trip_translations.
+Résolution route : [lang] + segment traduit (routes.ts) + slug de la locale. Pas de 301 legacy : site non encore en production.
 
 La disponibilité, la capacité, le prix et les dates ne sont jamais dupliqués par langue.
 
@@ -497,14 +511,18 @@ Toute transition passe par une action explicite (publishTrip(), unpublishTrip(),
 
 8.4 Departure — ❌ à créer
 text
-Departure
+Departure (prix 100 % administrables, multi-devises EUR/USD à la V1, scalable via ISO-4217)
   id, tripId
   startDate, endDate, status
   capacityMin, capacityMax
-  priceAmount, currency, depositAmount, singleSupplementAmount
+  priceAmount, currency, depositType (fixed|percent|none), depositAmount, depositPercent,
+  singleSupplementAmount, singleSupplementType (fixed|percent|none),
+  taxAmount, taxType, feeAmount, feeType, discountAmount, discountType,
+  pricingRules (JSON validé Zod : seuils, suppléments, réductions — éditable admin)
   balanceDueDate, bookingDeadline
   arrivalAirport, departureAirport
   createdAt, updatedAt
+Règle : aucun montant en dur côté client ; tout est lu depuis Departure + PricingService. Admin édite tous les champs ci-dessus.
 Statuts :
 
 text
@@ -576,10 +594,12 @@ Statuts    : active | expired | released | converted
 Transaction PostgreSQL obligatoire : SELECT ... FOR UPDATE sur la ligne departures, ou contrainte CHECK + index partiel, pour empêcher la surréservation.
 
 11. VOYAGEUSES & CANDIDATURES
-11.1 Traveler — ❌ à créer
+11.1 Traveler — ❌ à créer (module indépendant, découplé de user, supprimable sans toucher à la base auth)
 text
-travelers : id, email, phone, legalName, preferredName, dateOfBirth, locale, timezone, createdAt, updatedAt
-Éviter les doublons évidents sur email, sans en faire une identité primaire.
+travelers : id, userId NULLABLE (lien optionnel vers auth.user, jamais FK dure bloquant la suppression du module),
+  email CITEXT UNIQUE, phone, legalName, preferredName, dateOfBirth, locale, timezone,
+  emailVerifiedAt, createdAt, updatedAt
+Décisions actées : traveler ≠ user (table propre au module travelers). Déduplication : UNIQUE(email) insensible à la casse + normalisation (trim/lowercase) à l'écriture, sans fusion automatique ; en cas de conflit : réutiliser le traveler existant si email vérifié, sinon erreur contrôlée APPLICATION_EMAIL_CONFLICT. Mode anonyme vs compte obligatoire = paramétrable depuis l'admin (global + surcharge par Trip : requireAccount true|false, par défaut false en V1). Si requireAccount=true : userId obligatoire + email vérifié better-auth avant submit.
 
 11.2 Données sensibles
 Jamais dans : analytics, logs, URLs, état client, messages d'erreur, HTML public. redactSensitive() masque les champs sensibles.
@@ -605,7 +625,7 @@ application_events    : created, submitted, viewed, review_started, contact_requ
 Jamais d'écrasement de statut : chaque décision crée un enregistrement.
 
 11.5 Délai et approbation
-Pas de soumission après bookingDeadline (sauf dérogation par rôle). Approbation → statut approved, email d'approbation, événement d'audit — aucune réservation créée automatiquement.
+Pas de soumission après bookingDeadline (sauf dérogation par rôle + audit). Approbation → statut approved, email d'approbation avec lien checkout horodaté, événement d'audit — aucune réservation créée automatiquement. Accès checkout : via lien signé + contrôle traveler (email) ; si Trip.requireAccount=true, login + email vérifié exigés. Paramètres admin : checkoutLinkTTL (défaut 7 j), applicationExpiry (défaut 30 j sans décision → expired).
 
 12. RÉSERVATIONS & MOTEUR DE PRIX
 12.1 Reservation — ❌ à créer
@@ -617,16 +637,17 @@ reservations :
   confirmedAt, cancelledAt, completedAt, createdAt, updatedAt
 
 Statuts : pending, awaiting_payment, confirmed, balance_due, completed, cancelled, refunded
-12.2 PricingService — ❌ à créer
+12.2 PricingService — ❌ à créer (100 % piloté admin, multi-devises)
 text
-Entrée : departure, traveler, roomPreference, pricingContext
+Entrée : departure, traveler, roomPreference, pricingContext { currency demandée }
 Sortie : baseAmount, supplementAmount, discountAmount, taxAmount, feeAmount,
          totalAmount, depositAmount, balanceAmount, currency
+Règles administrables par Departure : depositType/Amount/Percent, singleSupplementType/Amount, taxType/Amount, feeType/Amount, discountType/Amount, pricingRules JSON (Zod). Devises V1 : EUR + USD (ISO-4217, scalable : ajouter une devise = config, pas de migration). Prix toujours recalculé serveur au checkout + au webhook (jamais de montant client). Tous les montants en centimes (integer) + currency.
 12.3 Immutabilité du prix
 Une réservation confirmée conserve le prix appliqué. Toute modification future du prix du départ ne modifie jamais rétroactivement. Technique : reservation_price_snapshots ou valeurs financières incorporées à la réservation.
 
-13. PAIEMENT, WEBHOOK, TUNNEL DE RÉSERVATION
-13.1 Payment — ❌ à créer
+13. PAIEMENT, WEBHOOK, TUNNEL DE RÉSERVATION (provider = Stripe, module payments générique réutilisable)
+13.1 Payment — ❌ à créer (module indépendant, aucune dépendance voyage : ne connaît que reservationId, amount, currency)
 text
 payments :
   id, reservationId, provider, providerPaymentId, type, status
@@ -810,8 +831,9 @@ Un composant ou une route n'est jamais une frontière suffisante. Chaque action 
 Guards existants : src/lib/auth-guards.ts — à réutiliser.
 
 18. SÉCURITÉ APPLICATIVE
-18.1 En-têtes de sécurité — ✅ présents
-Content-Security-Policy, Referrer-Policy, Permissions-Policy, X-Content-Type-Options, X-Frame-Options, Strict-Transport-Security posés par middleware.ts.
+18.1 En-têtes de sécurité — 🟡 partiels (vérifié src/middleware.ts)
+Posés : X-Content-Type-Options, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy, HSTS, COOP/CORP/COEP.
+Manquants : Content-Security-Policy (à créer, avec allowlist Stripe.js), requestId. Middleware ne pose pas dir (géré par layout).
 
 18.2 Rate limiting et anti-bot — ✅ présent
 src/lib/rate-limit.ts (in-memory). Limitation sur : contact, newsletter, candidature, login admin, reset password, initiation paiement. Protection additionnelle possible : honeypot, timing, captcha — selon spam observé.
@@ -859,8 +881,8 @@ page_view, trip_view, trip_filter, apply_start, apply_submit, checkout_start,
 payment_start, purchase, contact_submit, newsletter_signup
 Jamais : motivation, régime, médical/accessibilité, notes internes.
 
-20.4 Request ID
-Corrélation via requestId propagé dans log, action, service, job email, paiement — sans données sensibles.
+20.4 Request ID — ❌ à créer
+Corrélation via requestId (middleware → Astro.locals → log, action, service, job email, paiement) — sans données sensibles. Absent aujourd'hui (vérifié middleware).
 
 21. BASE DE DONNÉES
 21.1 Organisation réelle des schémas
@@ -916,9 +938,9 @@ Clés recommandées : trip:{id}, departure:{id}, trips:list, homepage:featured, 
 
 23. ROUTES, LOADERS, DTO, CONTRATS D'ACTION
 23.1 Architecture des routes
-Toutes les pages publiques et le back-office vivent sous /[lang]/..., y compris /[lang]/admin. La locale fait partie du contexte de route, jamais du modèle métier.
+Toutes les pages publiques et le back-office vivent sous /[lang]/..., y compris /[lang]/admin. La locale fait partie du contexte de route, jamais du modèle métier. Interdit : tout dossier statique src/pages/fr|en|es|ar.
 
-Legacy src/pages/fr/ et src/pages/ar/ à supprimer.
+Legacy src/pages/fr/ et src/pages/ar/ à supprimer sans redirection 301 (site pas encore en production — décision actée).
 
 23.2 Page factory et data loader
 text
@@ -970,8 +992,8 @@ Tailles responsives, dimensions correctes, format moderne, alt, stratégie de ch
 25.3 Mouvement et mobile
 prefers-reduced-motion: reduce → animations minimisées. Mobile ≠ desktop compressé : layouts mobile/tablette/desktop distincts.
 
-25.4 Accessibilité — cible WCAG 2.2 AA
-État : ✅ CI exécute Pa11y (WCAG AAA) + Lighthouse CI.
+25.4 Accessibilité — cible WCAG 2.2 AA (Pa11y configuré en AAA : plus strict, à garder ; corrige l'incohérence AA vs AAA)
+État : ✅ CI exécute Pa11y + Lighthouse CI.
 
 Navigation clavier, focus visible, ordre logique, labels, erreurs associées, contraste, sémantique, alternatives, réduction mouvement, zoom, taille cible, mobile.
 
@@ -1212,13 +1234,15 @@ Dernière place, deux acheteuses : l'une réussit, l'autre DEPARTURE_SOLD_OUT
 Concurrence admin : verrouillage optimiste
 
 33. COMPLÉMENTS ET CORRECTIONS DE CETTE VERSION
-Astro 6 (pas 7) — aligné sur README.md + package.json.
+Astro 7.3.1 — vérifié package.json (README mentionne 6 : obsolète à corriger).
 
-better-auth (pas custom) — email/password, email verification, org, rôles, impersonation.
+better-auth (pas custom) — email/password, email verification, org, rôles, impersonation. Ne pas confondre avec Stripe : le plugin better-auth-stripe ne sert pas au tunnel voyage ; module payments générique + adaptateur Stripe dédié.
 
-Locale par défaut = fr — aligné sur README + config.ts.
+Locale par défaut = en — aligné sur src/i18n/config.ts, décision actée (README mentionne fr : obsolète).
 
-Routage [lang] dynamique — les dossiers statiques fr/ et ar/ sont identifiés comme legacy à supprimer.
+Routage [lang] dynamique uniquement — les dossiers statiques fr/ et ar/ sont legacy à supprimer sans 301 (site pas encore en prod). Ne jamais recréer de dossiers fr/en/es/ar en dur.
+
+Ne pas confondre src/modules/services/ (CMS vitrine générique, inachevé) avec les domain services voyage (pricing, availability, booking) ni avec les 11 nouveaux modules.
 
 Architecture core/modules/lib/database documentée telle qu'elle existe, avec correspondance vers les couches conceptuelles (UI/Actions/Domain/Repositories).
 
@@ -1236,7 +1260,7 @@ Pa11y (WCAG AAA) + Lighthouse CI — déjà en place, à étendre aux pages voya
 
 Rôles better-auth (user, admin, organization_role) → extension vers super_admin, trip_manager, reviewer, finance, support, editor.
 
-Composants ATLASELLE partiels identifiés : AtlaselleHome.astro, TripPage.astro, apply/[trip].astro, trips/[slug].astro, booking-quote.ts.
+Composants ATLASELLE partiels identifiés : AtlaselleHome.astro, TripPage.astro, apply/[trip].astro, trips/[slug].astro. booking-quote.ts = mock statique à supprimer (hors architecture).
 
 Legacy à supprimer : src/pages/fr/candidature/[voyage].astro, src/pages/fr/voyages/[slug].astro, src/pages/fr/conditions.astro, src/pages/ar/conditions.astro.
 
@@ -1355,14 +1379,14 @@ NE JAMAIS PUBLIER DE CONTENU NON VALIDÉ.
 NE JAMAIS MÉLANGER CONTEXTE DE SÉCURITÉ ADMIN ET PUBLIC.
 NE JAMAIS RENDRE L'ÉTAT TRANSACTIONNEL OPTIMISTE.
 35.3 Définition finale
-ATLASELLE = un site Astro 6 éditorial performant en 4 langues + un modèle de données voyage structuré + un CMS métier spécialisé + un workflow candidature + un moteur de réservation + un moteur de prix + un inventaire transactionnel + une intégration paiement + un système de communication + un back-office administrable + une couche d'audit + une architecture i18n complète (RTL inclus) + une infrastructure de tests et d'observabilité.
+ATLASELLE = un site Astro 7 éditorial performant en 4 langues + un modèle de données voyage structuré + un CMS métier spécialisé + un workflow candidature + un moteur de réservation + un moteur de prix administrable multi-devises + un inventaire transactionnel + une intégration Stripe via module payments générique réutilisable + un système de communication + un back-office administrable + une couche d'audit + une architecture i18n complète (RTL inclus, [lang] unique) + une infrastructure de tests et d'observabilité.
 
 Le socle technique existe (better-auth, Drizzle, Starwind, SMTP, i18n, audit, CMS, tests, CI/CD). Le cœur voyage est à construire.
 
 L'objectif : qu'une personne découvre un voyage, le comprenne, candidate, soit évaluée, paie, réserve, reçoive ses informations — dans sa langue — pendant que l'équipe publie, traduit, vend, contrôle, rembourse et audite, sans jamais casser le site, les traductions, l'inventaire ou les finances.
 
-ANNEXE A — MATRICE DES URLS PAR ZONE (4 LANGUES)
-Zone	FR (défaut)	EN	AR	ES
+ANNEXE A — MATRICE DES URLS PAR ZONE (4 LANGUES, routage [lang] unique, défaut EN)
+Zone	FR	EN (défaut)	AR	ES
 Accueil	/fr/	/en/	/ar/	/es/
 Liste voyages	/fr/voyages	/en/trips	/ar/trips	/es/viajes
 Détail voyage	/fr/voyages/[slug]	/en/trips/[slug]	/ar/trips/[slug]	/es/viajes/[slug]
@@ -1384,7 +1408,7 @@ src/pages/fr/candidature/[voyage].astro   ⚠️ SUPPRIMER
 src/pages/fr/voyages/[slug].astro         ⚠️ SUPPRIMER
 src/pages/fr/conditions.astro             ⚠️ SUPPRIMER
 src/pages/ar/conditions.astro             ⚠️ SUPPRIMER
-Ces routes sont couvertes par src/pages/[lang]/....
+Ces routes sont couvertes par src/pages/[lang]/.... Suppression sèche sans 301 (site pas encore en prod — décision actée). Interdit de recréer des dossiers statiques de langue.
 
 ANNEXE B — MATRICE DES SOURCES (classeur + repo)
 #	Zone	Source classeur	Table(s) DB cible	État
@@ -1445,13 +1469,13 @@ QA finale — aucune source externe, aucun placeholder, aucun lien cassé, aucun
 
 ANNEXE E — ÉTAT D'AVANCEMENT RÉEL
 ✅ Déjà en place (socle)
-Fondations Astro 6 + TypeScript strict + alias + ESLint + Prettier + CI/CD
+Fondations Astro 7.3.1 + TypeScript strict + alias + ESLint + Prettier + CI/CD
 
 PostgreSQL 16 + Drizzle ORM + migrations 0000 → 0009
 
 better-auth (email/password, email verification, organisations, rôles, impersonation)
 
-i18n 4 langues (fr par défaut, en, es, ar RTL)
+i18n 4 langues (en par défaut — décision actée, fr/en/es/ar, ar RTL, routage [lang] unique)
 
 Médias (folders, files, alts localisés, Sharp, upload/delete/list)
 
@@ -1467,7 +1491,7 @@ CMS (pages, sections, navigation, consentement, thème)
 
 Blog (module complet : post, translation, catégorie, tag, commentaire, review, réaction, abonné, notification)
 
-Services (module complet : service, traduction, catégorie, tag, média, disponibilité, SEO)
+Services (module CMS vitrine générique, inachevé : service, traduction, catégorie, tag, média, disponibilité, SEO — à ne pas confondre avec les domain services voyage ni les 11 nouveaux modules ; isolé, ne pas polluer)
 
 Back-office admin (audit, blog, media, navigation, pages, roles, services, site, stats, theme, users)
 
@@ -1488,7 +1512,7 @@ src/pages/[lang]/trips/[slug].astro
 
 src/pages/[lang]/apply/[trip].astro
 
-src/pages/api/booking-quote.ts
+src/pages/api/booking-quote.ts (mock statique à supprimer)
 
 src/pages/[lang]/faq.astro
 
@@ -1531,7 +1555,7 @@ Suppression legacy src/pages/fr/ et src/pages/ar/
 
 loadTripPage(), loadAdminTrips(), loadAdminTrip(), loadAdminApplications(), loadAdminReservations()
 
-Extension middleware.ts : dir="rtl" pour /ar/, requestId
+Extension middleware.ts : CSP (allowlist Stripe) + requestId (dir RTL déjà géré par BaseLayout, ne pas dupliquer)
 
 Renforcement sanitize.ts : neutralisation Unicode bidi
 
@@ -1542,4 +1566,3 @@ Migrations 0010 → 0015
 Seeds 41 → 46
 
 Tests ATLASELLE (unit, intégration, E2E 4 langues, concurrence)
-
