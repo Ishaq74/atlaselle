@@ -62,6 +62,7 @@ export const emailDeliveries = pgTable(
     locale: localeEnum,
     toEmail: varchar("to_email", { length: 320 }).notNull(),
     travelerId: text("traveler_id"),
+    reservationId: text("reservation_id"),
     status: text("status", { enum: EMAIL_DELIVERY_STATUSES }).default("queued").notNull(),
     attempts: integer("attempts").default(0).notNull(),
     lastError: text("last_error"),
@@ -73,6 +74,7 @@ export const emailDeliveries = pgTable(
   (table) => [
     index("email_deliveries_status_idx").on(table.status, table.scheduledAt),
     index("email_deliveries_traveler_idx").on(table.travelerId),
+    index("email_deliveries_reservation_idx").on(table.reservationId),
   ],
 );
 

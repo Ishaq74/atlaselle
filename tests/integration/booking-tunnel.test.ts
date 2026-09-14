@@ -55,11 +55,7 @@ const adminCtx = (userId: string) => ({
 
 async function cleanup() {
   const apps = await db.select({ id: applications.id, travelerId: applications.travelerId }).from(applications).where(eq(applications.tripId, TRIP_ID));
-  for (const a of apps) {
-    await db.delete(applicationDecisions).where(eq(applicationDecisions.applicationId, a.id));
-    await db.delete(applicationEvents).where(eq(applicationEvents.applicationId, a.id));
-    await db.delete(checkoutSessions).where(eq(checkoutSessions.applicationId, a.id));
-  }
+  const travelerIds = [...new Set(apps.map((a) => a.travelerId))];
   const res = await db.select({ id: reservations.id }).from(reservations).where(eq(reservations.tripId, TRIP_ID));
   for (const r of res) {
     const pays = await db.select({ id: payments.id }).from(payments).where(eq(payments.reservationId, r.id));
@@ -71,9 +67,16 @@ async function cleanup() {
     await db.delete(reservations).where(eq(reservations.id, r.id));
   }
   for (const a of apps) {
+    await db.delete(applicationDecisions).where(eq(applicationDecisions.applicationId, a.id));
+    await db.delete(applicationEvents).where(eq(applicationEvents.applicationId, a.id));
+    await db.delete(checkoutSessions).where(eq(checkoutSessions.applicationId, a.id));
+  }
+  for (const a of apps) {
     await db.delete(outboxEvents).where(eq(outboxEvents.aggregateId, a.id));
     await db.delete(applications).where(eq(applications.id, a.id));
-    await db.delete(travelers).where(eq(travelers.id, a.travelerId));
+  }
+  for (const tid of travelerIds) {
+    await db.delete(travelers).where(eq(travelers.id, tid));
   }
   await db.delete(seatHolds).where(eq(seatHolds.departureId, DEP_ID));
   await db.delete(departures).where(eq(departures.id, DEP_ID));

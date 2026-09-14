@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, lte } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { checkoutSessions } from "@database/schemas";
 import { applications } from "@database/schemas";
@@ -37,4 +37,14 @@ export async function markCheckoutCompleted(sessionId: string, reservationId: st
     .update(checkoutSessions)
     .set({ status: "completed", reservationId })
     .where(and(eq(checkoutSessions.id, sessionId), eq(checkoutSessions.status, "open")));
+}
+
+// Job expireCheckoutSessions (TODO §14.2).
+export async function expireCheckoutSessions(now = new Date()): Promise<number> {
+  const expired = await getDrizzle()
+    .update(checkoutSessions)
+    .set({ status: "expired" })
+    .where(and(eq(checkoutSessions.status, "open"), lte(checkoutSessions.expiresAt, now)))
+    .returning({ id: checkoutSessions.id });
+  return expired.length;
 }

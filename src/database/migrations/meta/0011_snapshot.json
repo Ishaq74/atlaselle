@@ -1,6 +1,6 @@
 {
-  "id": "f5b15af8-01e5-4ea4-b996-952fc278403f",
-  "prevId": "d7caa879-b989-444a-8de2-9201dd9ad46a",
+  "id": "bd6176ea-2b43-4295-b805-38ce417bf415",
+  "prevId": "f5b15af8-01e5-4ea4-b996-952fc278403f",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -13525,6 +13525,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "reservation_id": {
+          "name": "reservation_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "status": {
           "name": "status",
           "type": "text",
@@ -13600,6 +13606,21 @@
           "columns": [
             {
               "expression": "traveler_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "email_deliveries_reservation_idx": {
+          "name": "email_deliveries_reservation_idx",
+          "columns": [
+            {
+              "expression": "reservation_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

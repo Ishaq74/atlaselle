@@ -88,4 +88,6 @@ export const seedManifest: SeedEntry[] = [
   { dataFile: '46d-trip-inclusion-translations.data.ts', schemaExport: 'tripInclusionTranslations', label: 'trip inclusion translations' },
   { dataFile: '46e-trip-exclusions.data.ts', schemaExport: 'tripExclusions', label: 'trip exclusions' },
   { dataFile: '46f-trip-exclusion-translations.data.ts', schemaExport: 'tripExclusionTranslations', label: 'trip exclusion translations' },
+  { dataFile: '47-policy-documents.data.ts', schemaExport: 'policyDocuments', label: 'policy documents' },
+  { dataFile: '47b-policy-versions.data.ts', schemaExport: 'policyVersions', label: 'policy versions' },
 ];
