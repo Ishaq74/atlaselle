@@ -1,0 +1,38 @@
+---
+import type { Locale } from "@i18n/config";
+import { getTripPath } from "@i18n/routes";
+import type { TripSummaryDTO } from "@/modules/trips/loaders/trip.loader";
+
+interface Props {
+  trip: TripSummaryDTO;
+  locale: Locale;
+}
+
+const { trip, locale } = Astro.props;
+const href = getTripPath(locale, trip.slug);
+const pricePrefix = trip.currency === "EUR" ? "€" : `${trip.currency} `;
+const labels =
+  locale === "fr"
+    ? { from: "À partir de", duration: "jours", discover: "Découvrir", open: "Disponible", interest: "Liste d'intérêt" }
+    : locale === "es"
+      ? { from: "Desde", duration: "días", discover: "Descubrir", open: "Disponible", interest: "Lista de interés" }
+      : locale === "ar"
+        ? { from: "ابتداءً من", duration: "أيام", discover: "اكتشف", open: "متاح", interest: "قائمة الاهتمام" }
+        : { from: "From", duration: "days", discover: "Discover", open: "Available", interest: "Interest list" };
+---
+<article class="overflow-hidden rounded-xl border bg-card">
+  <div class="flex h-44 items-end bg-gradient-to-br from-primary/80 to-primary p-5" aria-hidden="true">
+    <span class="rounded-full bg-background/90 px-3 py-1 text-xs font-semibold">
+      {trip.status === "open" ? labels.open : labels.interest}
+    </span>
+  </div>
+  <div class="p-6">
+    <h2 class="text-xl font-bold">{trip.title}</h2>
+    <p class="mt-2 text-sm text-muted-foreground">{trip.dates} · {trip.durationDays} {labels.duration} · {trip.difficulty}</p>
+    <p class="mt-3 line-clamp-3 text-sm">{trip.summary}</p>
+    <div class="mt-5 flex items-center justify-between">
+      <p class="text-sm text-muted-foreground">{labels.from} <span class="text-lg font-bold text-foreground">{pricePrefix}{trip.priceFrom.toLocaleString("en")}</span></p>
+      <a class="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground" href={href}>{labels.discover}</a>
+    </div>
+  </div>
+</article>

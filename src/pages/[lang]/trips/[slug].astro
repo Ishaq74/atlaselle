@@ -1,18 +1,18 @@
 ---
 import { toLocale } from "@i18n/utils";
 import { LOCALES } from "@i18n/config";
-import { getTripBySlug, tripUrl } from "@/data/trips";
+import { getTripPath } from "@i18n/routes";
+import { loadTripPage } from "@/modules/trips/loaders/trip.loader";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import TripPage from "@/components/pages/TripPage.astro";
 const locale = toLocale(Astro.params.lang);
-const trip = getTripBySlug(locale, Astro.params.slug ?? "");
-if (!trip) return Astro.rewrite("/404");
-const copy = trip.translations[locale as Exclude<typeof locale, "es">] ?? trip.translations.en;
-const alternateUrls = Object.fromEntries(LOCALES.map((loc) => [loc, tripUrl(loc, trip)]));
-// Canonique = slug localisé (Annexe A) ; les accès directs /{lang}/trips/* consolident via cross-canonical.
-const canonicalPath = tripUrl(locale, trip);
-const jsonLd = JSON.stringify({"@context":"https://schema.org","@type":"TouristTrip",name:copy.title,description:copy.summary,inLanguage:locale,offers:{"@type":"Offer",price:trip.price,priceCurrency:trip.currency,availability:trip.status === "open" ? "https://schema.org/InStock" : "https://schema.org/PreOrder"}});
+const dto = await loadTripPage(locale, Astro.params.slug ?? "");
+if (!dto) return Astro.rewrite("/404");
+const copy = dto.translations[locale];
+const alternateUrls = Object.fromEntries(LOCALES.map((loc) => [loc, getTripPath(loc, dto.translations[loc].slug)]));
+const canonicalPath = getTripPath(locale, copy.slug);
+const jsonLd = JSON.stringify({"@context":"https://schema.org","@type":"TouristTrip",name:copy.title,description:copy.summary,inLanguage:locale,offers:{"@type":"Offer",price:dto.price,priceCurrency:dto.currency,availability:dto.status === "open" ? "https://schema.org/InStock" : "https://schema.org/PreOrder"}});
 ---
 <BaseLayout title={`${copy.title} — ATLASELLE`} description={copy.summary} canonicalPath={canonicalPath} alternateUrls={alternateUrls} jsonLd={jsonLd}>
-  <TripPage trip={trip} locale={locale} />
+  <TripPage trip={dto} locale={locale} />
 </BaseLayout>
