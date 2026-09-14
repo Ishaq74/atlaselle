@@ -13,7 +13,7 @@
 - Tunnel complet prouvé en intégration (mock) : approbation → checkout (TTL 7 j) → hold → snapshot → paiement → webhook idempotent → confirmation → hold converti → refund.
 - Pages : `/[lang]/trips` (liste + filtres), `/[lang]/trips/[slug]`, `/[lang]/apply/[trip]` (vrai formulaire), `/[lang]/checkout/[session]`, `/[lang]/booking-confirmed`, `/api/payments/webhook|mock-callback`, `/api/cron/voyage`, `/api/analytics`. Admin : `/[lang]/admin/trips` (liste + fiche, transitions, départs).
 - Emails : 12 templates × 4 langues + worker + rappels (solde J-7, pré J-14, post J+3, dédupliqués).
-- Build `pnpm build` VERT. Tests : **128 fichiers, 1379 tests, 100 % verts** (baseline 2026-09-14 : 15 fichiers / 44 tests en échec — tous réparés ou requalifiés single-tenant).
+- Build `pnpm build` VERT. Tests : **128 fichiers, 1379 tests, 100 % verts** (baseline 2026-09-14 : 15 fichiers / 44 tests en échec — tous réparés ou requalifiés single-tenant). `pnpm check` : **0 erreur** (baseline : 178). Lint : 0 erreur sur les fichiers voyage (6 fichiers préexistants blog/services/home en erreur).
 - Scope org coupé (TODO §30.3) : pas de plugin organization, pas de routes `/organizations/`, tests org supprimés/réécrits (`auth-org`, `admin-roles`, specs e2e blog/services).
 - Reste : runs navigateurs/E2E en CI (spec `voyage.spec.ts` écrit, non exécuté en local — Playwright mis en pause), pa11y/lhci à relancer, allowlist CSP Stripe, contenus ES/AR à relire par natifs, validation juridique des policies, checklist prod §34, merge de la branche.
 
