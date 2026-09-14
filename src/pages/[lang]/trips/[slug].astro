@@ -7,7 +7,10 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import TripPage from "@/components/pages/TripPage.astro";
 const locale = toLocale(Astro.params.lang);
 const dto = await loadTripPage(locale, Astro.params.slug ?? "");
-if (!dto) return Astro.rewrite("/404");
+if (!dto) {
+  Astro.response.status = 404;
+  return Astro.rewrite("/404");
+}
 const copy = dto.translations[locale];
 const alternateUrls = Object.fromEntries(LOCALES.map((loc) => [loc, getTripPath(loc, dto.translations[loc].slug)]));
 const canonicalPath = getTripPath(locale, copy.slug);

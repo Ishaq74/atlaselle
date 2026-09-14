@@ -15,8 +15,12 @@ describe('trip transitions (TODO §8.3)', () => {
 
   it('rejects generic status jumps', () => {
     expect(canTransitionTrip('draft', 'published')).toBe(false);
-    expect(canTransitionTrip('archived', 'published')).toBe(false);
     expect(() => assertTransitionTrip('draft', 'published')).toThrow();
+  });
+
+  it('restores archived trips to unpublished', () => {
+    expect(canTransitionTrip('archived', 'unpublished')).toBe(true);
+    expect(canTransitionTrip('published', 'unpublished')).toBe(true);
   });
 
   it('covers every declared status', () => {

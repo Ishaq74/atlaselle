@@ -56,6 +56,32 @@ export async function assertBlogMediaExists(mediaId: string) {
   return media;
 }
 
+// Contexte single-tenant (organisations hors périmètre, TODO §30.3).
+export interface BlogTenantContext {
+  organizationId: string | null;
+  isOrgContext: boolean;
+}
+
+export function resolveBlogTenant(_input: { organizationId?: string | null }): BlogTenantContext {
+  return { organizationId: null, isOrgContext: false };
+}
+
+export async function assertPostInTenant(postId: string, _tenant?: BlogTenantContext) {
+  return assertBlogPostExists(postId);
+}
+
+export async function assertCategoryInTenant(categoryId: string, _tenant?: BlogTenantContext) {
+  return assertBlogCategoryExists(categoryId);
+}
+
+export async function assertTagInTenant(tagId: string, _tenant?: BlogTenantContext) {
+  return assertBlogTagExists(tagId);
+}
+
+export async function assertMediaInTenant(mediaId: string, _tenant?: BlogTenantContext) {
+  return assertBlogMediaExists(mediaId);
+}
+
 export function blogRateLimit(_context: ActionAPIContext, userId: string, scope: string, opts = { window: 60, max: 30 }) {
   const rl = checkRateLimit(`blog-${scope.replace(/:/g, "_")}:${userId}`, opts);
   if (!rl.allowed) throw new ActionError({ code: "TOO_MANY_REQUESTS", message: "Trop de requêtes. Veuillez réessayer dans quelques instants." });

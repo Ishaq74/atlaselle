@@ -174,7 +174,7 @@ if (isCategorizedPostRoute) {
       const translation = postAdminData?.translations.find((item: BlogPostTranslation) => item.locale === loc);
       const categorySlug = alternateCategorySlugs[loc];
       return translation
-        ? [loc, buildBlogPostUrl(loc, null, translation.slug, categorySlug)]
+          ? [loc, buildBlogPostUrl(loc, translation.slug, categorySlug)]
         : null;
     }),
   );
@@ -203,7 +203,7 @@ if (isCategorizedPostRoute) {
     { name: blogT.meta.title, item: baseUrl },
     {
       name: category.translation?.name ?? category.category.slug,
-      item: buildBlogCategoryUrl(locale, null, category.translation?.slug ?? category.category.slug),
+        item: buildBlogCategoryUrl(locale, category.translation?.slug ?? category.category.slug),
     },
     { name: data.translation.title, item: Astro.url.href },
   ]);
@@ -245,7 +245,7 @@ if (isCategorizedPostRoute) {
     pageAlternateUrls = Object.fromEntries(
       LOCALES.flatMap((loc) => {
         const slug = alternateCategorySlugs[loc];
-        return slug ? [[loc, buildBlogCategoryUrl(loc, null, slug)]] : [];
+        return slug ? [[loc, buildBlogCategoryUrl(loc, slug)]] : [];
       }),
     );
     pageJsonLd = JSON.stringify([
@@ -295,7 +295,7 @@ if (isCategorizedPostRoute) {
     const alternateEntries = await Promise.all(
       LOCALES.map(async (loc) => {
         const translation = postAdminData?.translations.find((item: BlogPostTranslation) => item.locale === loc);
-        return translation ? [loc, buildBlogPostUrl(loc, null, translation.slug)] : null;
+        return translation ? [loc, buildBlogPostUrl(loc, translation.slug)] : null;
       }),
     );
 
@@ -368,7 +368,7 @@ if (isCategorizedPostRoute) {
       const slug = alternateTagSlugs[loc];
       if (!slug) return null;
       const locBlogT = await getBlogTranslations(loc);
-      return [loc, buildBlogTagUrl(loc, null, locBlogT.routes.tags, slug)] as const;
+      return [loc, buildBlogTagUrl(loc, locBlogT.routes.tags, slug)] as const;
     }),
   );
   const compactAlternateTagEntries = alternateTagEntries.reduce<Array<readonly [string, string]>>((acc, entry) => {

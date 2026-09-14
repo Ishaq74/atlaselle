@@ -9,7 +9,10 @@ export const prerender = false;
 const locale = toLocale(Astro.params.lang) as Locale;
 const roomType = Astro.url.searchParams.get("room") === "single" ? "single" : "shared";
 const data = await loadCheckoutPage(locale, Astro.params.session ?? "", roomType);
-if (!data) return Astro.rewrite("/404");
+if (!data) {
+  Astro.response.status = 404;
+  return Astro.rewrite("/404");
+}
 
 const fmt = (cents: number) => `${data.quote.currency === "EUR" ? "€" : data.quote.currency + " "}${(cents / 100).toLocaleString("en")}`;
 const l =

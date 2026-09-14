@@ -3,7 +3,7 @@ import { requirePermission } from "@/lib/auth-guards";
 import { getBlogTranslations } from "@i18n/utils";
 import { getBlogCategories, getBlogTags } from "@database/loaders/blog.loader";
 import { getBlogPostEditorData } from "@database/loaders/blog-admin-editor.loader";
-import { hasBlogPermission, resolveBlogTenant } from "@/actions/blog/_helpers";
+import { hasBlogPermission } from "@/actions/blog/_helpers";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
 import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
@@ -15,11 +15,10 @@ export const prerender = false;
 const result = await requirePermission(Astro, { blog: ["update"] });
 if ("redirect" in result) return result.redirect;
 const { locale, authT } = result;
-const tenant = resolveBlogTenant({});
 const [canCreate, canPublish, canDelete] = await Promise.all([
-  hasBlogPermission(Astro, tenant, { blog: ["create"] }),
-  hasBlogPermission(Astro, tenant, { blog: ["publish"] }),
-  hasBlogPermission(Astro, tenant, { blog: ["delete"] }),
+  hasBlogPermission(Astro, { blog: ["create"] }),
+  hasBlogPermission(Astro, { blog: ["publish"] }),
+  hasBlogPermission(Astro, { blog: ["delete"] }),
 ]);
 const blogT = await getBlogTranslations(locale);
 const postId = Astro.params.id;

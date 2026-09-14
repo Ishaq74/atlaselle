@@ -8,7 +8,7 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
 import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
 import BlogAdminPage from "@/components/blog/BlogAdminPage.astro";
-import { hasBlogPermission, resolveBlogTenant } from "@/actions/blog/_helpers";
+import { hasBlogPermission } from "@/actions/blog/_helpers";
 import { LOCALES, type Locale } from "@i18n/config";
 
 export const prerender = false;
@@ -36,12 +36,11 @@ const filters = {
 };
 const baseAdminUrl = `/${locale}/admin/blog`;
 const basePublicUrl = `/${locale}/${blogT.routes.blog}`;
-const globalTenant = resolveBlogTenant({});
 const [canCreate, canUpdate, canPublish, canDelete] = await Promise.all([
-  hasBlogPermission(Astro, globalTenant, { blog: ["create"] }),
-  hasBlogPermission(Astro, globalTenant, { blog: ["update"] }),
-  hasBlogPermission(Astro, globalTenant, { blog: ["publish"] }),
-  hasBlogPermission(Astro, globalTenant, { blog: ["delete"] }),
+  hasBlogPermission(Astro, { blog: ["create"] }),
+  hasBlogPermission(Astro, { blog: ["update"] }),
+  hasBlogPermission(Astro, { blog: ["publish"] }),
+  hasBlogPermission(Astro, { blog: ["delete"] }),
 ]);
 const [{ rows, meta, stats }, categoryRows, tagRows, moderation, authors, adminTags, moderationCount] = await Promise.all([
   getBlogAdminPostData(null, locale, filters),

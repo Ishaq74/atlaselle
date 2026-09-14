@@ -156,19 +156,19 @@ export function isTripDetailPath(pathname: string): boolean {
  * Les fichiers de routes sont en segments fixes (`trips`, `apply`) ; les segments
  * traduits (`voyages`, `viajes`, `candidature`, `postulacion`) sont réécrits côté
  * middleware pour que les URLs canoniques localisées (Annexe A) fonctionnent.
+ * Les segments nus (`/fr/voyages`) vont vers la liste (`/[lang]/trips`).
  * Pur et testé (tests/unit/i18n-routes.test.ts). Retourne le chemin réécrit ou `null`.
- * Ne touche jamais aux segments nus (`/fr/voyages` : pas de page liste — 404 volontaire).
  */
 export function resolveLocalizedRoute(pathname: string): string | null {
-  const m = pathname.match(/^\/(fr|en|es|ar)\/([^/]+)\/(.+)$/);
+  const m = pathname.match(/^\/(fr|en|es|ar)\/([^/]+)(?:\/(.*))?$/);
   if (!m) return null;
   const locale = m[1] as Locale;
   const segment = m[2];
-  const rest = m[3];
-  if (segment === TRIP_LIST_SEGMENT[locale] && segment !== 'trips') {
-    return `/${locale}/trips/${rest}`;
+  const rest = m[3] ?? "";
+  if (segment === TRIP_LIST_SEGMENT[locale] && segment !== "trips") {
+    return rest ? `/${locale}/trips/${rest}` : `/${locale}/trips`;
   }
-  if (segment === APPLY_SEGMENT[locale] && segment !== 'apply') {
+  if (segment === APPLY_SEGMENT[locale] && segment !== "apply" && rest) {
     return `/${locale}/apply/${rest}`;
   }
   return null;

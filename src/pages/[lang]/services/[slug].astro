@@ -18,7 +18,7 @@ if (!item) return Astro.redirect(`/${locale}/services`);
 const t = getServiceTranslations(locale);
 const title = item.translation?.title ?? t.labels.service;
 const description = item.translation?.excerpt ?? item.translation?.metaDescription ?? t.meta.description;
-const canonicalUrl = buildServiceUrl(locale, null, item.translation?.slug ?? item.service.slug);
+const canonicalUrl = buildServiceUrl(locale, item.translation?.slug ?? item.service.slug);
 const canonicalHref = new URL(canonicalUrl, Astro.url.origin).href;
 const jsonLd = buildServiceJsonLd({
   name: title,

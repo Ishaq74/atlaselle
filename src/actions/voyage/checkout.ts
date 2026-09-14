@@ -1,7 +1,7 @@
 import { ActionError, defineAction } from "astro:actions";
 import { z } from "astro/zod";
 import { LOCALES } from "@i18n/config";
-import { initiateCheckout } from "@/modules/payments/domain/payment-service";
+import { initiateCheckout as runCheckoutTunnel } from "@/modules/payments/domain/payment-service";
 import { getValidCheckoutSession } from "@/modules/payments/domain/checkout-service";
 import { normalizeEmail } from "@/modules/travelers/domain/traveler-email";
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
@@ -23,7 +23,7 @@ export const initiateCheckout = defineAction({
     if (!valid) {
       throw new ActionError({ code: "GONE", message: "[CHECKOUT_EXPIRED] Lien de paiement expiré ou invalide." });
     }
-    const result = await initiateCheckout({
+    const result = await runCheckoutTunnel({
       checkoutSessionId: input.checkoutSessionId,
       travelerEmail: normalizeEmail(input.travelerEmail),
       roomType: input.roomType,

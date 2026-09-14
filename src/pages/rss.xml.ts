@@ -56,7 +56,7 @@ export const GET: APIRoute = async (context) => {
           const categorySlug = item.categories[0]?.slug ?? null;
           allItems.push({
             title: `[${locale.toUpperCase()}] ${item.translation.title}`,
-            link: buildBlogPostUrl(locale as Locale, null, item.translation.slug, categorySlug),
+            link: buildBlogPostUrl(locale as Locale, item.translation.slug, categorySlug),
             pubDate: item.post.publishedAt ?? undefined,
             description: item.translation.excerpt ?? undefined,
           });

@@ -2,7 +2,7 @@
 import { Icon } from "astro-icon/components";
 import type { Locale } from "@i18n/config";
 import type { BlogTranslations } from "@i18n/config";
-import { buildBlogCategoryUrl, extractOrgSlugFromBaseUrl } from "@lib/blog/utils";
+import { buildBlogCategoryUrl } from "@lib/blog/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@atoms/avatar";
 import { Badge } from "@atoms/badge";
 import { Card, CardContent } from "@atoms/card";
@@ -17,7 +17,6 @@ interface Props {
 }
 
 const { locale, blogT, author, publishedAt, categories, baseUrl } = Astro.props;
-const organizationSlug = extractOrgSlugFromBaseUrl(baseUrl);
 
 if (!author) return null;
 ---
@@ -52,7 +51,7 @@ if (!author) return null;
       {categories.length > 0 && (
         <div class="flex flex-wrap gap-2">
           {categories.map((category) => (
-            <Badge variant="outline" size="sm" href={buildBlogCategoryUrl(locale, organizationSlug, category.slug)}>
+            <Badge variant="outline" size="sm" href={buildBlogCategoryUrl(locale, category.slug)}>
               {category.name ?? category.slug}
             </Badge>
           ))}

@@ -110,9 +110,9 @@ export const GET: APIRoute = async ({ url, clientAddress }) => {
       rank: row.rank,
       publishedAt: row.published_at,
       url: row.type === "blog_post"
-        ? buildBlogPostUrl(locale, null, row.slug, row.category_slug)
+        ? buildBlogPostUrl(locale, row.slug, row.category_slug)
         : row.type === "service"
-          ? buildServiceUrl(locale, null, row.slug, row.category_slug)
+          ? buildServiceUrl(locale, row.slug, row.category_slug)
           : `/${locale}/${row.slug}`,
     })),
   }), { status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=60" } });

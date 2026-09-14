@@ -9,7 +9,10 @@ export const prerender = false;
 const locale = toLocale(Astro.params.lang) as Locale;
 const providerSessionId = Astro.url.searchParams.get("session_id") ?? "";
 const booking = providerSessionId ? await loadBookingByProviderSession(locale, providerSessionId) : null;
-if (!booking) return Astro.rewrite("/404");
+if (!booking) {
+  Astro.response.status = 404;
+  return Astro.rewrite("/404");
+}
 
 const fmt = (cents: number) => `${booking.currency === "EUR" ? "€" : booking.currency + " "}${(cents / 100).toLocaleString("en")}`;
 const l =

@@ -10,7 +10,10 @@ export const prerender = false;
 
 const locale = toLocale(Astro.params.lang) as Locale;
 const dto = await loadTripPage(locale, Astro.params.trip ?? "");
-if (!dto) return Astro.rewrite("/404");
+if (!dto) {
+  Astro.response.status = 404;
+  return Astro.rewrite("/404");
+}
 const copy = dto.translations[locale];
 const departures = await loadOpenDepartures(dto.id);
 const canonicalPath = getApplyPath(locale, copy.slug);

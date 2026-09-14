@@ -102,10 +102,16 @@ describe('resolveLocalizedRoute (middleware rewrite → routes physiques)', () =
   it('returns null when nothing to rewrite', () => {
     expect(resolveLocalizedRoute('/en/trips/south-africa')).toBeNull();
     expect(resolveLocalizedRoute('/ar/apply/sicily-malta')).toBeNull();
-    expect(resolveLocalizedRoute('/fr/voyages')).toBeNull();
     expect(resolveLocalizedRoute('/fr/a-propos')).toBeNull();
+    expect(resolveLocalizedRoute('/fr/candidature')).toBeNull();
     expect(resolveLocalizedRoute('/fr')).toBeNull();
     expect(resolveLocalizedRoute('/')).toBeNull();
     expect(resolveLocalizedRoute('/de/voyages/x')).toBeNull();
+  });
+
+  it('rewrites bare localized list segments to the list page', () => {
+    expect(resolveLocalizedRoute('/fr/voyages')).toBe('/fr/trips');
+    expect(resolveLocalizedRoute('/es/viajes')).toBe('/es/trips');
+    expect(resolveLocalizedRoute('/en/trips')).toBeNull();
   });
 });
