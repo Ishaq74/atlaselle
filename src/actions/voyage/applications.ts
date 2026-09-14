@@ -16,6 +16,7 @@ import { normalizeEmail } from "@/modules/travelers/domain/traveler-email";
 import { assertTransitionApplication } from "@/modules/applications/domain/application-transitions";
 import type { ApplicationStatus } from "@database/schemas/applications.schema";
 import { emitOutboxEvent } from "@/modules/outbox/domain/outbox";
+import { createApplicationCheckout } from "@/modules/payments/domain/checkout-service";
 import { domainError } from "@/lib/voyage-errors";
 
 const CLOSED_DEPARTURE_STATUSES = ["draft", "closed", "cancelled", "completed"] as const;
@@ -172,6 +173,16 @@ export const reviewApplication = defineAction({
       aggregateId: input.id,
       payload: { applicationId: input.id, decision: input.decision },
     });
+    if (target === "approved") {
+      // Lien checkout horodaté (TTL 7 j) pour le tunnel de réservation (TODO §11.5).
+      const checkout = await createApplicationCheckout(input.id, current.departureId);
+      await emitOutboxEvent({
+        eventType: "checkout.created",
+        aggregateType: "application",
+        aggregateId: input.id,
+        payload: { applicationId: input.id, checkoutSessionId: checkout.id, expiresAt: checkout.expiresAt.toISOString() },
+      });
+    }
     auditVoyage(context, user.id, "APPLICATION_DECISION", {
       resource: "applications",
       resourceId: input.id,

@@ -1,0 +1,31 @@
+---
+import { toLocale } from "@i18n/utils";
+import type { Locale } from "@i18n/config";
+import { loadBookingByProviderSession } from "@/modules/reservations/loaders/booking.loader";
+import BaseLayout from "@layouts/BaseLayout.astro";
+
+export const prerender = false;
+
+const locale = toLocale(Astro.params.lang) as Locale;
+const providerSessionId = Astro.url.searchParams.get("session_id") ?? "";
+const booking = providerSessionId ? await loadBookingByProviderSession(locale, providerSessionId) : null;
+if (!booking) return Astro.rewrite("/404");
+
+const fmt = (cents: number) => `${booking.currency === "EUR" ? "€" : booking.currency + " "}${(cents / 100).toLocaleString("en")}`;
+const l =
+  locale === "fr"
+    ? { title: "Réservation confirmée", number: "Numéro", trip: "Voyage", paid: "Payé", confirmed: "Votre place est réservée. Détails envoyés par e-mail.", pending: "Paiement en cours de confirmation — actualisez dans un instant." }
+    : { title: "Booking confirmed", number: "Number", trip: "Trip", paid: "Paid", confirmed: "Your seat is booked. Details sent by email.", pending: "Payment confirming — refresh in a moment." };
+---
+<BaseLayout title={`${l.title} — ${booking.tripTitle}`} description={booking.tripTitle} canonicalPath={`/${locale}/booking-confirmed`}>
+  <section class="mx-auto max-w-xl px-6 py-20 text-center">
+    <p class="text-5xl" aria-hidden="true">✓</p>
+    <h1 class="mt-4 text-4xl font-bold">{l.title}</h1>
+    <dl class="mx-auto mt-8 max-w-md space-y-3 rounded-xl border p-6 text-left text-sm">
+      <div class="flex justify-between"><dt class="text-muted-foreground">{l.number}</dt><dd class="font-mono font-semibold">{booking.reservationNumber}</dd></div>
+      <div class="flex justify-between"><dt class="text-muted-foreground">{l.trip}</dt><dd class="font-semibold">{booking.tripTitle}</dd></div>
+      <div class="flex justify-between"><dt class="text-muted-foreground">{l.paid}</dt><dd class="font-semibold">{fmt(booking.amountPaid)} / {fmt(booking.totalAmount)}</dd></div>
+    </dl>
+    <p class="mt-6 text-muted-foreground">{booking.status === "confirmed" ? l.confirmed : l.pending}</p>
+  </section>
+</BaseLayout>

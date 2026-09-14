@@ -19,6 +19,7 @@ import { trips } from '@database/schemas/trips.schema';
 import { departures } from '@database/schemas/departures.schema';
 import { applications, applicationDecisions, applicationEvents } from '@database/schemas/applications.schema';
 import { travelers } from '@database/schemas/travelers.schema';
+import { checkoutSessions } from '@database/schemas/payments.schema';
 import { outboxEvents } from '@database/schemas/outbox.schema';
 import { user } from '@database/schemas';
 import { submitApplication, reviewApplication, withdrawApplication } from '@/actions/voyage/applications';
@@ -73,7 +74,9 @@ async function cleanup() {
     await db.delete(applicationDecisions).where(eq(applicationDecisions.applicationId, a.id));
     await db.delete(applicationEvents).where(eq(applicationEvents.applicationId, a.id));
     await db.delete(outboxEvents).where(eq(outboxEvents.aggregateId, a.id));
+    await db.delete(checkoutSessions).where(eq(checkoutSessions.applicationId, a.id));
     await db.delete(applications).where(eq(applications.id, a.id));
+    await db.delete(travelers).where(eq(travelers.id, a.travelerId));
   }
   for (const tid of travelerIds) {
     await db.delete(travelers).where(eq(travelers.id, tid));

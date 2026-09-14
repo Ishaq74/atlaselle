@@ -1,0 +1,81 @@
+---
+import { toLocale } from "@i18n/utils";
+import type { Locale } from "@i18n/config";
+import { loadCheckoutPage } from "@/modules/reservations/loaders/booking.loader";
+import BaseLayout from "@layouts/BaseLayout.astro";
+
+export const prerender = false;
+
+const locale = toLocale(Astro.params.lang) as Locale;
+const roomType = Astro.url.searchParams.get("room") === "single" ? "single" : "shared";
+const data = await loadCheckoutPage(locale, Astro.params.session ?? "", roomType);
+if (!data) return Astro.rewrite("/404");
+
+const fmt = (cents: number) => `${data.quote.currency === "EUR" ? "€" : data.quote.currency + " "}${(cents / 100).toLocaleString("en")}`;
+const l =
+  locale === "fr"
+    ? { title: "Paiement", room: "Chambre", shared: "Double partagée", single: "Individuelle", base: "Base", supplement: "Supplément", discount: "Réduction", tax: "Taxes", fee: "Frais", total: "Total", deposit: "Acompte prélevé aujourd'hui", balance: "Solde plus tard", terms: "J'ai lu et j'accepte les conditions de voyage.", pay: "Payer", dates: "Départ" }
+    : { title: "Checkout", room: "Room", shared: "Shared twin", single: "Single", base: "Base", supplement: "Supplement", discount: "Discount", tax: "Tax", fee: "Fee", total: "Total", deposit: "Deposit charged today", balance: "Balance later", terms: "I have read and accept the travel terms.", pay: "Pay", dates: "Departure" };
+const base = `/${locale}/checkout/${data.sessionId}`;
+---
+<BaseLayout title={`${l.title} — ${data.tripTitle}`} description={data.tripTitle} canonicalPath={base}>
+  <section class="mx-auto max-w-xl px-6 py-14" data-checkout-page data-session={data.sessionId} data-locale={locale}>
+    <h1 class="text-4xl font-bold">{l.title}</h1>
+    <p class="mt-2 text-muted-foreground">{data.tripTitle}</p>
+    <p class="mt-1 text-sm">{l.dates} : {data.startDate.toISOString().slice(0, 10)} → {data.endDate.toISOString().slice(0, 10)}</p>
+
+    <div class="mt-6 flex gap-2 text-sm">
+      <a class:list={["rounded-full border px-4 py-1.5", roomType === "shared" && "bg-primary text-primary-foreground"]} href={`${base}?room=shared`}>{l.shared}</a>
+      <a class:list={["rounded-full border px-4 py-1.5", roomType === "single" && "bg-primary text-primary-foreground"]} href={`${base}?room=single`}>{l.single}</a>
+    </div>
+
+    <dl class="mt-6 space-y-2 rounded-xl border p-6 text-sm">
+      <div class="flex justify-between"><dt>{l.base}</dt><dd>{fmt(data.quote.baseAmount)}</dd></div>
+      {data.quote.supplementAmount > 0 ? <div class="flex justify-between"><dt>{l.supplement}</dt><dd>{fmt(data.quote.supplementAmount)}</dd></div> : null}
+      {data.quote.discountAmount > 0 ? <div class="flex justify-between"><dt>{l.discount}</dt><dd>−{fmt(data.quote.discountAmount)}</dd></div> : null}
+      {data.quote.taxAmount > 0 ? <div class="flex justify-between"><dt>{l.tax}</dt><dd>{fmt(data.quote.taxAmount)}</dd></div> : null}
+      {data.quote.feeAmount > 0 ? <div class="flex justify-between"><dt>{l.fee}</dt><dd>{fmt(data.quote.feeAmount)}</dd></div> : null}
+      <div class="flex justify-between border-t pt-2 text-base font-bold"><dt>{l.total}</dt><dd>{fmt(data.quote.totalAmount)}</dd></div>
+      <div class="flex justify-between text-muted-foreground"><dt>{l.deposit}</dt><dd>{fmt(data.quote.depositAmount)}</dd></div>
+      <div class="flex justify-between text-muted-foreground"><dt>{l.balance}</dt><dd>{fmt(data.quote.balanceAmount)}</dd></div>
+    </dl>
+
+    <form data-checkout-form class="mt-6 space-y-4 rounded-xl border p-6">
+      <label class="block font-medium">Email<input required name="travelerEmail" type="email" maxlength="320" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
+      <label class="flex items-start gap-2 text-sm"><input required type="checkbox" name="terms" class="mt-1" />{l.terms}</label>
+      <button class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.pay} · {fmt(data.quote.totalAmount)}</button>
+      <p class="text-sm" data-form-message role="status"></p>
+    </form>
+  </section>
+</BaseLayout>
+
+<script>
+  import { actions } from "astro:actions";
+  const root = document.querySelector("[data-checkout-page]");
+  const sessionId = root?.getAttribute("data-session") ?? "";
+  const locale = root?.getAttribute("data-locale") ?? "en";
+  const room = new URLSearchParams(window.location.search).get("room") === "single" ? "single" : "shared";
+  document.querySelector("[data-checkout-form]")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const el = form.querySelector("[data-form-message]");
+    const btn = form.querySelector("button");
+    btn?.setAttribute("disabled", "");
+    try {
+      const { data: result, error } = await actions.initiateCheckout({
+        checkoutSessionId: sessionId,
+        travelerEmail: String(data.get("travelerEmail") ?? ""),
+        roomType: room,
+        locale,
+      });
+      if (error || !result) {
+        if (el) el.textContent = error?.message ?? "Error";
+      } else {
+        window.location.href = result.checkoutUrl;
+      }
+    } finally {
+      btn?.removeAttribute("disabled");
+    }
+  });
+</script>

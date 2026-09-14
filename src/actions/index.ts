@@ -26,6 +26,8 @@ import { resolveServiceInternalLink } from "./services/internal-link";
 import { submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, updateTrip, upsertTripTranslation } from "./voyage/trips";
 import { createDeparture, updateDeparture, setDepartureStatus } from "./voyage/departures";
 import { submitApplication, reviewApplication, withdrawApplication } from "./voyage/applications";
+import { initiateCheckout, cancelReservation } from "./voyage/checkout";
+import { refundPayment } from "./voyage/payments";
 
 export const server = {
   updateSiteSettings, upsertSiteSettings, createSocialLink, updateSocialLink, deleteSocialLink, reorderSocialLinks, updateContactInfo, updateOpeningHours,
@@ -42,4 +44,5 @@ export const server = {
   submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, updateTrip, upsertTripTranslation,
   createDeparture, updateDeparture, setDepartureStatus,
   submitApplication, reviewApplication, withdrawApplication,
+  initiateCheckout, cancelReservation, refundPayment,
 };
