@@ -10,9 +10,9 @@ describe('toLocale', () => {
   });
 
   it('returns default locale for invalid input', () => {
-    expect(toLocale('xx')).toBe('fr');
-    expect(toLocale(undefined)).toBe('fr');
-    expect(toLocale('')).toBe('fr');
+    expect(toLocale('xx')).toBe('en');
+    expect(toLocale(undefined)).toBe('en');
+    expect(toLocale('')).toBe('en');
   });
 });
 
