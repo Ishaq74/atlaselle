@@ -1,0 +1,33 @@
+---
+import { requirePermission } from "@/lib/auth-guards";
+import { hasVoyagePermission } from "@/actions/voyage/_helpers";
+import { loadAdminTrip } from "@/modules/trips/loaders/admin-trips.loader";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
+import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
+import AdminTripForm from "@/modules/trips/components/AdminTripForm.astro";
+
+export const prerender = false;
+
+const result = await requirePermission(Astro, { trip: ["read"] });
+if ("redirect" in result) return result.redirect;
+const { locale, authT } = result;
+
+const id = Astro.params.id ?? "";
+const detail = await loadAdminTrip(id);
+if (!detail) return Astro.rewrite("/404");
+
+const [canUpdate, canPublish] = await Promise.all([
+  hasVoyagePermission(Astro, { trip: ["update"] }),
+  hasVoyagePermission(Astro, { trip: ["publish"] }),
+]);
+const baseUrl = `/${locale}/admin/trips`;
+const title = `${detail.translations.find((t) => t.locale === locale)?.title ?? detail.trip.id} — ${authT.admin.tabs.trips}`;
+---
+
+<BaseLayout title={title} description={title} canonicalPath={`${baseUrl}/${detail.trip.id}`}>
+  <AuthLayout title={title}>
+    <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="trips" />
+    <AdminTripForm detail={detail} locale={locale} baseUrl={baseUrl} canUpdate={canUpdate} canPublish={canPublish} />
+  </AuthLayout>
+</BaseLayout>

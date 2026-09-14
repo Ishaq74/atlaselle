@@ -82,6 +82,7 @@ export default {
       auditLog: 'سجل المراجعة',
       roles: 'الأدوار',
       blog: 'المدونة',
+      trips: 'الرحلات',
       site: 'الموقع',
       navigation: 'التنقل',
       pages: 'الصفحات',

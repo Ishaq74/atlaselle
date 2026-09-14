@@ -15,6 +15,7 @@ import LayoutIcon from '@tabler/icons/outline/layout.svg';
 import PhotoIcon from '@tabler/icons/outline/photo.svg';
 import PaletteIcon from '@tabler/icons/outline/palette.svg';
 import BriefcaseIcon from '@tabler/icons/outline/briefcase.svg';
+import MapIcon from '@tabler/icons/outline/map.svg';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarRail, SidebarSeparator } from '@atoms/sidebar';
 
 interface Props { t: AuthTranslations; locale: Locale; activeItem?: AdminSubpage; }
@@ -29,6 +30,7 @@ const navItems: { id: AdminSubpage; title: string; url: string; icon: typeof Cha
 ];
 const cmsItems: { id: AdminSubpage; title: string; url: string; icon: typeof SettingsIcon }[] = [
   { id: 'blog', title: t.admin.tabs.blog, url: getAdminUrl(locale, 'blog'), icon: FileTextIcon },
+  { id: 'trips', title: t.admin.tabs.trips, url: getAdminUrl(locale, 'trips'), icon: MapIcon },
   { id: 'services', title: getModuleLabel('services', locale), url: getAdminUrl(locale, 'services'), icon: BriefcaseIcon },
   { id: 'site', title: t.admin.tabs.site, url: getAdminUrl(locale, 'site'), icon: SettingsIcon },
   { id: 'navigation', title: t.admin.tabs.navigation, url: getAdminUrl(locale, 'navigation'), icon: MenuIcon },

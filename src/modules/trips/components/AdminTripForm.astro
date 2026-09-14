@@ -1,0 +1,247 @@
+---
+import type { Locale } from "@i18n/config";
+import { LOCALES } from "@i18n/config";
+import type { AdminTripDetail } from "@/modules/trips/loaders/admin-trips.loader";
+import type { TripStatus } from "@database/schemas/trips.schema";
+import type { DepartureStatus } from "@database/schemas/departures.schema";
+
+interface Props {
+  detail: AdminTripDetail;
+  locale: Locale;
+  baseUrl: string;
+  canUpdate: boolean;
+  canPublish: boolean;
+}
+
+const { detail, locale, baseUrl, canUpdate, canPublish } = Astro.props;
+const { trip, translations, departures } = detail;
+const trByLocale = new Map(translations.map((t) => [t.locale, t]));
+const nextTransitions: Record<TripStatus, { to: string; label: string; publish: boolean }[]> = {
+  draft: [{ to: "review", label: "→ review", publish: false }],
+  review: [
+    { to: "approved", label: "→ approved", publish: false },
+    { to: "draft", label: "→ draft", publish: false },
+  ],
+  approved: [{ to: "published", label: "→ published", publish: true }],
+  published: [
+    { to: "unpublished", label: "→ unpublished", publish: true },
+    { to: "archived", label: "→ archived", publish: false },
+  ],
+  unpublished: [
+    { to: "published", label: "→ published", publish: true },
+    { to: "archived", label: "→ archived", publish: false },
+  ],
+  archived: [{ to: "restored", label: "→ unpublished (restore)", publish: false }],
+};
+const transitions = nextTransitions[trip.status as TripStatus] ?? [];
+const departureStatuses: DepartureStatus[] = ["draft", "open", "limited", "waitlist", "closed", "cancelled"];
+const t = locale === "fr"
+  ? { facts: "Faits", save: "Enregistrer", translations: "Traductions", departures: "Départs", status: "Statut", newDeparture: "Nouveau départ", start: "Début", end: "Fin", price: "Prix (centimes)", capacity: "Capacité min/max", saved: "Enregistré.", error: "Erreur : " }
+  : { facts: "Facts", save: "Save", translations: "Translations", departures: "Departures", status: "Status", newDeparture: "New departure", start: "Start", end: "End", price: "Price (cents)", capacity: "Capacity min/max", saved: "Saved.", error: "Error: " };
+---
+<section class="mx-auto max-w-6xl space-y-10 px-6 py-10" data-trip-id={trip.id}>
+  <div>
+    <a class="text-sm text-primary underline" href={baseUrl}>← {trip.id}</a>
+    <h1 class="mt-2 text-3xl font-bold">{trByLocale.get(locale)?.title ?? trip.id}</h1>
+    <p class="mt-1 text-sm text-muted-foreground">{t.status} : <span class="font-semibold">{trip.status}</span></p>
+  </div>
+
+  {transitions.length > 0 ? (
+    <div class="flex flex-wrap gap-2">
+      {transitions.map((tr) =>
+        (tr.publish ? canPublish : canUpdate) ? (
+          <button type="button" class="rounded-md border px-4 py-2 text-sm font-semibold" data-transition={tr.to}>{tr.label}</button>
+        ) : null,
+      )}
+    </div>
+  ) : null}
+
+  {canUpdate ? (
+    <form data-facts-form class="space-y-4 rounded-xl border p-6">
+      <h2 class="text-xl font-bold">{t.facts}</h2>
+      <div class="grid gap-4 sm:grid-cols-3">
+        <label class="block text-sm">countryCode<input name="countryCode" value={trip.countryCode} maxlength="2" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">defaultCurrency<input name="defaultCurrency" value={trip.defaultCurrency} maxlength="3" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">difficulty<input name="difficulty" value={trip.difficulty} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">difficultyLevel (1-5)<input name="difficultyLevel" type="number" min="1" max="5" value={trip.difficultyLevel} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">durationDays<input name="durationDays" type="number" min="1" value={trip.durationDays} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">durationNights<input name="durationNights" type="number" min="0" value={trip.durationNights} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">groupMin<input name="groupMin" type="number" min="1" value={trip.groupMin} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">groupMax<input name="groupMax" type="number" min="1" value={trip.groupMax} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">arrivalAirport<input name="arrivalAirport" value={trip.arrivalAirport ?? ""} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">departureAirport<input name="departureAirport" value={trip.departureAirport ?? ""} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm sm:col-span-3">accommodationStyle<input name="accommodationStyle" value={trip.accommodationStyle ?? ""} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+      </div>
+      <button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save}</button>
+      <p class="text-sm" data-form-message role="status"></p>
+    </form>
+  ) : null}
+
+  <div class="space-y-6">
+    <h2 class="text-xl font-bold">{t.translations}</h2>
+    {LOCALES.map((loc: Locale) => {
+      const tr = trByLocale.get(loc);
+      return (
+        <form data-translation-form={loc} class="space-y-3 rounded-xl border p-6">
+          <h3 class="font-bold uppercase">{loc}{tr?.localeVisible ? " · visible" : ""}</h3>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="block text-sm">slug (ASCII)<input name="slug" value={tr?.slug ?? ""} required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block text-sm">title<input name="title" value={tr?.title ?? ""} required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block text-sm">shortTitle<input name="shortTitle" value={tr?.shortTitle ?? ""} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block text-sm">metaTitle<input name="metaTitle" value={tr?.metaTitle ?? ""} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block text-sm sm:col-span-2">summary<textarea name="summary" required rows="2" class="mt-1 w-full rounded-md border bg-background p-2">{tr?.summary ?? ""}</textarea></label>
+            <label class="block text-sm sm:col-span-2">overview<textarea name="overview" required rows="4" class="mt-1 w-full rounded-md border bg-background p-2">{tr?.overview ?? ""}</textarea></label>
+            <label class="block text-sm sm:col-span-2">metaDescription<textarea name="metaDescription" rows="2" class="mt-1 w-full rounded-md border bg-background p-2">{tr?.metaDescription ?? ""}</textarea></label>
+            <label class="inline-flex items-center gap-2 text-sm"><input type="checkbox" name="localeVisible" checked={tr?.localeVisible ?? false} /> localeVisible</label>
+          </div>
+          {canUpdate ? <button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save} ({loc})</button> : null}
+          <p class="text-sm" data-form-message role="status"></p>
+        </form>
+      );
+    })}
+  </div>
+
+  <div class="space-y-4">
+    <h2 class="text-xl font-bold">{t.departures} ({departures.length})</h2>
+    <div class="overflow-x-auto rounded-xl border">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-muted/60"><tr><th class="px-4 py-2">{t.start}</th><th class="px-4 py-2">{t.end}</th><th class="px-4 py-2">{t.price}</th><th class="px-4 py-2">{t.status}</th><th class="px-4 py-2"></th></tr></thead>
+        <tbody>
+          {departures.map((d) => (
+            <tr class="border-t" data-departure-id={d.id}>
+              <td class="px-4 py-2">{d.startDate.toISOString().slice(0, 10)}</td>
+              <td class="px-4 py-2">{d.endDate.toISOString().slice(0, 10)}</td>
+              <td class="px-4 py-2">{d.priceAmount} {d.currency}</td>
+              <td class="px-4 py-2">
+                {canUpdate ? (
+                  <select data-departure-status class="rounded-md border bg-background px-2 py-1">
+                    {departureStatuses.map((s) => (
+                      <option value={s} selected={d.status === s}>{s}</option>
+                    ))}
+                  </select>
+                ) : d.status}
+              </td>
+              <td class="px-4 py-2 text-right">{canUpdate ? <button type="button" class="text-primary underline" data-departure-save>OK</button> : null}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    {canUpdate ? (
+      <form data-departure-form class="grid gap-4 rounded-xl border p-6 sm:grid-cols-3">
+        <h3 class="font-bold sm:col-span-3">{t.newDeparture}</h3>
+        <label class="block text-sm">{t.start}<input name="startDate" type="date" required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">{t.end}<input name="endDate" type="date" required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">{t.price}<input name="priceAmount" type="number" min="0" required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">capacityMin<input name="capacityMin" type="number" min="1" value="6" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">capacityMax<input name="capacityMax" type="number" min="1" value="12" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <label class="block text-sm">currency<input name="currency" value="EUR" maxlength="3" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+        <div class="sm:col-span-3"><button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save}</button> <span class="ml-3 text-sm" data-form-message role="status"></span></div>
+      </form>
+    ) : null}
+  </div>
+</section>
+
+<script>
+  import { actions } from "astro:actions";
+  const root = document.querySelector("section[data-trip-id]");
+  const tripId = root?.getAttribute("data-trip-id") ?? "";
+  const say = (form, ok, text) => {
+    const el = form.querySelector("[data-form-message]");
+    if (el) el.textContent = (ok ? "" : "Erreur : ") + text;
+  };
+  const num = (v) => (v === "" || v == null ? undefined : Number(v));
+  const str = (v) => (v === "" ? undefined : String(v));
+  const nulStr = (v) => (v === "" ? null : String(v));
+
+  document.querySelector("[data-facts-form]")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const { error } = await actions.updateTrip({
+      id: tripId,
+      countryCode: str(data.get("countryCode"))?.toUpperCase(),
+      defaultCurrency: str(data.get("defaultCurrency"))?.toUpperCase(),
+      durationDays: num(data.get("durationDays")),
+      durationNights: num(data.get("durationNights")),
+      groupMin: num(data.get("groupMin")),
+      groupMax: num(data.get("groupMax")),
+      difficulty: str(data.get("difficulty")),
+      difficultyLevel: num(data.get("difficultyLevel")),
+      arrivalAirport: nulStr(data.get("arrivalAirport")),
+      departureAirport: nulStr(data.get("departureAirport")),
+      accommodationStyle: nulStr(data.get("accommodationStyle")),
+    });
+    if (error) say(form, false, error.message);
+    else window.location.reload();
+  });
+
+  document.querySelectorAll("[data-translation-form]")?.forEach((form) => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const locale = form.getAttribute("data-translation-form") ?? "";
+      const { error } = await actions.upsertTripTranslation({
+        tripId,
+        locale,
+        slug: String(data.get("slug") ?? ""),
+        title: String(data.get("title") ?? ""),
+        shortTitle: str(data.get("shortTitle")) ?? null,
+        summary: String(data.get("summary") ?? ""),
+        overview: String(data.get("overview") ?? ""),
+        metaTitle: str(data.get("metaTitle")) ?? null,
+        metaDescription: str(data.get("metaDescription")) ?? null,
+        localeVisible: form.querySelector('input[name="localeVisible"]')?.checked ?? false,
+      });
+      if (error) say(form, false, error.message);
+      else window.location.reload();
+    });
+  });
+
+  const TRANSITION_ACTIONS = {
+    review: () => actions.submitTripForReview({ id: tripId }),
+    approved: () => actions.approveTrip({ id: tripId }),
+    published: () => actions.publishTrip({ id: tripId }),
+    unpublished: () => actions.unpublishTrip({ id: tripId }),
+    archived: () => actions.archiveTrip({ id: tripId }),
+    restored: () => actions.restoreTrip({ id: tripId }),
+  };
+  document.querySelectorAll("[data-transition]")?.forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const to = btn.getAttribute("data-transition") ?? "";
+      const fn = TRANSITION_ACTIONS[to];
+      if (!fn) return;
+      const { error } = await fn();
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+
+  document.querySelectorAll("[data-departure-save]")?.forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const row = btn.closest("[data-departure-id]");
+      const id = row?.getAttribute("data-departure-id") ?? "";
+      const to = row?.querySelector("[data-departure-status]")?.value ?? "";
+      const { error } = await actions.setDepartureStatus({ id, to });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+
+  document.querySelector("[data-departure-form]")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const { error } = await actions.createDeparture({
+      tripId,
+      startDate: new Date(String(data.get("startDate"))),
+      endDate: new Date(String(data.get("endDate"))),
+      capacityMin: Number(data.get("capacityMin")),
+      capacityMax: Number(data.get("capacityMax")),
+      priceAmount: Number(data.get("priceAmount")),
+      currency: String(data.get("currency") || "EUR"),
+    });
+    if (error) say(form, false, error.message);
+    else window.location.reload();
+  });
+</script>

@@ -82,6 +82,7 @@ export default {
       auditLog: 'Audit Log',
       roles: 'Roles',
       blog: 'Blog',
+      trips: 'Trips',
       site: 'Site',
       navigation: 'Navigation',
       pages: 'Pages',

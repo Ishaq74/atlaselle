@@ -82,6 +82,7 @@ export default {
       auditLog: 'Registro de auditoría',
       roles: 'Roles',
       blog: 'Blog',
+      trips: 'Viajes',
       site: 'Sitio',
       navigation: 'Navegación',
       pages: 'Páginas',

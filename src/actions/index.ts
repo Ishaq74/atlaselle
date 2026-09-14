@@ -23,6 +23,8 @@ import { createServiceCategory, updateServiceCategory, deleteServiceCategory, cr
 import { moderateServiceComment, moderateServiceReview, resolveServiceReport } from "./services/moderation";
 import { addServiceMedia, updateServiceMedia, removeServiceMedia } from "./services/media";
 import { resolveServiceInternalLink } from "./services/internal-link";
+import { submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, updateTrip, upsertTripTranslation } from "./voyage/trips";
+import { createDeparture, updateDeparture, setDepartureStatus } from "./voyage/departures";
 
 export const server = {
   updateSiteSettings, upsertSiteSettings, createSocialLink, updateSocialLink, deleteSocialLink, reorderSocialLinks, updateContactInfo, updateOpeningHours,
@@ -36,4 +38,6 @@ export const server = {
   toggleServiceFavorite, createServiceReview, createServiceComment, createServiceReport, voteServiceReviewHelpful, createServiceAvailability, updateServiceAvailability, deleteServiceAvailability,
   toggleServiceReaction, listServiceNotifications, markServiceNotificationRead, markAllServiceNotificationsRead, recordServiceView, createServiceAttributeDefinition, setServiceAttributeValue,
   createServiceCategory, updateServiceCategory, deleteServiceCategory, createServiceTag, updateServiceTag, deleteServiceTag, moderateServiceComment, moderateServiceReview, resolveServiceReport, addServiceMedia, updateServiceMedia, removeServiceMedia, resolveServiceInternalLink,
+  submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, updateTrip, upsertTripTranslation,
+  createDeparture, updateDeparture, setDepartureStatus,
 };

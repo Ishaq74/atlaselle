@@ -303,6 +303,7 @@ export interface AuthTranslations {
       auditLog: string;
       roles: string;
       blog: string;
+      trips: string;
       site: string;
       navigation: string;
       pages: string;

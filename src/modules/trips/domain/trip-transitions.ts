@@ -7,7 +7,7 @@ export const TRIP_TRANSITIONS: Record<TripStatus, TripStatus[]> = {
   approved: ["published"],
   published: ["unpublished", "archived"],
   unpublished: ["published", "archived"],
-  archived: [],
+  archived: ["unpublished"],
 };
 
 export function canTransitionTrip(from: TripStatus, to: TripStatus): boolean {

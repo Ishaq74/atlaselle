@@ -82,6 +82,7 @@ export default {
       auditLog: 'Journal d\'audit',
       roles: 'Rôles',
       blog: 'Blog',
+      trips: 'Voyages',
       site: 'Site',
       navigation: 'Navigation',
       pages: 'Pages',

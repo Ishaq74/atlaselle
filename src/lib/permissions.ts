@@ -26,6 +26,12 @@ export const statement = {
   serviceTag: ["create", "read", "update", "delete"],
   serviceComment: ["read", "update", "delete", "moderate"],
   serviceReview: ["read", "update", "delete", "moderate"],
+  trip: ["create", "read", "update", "publish", "archive"],
+  departure: ["create", "read", "update", "close"],
+  application: ["read", "review", "approve", "decline"],
+  reservation: ["read", "cancel"],
+  payment: ["read", "refund"],
+  policy: ["create", "read", "update", "publish"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -68,6 +74,12 @@ export const adminRole = ac.newRole({
   blogTag: ["create", "read", "update", "delete"],
   blogComment: ["read", "update", "delete", "moderate"],
   blogReview: ["read", "update", "delete", "moderate"],
+  trip: ["create", "read", "update", "publish", "archive"],
+  departure: ["create", "read", "update", "close"],
+  application: ["read", "review", "approve", "decline"],
+  reservation: ["read", "cancel"],
+  payment: ["read", "refund"],
+  policy: ["read"],
   ...cmsAdminServices,
 });
 
@@ -82,6 +94,12 @@ export const editorRole = ac.newRole({
   blogTag: ["create", "read", "update", "delete"],
   blogComment: ["read", "update", "moderate"],
   blogReview: ["read", "update", "moderate"],
+  trip: ["create", "read", "update"],
+  departure: ["create", "read", "update"],
+  application: ["read"],
+  reservation: ["read"],
+  payment: ["read"],
+  policy: ["read"],
   ...cmsEditorServices,
 });
 
