@@ -29,7 +29,8 @@ Chaque action refait : authentification → autorisation → vérification de po
 
 ## 3. Codes d'erreur voyage (stables, i18n côté client)
 
-`APPLICATION_CLOSED`, `APPLICATION_DEADLINE_PASSED`, `DEPARTURE_SOLD_OUT`, `CHECKOUT_EXPIRED`, `PAYMENT_FAILED`, `PAYMENT_AMOUNT_MISMATCH`, `RESERVATION_ALREADY_CONFIRMED`, `UNAUTHORIZED`, `FORBIDDEN`. Erreurs typées : Validation/Unauthorized/Forbidden/NotFound/Conflict/Capacity/Payment/ExternalService.
+`APPLICATION_CLOSED`, `APPLICATION_DEADLINE_PASSED`, `DEPARTURE_SOLD_OUT`, `CHECKOUT_EXPIRED`, `PAYMENT_FAILED`, `PAYMENT_AMOUNT_MISMATCH`, `RESERVATION_ALREADY_CONFIRMED`, `UNAUTHORIZED`, `FORBIDDEN`.
+Convention repo : Astro `ActionError` n'accepte que des codes HTTP → `domainError(transport, code, message)` (`src/lib/voyage-errors.ts`) produit `[CODE] message`. Services : `codedError()` pur (`src/lib/voyage-codes.ts`, sans dépendance Astro — jamais d'import `astro:*` dans `domain/`).
 
 ## 4. Idempotence (paiement, webhook, checkout)
 

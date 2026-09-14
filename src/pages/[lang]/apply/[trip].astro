@@ -1,16 +1,100 @@
 ---
 import { toLocale } from "@i18n/utils";
-import { LOCALES } from "@i18n/config";
-import { getTripBySlug, tripUrl } from "@/data/trips";
-import { getApplyPath, TRIP_SLUGS } from "@i18n/routes";
+import type { Locale } from "@i18n/config";
+import { getTripPath, getApplyPath, TRIP_SLUGS } from "@i18n/routes";
+import { loadTripPage } from "@/modules/trips/loaders/trip.loader";
+import { loadOpenDepartures } from "@/modules/departures/loaders/departure.loader";
 import BaseLayout from "@layouts/BaseLayout.astro";
-const locale = toLocale(Astro.params.lang);
-const journey = getTripBySlug(locale, Astro.params.trip ?? "");
-if (!journey) return Astro.rewrite("/404");
-const copy = journey.translations[locale as Exclude<typeof locale, "es">] ?? journey.translations.en;
-// Canonique = segment apply localisé ; alternates = pages candidature équivalentes (TODO §7.6).
-const canonicalPath = getApplyPath(locale, TRIP_SLUGS[journey.id][locale]);
-const alternateUrls = Object.fromEntries(LOCALES.map((loc) => [loc, getApplyPath(loc, TRIP_SLUGS[journey.id][loc])]));
-const l = locale === "ar" ? {title:"انضم إلى قائمة الاهتمام",body:"سنرسل إليك تفاصيل التوافر والخطوات التالية.",name:"الاسم الكامل",email:"البريد الإلكتروني",button:"إرسال الطلب"} : locale === "fr" ? {title:"Rejoindre la liste d’intérêt",body:"Nous vous enverrons les détails de disponibilité et les prochaines étapes.",name:"Nom complet",email:"E-mail",button:"Envoyer ma demande"} : {title:"Join the interest list",body:"We’ll send availability details and next steps.",name:"Full name",email:"Email address",button:"Send my application"};
+
+export const prerender = false;
+
+const locale = toLocale(Astro.params.lang) as Locale;
+const dto = await loadTripPage(locale, Astro.params.trip ?? "");
+if (!dto) return Astro.rewrite("/404");
+const copy = dto.translations[locale];
+const departures = await loadOpenDepartures(dto.id);
+const canonicalPath = getApplyPath(locale, copy.slug);
+const alternateUrls = Object.fromEntries(
+  (["fr", "en", "es", "ar"] as Locale[]).map((loc) => [loc, getApplyPath(loc, TRIP_SLUGS[dto.id][loc])]),
+);
+const l =
+  locale === "fr"
+    ? { title: "Déposer ma candidature", departure: "Départ", name: "Nom complet", email: "E-mail", phone: "Téléphone (optionnel)", room: "Chambre", shared: "Double partagée", single: "Individuelle (+ supplément)", diet: "Régime alimentaire (optionnel)", access: "Besoins d'accessibilité (optionnel)", activity: "Je reconnais avoir lu le niveau d'activité du voyage.", motivation: "Motivation (optionnel)", expectations: "Attentes (optionnel)", consent: "J'accepte que mes données servent à traiter ma candidature.", submit: "Envoyer ma candidature", sent: "Candidature envoyée. Nous revenons vers vous par e-mail.", nodate: "Aucun départ ouvert pour le moment — revenez bientôt." }
+    : locale === "es"
+      ? { title: "Enviar mi solicitud", departure: "Salida", name: "Nombre completo", email: "Correo electrónico", phone: "Teléfono (opcional)", room: "Habitación", shared: "Doble compartida", single: "Individual (+ suplemento)", diet: "Dieta (opcional)", access: "Necesidades de accesibilidad (opcional)", activity: "Reconozco haber leído el nivel de actividad del viaje.", motivation: "Motivación (opcional)", expectations: "Expectativas (opcional)", consent: "Acepto que mis datos se usen para tramitar mi solicitud.", submit: "Enviar mi solicitud", sent: "Solicitud enviada. Le contactaremos por correo.", nodate: "Sin salidas abiertas por ahora." }
+      : locale === "ar"
+        ? { title: "قدّم طلبك", departure: "الموعد", name: "الاسم الكامل", email: "البريد الإلكتروني", phone: "الهاتف (اختياري)", room: "الغرفة", shared: "مزدوجة مشتركة", single: "مفردة (+ رسوم)", diet: "النظام الغذائي (اختياري)", access: "احتياجات الوصول (اختياري)", activity: "أقر بأنني قرأت مستوى نشاط الرحلة.", motivation: "الدافع (اختياري)", expectations: "التوقعات (اختياري)", consent: "أوافق على استخدام بياناتي لمعالجة طلبي.", submit: "إرسال الطلب", sent: "تم إرسال الطلب. سنعاود الاتصال بك.", nodate: "لا مواعيد مفتوحة حاليا." }
+        : { title: "Submit my application", departure: "Departure", name: "Full name", email: "Email", phone: "Phone (optional)", room: "Room", shared: "Shared twin", single: "Single (+ supplement)", diet: "Dietary requirements (optional)", access: "Accessibility needs (optional)", activity: "I acknowledge the trip activity level.", motivation: "Motivation (optional)", expectations: "Expectations (optional)", consent: "I agree my data is used to process my application.", submit: "Send my application", sent: "Application sent. We will contact you by email.", nodate: "No open departures right now." };
 ---
-<BaseLayout title={`${l.title} — ATLASELLE`} description={copy.summary} canonicalPath={canonicalPath} alternateUrls={alternateUrls}><section class="mx-auto max-w-xl px-6 py-20"><a class="text-sm text-primary underline" href={tripUrl(locale,journey)}>← {copy.title}</a><h1 class="mt-7 text-4xl font-bold">{l.title}</h1><p class="mt-4 text-muted-foreground">{l.body}</p><form class="mt-9 space-y-5 rounded-xl border p-6" method="post" action="/api/contact"><label class="block font-medium">{l.name}<input required name="name" class="mt-2 w-full rounded-md border bg-background p-3" /></label><label class="block font-medium">{l.email}<input required type="email" name="email" class="mt-2 w-full rounded-md border bg-background p-3" /></label><input type="hidden" name="subject" value={`Interest list: ${journey.id}`} /><button class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.button}</button></form></section></BaseLayout>
+<BaseLayout title={`${l.title} — ${copy.title}`} description={copy.summary} canonicalPath={canonicalPath} alternateUrls={alternateUrls}>
+  <section class="mx-auto max-w-xl px-6 py-14" data-apply-page data-trip-id={dto.id} data-sent={l.sent}>
+    <a class="text-sm text-primary underline" href={getTripPath(locale, copy.slug)}>← {copy.title}</a>
+    <h1 class="mt-4 text-4xl font-bold">{l.title}</h1>
+    {departures.length === 0 ? (
+      <p class="mt-6 rounded-xl border p-6 text-muted-foreground">{l.nodate}</p>
+    ) : (
+      <form data-apply-form class="mt-8 space-y-5 rounded-xl border p-6">
+        <label class="block font-medium">{l.departure}
+          <select name="departureId" required class="mt-2 w-full rounded-md border bg-background p-3">
+            {departures.map((d) => (
+              <option value={d.id}>{d.startDate.toISOString().slice(0, 10)} → {d.endDate.toISOString().slice(0, 10)}</option>
+            ))}
+          </select>
+        </label>
+        <label class="block font-medium">{l.name}<input required name="legalName" maxlength="200" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
+        <label class="block font-medium">{l.email}<input required name="email" type="email" maxlength="320" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
+        <label class="block font-medium">{l.phone}<input name="phone" maxlength="40" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
+        <label class="block font-medium">{l.room}
+          <select name="roomPreference" class="mt-2 w-full rounded-md border bg-background p-3">
+            <option value="shared">{l.shared}</option>
+            <option value="single">{l.single}</option>
+          </select>
+        </label>
+        <label class="block font-medium">{l.diet}<input name="dietaryRequirements" maxlength="2000" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
+        <label class="block font-medium">{l.access}<input name="accessibilityNeeds" maxlength="2000" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
+        <label class="block font-medium">{l.motivation}<textarea name="motivation" rows="3" maxlength="5000" class="mt-2 w-full rounded-md border bg-background p-3"></textarea></label>
+        <label class="block font-medium">{l.expectations}<textarea name="expectations" rows="3" maxlength="5000" class="mt-2 w-full rounded-md border bg-background p-3"></textarea></label>
+        <label class="flex items-start gap-2 text-sm"><input required type="checkbox" name="activityAcknowledgement" class="mt-1" />{l.activity}</label>
+        <label class="flex items-start gap-2 text-sm"><input required type="checkbox" name="consent" class="mt-1" />{l.consent}</label>
+        <button class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.submit}</button>
+        <p class="text-sm" data-form-message role="status"></p>
+      </form>
+    )}
+  </section>
+</BaseLayout>
+
+<script>
+  import { actions } from "astro:actions";
+  const root = document.querySelector("[data-apply-page]");
+  const tripId = root?.getAttribute("data-trip-id") ?? "";
+  const sentText = root?.getAttribute("data-sent") ?? "OK";
+  document.querySelector("[data-apply-form]")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const opt = (v) => {
+      const s = String(v ?? "").trim();
+      return s ? s : null;
+    };
+    const { data: result, error } = await actions.submitApplication({
+      tripId,
+      departureId: String(data.get("departureId") ?? ""),
+      legalName: String(data.get("legalName") ?? ""),
+      email: String(data.get("email") ?? ""),
+      phone: opt(data.get("phone")),
+      roomPreference: data.get("roomPreference") === "single" ? "single" : "shared",
+      dietaryRequirements: opt(data.get("dietaryRequirements")),
+      accessibilityNeeds: opt(data.get("accessibilityNeeds")),
+      activityAcknowledgement: true,
+      motivation: opt(data.get("motivation")),
+      expectations: opt(data.get("expectations")),
+      consent: true,
+    });
+    const el = form.querySelector("[data-form-message]");
+    if (error) {
+      if (el) el.textContent = error.message;
+    } else if (result) {
+      form.innerHTML = `<p class="rounded-xl border p-6">${sentText}</p>`;
+    }
+  });
+</script>
