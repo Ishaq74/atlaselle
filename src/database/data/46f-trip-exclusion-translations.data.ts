@@ -1,0 +1,28 @@
+// Exclusion translations — 6 exclusions × 4 locales.
+const T = (id: string, exclusionId: string, locale: "fr" | "en" | "es" | "ar", text: string) => ({ id, exclusionId, locale, text });
+export default [
+  T("exct-sa-1-fr", "exc-sa-1", "fr", "Vols internationaux"),
+  T("exct-sa-1-en", "exc-sa-1", "en", "International flights"),
+  T("exct-sa-1-es", "exc-sa-1", "es", "Vuelos internacionales"),
+  T("exct-sa-1-ar", "exc-sa-1", "ar", "الرحلات الجوية الدولية"),
+  T("exct-sa-2-fr", "exc-sa-2", "fr", "Assurance voyage et dépenses personnelles"),
+  T("exct-sa-2-en", "exc-sa-2", "en", "Travel insurance and personal expenses"),
+  T("exct-sa-2-es", "exc-sa-2", "es", "Seguro de viaje y gastos personales"),
+  T("exct-sa-2-ar", "exc-sa-2", "ar", "تأمين السفر والمصاريف الشخصية"),
+  T("exct-sm-1-fr", "exc-sm-1", "fr", "Vols vers Catane et depuis Malte"),
+  T("exct-sm-1-en", "exc-sm-1", "en", "Flights to Catania and from Malta"),
+  T("exct-sm-1-es", "exc-sm-1", "es", "Vuelos a Catania y desde Malta"),
+  T("exct-sm-1-ar", "exc-sm-1", "ar", "الرحلات إلى كاتانيا ومن مالطا"),
+  T("exct-sm-2-fr", "exc-sm-2", "fr", "Assurance voyage et dépenses personnelles"),
+  T("exct-sm-2-en", "exc-sm-2", "en", "Travel insurance and personal expenses"),
+  T("exct-sm-2-es", "exc-sm-2", "es", "Seguro de viaje y gastos personales"),
+  T("exct-sm-2-ar", "exc-sm-2", "ar", "تأمين السفر والمصاريف الشخصية"),
+  T("exct-am-1-fr", "exc-am-1", "fr", "Vols vers Malaga et depuis Tanger"),
+  T("exct-am-1-en", "exc-am-1", "en", "Flights to Málaga and from Tangier"),
+  T("exct-am-1-es", "exc-am-1", "es", "Vuelos a Málaga y desde Tánger"),
+  T("exct-am-1-ar", "exc-am-1", "ar", "الرحلات إلى مالقة ومن طنجة"),
+  T("exct-am-2-fr", "exc-am-2", "fr", "Assurance voyage et dépenses personnelles"),
+  T("exct-am-2-en", "exc-am-2", "en", "Travel insurance and personal expenses"),
+  T("exct-am-2-es", "exc-am-2", "es", "Seguro de viaje y gastos personales"),
+  T("exct-am-2-ar", "exc-am-2", "ar", "تأمين السفر والمصاريف الشخصية"),
+];

@@ -1,0 +1,28 @@
+// Highlight translations — 6 highlights × 4 locales.
+const T = (id: string, highlightId: string, locale: "fr" | "en" | "es" | "ar", title: string, description: string | null = null) => ({ id, highlightId, locale, title, description });
+export default [
+  T("hlt-sa-1-fr", "hl-sa-1", "fr", "Le Cap et les vignobles", "Trois jours entre montagne, océan et domaines viticoles."),
+  T("hlt-sa-1-en", "hl-sa-1", "en", "Cape Town and the Winelands", "Three days across mountain, ocean and wine estates."),
+  T("hlt-sa-1-es", "hl-sa-1", "es", "Ciudad del Cabo y los viñedos", "Tres días entre montaña, océano y fincas."),
+  T("hlt-sa-1-ar", "hl-sa-1", "ar", "كيب تاون وبلاد النبيذ", "ثلاثة أيام بين الجبل والمحيط والمزارع."),
+  T("hlt-sa-2-fr", "hl-sa-2", "fr", "Safari en réserve privée", "Deux jours de sorties guidées avec pisteurs locaux."),
+  T("hlt-sa-2-en", "hl-sa-2", "en", "Private-reserve safari", "Two days of guided drives with local trackers."),
+  T("hlt-sa-2-es", "hl-sa-2", "es", "Safari en reserva privada", "Dos días de salidas guiadas."),
+  T("hlt-sa-2-ar", "hl-sa-2", "ar", "سفاري في محمية خاصة", "يومان من الجولات الموجهة."),
+  T("hlt-sm-1-fr", "hl-sm-1", "fr", "Baroque sicilien", "Noto, Syracuse et Taormina avec guides locaux."),
+  T("hlt-sm-1-en", "hl-sm-1", "en", "Sicilian baroque", "Noto, Syracuse and Taormina with local guides."),
+  T("hlt-sm-1-es", "hl-sm-1", "es", "Barroco siciliano", "Noto, Siracusa y Taormina."),
+  T("hlt-sm-1-ar", "hl-sm-1", "ar", "باروك صقلية", "نوتو وسيراكوزا وتاورمينا."),
+  T("hlt-sm-2-fr", "hl-sm-2", "fr", "Traversée vers Malte", "Ferry rapide Pozzallo–Malte inclus et coordonné."),
+  T("hlt-sm-2-en", "hl-sm-2", "en", "Crossing to Malta", "Pozzallo–Malta fast ferry included and coordinated."),
+  T("hlt-sm-2-es", "hl-sm-2", "es", "Travesía a Malta", "Ferri rápido incluido."),
+  T("hlt-sm-2-ar", "hl-sm-2", "ar", "عبور إلى مالطا", "عبّارة سريعة مشمولة."),
+  T("hlt-am-1-fr", "hl-am-1", "fr", "Grenade et l'Alhambra", "Deux jours dont les palais nasrides."),
+  T("hlt-am-1-en", "hl-am-1", "en", "Granada and the Alhambra", "Two days including the Nasrid palaces."),
+  T("hlt-am-1-es", "hl-am-1", "es", "Granada y la Alhambra", "Dos días con los palacios nazaríes."),
+  T("hlt-am-1-ar", "hl-am-1", "ar", "غرناطة والحمراء", "يومان مع قصور بني نصر."),
+  T("hlt-am-2-fr", "hl-am-2", "fr", "Détroit et médinas", "Ferry vers Tanger puis Chefchaouen la bleue."),
+  T("hlt-am-2-en", "hl-am-2", "en", "Strait and medinas", "Ferry to Tangier then blue Chefchaouen."),
+  T("hlt-am-2-es", "hl-am-2", "es", "Estrecho y medinas", "Ferri a Tánger y Chauen."),
+  T("hlt-am-2-ar", "hl-am-2", "ar", "المضيق والمدن العتيقة", "عبّارة إلى طنجة ثم شفشاون."),
+];
