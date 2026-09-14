@@ -1,13 +1,12 @@
-> STATUT DOCUMENT (2026-09-14) — TRAJECTOIRE DATÉE, PAS ÉTAT TEMPS RÉEL.
+> STATUT DOCUMENT (2026-09-15, branche feat/voyage-core) — TRAJECTOIRE DATÉE, PAS ÉTAT TEMPS RÉEL.
 > Source de vérité temps réel : `docs/ETAT-REEL.md` + `package.json` + `src/`.
-> Déjà réalisés depuis la rédaction (ne plus traiter comme gaps) :
-> `src/i18n/routes.ts` existe (152 lignes, TODO §4.3/§7.2 obsolète) ;
-> CSP existe (`astro.config.mjs:75-88`, TODO §18.1 obsolète) ;
-> legacy `src/pages/fr/`, `src/pages/ar/` supprimés (TODO §1.1/§4.1/A.2 fait) ;
-> `src/pages/api/booking-quote.ts` supprimé (mock, TODO §1.1 obsolète) ;
-> `src/components/pages/org/` vidé (pages org supprimées) ;
-> `src/pages/sitemap-blog-org.xml.ts`, `sitemap-services-org.xml.ts` supprimés.
-> Restent vrais gaps : schémas/services voyage (Trip, Departure, Pricing, Availability, Application, Reservation, Payment), modules `src/modules/trips|departures|…`, loaders `loadTripPage()`, templates email voyage 12×4, migrations 0010→0015, seeds 41→46.
+> LIVRÉ depuis la rédaction : schémas voyage complets + migrations 0010/0011 + seeds 41→47,
+> `src/i18n/routes.ts`, CSP, suppression legacy `fr/`+`ar/`+`booking-quote`, pages org/sitemaps org,
+> loaders + pages publiques DB, admin Trips/Departures, travelers/applications, pricing/availability
+> (holds 30 min, concurrence prouvée), checkout + payments (mock/Stripe) + réservations,
+> emails 12×4 + outbox + jobs + analytics + policies provisoires.
+> Build VERT, 128 fichiers / 1379 tests verts. Reste : E2E navigateurs en CI, pa11y/lhci,
+> allowlist CSP Stripe, relectures natifs ES/AR, validation juridique, checklist §34, merge.
 > README*.md non édités ici (générés par `pnpm readme:generate` — voir `readme-builder/`).
 
 Ce que définit ce document
@@ -1132,33 +1131,33 @@ text
 02. env/config                        ✅
 03. tokens de design                  ✅
 04. primitives UI                     ✅
-05. i18n (4 langues)                  🟡 (base présente + src/i18n/routes.ts FAIT 2026-09-14 avec tests/unit/i18n-routes.test.ts ; reste divergence AR ASCII vs slugs arabes à trancher)
-06. fondations base de données        ✅
-07. types de domaine voyage           ❌
-08. Trip                              ❌
-09. Departure                         ❌
-10. Itinerary                         ❌
+05. i18n (4 langues)                  ✅ (routes.ts + ASCII AR + switcher + canonique/hreflang, tests 4 locales)
+06. fondations base de données        ✅ (+ migrations 0010/0011, seeds 41→47)
+07. types de domaine voyage           ✅ (transitions, pricing pur, dispo pure, tests)
+08. Trip                              ✅ (schéma + traductions + contenus + FAQ + admin + actions lifecycle)
+09. Departure                         ✅ (prix 100 % admin + holds 30 min + statuts + admin)
+10. Itinerary                         ✅ (jours + traductions, seeds 25 j)
 11. Media                             ✅ (à étendre pour ATLASELLE)
-12. loaders publics                   🟡
-13. pages publiques                   🟡 (squelettes présents)
+12. loaders publics                   ✅ (loadTripPage, loadTripsList, departures, booking)
+13. pages publiques                   ✅ (liste, fiche, candidature, checkout, confirmation — DB)
 14. fondations admin                  ✅ (core/admin/resource-contract)
-15. contrat de ressource              ✅
-16. admin Trip                        ❌
-17. domaine Application/Pricing/Availability ❌
-18. checkout                          ❌
-19. paiement                          ❌
-20. réservation                       ❌
-21. email (voyage)                    🟡 (SMTP présent, templates à créer)
-22. outbox/jobs                       ❌
-23. audit                             ✅
-24. analytics                         ❌
-25. légal/versioning                  🟡 (page_versions présent)
-26. tests                             🟡 (à étendre)
-27. performance                       🟡 (Lighthouse CI en place)
-28. accessibilité (incl. RTL)         🟡 (Pa11y en place)
-29. sécurité                          ✅
-30. durcissement production           🟡
-31. lancement                         —
+15. contrat de ressource              ✅ (trips + departures + asserts)
+16. admin Trip                        ✅ (liste, fiche, transitions, départs, sidebar)
+17. domaine Application/Pricing/Availability ✅ (submit/review/withdraw, holds concurrence prouvée)
+18. checkout                          ✅ (session TTL 7 j, tunnel mock prouvé)
+19. paiement                          ✅ (provider mock + Stripe fetch, webhook idempotent, refund)
+20. réservation                       ✅ (snapshot immuable, confirm/cancel)
+21. email (voyage)                    ✅ (12 templates × 4 + worker + rappels dédupliqués)
+22. outbox/jobs                       ✅ (worker SKIP LOCKED + cron voyage)
+23. audit                             ✅ (+ actions voyage auditées)
+24. analytics                         ✅ (allowlist 10 events + endpoint)
+25. légal/versioning                  🟡 (page_versions + policies provisoires non publiées — validation juridique requise)
+26. tests                             ✅ (128 fichiers / 1379 verts ; E2E voyage écrit, CI navigateurs à valider)
+27. performance                       🟡 (Lighthouse CI en place, run à relancer)
+28. accessibilité (incl. RTL)         🟡 (Pa11y en place, run à relancer)
+29. sécurité                          ✅ (+ CSP Stripe allowlist restante)
+30. durcissement production           🟡 (checklist §34 : sauvegarde, monitoring, rollback — ops hors code)
+31. lancement                         — (branche feat/voyage-core à merger après CI verte)
 Aucune implémentation de paiement ne démarre avant que Trip, Departure, Pricing, Availability et Application soient stabilisés.
 
 31.1 Checklists par étape

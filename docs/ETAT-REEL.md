@@ -1,10 +1,21 @@
-# ETAT-REEL — Source de vérité temps réel (2026-09-14)
+# ETAT-REEL — Source de vérité temps réel (2026-09-15, branche feat/voyage-core)
 
 > Règle : `package.json` + `src/` + configs racine font foi sur toute doc.
 > `README*.md` = générés par `pnpm readme:generate` (`readme-builder/`) — ne jamais les éditer à la main, corriger le générateur.
 > `TODO.md` = trajectoire datée, pas état temps réel.
 > `docs/audits/*` = snapshots archivés, pas vérité.
 > Régénération : recompter via les commandes listées §6 et mettre à jour la date + les chiffres.
+
+## 0. Cœur voyage — livré (branche feat/voyage-core, 2026-09-15)
+
+- Schémas : `trips (+traductions, highlights, inclusions, exclusions, faq)`, `itinerary`, `departures (+seat_holds)`, `travelers`, `applications (+décisions, événements, notes)`, `reservations (+snapshots)`, `payments (+checkout_sessions)`, `policies`, `outbox`, `email-voyage`. Migrations `0010_voyage_core`, `0011_email_delivery_reservation`. Seeds `41 → 47` (3 voyages × 4 langues, 3 départs ouverts, 25 jours itinéraire, FAQ, contenus, policies provisoires non publiées).
+- Domaine pur + testé : transitions d'état, pricing (centimes), dispo (holds 30 min, `FOR UPDATE`, concurrence prouvée), email travelers, outbox worker (`SKIP LOCKED`), providers paiement (mock + Stripe fetch, sans SDK).
+- Tunnel complet prouvé en intégration (mock) : approbation → checkout (TTL 7 j) → hold → snapshot → paiement → webhook idempotent → confirmation → hold converti → refund.
+- Pages : `/[lang]/trips` (liste + filtres), `/[lang]/trips/[slug]`, `/[lang]/apply/[trip]` (vrai formulaire), `/[lang]/checkout/[session]`, `/[lang]/booking-confirmed`, `/api/payments/webhook|mock-callback`, `/api/cron/voyage`, `/api/analytics`. Admin : `/[lang]/admin/trips` (liste + fiche, transitions, départs).
+- Emails : 12 templates × 4 langues + worker + rappels (solde J-7, pré J-14, post J+3, dédupliqués).
+- Build `pnpm build` VERT. Tests : **128 fichiers, 1379 tests, 100 % verts** (baseline 2026-09-14 : 15 fichiers / 44 tests en échec — tous réparés ou requalifiés single-tenant).
+- Scope org coupé (TODO §30.3) : pas de plugin organization, pas de routes `/organizations/`, tests org supprimés/réécrits (`auth-org`, `admin-roles`, specs e2e blog/services).
+- Reste : runs navigateurs/E2E en CI (spec `voyage.spec.ts` écrit, non exécuté en local — Playwright mis en pause), pa11y/lhci à relancer, allowlist CSP Stripe, contenus ES/AR à relire par natifs, validation juridique des policies, checklist prod §34, merge de la branche.
 
 ## 1. Versions (vérifié `package.json`)
 
