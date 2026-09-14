@@ -183,7 +183,6 @@ export default {
         editor: 'Editor',
         user: 'Usuario',
         owner: 'Propietario',
-        orgAdmin: 'Admin org.',
         member: 'Miembro',
       },
       resourceName: {

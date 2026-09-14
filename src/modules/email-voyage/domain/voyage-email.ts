@@ -4,7 +4,8 @@ import { emailDeliveries, emailEvents } from "@database/schemas";
 import type { VoyageEmailTemplate } from "@database/schemas/email-voyage.schema";
 import { sendEmail } from "@smtp/send";
 import { voyageTemplate, type VoyageEmailVars } from "@smtp/templates/voyage";
-import { isValidLocale, type Locale } from "@/i18n/utils";
+import { isValidLocale } from "@/i18n/utils";
+import type { Locale } from "@/i18n/config";
 
 export type SendFn = (payload: { to: string; subject: string; html: string; text: string }) => Promise<void>;
 

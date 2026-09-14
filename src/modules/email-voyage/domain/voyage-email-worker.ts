@@ -7,7 +7,8 @@ import { reservations } from "@database/schemas";
 import { applications } from "@database/schemas";
 import { checkoutSessions } from "@database/schemas";
 import type { VoyageEmailTemplate } from "@database/schemas/email-voyage.schema";
-import { isValidLocale, type Locale } from "@/i18n/utils";
+import { isValidLocale } from "@/i18n/utils";
+import type { Locale } from "@/i18n/config";
 import { sendVoyageEmail, type SendFn } from "./voyage-email";
 import { claimOutboxBatch, completeOutbox, failOutbox } from "@/modules/outbox/domain/outbox-worker";
 

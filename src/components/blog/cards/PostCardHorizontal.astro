@@ -63,7 +63,7 @@ if (!translation) return null;
 
 const excerpt = translation.excerpt || generateExcerpt(translation.content, 160);
 const primaryCategorySlug = post.categories[0]?.slug ?? null;
-const postUrl = buildBlogPostUrl(locale, organizationSlug, translation.slug, primaryCategorySlug);
+const postUrl = buildBlogPostUrl(locale, translation.slug, primaryCategorySlug);
 const publishedAt = post.post.publishedAt;
 const primaryCategory = post.categories[0];
 const readingTime = formatReadingTime(translation.content);
@@ -134,7 +134,7 @@ const loadingAttr = priority === "eager" ? ("eager" as const) : ("lazy" as const
             variant="ghost"
             size="sm"
             class="relative z-10 rounded-md"
-            href={buildBlogCategoryUrl(locale, organizationSlug, primaryCategory.slug)}
+            href={buildBlogCategoryUrl(locale, primaryCategory.slug)}
           >
             {primaryCategory.name ?? primaryCategory.slug}
           </Badge>

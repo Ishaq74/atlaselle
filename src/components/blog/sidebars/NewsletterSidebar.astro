@@ -87,7 +87,6 @@ const {
       const { error } = await actions.subscribeBlogNewsletter({
         email,
         locale: locale as never,
-        organizationId,
       });
 
       if (error) {

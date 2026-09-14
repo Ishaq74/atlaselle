@@ -65,7 +65,7 @@ function weekday(dayOfWeek: number): string {
     if (!serviceId) continue;
     const organizationId = root.dataset.organizationId || null;
     let recorded = false;
-    const recordView = async () => { if (recorded) return; recorded = true; try { await actions.recordServiceView({ serviceId, organizationId, referrer: document.referrer || null }); } catch { recorded = false; } };
+    const recordView = async () => { if (recorded) return; recorded = true; try { await actions.recordServiceView({ serviceId, referrer: document.referrer || null }); } catch { recorded = false; } };
     if ("IntersectionObserver" in window) { const observer = new IntersectionObserver((entries) => { if (entries.some((entry) => entry.isIntersecting)) { void recordView(); observer.disconnect(); } }, { threshold: 0.01 }); observer.observe(root); } else { void recordView(); }
   }
 </script>

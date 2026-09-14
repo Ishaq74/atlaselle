@@ -47,20 +47,22 @@ const base = `/${locale}/checkout/${data.sessionId}`;
       <label class="block font-medium">Email<input required name="travelerEmail" type="email" maxlength="320" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
       <label class="flex items-start gap-2 text-sm"><input required type="checkbox" name="terms" class="mt-1" />{l.terms}</label>
       <button class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.pay} · {fmt(data.quote.totalAmount)}</button>
-      <p class="text-sm" data-form-message role="status"></p>
+      <output class="block text-sm" data-form-message></output>
     </form>
   </section>
 </BaseLayout>
 
 <script>
   import { actions } from "astro:actions";
+  import type { Locale } from "@i18n/config";
   const root = document.querySelector("[data-checkout-page]");
   const sessionId = root?.getAttribute("data-session") ?? "";
-  const locale = root?.getAttribute("data-locale") ?? "en";
+  const locale = (root?.getAttribute("data-locale") ?? "en") as Locale;
   const room = new URLSearchParams(window.location.search).get("room") === "single" ? "single" : "shared";
   document.querySelector("[data-checkout-form]")?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const form = e.currentTarget;
+    const form = e.currentTarget as HTMLFormElement | null;
+    if (!form) return;
     const data = new FormData(form);
     const el = form.querySelector("[data-form-message]");
     const btn = form.querySelector("button");

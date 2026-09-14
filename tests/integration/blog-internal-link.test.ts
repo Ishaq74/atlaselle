@@ -24,7 +24,6 @@ describe('blog internal link resolver (integration)', () => {
   it('resolver.listValidTargets matches getBlogValidLinkTargets', async () => {
     const targets = await blogInternalLinkResolver.listValidTargets({
       locale: 'fr' as Locale,
-      organizationId: null,
     });
     expect(targets instanceof Set).toBe(true);
     expect(targets.has('week-end-annecy')).toBe(true);
@@ -33,7 +32,6 @@ describe('blog internal link resolver (integration)', () => {
   it('resolver.resolve returns a published URL', async () => {
     const res = await blogInternalLinkResolver.resolve('week-end-annecy', {
       locale: 'fr' as Locale,
-      organizationId: null,
     });
     expect(res.exists).toBe(true);
     expect(res.href).toContain('/fr/blog/');
@@ -42,7 +40,6 @@ describe('blog internal link resolver (integration)', () => {
   it('resolver.resolve reports missing targets', async () => {
     const res = await blogInternalLinkResolver.resolve('does-not-exist-slug', {
       locale: 'fr' as Locale,
-      organizationId: null,
     });
     expect(res.exists).toBe(false);
   });
@@ -50,7 +47,6 @@ describe('blog internal link resolver (integration)', () => {
   it('resolver.search finds posts by title', async () => {
     const results = await blogInternalLinkResolver.search('Annecy', {
       locale: 'fr' as Locale,
-      organizationId: null,
     });
     expect(results.length).toBeGreaterThan(0);
     expect(results[0].href).toContain('/fr/blog/');

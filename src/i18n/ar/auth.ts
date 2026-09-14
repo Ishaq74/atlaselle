@@ -183,7 +183,6 @@ export default {
         editor: 'محرر',
         user: 'مستخدم',
         owner: 'مالك',
-        orgAdmin: 'مسؤول المؤسسة',
         member: 'عضو',
       },
       resourceName: {

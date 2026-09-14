@@ -73,7 +73,7 @@ const t = locale === "fr"
         <label class="block text-sm sm:col-span-3">accommodationStyle<input name="accommodationStyle" value={trip.accommodationStyle ?? ""} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
       </div>
       <button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save}</button>
-      <p class="text-sm" data-form-message role="status"></p>
+      <output class="block text-sm" data-form-message></output>
     </form>
   ) : null}
 
@@ -95,7 +95,7 @@ const t = locale === "fr"
             <label class="inline-flex items-center gap-2 text-sm"><input type="checkbox" name="localeVisible" checked={tr?.localeVisible ?? false} /> localeVisible</label>
           </div>
           {canUpdate ? <button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save} ({loc})</button> : null}
-          <p class="text-sm" data-form-message role="status"></p>
+          <output class="block text-sm" data-form-message></output>
         </form>
       );
     })}
@@ -136,7 +136,7 @@ const t = locale === "fr"
         <label class="block text-sm">capacityMin<input name="capacityMin" type="number" min="1" value="6" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
         <label class="block text-sm">capacityMax<input name="capacityMax" type="number" min="1" value="12" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
         <label class="block text-sm">currency<input name="currency" value="EUR" maxlength="3" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
-        <div class="sm:col-span-3"><button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save}</button> <span class="ml-3 text-sm" data-form-message role="status"></span></div>
+        <div class="sm:col-span-3"><button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save}</button> <output class="ml-3 text-sm" data-form-message></output></div>
       </form>
     ) : null}
   </div>
@@ -144,19 +144,28 @@ const t = locale === "fr"
 
 <script>
   import { actions } from "astro:actions";
+  import type { Locale } from "@i18n/config";
   const root = document.querySelector("section[data-trip-id]");
   const tripId = root?.getAttribute("data-trip-id") ?? "";
-  const say = (form, ok, text) => {
-    const el = form.querySelector("[data-form-message]");
+  const say = (form: HTMLFormElement | null, ok: boolean, text: string): void => {
+    const el = form?.querySelector("[data-form-message]");
     if (el) el.textContent = (ok ? "" : "Erreur : ") + text;
   };
-  const num = (v) => (v === "" || v == null ? undefined : Number(v));
-  const str = (v) => (v === "" ? undefined : String(v));
-  const nulStr = (v) => (v === "" ? null : String(v));
+  const num = (v: FormDataEntryValue | null): number | undefined => (v === "" || v == null ? undefined : Number(v));
+  const str = (v: FormDataEntryValue | null): string | undefined => {
+    const s = String(v ?? "");
+    return s === "" ? undefined : s;
+  };
+  const nulStr = (v: FormDataEntryValue | null): string | null => {
+    const s = String(v ?? "");
+    return s === "" ? null : s;
+  };
+  const asForm = (e: Event): HTMLFormElement | null => e.currentTarget as HTMLFormElement | null;
 
   document.querySelector("[data-facts-form]")?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const form = e.currentTarget;
+    const form = asForm(e);
+    if (!form) return;
     const data = new FormData(form);
     const { error } = await actions.updateTrip({
       id: tripId,
@@ -176,11 +185,13 @@ const t = locale === "fr"
     else window.location.reload();
   });
 
-  document.querySelectorAll("[data-translation-form]")?.forEach((form) => {
+  document.querySelectorAll("[data-translation-form]").forEach((form) => {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const data = new FormData(form);
-      const locale = form.getAttribute("data-translation-form") ?? "";
+      const target = asForm(e);
+      if (!target) return;
+      const data = new FormData(target);
+      const locale = (target.getAttribute("data-translation-form") ?? "") as Locale;
       const { error } = await actions.upsertTripTranslation({
         tripId,
         locale,
@@ -191,14 +202,14 @@ const t = locale === "fr"
         overview: String(data.get("overview") ?? ""),
         metaTitle: str(data.get("metaTitle")) ?? null,
         metaDescription: str(data.get("metaDescription")) ?? null,
-        localeVisible: form.querySelector('input[name="localeVisible"]')?.checked ?? false,
+        localeVisible: target.querySelector<HTMLInputElement>('input[name="localeVisible"]')?.checked ?? false,
       });
-      if (error) say(form, false, error.message);
+      if (error) say(target, false, error.message);
       else window.location.reload();
     });
   });
 
-  const TRANSITION_ACTIONS = {
+  const TRANSITION_ACTIONS: Record<string, () => ReturnType<typeof actions.publishTrip>> = {
     review: () => actions.submitTripForReview({ id: tripId }),
     approved: () => actions.approveTrip({ id: tripId }),
     published: () => actions.publishTrip({ id: tripId }),
@@ -217,12 +228,13 @@ const t = locale === "fr"
     });
   });
 
-  document.querySelectorAll("[data-departure-save]")?.forEach((btn) => {
+  document.querySelectorAll("[data-departure-save]").forEach((btn) => {
     btn.addEventListener("click", async () => {
-      const row = btn.closest("[data-departure-id]");
+      const el = btn as HTMLElement;
+      const row = el.closest("[data-departure-id]");
       const id = row?.getAttribute("data-departure-id") ?? "";
-      const to = row?.querySelector("[data-departure-status]")?.value ?? "";
-      const { error } = await actions.setDepartureStatus({ id, to });
+      const to = row?.querySelector<HTMLSelectElement>("[data-departure-status]")?.value ?? "";
+      const { error } = await actions.setDepartureStatus({ id, to: to as "open" });
       if (error) alert(error.message);
       else window.location.reload();
     });
@@ -230,7 +242,8 @@ const t = locale === "fr"
 
   document.querySelector("[data-departure-form]")?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const form = e.currentTarget;
+    const form = asForm(e);
+    if (!form) return;
     const data = new FormData(form);
     const { error } = await actions.createDeparture({
       tripId,

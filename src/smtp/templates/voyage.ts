@@ -137,6 +137,6 @@ export function voyageTemplate(key: VoyageEmailTemplate, locale: Locale, vars: V
   return {
     subject: `${fill(entry.subject, vars)} — ATLASELLE`,
     html: renderEmailHtml(locale, layout, section),
-    text: renderEmailText(locale, layout, section),
+    text: renderEmailText(section),
   };
 }

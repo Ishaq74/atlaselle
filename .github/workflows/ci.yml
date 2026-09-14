@@ -89,6 +89,9 @@ jobs:
       - name: Apply SQL Infra (indexes, triggers)
         run: pnpm db:infra
 
+      - name: Seed test data (idempotent, required by integration tests)
+        run: pnpm db:seed
+
       - name: Vitest
         run: pnpm test -- --coverage
 
@@ -154,6 +157,9 @@ jobs:
 
       - name: Apply SQL Infra (indexes, triggers)
         run: pnpm db:infra
+
+      - name: Seed test data (idempotent)
+        run: pnpm db:seed
 
       - name: Build
         run: pnpm build
@@ -223,6 +229,9 @@ jobs:
 
       - name: Apply SQL Infra (indexes, triggers)
         run: pnpm db:infra
+
+      - name: Seed content (idempotent, required by audited pages)
+        run: pnpm db:seed
 
       - name: Build
         run: pnpm build

@@ -53,7 +53,7 @@ const maxCount = Math.max(1, ...tags.map((t) => t.postCount));
           const isActive = activeSlug === tag.slug;
           return (
             <a
-              href={buildBlogTagUrl(locale, null, blogT.routes.tags, tag.slug)}
+              href={buildBlogTagUrl(locale, blogT.routes.tags, tag.slug)}
               class={`sidebar-tag sidebar-tag--size-${weight}`}
               aria-current={isActive ? "page" : undefined}
             >

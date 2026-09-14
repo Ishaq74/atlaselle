@@ -6,13 +6,6 @@ import {
   tripTranslations,
   tripHighlights,
   tripHighlightTranslations,
-  tripInclusions,
-  tripInclusionTranslations,
-  tripExclusions,
-  tripExclusionTranslations,
-  faqs,
-  faqTranslations,
-  tripFaqs,
   type TripStatus,
 } from "@database/schemas/trips.schema";
 import { itineraryDays, itineraryDayTranslations } from "@database/schemas/itinerary.schema";

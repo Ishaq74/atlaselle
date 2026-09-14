@@ -43,7 +43,7 @@ if (!translation) return null;
 
 const excerpt = translation.excerpt || generateExcerpt(translation.content, 160);
 const primaryCategorySlug = post.categories[0]?.slug ?? null;
-const postUrl = buildBlogPostUrl(locale, null, translation.slug, primaryCategorySlug);
+const postUrl = buildBlogPostUrl(locale, translation.slug, primaryCategorySlug);
 const publishedAt = post.post.publishedAt;
 const primaryCategory = post.categories[0];
 const readingTime = formatReadingTime(translation.content);
@@ -81,7 +81,7 @@ const readingTime = formatReadingTime(translation.content);
   <CardHeader class="post-card__header">
     {showCategory && primaryCategory && (
       <div class="post-card__category">
-        <Badge variant="outline" size="sm" href={buildBlogCategoryUrl(locale, null, primaryCategory.slug)}>
+        <Badge variant="outline" size="sm" href={buildBlogCategoryUrl(locale, primaryCategory.slug)}>
           {primaryCategory.name ?? primaryCategory.slug}
         </Badge>
       </div>

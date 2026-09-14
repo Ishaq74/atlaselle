@@ -36,7 +36,7 @@ export function getBlogTagUrl(locale: Locale, blogT: BlogTranslations, slug: str
 export function getBlogPostUrl(locale: Locale, blogT: BlogTranslations, slug: string, categorySlug?: string | null): string { return categorySlug ? `/${locale}/${blogT.routes.blog}/${categorySlug}/${slug}` : `/${locale}/${blogT.routes.blog}/${slug}`; }
 export function resolvePageSlug(slug: string, commonTranslations: CommonTranslations): PageId | null { const match = (Object.entries(commonTranslations.pageRoutes) as [PageId, string][]).find(([, route]) => route === slug); return match?.[0] ?? null; }
 export function toLocale(value: string | undefined): Locale { return value && LOCALES.includes(value as Locale) ? value as Locale : DEFAULT_LOCALE; }
-export function isValidLocale(value: string | undefined): value is Locale { return typeof value === 'string' && (LOCALES as readonly string[]).includes(value); }
+export function isValidLocale(value: string | null | undefined): value is Locale { return typeof value === 'string' && (LOCALES as readonly string[]).includes(value); }
 
 /** Tables de slugs par locale pour la correspondance inter-langues (sélecteur de langue, TODO §7.6). */
 export interface StaticSlugMaps {

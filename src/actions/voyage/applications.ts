@@ -26,7 +26,7 @@ const submitSchema = z.object({
   departureId: z.string().uuid(),
   legalName: z.string().trim().min(1).max(200).transform(sanitizeHtml),
   email: z.string().trim().email().max(320),
-  phone: z.string().trim().max(40).transform(sanitizeHtml).optional(),
+  phone: z.string().trim().max(40).transform(sanitizeHtml).nullable().optional(),
   roomPreference: z.enum(["shared", "single"]).default("shared"),
   dietaryRequirements: z.string().trim().max(2000).transform(sanitizeHtml).nullable().optional(),
   accessibilityNeeds: z.string().trim().max(2000).transform(sanitizeHtml).nullable().optional(),

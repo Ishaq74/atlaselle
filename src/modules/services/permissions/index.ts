@@ -16,14 +16,11 @@ export function resolveServiceTenant(input: { organizationId?: string | null }):
 }
 
 export async function hasServicePermission(context: Pick<ActionAPIContext, "locals" | "request">, tenant: ServiceTenantContext, permissions: ServicePermissions): Promise<boolean> {
+  void tenant;
   const currentUser = context.locals.user;
   if (!currentUser || currentUser.banned) return false;
   try {
     const { auth } = await import("@/lib/auth");
-    if (tenant.isOrgContext) {
-      const result = await auth.api.hasPermission({ headers: context.request.headers, body: { organizationId: tenant.organizationId!, permissions: permissions as Record<string, string[]> } });
-      return result.success;
-    }
     const result = await auth.api.userHasPermission({ body: { userId: currentUser.id, permissions: permissions as Record<string, string[]> } });
     return result.success;
   } catch {

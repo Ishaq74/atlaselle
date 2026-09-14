@@ -8,7 +8,7 @@ export const prerender = false;
 
 const bodySchema = z.object({
   event: z.string().max(64),
-  props: z.record(z.unknown()).optional(),
+  props: z.record(z.string(), z.unknown()).optional(),
 });
 
 // POST /api/analytics — collecte agrégée, allowlist stricte, jamais de PII.

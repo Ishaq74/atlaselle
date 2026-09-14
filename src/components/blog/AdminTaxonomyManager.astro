@@ -325,8 +325,8 @@ const labels = {
       const id = deleteIdInput?.value;
       if (!id) return;
       const result = kind === 'category'
-        ? await actions.deleteBlogCategory({ id, organizationId })
-        : await actions.deleteBlogTag({ id, organizationId });
+        ? await actions.deleteBlogCategory({ id })
+        : await actions.deleteBlogTag({ id });
 
       if (result.error) {
         toast.error(result.error.message ?? dataEl.dataset.tError ?? '');

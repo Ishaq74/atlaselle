@@ -25,9 +25,6 @@ export interface Organization {
   ownerName: string | null;
 }
 
-/** Full organization data from getFullOrganization API. */
-export type FullOrganization = NonNullable<Awaited<ReturnType<typeof auth.api.getFullOrganization>>>;
-
 /** Audit log row as returned by fetchAdminAuditLogs. */
 export interface AuditLogRow {
   id: string;
@@ -229,85 +226,3 @@ export async function fetchAdminStats(headers: Headers) {
 
 /** Fetch full org data by slug. Returns null if not found.
  *  Verifies that the caller is a member of the organization. */
-export async function fetchOrgData(headers: Headers, orgSlug: string) {
-  const session = await auth.api.getSession({ headers });
-  if (!session) throw new Error('Unauthorized: authentication required');
-
-  const fullOrg = await auth.api.getFullOrganization({
-    query: { organizationSlug: orgSlug },
-    headers,
-  });
-  if (!fullOrg) return null;
-
-  const members = fullOrg.members ?? [];
-
-  // Verify the caller is a member of this organization
-  const callerRole = getUserOrgRole(members as OrgMember[], session.user.id);
-  if (!callerRole && session.user.role !== 'admin') {
-    throw new Error('Unauthorized: you are not a member of this organization');
-  }
-  return { org: fullOrg, members };
-}
-
-export interface OrgMember {
-  userId: string;
-  role: string;
-}
-
-/** Find current user's role in an org. */
-export function getUserOrgRole(members: OrgMember[], userId: string): string | null {
-  const member = members.find((m) => m.userId === userId);
-  return member?.role ?? null;
-}
-
-export interface Invitation {
-  id: string;
-  organizationId: string;
-  email: string;
-  role: string;
-  status: string;
-  expiresAt: Date;
-  inviterId: string;
-}
-
-/** Fetch pending invitations for an org (admin/owner only). */
-export async function fetchOrgInvitations(headers: Headers, orgId: string) {
-  const session = await auth.api.getSession({ headers });
-  if (!session) throw new Error('Unauthorized: authentication required');
-
-  // Verify the caller is a member of this organization (or global admin)
-  const fullOrg = await auth.api.getFullOrganization({
-    query: { organizationId: orgId },
-    headers,
-  });
-  if (!fullOrg) throw new Error('Organization not found');
-  const callerRole = getUserOrgRole((fullOrg.members ?? []) as OrgMember[], session.user.id);
-  if (!callerRole && session.user.role !== 'admin') {
-    throw new Error('Unauthorized: you are not a member of this organization');
-  }
-
-  const invList = await auth.api.listInvitations({
-    query: { organizationId: orgId },
-    headers,
-  });
-  return ((invList ?? []) as Invitation[]).filter((inv) => inv.status === 'pending');
-}
-
-/** Fetch user's organizations (for dashboard). */
-export async function fetchUserOrganizations(headers: Headers) {
-  const result = await auth.api.listOrganizations({ headers });
-  return result ?? [];
-}
-
-/** Fetch user's pending invitations (for dashboard).
- *  Requires authenticated headers — only returns invitations for the caller's own email. */
-export async function fetchUserInvitations(headers: Headers) {
-  const session = await auth.api.getSession({ headers });
-  if (!session) throw new Error('Unauthorized: authentication required');
-
-  const result = await auth.api.listUserInvitations({
-    query: { email: session.user.email },
-    headers,
-  });
-  return result ?? [];
-}

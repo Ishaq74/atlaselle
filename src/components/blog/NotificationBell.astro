@@ -89,7 +89,7 @@ function formatRelative(date: Date): string {
         const id = item.dataset.notificationId;
         if (id) {
           const organizationId = item.dataset.organizationId || null;
-          void actions.markBlogNotificationRead({ id, organizationId });
+          void actions.markBlogNotificationRead({ id });
         }
       });
     });
@@ -97,9 +97,7 @@ function formatRelative(date: Date): string {
     document.getElementById("notification-mark-all")?.addEventListener("click", async (e) => {
       e.preventDefault();
       const root = document.getElementById('notification-list');
-      await actions.markAllBlogNotificationsRead({
-        organizationId: root?.dataset.organizationId || null,
-      });
+      await actions.markAllBlogNotificationsRead({});
       window.location.reload();
     });
   }

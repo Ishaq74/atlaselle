@@ -2,7 +2,6 @@ import { and, eq, lte } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { checkoutSessions } from "@database/schemas";
 import { applications } from "@database/schemas";
-import { codedError } from "@/lib/voyage-codes";
 
 // Lien checkout signé par opacité (uuid) + TTL 7 j (TODO §11.5).
 export const CHECKOUT_LINK_TTL_DAYS = 7;

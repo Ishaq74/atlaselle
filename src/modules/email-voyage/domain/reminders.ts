@@ -6,7 +6,8 @@ import { travelers } from "@database/schemas";
 import { tripTranslations } from "@database/schemas";
 import { emailDeliveries } from "@database/schemas";
 import type { VoyageEmailTemplate } from "@database/schemas/email-voyage.schema";
-import { isValidLocale, type Locale } from "@/i18n/utils";
+import { isValidLocale } from "@/i18n/utils";
+import type { Locale } from "@/i18n/config";
 import { sendVoyageEmail, type SendFn } from "./voyage-email";
 
 function fmtMoney(cents: number, currency: string): string {
