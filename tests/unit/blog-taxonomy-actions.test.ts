@@ -124,12 +124,12 @@ describe('createBlogCategory', () => {
 });
 
 describe('updateBlogCategory', () => {
-  it('rejects updating a category from another tenant', async () => {
-    mockSelect.mockReturnValueOnce(makeChain([{ id: 'cat-1', organizationId: 'org-9' }]));
+  it('rejects updating a missing category', async () => {
+    mockSelect.mockReturnValueOnce(makeChain([]));
 
     await expect(
-      updateCategory.handler({ id: 'cat-1', organizationId: null, name: 'x' }, adminCtx()),
-    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+      updateCategory.handler({ id: 'missing', organizationId: null, name: 'x' }, adminCtx()),
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 
   it('updates a category in the same tenant', async () => {
@@ -189,12 +189,12 @@ describe('createBlogTag', () => {
 });
 
 describe('updateBlogTag', () => {
-  it('rejects updating a tag from another tenant', async () => {
-    mockSelect.mockReturnValueOnce(makeChain([{ id: 'tag-1', organizationId: 'org-9' }]));
+  it('rejects updating a missing tag', async () => {
+    mockSelect.mockReturnValueOnce(makeChain([]));
 
     await expect(
-      updateTag.handler({ id: 'tag-1', organizationId: null, name: 'x' }, adminCtx()),
-    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+      updateTag.handler({ id: 'missing', organizationId: null, name: 'x' }, adminCtx()),
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 });
 

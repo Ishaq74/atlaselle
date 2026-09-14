@@ -13,9 +13,7 @@ vi.mock('astro:actions', () => {
 });
 
 const mockSelect = vi.fn();
-const mockGetFullOrganization = vi.fn();
 const mockUserHasPermission = vi.fn();
-const mockHasPermission = vi.fn();
 
 vi.mock('@database/drizzle', () => ({
   getDrizzle: vi.fn(() => ({
@@ -33,9 +31,7 @@ vi.mock('@database/schemas', () => ({
 vi.mock('@/lib/auth', () => ({
   auth: {
     api: {
-      getFullOrganization: mockGetFullOrganization,
       userHasPermission: mockUserHasPermission,
-      hasPermission: mockHasPermission,
     },
   },
 }));
@@ -84,25 +80,19 @@ function selectChain(rows: any[]) {
 
 beforeEach(() => {
   mockSelect.mockReset();
-  mockGetFullOrganization.mockReset();
   mockUserHasPermission.mockReset();
-  mockHasPermission.mockReset();
   mockUserHasPermission.mockResolvedValue({ success: true });
-  mockHasPermission.mockResolvedValue({ success: true });
 });
 
-describe('resolveBlogTenant', () => {
-  it('returns global context when organizationId is missing', () => {
+describe('resolveBlogTenant (single-tenant)', () => {
+  it('always returns the global context', () => {
     expect(resolveBlogTenant({})).toEqual({
       organizationId: null,
       isOrgContext: false,
     });
-  });
-
-  it('returns org context when organizationId is present', () => {
     expect(resolveBlogTenant({ organizationId: 'org-1' })).toEqual({
-      organizationId: 'org-1',
-      isOrgContext: true,
+      organizationId: null,
+      isOrgContext: false,
     });
   });
 });
@@ -110,7 +100,7 @@ describe('resolveBlogTenant', () => {
 describe('assertBlogPermission', () => {
   it('throws UNAUTHORIZED when user is missing', async () => {
     await expect(
-      assertBlogPermission(fakeContext(null), { organizationId: null, isOrgContext: false }, { blog: ['read'] }),
+      assertBlogPermission(fakeContext(null), { blog: ['read'] }),
     ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
   });
 
@@ -119,12 +109,10 @@ describe('assertBlogPermission', () => {
 
     const result = await assertBlogPermission(
       fakeContext(user),
-      { organizationId: null, isOrgContext: false },
       { blog: ['delete'] },
     );
 
     expect(result).toBe(user);
-    expect(mockGetFullOrganization).not.toHaveBeenCalled();
     expect(mockUserHasPermission).toHaveBeenCalledWith({
       body: {
         userId: 'admin-1',
@@ -133,106 +121,62 @@ describe('assertBlogPermission', () => {
     });
   });
 
-  it('rejects when Better Auth denies the organization permission', async () => {
-    mockHasPermission.mockResolvedValueOnce({ success: false });
-
-    await expect(
-      assertBlogPermission(
-        fakeContext({ id: 'user-1', role: 'user', banned: false }),
-        { organizationId: 'org-1', isOrgContext: true },
-        { blog: ['update'] },
-      ),
-    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
-
-    expect(mockUserHasPermission).not.toHaveBeenCalled();
-  });
-
-  it('uses the session-scoped organization permission endpoint', async () => {
-    const user = { id: 'user-1', role: 'user', banned: false };
-    const context = fakeContext(user);
-    const result = await assertBlogPermission(
-      context,
-      { organizationId: 'org-1', isOrgContext: true },
-      { blog: ['publish'] },
-    );
-
-    expect(result).toBe(user);
-    expect(mockHasPermission).toHaveBeenCalledWith({
-      headers: context.request.headers,
-      body: {
-        organizationId: 'org-1',
-        permissions: { blog: ['publish'] },
-      },
-    });
-    expect(mockUserHasPermission).not.toHaveBeenCalled();
-  });
-
   it('rejects when RBAC denies the requested blog permission', async () => {
     mockUserHasPermission.mockResolvedValueOnce({ success: false });
 
     await expect(
       assertBlogPermission(
         fakeContext({ id: 'editor-1', role: 'editor', banned: false }),
-        { organizationId: null, isOrgContext: false },
         { blogReview: ['moderate'] },
       ),
     ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 
   it('returns false instead of throwing when a capability lookup fails', async () => {
-    mockHasPermission.mockRejectedValueOnce(new Error('auth unavailable'));
+    mockUserHasPermission.mockRejectedValueOnce(new Error('auth unavailable'));
 
     await expect(
       hasBlogPermission(
         fakeContext({ id: 'user-1', role: 'user', banned: false }),
-        { organizationId: 'org-1', isOrgContext: true },
         { blog: ['read'] },
       ),
     ).resolves.toBe(false);
   });
 });
 
-describe('tenant resource guards', () => {
-  it('allows a post when its tenant matches', async () => {
-    const row = { id: 'post-1', organizationId: 'org-1' };
+describe('tenant resource guards (single-tenant: existence only)', () => {
+  it('resolves an existing post', async () => {
+    const row = { id: 'post-1', organizationId: null };
     mockSelect.mockReturnValueOnce(selectChain([row]));
 
-    await expect(
-      assertPostInTenant('post-1', { organizationId: 'org-1', isOrgContext: true }),
-    ).resolves.toEqual(row);
+    await expect(assertPostInTenant('post-1')).resolves.toEqual(row);
   });
 
-  it('rejects a post from another tenant', async () => {
-    mockSelect.mockReturnValueOnce(selectChain([{ id: 'post-2', organizationId: 'org-2' }]));
+  it('rejects a missing post', async () => {
+    mockSelect.mockReturnValueOnce(selectChain([]));
 
-    await expect(
-      assertPostInTenant('post-2', { organizationId: 'org-1', isOrgContext: true }),
-    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    await expect(assertPostInTenant('missing')).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 
-  it('allows a global category in the global tenant', async () => {
+  it('resolves an existing category', async () => {
     const row = { id: 'cat-1', organizationId: null };
     mockSelect.mockReturnValueOnce(selectChain([row]));
 
-    await expect(
-      assertCategoryInTenant('cat-1', { organizationId: null, isOrgContext: false }),
-    ).resolves.toEqual(row);
+    await expect(assertCategoryInTenant('cat-1')).resolves.toEqual(row);
   });
 
-  it('rejects an org tag from the global tenant', async () => {
-    mockSelect.mockReturnValueOnce(selectChain([{ id: 'tag-1', organizationId: 'org-9' }]));
+  it('resolves an existing tag', async () => {
+    const row = { id: 'tag-1', organizationId: null };
+    mockSelect.mockReturnValueOnce(selectChain([row]));
 
-    await expect(
-      assertTagInTenant('tag-1', { organizationId: null, isOrgContext: false }),
-    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    await expect(assertTagInTenant('tag-1')).resolves.toEqual(row);
   });
 
-  it('rejects media from another tenant', async () => {
-    mockSelect.mockReturnValueOnce(selectChain([{ id: 'media-1', organizationId: 'org-2' }]));
+  it('resolves existing media', async () => {
+    const row = { id: 'media-1', organizationId: null };
+    mockSelect.mockReturnValueOnce(selectChain([row]));
 
-    await expect(
-      assertMediaInTenant('media-1', { organizationId: 'org-1', isOrgContext: true }),
-    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    await expect(assertMediaInTenant('media-1')).resolves.toEqual(row);
   });
 });
 

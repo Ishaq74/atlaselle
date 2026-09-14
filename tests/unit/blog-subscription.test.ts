@@ -74,7 +74,7 @@ beforeEach(() => {
 describe("blog newsletter actions", () => {
   it("delegates subscription to the shared business service with configured site", async () => {
     const result = await subscribe.handler(
-      { email: "reader@example.com", locale: "fr", organizationId: null },
+      { email: "reader@example.com", locale: "fr" },
       guestContext(),
     );
 
@@ -82,7 +82,6 @@ describe("blog newsletter actions", () => {
     expect(serviceMocks.subscribe).toHaveBeenCalledWith({
       email: "reader@example.com",
       locale: "fr",
-      organizationId: null,
       configuredSite: new URL("https://atlaselle.example"),
       audit: {
         ipAddress: "203.0.113.7",
@@ -91,20 +90,17 @@ describe("blog newsletter actions", () => {
     });
   });
 
-  it("returns a generic bad request when the organization does not exist", async () => {
+  it("lets unexpected service errors bubble up (no org mapping in single-tenant mode)", async () => {
     serviceMocks.subscribe.mockRejectedValueOnce(
       new NewsletterOrganizationNotFoundError(),
     );
 
     await expect(
       subscribe.handler(
-        { email: "reader@example.com", locale: "fr", organizationId: "missing" },
+        { email: "reader@example.com", locale: "fr" },
         guestContext(),
       ),
-    ).rejects.toMatchObject({
-      code: "BAD_REQUEST",
-      message: "Organisation invalide.",
-    });
+    ).rejects.toBeInstanceOf(NewsletterOrganizationNotFoundError);
   });
 
   it("surfaces SMTP failure without exposing subscriber state", async () => {

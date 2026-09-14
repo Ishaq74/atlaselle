@@ -113,8 +113,8 @@ describe('buildTsQuery', () => {
   });
 });
 
-describe('GET blog publication scope', () => {
-  it('uses IS NULL for global posts and excludes future publications', async () => {
+describe('GET blog publication scope (single-tenant, no org filter)', () => {
+  it('scopes to published posts without any organization predicate', async () => {
     const response = await GET({
       url: new URL('https://atlaselle.test/api/search?q=atlaselle&locale=fr'),
       clientAddress: '203.0.113.1',
@@ -122,15 +122,13 @@ describe('GET blog publication scope', () => {
 
     expect(response.status).toBe(200);
     const query = new PgDialect().sqlToQuery(mockExecute.mock.calls[0][0]);
-    expect(query.sql).toContain('bp.organization_id IS NULL');
+    expect(query.sql).not.toContain('organization_id');
     expect(query.sql).toContain('bp.status = $');
     expect(query.params).toContain('PUBLISHED');
     expect(query.sql).toContain('bp.published_at <= now()');
   });
 
-  it('uses an equality parameter, never IS, for an organization id', async () => {
-    mockSelect.mockReturnValueOnce(makeOrganizationQuery([{ id: 'org-1' }]));
-
+  it('ignores the legacy org param', async () => {
     const response = await GET({
       url: new URL('https://atlaselle.test/api/search?q=atlaselle&locale=en&org=acme'),
       clientAddress: '203.0.113.2',
@@ -138,9 +136,7 @@ describe('GET blog publication scope', () => {
 
     expect(response.status).toBe(200);
     const query = new PgDialect().sqlToQuery(mockExecute.mock.calls[0][0]);
-    expect(query.sql).toContain('bp.organization_id = $');
-    expect(query.sql).not.toMatch(/bp\.organization_id IS ['"]/);
-    expect(query.params).toContain('org-1');
+    expect(query.sql).not.toContain('organization_id');
     expect(query.params).toContain('PUBLISHED');
     expect(query.sql).toContain('bp.published_at <= now()');
   });

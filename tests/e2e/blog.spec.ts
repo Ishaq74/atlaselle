@@ -3,6 +3,8 @@ import { test, expect } from '@playwright/test';
 import type { BlogReactionType } from '../../src/lib/blog/constants';
 import { SEED_EMAIL, SEED_PASSWORD } from './global-setup';
 
+// Single-tenant (TODO §30.3 hors périmètre) : surfaces globales uniquement.
+
 type StorageState = Awaited<ReturnType<import('@playwright/test').BrowserContext['storageState']>>;
 
 const BASE_URL = 'http://localhost:4322';
@@ -17,22 +19,13 @@ interface WorkflowPostState {
 }
 
 interface SeedState {
-  orgId: string;
-  orgSlug: string;
-  orgName: string;
   globalCategoryId: string;
   globalCategoryName: string;
   globalCategorySlug: string;
-  orgCategoryId: string;
-  orgCategoryName: string;
-  orgCategorySlug: string;
   globalPostId: string;
   globalPostTitle: string;
   globalPostSlug: string;
-  orgPostTitle: string;
-  orgPostSlug: string;
   globalWorkflow: WorkflowPostState;
-  orgWorkflow: WorkflowPostState;
   globalCommentText: string;
   globalReviewTitle: string;
   globalReviewContent: string;
@@ -160,10 +153,6 @@ function buildGlobalPostUrl(slug: string) {
   return `/fr/blog/${seeded.globalCategorySlug}/${slug}`;
 }
 
-function buildOrgPostUrl(slug: string) {
-  return `/fr/organizations/${seeded.orgSlug}/blog/${seeded.orgCategorySlug}/${slug}`;
-}
-
 async function fillPostForm(
   page: import('@playwright/test').Page,
   post: WorkflowPostState,
@@ -193,22 +182,13 @@ async function openModerationTab(page: import('@playwright/test').Page) {
 test.describe.serial('Blog surfaces', () => {
   test.beforeAll(async () => {
     const unique = randomUUID().slice(0, 8);
-    const orgSlug = `e2e-blog-org-${unique}`;
-    const orgName = `E2E Blog Org ${unique}`;
     const globalCategoryId = randomUUID();
-    const orgCategoryId = randomUUID();
     const globalCategorySlug = `e2e-global-category-${unique}`;
-    const orgCategorySlug = `e2e-org-category-${unique}`;
     const globalCategoryName = `E2E Global Category ${unique}`;
-    const orgCategoryName = `E2E Org Category ${unique}`;
     const globalPostId = randomUUID();
-    const orgPostId = randomUUID();
     const globalPostSlug = `e2e-global-post-${unique}`;
-    const orgPostSlug = `e2e-org-post-${unique}`;
     const globalPostTitle = `E2E Global Blog Post ${unique}`;
-    const orgPostTitle = `E2E Org Blog Post ${unique}`;
 
-    const { getTestHelpers, auth } = await import('../helpers/auth');
     const drizzleMod = await import('../../src/database/drizzle');
     const orm = await import('drizzle-orm');
 
@@ -218,7 +198,9 @@ test.describe.serial('Blog surfaces', () => {
     andOp = orm.and;
     countFn = orm.count;
 
+    const { getTestHelpers } = await import('../helpers/auth');
     const helpers = await getTestHelpers();
+    void helpers;
 
     const [seedUser] = await db
       .select({ id: schema.user.id })
@@ -231,12 +213,7 @@ test.describe.serial('Blog surfaces', () => {
     }
 
     seedUserId = seedUser.id;
-
-    const headers = await helpers.getAuthHeaders({ userId: seedUser.id });
-    const org = await auth.api.createOrganization({
-      body: { name: orgName, slug: orgSlug },
-      headers,
-    });
+    void seedUserId;
 
     const publishedAt = new Date();
 
@@ -246,17 +223,6 @@ test.describe.serial('Blog surfaces', () => {
         organizationId: null,
         authorId: seedUser.id,
         slug: globalPostSlug,
-        status: 'PUBLISHED',
-        commentStatus: 'OPEN',
-        allowReviews: true,
-        publishedAt,
-        updatedBy: seedUser.id,
-      },
-      {
-        id: orgPostId,
-        organizationId: org.id,
-        authorId: seedUser.id,
-        slug: orgPostSlug,
         status: 'PUBLISHED',
         commentStatus: 'OPEN',
         allowReviews: true,
@@ -276,16 +242,6 @@ test.describe.serial('Blog surfaces', () => {
         metaTitle: globalPostTitle,
         metaDescription: `${globalPostTitle} meta description.`,
       },
-      {
-        postId: orgPostId,
-        locale: 'fr',
-        title: orgPostTitle,
-        slug: orgPostSlug,
-        content: `<p>${orgPostTitle} content.</p>`,
-        excerpt: `${orgPostTitle} excerpt.`,
-        metaTitle: orgPostTitle,
-        metaDescription: `${orgPostTitle} meta description.`,
-      },
     ]);
 
     await db.insert(schema.blogCategories).values([
@@ -293,11 +249,6 @@ test.describe.serial('Blog surfaces', () => {
         id: globalCategoryId,
         organizationId: null,
         slug: globalCategorySlug,
-      },
-      {
-        id: orgCategoryId,
-        organizationId: org.id,
-        slug: orgCategorySlug,
       },
     ]);
 
@@ -308,47 +259,25 @@ test.describe.serial('Blog surfaces', () => {
         name: globalCategoryName,
         slug: globalCategorySlug,
       },
-      {
-        categoryId: orgCategoryId,
-        locale: 'fr',
-        name: orgCategoryName,
-        slug: orgCategorySlug,
-      },
     ]);
 
     await db.insert(schema.blogPostCategories).values([
       { postId: globalPostId, categoryId: globalCategoryId },
-      { postId: orgPostId, categoryId: orgCategoryId },
     ]);
 
     seeded = {
-      orgId: org.id,
-      orgSlug,
-      orgName,
       globalCategoryId,
       globalCategoryName,
       globalCategorySlug,
-      orgCategoryId,
-      orgCategoryName,
-      orgCategorySlug,
       globalPostId,
       globalPostTitle,
       globalPostSlug,
-      orgPostTitle,
-      orgPostSlug,
       globalWorkflow: {
         slug: `e2e-global-workflow-${unique}`,
         initialTitle: `E2E Global Workflow Draft ${unique}`,
         editedTitle: `E2E Global Workflow Published ${unique}`,
         excerpt: `Global workflow excerpt ${unique}`,
         content: `<p>Global workflow content ${unique}</p>`,
-      },
-      orgWorkflow: {
-        slug: `e2e-org-workflow-${unique}`,
-        initialTitle: `E2E Org Workflow Draft ${unique}`,
-        editedTitle: `E2E Org Workflow Published ${unique}`,
-        excerpt: `Org workflow excerpt ${unique}`,
-        content: `<p>Org workflow content ${unique}</p>`,
       },
       globalCommentText: `E2E pending comment ${unique}`,
       globalReviewTitle: `E2E Review ${unique}`,
@@ -363,23 +292,11 @@ test.describe.serial('Blog surfaces', () => {
   test.afterAll(async () => {
     if (!seeded || !db || !schema) return;
 
-    const { getTestHelpers, auth } = await import('../helpers/auth');
-    const helpers = await getTestHelpers();
-
-    if (seedUserId) {
-      const headers = await helpers.getAuthHeaders({ userId: seedUserId });
-      await auth.api.deleteOrganization({
-        body: { organizationId: seeded.orgId },
-        headers,
-      }).catch(() => {});
-    }
-
     await db.delete(schema.blogPosts).where(eqOp(schema.blogPosts.id, seeded.globalPostId)).catch(() => {});
     if (seeded.globalWorkflow.id) {
       await db.delete(schema.blogPosts).where(eqOp(schema.blogPosts.id, seeded.globalWorkflow.id)).catch(() => {});
     }
     await db.delete(schema.blogCategories).where(eqOp(schema.blogCategories.id, seeded.globalCategoryId)).catch(() => {});
-    await db.delete(schema.blogCategories).where(eqOp(schema.blogCategories.id, seeded.orgCategoryId)).catch(() => {});
   });
 
   test('global public blog shows the global post only', async ({ page }) => {
@@ -393,7 +310,6 @@ test.describe.serial('Blog surfaces', () => {
     const postLink = main.getByRole('link', { name: seeded.globalPostTitle }).first();
     await expect(postLink).toBeVisible();
     await expect(postLink).toHaveAttribute('href', buildGlobalPostUrl(seeded.globalPostSlug));
-    await expect(main.getByRole('link', { name: seeded.orgPostTitle })).toHaveCount(0);
   });
 
   test('global public blog post detail redirects to the canonical category URL', async ({ page }) => {
@@ -402,28 +318,6 @@ test.describe.serial('Blog surfaces', () => {
 
     await expect(page).toHaveURL(buildGlobalPostUrl(seeded.globalPostSlug));
     await expect(page.getByRole('heading', { name: seeded.globalPostTitle })).toBeVisible();
-  });
-
-  test('organization public blog shows the org post only', async ({ page }) => {
-    const response = await page.goto(
-      `/fr/organizations/${seeded.orgSlug}/blog?q=${encodeURIComponent(seeded.orgPostTitle)}`,
-      { waitUntil: 'networkidle' },
-    );
-    expect(response?.status()).toBe(200);
-
-    const main = page.locator('main');
-    const postLink = main.getByRole('link', { name: seeded.orgPostTitle }).first();
-    await expect(postLink).toBeVisible();
-    await expect(postLink).toHaveAttribute('href', buildOrgPostUrl(seeded.orgPostSlug));
-    await expect(main.getByRole('link', { name: seeded.globalPostTitle })).toHaveCount(0);
-  });
-
-  test('organization public blog post detail redirects to the canonical category URL', async ({ page }) => {
-    const response = await page.goto(`/fr/organizations/${seeded.orgSlug}/blog/${seeded.orgPostSlug}`, { waitUntil: 'networkidle' });
-    expect(response?.status()).toBe(200);
-
-    await expect(page).toHaveURL(buildOrgPostUrl(seeded.orgPostSlug));
-    await expect(page.getByRole('heading', { name: seeded.orgPostTitle })).toBeVisible();
   });
 
   test('global admin blog shows global tenant posts', async ({ browser }) => {
@@ -436,23 +330,6 @@ test.describe.serial('Blog surfaces', () => {
       const table = page.locator('table');
       await expect(page.getByRole('heading', { name: /Administration du blog/i })).toBeVisible();
       await expect(table).toContainText(seeded.globalPostTitle);
-      await expect(table).not.toContainText(seeded.orgPostTitle);
-    } finally {
-      await context.close();
-    }
-  });
-
-  test('organization admin blog shows org tenant posts', async ({ browser }) => {
-    const { context, page } = await createAuthenticatedPage(browser);
-
-    try {
-      const response = await page.goto(`/fr/organizations/${seeded.orgSlug}/admin/blog`, { waitUntil: 'networkidle' });
-      expect(response?.status()).toBe(200);
-
-      const table = page.locator('table');
-      await expect(page).toHaveURL(new RegExp(`/fr/organizations/${seeded.orgSlug}/admin/blog`));
-      await expect(table).toContainText(seeded.orgPostTitle);
-      await expect(table).not.toContainText(seeded.globalPostTitle);
     } finally {
       await context.close();
     }
@@ -669,92 +546,5 @@ test.describe.serial('Blog surfaces', () => {
 
     const detailResponse = await page.goto(buildGlobalPostUrl(seeded.globalWorkflow.slug), { waitUntil: 'networkidle' });
     expect(detailResponse?.status()).toBe(404);
-  });
-
-  test('organization admin can create publish isolate and delete an organization workflow post', async ({ browser, page }) => {
-    const { context, page: adminPage } = await createAuthenticatedPage(browser);
-
-    try {
-      const createResponse = await adminPage.goto(`/fr/organizations/${seeded.orgSlug}/admin/blog/new`, { waitUntil: 'networkidle' });
-      expect(createResponse?.status()).toBe(200);
-
-      await fillPostForm(adminPage, seeded.orgWorkflow);
-      await submitPostForm(adminPage);
-
-      await expect(adminPage).toHaveURL(new RegExp(`/fr/organizations/${seeded.orgSlug}/admin/blog/[^/]+/edit`));
-      const match = adminPage.url().match(new RegExp(`/fr/organizations/${seeded.orgSlug}/admin/blog/([^/]+)/edit`));
-      seeded.orgWorkflow.id = match?.[1];
-      expect(seeded.orgWorkflow.id).toBeTruthy();
-      await assignCategoryToPost(seeded.orgWorkflow.id!, seeded.orgCategoryId);
-      await adminPage.reload({ waitUntil: 'networkidle' });
-      await expect(adminPage.getByRole('link', { name: /aperçu|preview/i })).toHaveAttribute(
-        'href',
-        buildOrgPostUrl(seeded.orgWorkflow.slug),
-      );
-
-      await expect.poll(async () => getPostStatus(seeded.orgWorkflow.id!)).toBe('DRAFT');
-
-      await updatePostTitle(adminPage, seeded.orgWorkflow.editedTitle);
-      await submitPostForm(adminPage);
-      await expect.poll(async () => getTranslationTitle(seeded.orgWorkflow.id!)).toBe(seeded.orgWorkflow.editedTitle);
-
-      await adminPage.goto(`/fr/organizations/${seeded.orgSlug}/admin/blog`, { waitUntil: 'networkidle' });
-      const row = adminPage.locator('tbody tr').filter({ hasText: seeded.orgWorkflow.editedTitle }).first();
-      await expect(row).toBeVisible();
-      await expect(row.getByRole('link', { name: /aperçu|preview/i })).toHaveAttribute(
-        'href',
-        buildOrgPostUrl(seeded.orgWorkflow.slug),
-      );
-      await row.locator('.publish-btn').click();
-
-      await expect.poll(async () => getPostStatus(seeded.orgWorkflow.id!)).toBe('PUBLISHED');
-    } finally {
-      await context.close();
-    }
-
-    const orgListResponse = await page.goto(
-      `/fr/organizations/${seeded.orgSlug}/blog?q=${encodeURIComponent(seeded.orgWorkflow.editedTitle)}`,
-      { waitUntil: 'networkidle' },
-    );
-    expect(orgListResponse?.status()).toBe(200);
-    await dismissCookieDialog(page);
-    const orgPublicLink = page.locator('main').getByRole('link', { name: seeded.orgWorkflow.editedTitle }).first();
-    await expect(orgPublicLink).toBeVisible();
-    await expect(orgPublicLink).toHaveAttribute('href', buildOrgPostUrl(seeded.orgWorkflow.slug));
-
-    const globalListResponse = await page.goto(
-      `/fr/blog?q=${encodeURIComponent(seeded.orgWorkflow.editedTitle)}`,
-      { waitUntil: 'networkidle' },
-    );
-    expect(globalListResponse?.status()).toBe(200);
-    await dismissCookieDialog(page);
-    await expect(page.locator('main').getByRole('link', { name: seeded.orgWorkflow.editedTitle })).toHaveCount(0);
-
-    const orgDetailResponse = await page.goto(buildOrgPostUrl(seeded.orgWorkflow.slug), { waitUntil: 'networkidle' });
-    expect(orgDetailResponse?.status()).toBe(200);
-    await dismissCookieDialog(page);
-    await expect(page.getByRole('heading', { name: seeded.orgWorkflow.editedTitle })).toBeVisible();
-
-    const { context: cleanupContext, page: cleanupPage } = await createAuthenticatedPage(browser);
-
-    try {
-      await cleanupPage.goto(`/fr/organizations/${seeded.orgSlug}/admin/blog`, { waitUntil: 'networkidle' });
-      const row = cleanupPage.locator('tbody tr').filter({ hasText: seeded.orgWorkflow.editedTitle }).first();
-      await expect(row).toBeVisible();
-      cleanupPage.once('dialog', (dialog) => dialog.accept());
-      await row.locator('.delete-btn').click();
-
-      await expect.poll(async () => getPostStatus(seeded.orgWorkflow.id!)).toBe('DELETED');
-    } finally {
-      await cleanupContext.close();
-    }
-
-    const deletedOrgResponse = await page.goto(
-      `/fr/organizations/${seeded.orgSlug}/blog?q=${encodeURIComponent(seeded.orgWorkflow.editedTitle)}`,
-      { waitUntil: 'networkidle' },
-    );
-    expect(deletedOrgResponse?.status()).toBe(200);
-    await dismissCookieDialog(page);
-    await expect(page.locator('main').getByRole('link', { name: seeded.orgWorkflow.editedTitle })).toHaveCount(0);
   });
 });

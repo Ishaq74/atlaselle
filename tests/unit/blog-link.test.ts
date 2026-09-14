@@ -118,25 +118,23 @@ describe('checkBlogPostLinks', () => {
     ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
   });
 
-  it('reports an explicit target from another tenant as dead', async () => {
+  it('resolves explicit targets in the same (global) scope as alive', async () => {
     mockSelect
-      .mockImplementationOnce(() => selectChain([{ id: 'post-1', organizationId: 'org-1' }]))
+      .mockImplementationOnce(() => selectChain([{ id: 'post-1', organizationId: null }]))
       .mockImplementationOnce(() => selectChain([
         { id: 'link-1', linkType: 'RELATED', targetPostId: 'post-2' },
       ]))
-      .mockImplementationOnce(() => selectChain([{ id: 'post-2', organizationId: 'org-2' }]))
+      .mockImplementationOnce(() => selectChain([{ id: 'post-2', organizationId: null }]))
       .mockImplementationOnce(() => selectChain([
         { content: '<p>Content</p>', slug: 'source-post' },
       ]));
 
     const result = await check.handler(
-      { postId: 'post-1', locale: 'fr', organizationId: 'org-1' },
+      { postId: 'post-1', locale: 'fr', organizationId: null },
       adminCtx(),
     );
 
-    expect(result.deadExplicit).toEqual([
-      { id: 'link-1', linkType: 'RELATED', targetPostId: 'post-2' },
-    ]);
+    expect(result.deadExplicit).toEqual([]);
   });
 });
 

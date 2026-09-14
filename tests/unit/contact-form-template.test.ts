@@ -66,7 +66,7 @@ describe('contactFormTemplate', () => {
   it.each(['fr', 'en', 'es', 'ar'] as const)('renders %s locale', (locale) => {
     const result = contactFormTemplate({ ...base, locale });
     expect(result.html).toContain(`lang="${locale}"`);
-    expect(result.subject).toContain('Atlaselle');
+    expect(result.subject).toContain('ATLASELLE');
   });
 
   it('uses RTL direction for Arabic', () => {

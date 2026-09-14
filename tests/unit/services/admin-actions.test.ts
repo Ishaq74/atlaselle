@@ -36,21 +36,18 @@ vi.mock("@database/schemas", () => ({
   mediaFiles: { id: "id", organizationId: "organizationId" },
 }));
 
-const { permission, assertInTenant, assertLockOwner } = vi.hoisted(() => ({
+const { permission, assertLockOwner } = vi.hoisted(() => ({
   permission: vi.fn(async () => ({ id: "user-1", role: "admin", banned: false })),
-  assertInTenant: vi.fn(async () => ({ id: "service-1", organizationId: null, status: "DRAFT", providerId: "user-1" })),
   assertLockOwner: vi.fn(async () => undefined),
 }));
-vi.mock("@/modules/services/permissions", () => ({
-  assertServicePermission: permission,
-  resolveServiceTenant: (input: { organizationId?: string | null }) => ({ organizationId: input.organizationId ?? null, isOrgContext: Boolean(input.organizationId) }),
-  assertServiceInTenant: assertInTenant,
-  assertServiceLockOwner: assertLockOwner,
-  assertServiceCategoryInTenant: vi.fn(async () => undefined),
-  assertServiceTagInTenant: vi.fn(async () => undefined),
-  assertServiceMediaInTenant: vi.fn(async () => undefined),
-  serviceRateLimit: vi.fn(),
-}));
+vi.mock("@/actions/services/_helpers", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/actions/services/_helpers")>();
+  return {
+    ...actual,
+    assertServicePermission: permission,
+    assertServiceLockOwner: assertLockOwner,
+  };
+});
 
 import { createService, updateService } from "@/actions/services/service";
 
@@ -106,7 +103,6 @@ beforeEach(() => {
   remove.mockReset().mockReturnValue(mutation());
   transaction.mockReset().mockImplementation(async (callback: (tx: typeof db) => unknown) => callback(db));
   permission.mockClear();
-  assertInTenant.mockClear();
   assertLockOwner.mockClear();
 });
 
@@ -118,7 +114,7 @@ describe("services admin CRUD actions", () => {
 
     expect(transaction).toHaveBeenCalledOnce();
     expect(insert).toHaveBeenCalled();
-    expect(permission).toHaveBeenCalledWith(expect.anything(), { organizationId: null, isOrgContext: false }, { service: ["create"] });
+    expect(permission).toHaveBeenCalledWith(expect.anything(), { service: ["create"] });
   });
 
   it("updates the selected locale without changing lifecycle state", async () => {
@@ -133,14 +129,15 @@ describe("services admin CRUD actions", () => {
     expect(transaction).toHaveBeenCalledOnce();
   });
 
-  it("does not allow a handler to update a service outside the resolved tenant", async () => {
-    assertInTenant.mockRejectedValueOnce(new Error("tenant mismatch"));
+  it("stops before persistence when the service does not exist", async () => {
+    select.mockReturnValueOnce(query([]));
 
-    await expect(updateAction.handler({ id: "00000000-0000-4000-8000-000000000001", organizationId: "org-1", locale: "fr", title: "New title" }, context())).rejects.toThrow("tenant mismatch");
+    await expect(updateAction.handler({ id: "00000000-0000-4000-8000-000000000001", organizationId: null, locale: "fr", title: "New title" }, context())).rejects.toMatchObject({ code: "NOT_FOUND" });
     expect(transaction).not.toHaveBeenCalled();
   });
 
   it("stops before persistence when the service is locked by another editor", async () => {
+    select.mockReturnValueOnce(query([{ id: "00000000-0000-4000-8000-000000000001", status: "DRAFT", providerId: "user-1" }]));
     assertLockOwner.mockRejectedValueOnce(new Error("locked by another editor"));
 
     await expect(updateAction.handler({ id: "00000000-0000-4000-8000-000000000001", organizationId: null, locale: "fr", title: "New title" }, context())).rejects.toThrow("locked by another editor");

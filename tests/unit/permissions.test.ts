@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ac, adminRole, editorRole, userRole, orgOwnerRole, orgAdminRole, orgMemberRole, statement } from '@/lib/permissions';
+import { ac, adminRole, editorRole, userRole, statement } from '@/lib/permissions';
 import { defaultStatements } from 'better-auth/plugins/admin/access';
 
 describe('RBAC Permissions', () => {
@@ -90,33 +90,27 @@ describe('RBAC Permissions', () => {
     });
   });
 
-  describe('org roles', () => {
-    it('exports all three org roles', () => {
-      expect(orgOwnerRole).toBeDefined();
-      expect(orgAdminRole).toBeDefined();
-      expect(orgMemberRole).toBeDefined();
+  describe('voyage resources (single-tenant, no org roles)', () => {
+    it('declares trip, departure, application, reservation, payment and policy resources', () => {
+      const resources = Object.keys(statement);
+      for (const r of ['trip', 'departure', 'application', 'reservation', 'payment', 'policy']) {
+        expect(resources).toContain(r);
+      }
     });
 
-    it('org owner role has the expected shape', () => {
-      expect(typeof orgOwnerRole).toBe('object');
-    });
-
-    it('org admin role has the expected shape', () => {
-      expect(typeof orgAdminRole).toBe('object');
-    });
-
-    it('org member role has the expected shape', () => {
-      expect(typeof orgMemberRole).toBe('object');
+    it('trip resource exposes lifecycle actions', () => {
+      for (const a of ['create', 'read', 'update', 'publish', 'archive']) {
+        expect(statement.trip).toContain(a);
+      }
     });
   });
 
   describe('statement completeness', () => {
-    it('includes org default resources (organization, member, invitation, team, ac)', () => {
+    it('declares voyage resources instead of org resources', () => {
       const resources = Object.keys(statement);
-      expect(resources).toContain('organization');
-      expect(resources).toContain('member');
-      expect(resources).toContain('invitation');
-      expect(resources).toContain('team');
+      for (const r of ['trip', 'departure', 'application', 'reservation', 'payment', 'policy']) {
+        expect(resources).toContain(r);
+      }
     });
 
     it('section resource has CUD actions', () => {
@@ -196,14 +190,14 @@ describe('RBAC Permissions', () => {
       expect(result.success).toBe(false);
     });
 
-    it('org owner role can authorize page:create', () => {
-      const result = orgOwnerRole.authorize({ page: ["create"] });
+    it('admin role can authorize trip:publish', () => {
+      const result = adminRole.authorize({ trip: ["publish"] });
       expect(result.success).toBe(true);
     });
 
-    it('org admin role can authorize page:update', () => {
-      const result = orgAdminRole.authorize({ page: ["update"] });
-      expect(result.success).toBe(true);
+    it('editor role can authorize trip:create but not trip:publish', () => {
+      expect(editorRole.authorize({ trip: ["create"] }).success).toBe(true);
+      expect(editorRole.authorize({ trip: ["publish"] }).success).toBe(false);
     });
 
     it('admin role can authorize blog:moderate', () => {
@@ -211,25 +205,8 @@ describe('RBAC Permissions', () => {
       expect(result.success).toBe(true);
     });
 
-    it('org admin role can authorize blog publish and moderation', () => {
-      const postResult = orgAdminRole.authorize({ blog: ['publish'] });
-      const commentResult = orgAdminRole.authorize({ blogComment: ['moderate'] });
-      expect(postResult.success).toBe(true);
-      expect(commentResult.success).toBe(true);
-    });
-
-    it('org member role can authorize page:read', () => {
-      const result = orgMemberRole.authorize({ page: ["read"] });
-      expect(result.success).toBe(true);
-    });
-
-    it('org member role cannot authorize page:delete', () => {
-      const result = orgMemberRole.authorize({ page: ["delete"] });
-      expect(result.success).toBe(false);
-    });
-
-    it('org member role cannot authorize blog:update', () => {
-      const result = orgMemberRole.authorize({ blog: ['update'] });
+    it('user role cannot authorize trip:read (no voyage access)', () => {
+      const result = userRole.authorize({ trip: ["read"] });
       expect(result.success).toBe(false);
     });
   });

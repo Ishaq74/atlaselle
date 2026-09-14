@@ -140,18 +140,15 @@ describe('blog gallery actions', () => {
     expect(mockInsert).toHaveBeenCalledTimes(1);
   });
 
-  it('rejects media belonging to another organization before insertion', async () => {
-    mockSelect
-      .mockImplementationOnce(() => selectChain([{ id: 'gal-1', postId: 'post-1' }]))
-      .mockImplementationOnce(() => selectChain([{ id: 'post-1', organizationId: 'org-1' }]))
-      .mockImplementationOnce(() => selectChain([{ id: 'media-1', organizationId: 'org-2' }]));
+  it('rejects unknown galleries before insertion (single-tenant, no org scoping)', async () => {
+    mockSelect.mockImplementationOnce(() => selectChain([]));
 
     await expect(
       addMedia.handler(
-        { galleryId: 'gal-1', mediaId: 'media-1', altText: 'alt', sortOrder: 0, organizationId: 'org-1' },
+        { galleryId: 'missing', mediaId: 'media-1', altText: 'alt', sortOrder: 0, organizationId: null },
         adminCtx(),
       ),
-    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
 
     expect(mockInsert).not.toHaveBeenCalled();
   });

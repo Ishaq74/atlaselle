@@ -161,54 +161,8 @@ describe('Auth — Admin API', () => {
   });
 });
 
-describe('Auth — Organization', () => {
-  let test: TestHelpers;
-  let ownerUser: any;
-  let savedOrg: any;
-  const orgSlug = `test-org-integration-${Date.now()}`;
-
-  beforeAll(async () => {
-    test = await getTestHelpers();
-    const owner = test.createUser({
-      email: `integration-org-owner-${Date.now()}@test.com`,
-      name: 'Org Owner',
-      emailVerified: true,
-    });
-    ownerUser = await test.saveUser(owner);
-  });
-
-  afterAll(async () => {
-    // Clean up org first, then user
-    if (savedOrg?.id) {
-      const headers = await test.getAuthHeaders({ userId: ownerUser.id });
-      await auth.api.deleteOrganization({
-        body: { organizationId: savedOrg.id },
-        headers,
-      }).catch(() => {});
-    }
-    if (ownerUser?.id) await test.deleteUser(ownerUser.id);
-  });
-
-  it('user can create an organization', async () => {
-    const headers = await test.getAuthHeaders({ userId: ownerUser.id });
-    const org = await auth.api.createOrganization({
-      body: { name: 'Test Org Integration', slug: orgSlug },
-      headers,
-    });
-    expect(org).toBeDefined();
-    expect(org.name).toBe('Test Org Integration');
-    expect(org.slug).toBe(orgSlug);
-    savedOrg = org;
-  });
-
-  it('user can list their organizations', async () => {
-    const headers = await test.getAuthHeaders({ userId: ownerUser.id });
-    const orgs = await auth.api.listOrganizations({ headers });
-    expect(Array.isArray(orgs)).toBe(true);
-    const found = orgs.find((o: any) => o.slug === orgSlug);
-    expect(found).toBeDefined();
-  });
-});
+// NOTE : pas de bloc Organization — plugin better-auth organization non
+// activé (single-tenant, TODO §30.3 hors périmètre). Voir auth-org supprimé.
 
 // ─── Impersonation ──────────────────────────────────────────────────
 
