@@ -1,11 +1,16 @@
 import { auth } from "@/lib/auth";
 import { LOCALES } from "@/i18n/config";
 import { resolveLocalizedRoute } from "@/i18n/routes";
+import { newRequestId } from "@/lib/request-id";
 import { bootstrapModules } from "@/lib/cms/bootstrap";
 import { defineMiddleware } from "astro:middleware";
 
 export const onRequest = defineMiddleware(async (context, next) => {
   bootstrapModules();
+
+  // ─── Request ID — corrélation transverse (TODO §20.4, opaque, sans PII) ──
+  const incomingId = context.request.headers.get("x-request-id")?.trim().slice(0, 128);
+  context.locals.requestId = incomingId || newRequestId();
 
   // ─── Locale guard — reject invalid [lang] segments with 404 ─────
   const url = new URL(context.request.url);
@@ -79,5 +84,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
   };
 
   for (const [key, value] of Object.entries(securityHeaders)) response.headers.set(key, value);
+  response.headers.set('X-Request-Id', context.locals.requestId);
   return response;
 });
