@@ -6,7 +6,7 @@
 
 ## Vue d'ensemble
 
-Le dossier `src/components/wow/` contient 8 composants d'effets visuels. Aucun n'utilise de bibliothèque d'animation externe — uniquement **CSS natif** et **vanilla JavaScript**.
+Le dossier `src/components/wow/` contient **9 entrées : 8 fichiers `.astro` + le dossier `HorizontalScrollCarousel/`** (contient `HorizontalScrollCarousel.astro` + `carousel.ts`). Aucun n'utilise de bibliothèque d'animation externe — uniquement **CSS natif** et **vanilla JavaScript**.
 
 | Composant | Technique | JS requis | GPU hint |
 | :-- | :-- | :-- | :-- |
@@ -18,6 +18,11 @@ Le dossier `src/components/wow/` contient 8 composants d'effets visuels. Aucun n
 | MarqueeContent | CSS @keyframes + JS pause/play | Oui (minimal) | Non |
 | LogoCloud | CSS @keyframes + JS pause/play | Oui (minimal) | Non |
 | AsyncButton | CSS transition + Custom Element | Oui | Non |
+| HorizontalScrollCarousel | Scroll horizontal + JS (`carousel.ts`) | Oui | Non |
+
+Les 8 fichiers `.astro` : `AsyncButton.astro`, `FallingParticles.astro`, `HoverBlurCards.astro`, `LogoCloud.astro`, `MarqueeContent.astro`, `MouseRepelParticles.astro`, `RisingParticles.astro`, `ScrollReveal.astro`.
+
+> Note a11y : `.pa11yci.cjs:123` masque plusieurs sections animées (`hideElements`) et ignore la règle `color-contrast` (axe-core ne résout pas les contrastes OKLCH — faux positifs, paires vérifiées manuellement AAA).
 
 ---
 

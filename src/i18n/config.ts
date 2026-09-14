@@ -403,7 +403,6 @@ export interface AuthTranslations {
         editor: string;
         user: string;
         owner: string;
-        orgAdmin: string;
         member: string;
       };
       resourceName: {

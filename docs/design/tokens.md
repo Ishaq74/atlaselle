@@ -73,7 +73,7 @@ Toutes les couleurs du design system sont définies en **OKLCH** (`oklch(L C H)`
 | Token | Valeur OKLCH | Contraste vs fg | Description |
 | :-- | :-- | :-- | :-- |
 | `--muted` | `oklch(0.962 0.008 78)` | 8.7:1 ✅ AAA | Stone-100 bg |
-| `--muted-foreground` | `oklch(0.440 0.016 75)` | — | Stone-700 text |
+| `--muted-foreground` | `oklch(0.400 0.016 75)` | — | Stone-700 text |
 
 ### Accent
 
@@ -146,15 +146,18 @@ Toutes les couleurs du design system sont définies en **OKLCH** (`oklch(L C H)`
 | `--primary` | `oklch(0.880 0.200 68)` | Même golden yellow |
 | `--primary-foreground` | `oklch(0.148 0.018 75)` | 11:1 ✅ AAA |
 | `--primary-accent` | `oklch(0.820 0.205 68)` | Même deeper yellow |
+| `--primary-deep` | `oklch(0.880 0.200 68)` | Identique à primary en dark (lisible sur fond sombre) |
 
 ### Secondary & Muted & Accent (inversés)
 
 | Token | Valeur OKLCH | vs Light | Contraste |
 | :-- | :-- | :-- | :-- |
 | `--secondary` | `oklch(0.310 0.014 75)` | Stone-800 (inversé) | 12:1 ✅ |
+| `--secondary-foreground` | `oklch(0.975 0.008 80)` | Near-white | — |
 | `--muted` | `oklch(0.310 0.014 75)` | Stone-800 | 8.5:1 ✅ |
 | `--muted-foreground` | `oklch(0.745 0.016 75)` | Stone-400 | — |
 | `--accent` | `oklch(0.410 0.018 75)` | Stone-700 | 9:1 ✅ |
+| `--accent-foreground` | `oklch(0.920 0.010 75)` | Warm light | — |
 
 ### Status (identiques — pastels lisibles sur fond sombre aussi)
 
@@ -163,6 +166,7 @@ Mêmes valeurs que light, sauf :
 | Token | Changement |
 | :-- | :-- |
 | `--error` | `oklch(0.505 0.213 27.325)` — Red-700, plus lumineux sur dark |
+| `--error-foreground` | `oklch(0.975 0.008 80)` — Near-white |
 | `--gradient-warm` | `oklch(0.740 0.210 50)` — Plus vibrant |
 | `--gradient-cool` | `oklch(0.590 0.215 240)` — Plus lumineux |
 
@@ -173,6 +177,19 @@ Mêmes valeurs que light, sauf :
 | `--border` | `oklch(1 0 0 / 12%)` | Blanc 12% — évite les artéfacts |
 | `--input` | `oklch(1 0 0 / 18%)` | Blanc 18% |
 | `--outline` | `oklch(0.620 0.020 75)` | Légèrement ajusté |
+
+### Sidebar dark (`.dark`)
+
+| Token | Valeur OKLCH |
+| :-- | :-- |
+| `--sidebar-background` | `oklch(0.220 0.015 75)` |
+| `--sidebar-foreground` | `oklch(0.975 0.008 80)` |
+| `--sidebar-primary` | `oklch(0.880 0.200 68)` |
+| `--sidebar-primary-foreground` | `oklch(0.148 0.018 75)` |
+| `--sidebar-accent` | `oklch(0.310 0.014 75)` |
+| `--sidebar-accent-foreground` | `oklch(0.920 0.010 75)` |
+| `--sidebar-border` | `oklch(0.310 0.014 75)` |
+| `--sidebar-outline` | `oklch(0.527 0.020 75)` |
 
 ---
 
@@ -199,12 +216,23 @@ Le `@theme inline` dans `global.css` mappe chaque CSS variable vers une Tailwind
 ```css
 --color-primary: var(--primary);       /* → bg-primary, text-primary, border-primary */
 --color-primary-foreground: var(--primary-foreground);
+--color-primary-deep: var(--primary-deep); /* → text-primary-deep */
 --color-error: var(--error);           /* → bg-error, text-error */
 --color-gradient-warm: var(--gradient-warm);
-/* etc. pour chaque token */
+--color-sidebar: var(--sidebar-background); /* → bg-sidebar, + -foreground, -primary, -accent, -border, -outline */
+--color-sidebar-primary: var(--sidebar-primary);
+--color-sidebar-accent: var(--sidebar-accent);
+--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+--color-sidebar-border: var(--sidebar-border);
+--color-sidebar-outline: var(--sidebar-outline);
+/* etc. pour chaque token (voir @theme inline complet dans global.css:29-78) */
 ```
 
 Cela permet d'écrire `bg-primary` au lieu de `bg-[var(--primary)]`.
+
+### Liens morts (`.dead-link`)
+
+`global.css` définit `.rich-content a.dead-link, .prose a.dead-link` : lien barré (`line-through`), `cursor: not-allowed`, suffixe `⚠` via `::after` — signal visuel d'un lien interne dont la cible n'existe plus.
 
 ---
 

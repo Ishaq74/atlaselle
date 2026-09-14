@@ -1,16 +1,14 @@
 import { defineAction, ActionError } from "astro:actions";
 import { z } from "astro/zod";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { blogPosts, blogPostTranslations, blogPostLinks } from "@database/schemas";
 import type { Locale } from "@i18n/config";
 import {
   assertBlogPermission,
-  assertPostInTenant,
-  resolveBlogTenant,
+  assertBlogPostExists,
   blogRateLimit,
   auditBlog,
-  blogOrganizationIdSchema,
 } from "./_helpers";
 import { detectDeadInternalLinks } from "@/lib/content/editor-helpers";
 import { blogInternalLinkResolver } from "@/lib/blog/blog-internal-link";
@@ -27,19 +25,14 @@ export const checkBlogPostLinks = defineAction({
   input: z.object({
     postId: z.uuid(),
     locale: z.string().min(2).max(5),
-    organizationId: blogOrganizationIdSchema,
   }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blog: ["update"] });
+    const user = await assertBlogPermission(context, { blog: ["update"] });
     blogRateLimit(context, user.id, "link-check");
-    await assertPostInTenant(input.postId, tenant);
+    await assertBlogPostExists(input.postId);
 
     const db = getDrizzle();
     const locale = input.locale as Locale;
-    const postTenantCondition = tenant.organizationId === null
-      ? isNull(blogPosts.organizationId)
-      : eq(blogPosts.organizationId, tenant.organizationId);
 
     // 1. Explicit blogPostLinks whose target is gone.
     const explicitLinks = await db
@@ -60,37 +53,31 @@ export const checkBlogPostLinks = defineAction({
         });
       }
       const [target] = await db
-        .select({ id: blogPosts.id, organizationId: blogPosts.organizationId })
+        .select({ id: blogPosts.id })
         .from(blogPosts)
         .where(eq(blogPosts.id, link.targetPostId))
         .limit(1);
-      if (target && (target.organizationId ?? null) !== tenant.organizationId) {
+      if (!target) {
         deadExplicit.push(link);
         continue;
       }
 
-      const [publicTarget] = target
-        ? await db
-            .select({ id: blogPosts.id })
-            .from(blogPosts)
-            .where(
-              and(
-                eq(blogPosts.id, link.targetPostId),
-                postTenantCondition,
-                publicBlogPostScope(blogPosts),
-              ),
-            )
-            .limit(1)
-        : [];
+      const [publicTarget] = await db
+        .select({ id: blogPosts.id })
+        .from(blogPosts)
+        .where(
+          and(
+            eq(blogPosts.id, link.targetPostId),
+            publicBlogPostScope(blogPosts),
+          ),
+        )
+        .limit(1);
       if (!publicTarget) {
         deadExplicit.push(link);
       }
     }
 
     // 2. Inline links inside the content HTML.
-    const translationTenantCondition = tenant.organizationId === null
-      ? isNull(blogPostTranslations.organizationId)
-      : eq(blogPostTranslations.organizationId, tenant.organizationId);
     const [translation] = await db
       .select({ content: blogPostTranslations.content, slug: blogPostTranslations.slug })
       .from(blogPostTranslations)
@@ -98,7 +85,6 @@ export const checkBlogPostLinks = defineAction({
         and(
           eq(blogPostTranslations.postId, input.postId),
           eq(blogPostTranslations.locale, locale),
-          translationTenantCondition,
         ),
       )
       .limit(1);
@@ -106,7 +92,6 @@ export const checkBlogPostLinks = defineAction({
     const validTargets = new Set(
       await blogInternalLinkResolver.listValidTargets({
         locale,
-        organizationId: tenant.organizationId,
       }),
     );
     if (translation) validTargets.delete(translation.slug);

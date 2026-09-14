@@ -1,5 +1,5 @@
 ---
-import { toLocale, getCommonTranslations } from "@i18n/utils";
+import { toLocale } from "@i18n/utils";
 import { LOCALES } from "@i18n/config";
 import { getTripBySlug, tripUrl } from "@/data/trips";
 import BaseLayout from "@layouts/BaseLayout.astro";
@@ -9,7 +9,10 @@ const trip = getTripBySlug(locale, Astro.params.slug ?? "");
 if (!trip) return Astro.rewrite("/404");
 const copy = trip.translations[locale as Exclude<typeof locale, "es">] ?? trip.translations.en;
 const alternateUrls = Object.fromEntries(LOCALES.map((loc) => [loc, tripUrl(loc, trip)]));
+// Canonique = slug localisé (Annexe A) ; les accès directs /{lang}/trips/* consolident via cross-canonical.
+const canonicalPath = tripUrl(locale, trip);
+const jsonLd = JSON.stringify({"@context":"https://schema.org","@type":"TouristTrip",name:copy.title,description:copy.summary,inLanguage:locale,offers:{"@type":"Offer",price:trip.price,priceCurrency:trip.currency,availability:trip.status === "open" ? "https://schema.org/InStock" : "https://schema.org/PreOrder"}});
 ---
-<BaseLayout title={`${copy.title} — ATLASELLE`} description={copy.summary} alternateUrls={alternateUrls} jsonLd={JSON.stringify({"@context":"https://schema.org","@type":"TouristTrip",name:copy.title,description:copy.summary,inLanguage:locale,offers:{"@type":"Offer",price:trip.price,priceCurrency:trip.currency,availability:trip.status === "open" ? "https://schema.org/InStock" : "https://schema.org/PreOrder"})}>
+<BaseLayout title={`${copy.title} — ATLASELLE`} description={copy.summary} canonicalPath={canonicalPath} alternateUrls={alternateUrls} jsonLd={jsonLd}>
   <TripPage trip={trip} locale={locale} />
 </BaseLayout>

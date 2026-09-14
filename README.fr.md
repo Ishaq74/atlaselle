@@ -752,7 +752,6 @@ api/
     [...all].ts
   blog/
     newsletter/
-  booking-quote.ts
   contact.ts
   content-export.ts
   content-import.ts
@@ -764,20 +763,10 @@ api/
   preview.ts
   search.ts
   upload.ts
-ar/
-  conditions.astro
-fr/
-  candidature/
-    [voyage].astro
-  conditions.astro
-  voyages/
-    [slug].astro
 index.astro
 robots.txt.ts
 rss.xml.ts
-sitemap-blog-org.xml.ts
 sitemap-cms.xml.ts
-sitemap-services-org.xml.ts
 [lang]/
   a-propos.astro
   admin/
@@ -932,7 +921,6 @@ templates/
   delete-account.ts
   i18n.ts
   layout.ts
-  organization-invitation.ts
   reset-password.ts
   verify-email.ts
 types.ts
@@ -1001,6 +989,7 @@ fr/
   common.ts
   contact.ts
   home.ts
+routes.ts
 utils.ts
 ```
 
@@ -1021,6 +1010,8 @@ Toutes les routes sont préfixées par la locale : `/fr/`, `/en/`, `/es/`, `/ar/
 
 - `tests/unit/cms-i18n.test.ts`
 - `tests/unit/i18n-key-completeness.test.ts`
+- `tests/unit/i18n-routes.test.ts`
+- `tests/unit/i18n-switch.test.ts`
 - `tests/unit/i18n-translations.test.ts`
 - `tests/unit/i18n-urls.test.ts`
 - `tests/unit/i18n-utils.test.ts`
@@ -1040,8 +1031,8 @@ tests/
 agents/
   akil.agent.md
   anne.agent.md
-  AtlaselleFullStackEngineer.agent.md
-  AtlaselleUIDesigner.agent.md
+  AtomicFullStackEngineer.agent.md
+  AtomicUIDesigner.agent.md
   designer.agent.md
   DevOpsExpert.agent.md
   elias.agent.md

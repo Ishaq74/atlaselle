@@ -1,6 +1,6 @@
-import { assertBlogPermission, resolveBlogTenant, auditBlog, blogOrganizationIdSchema, blogPublicRateLimit, invalidateBlogCache } from "./_helpers";
+import { assertBlogPermission, auditBlog, blogPublicRateLimit, invalidateBlogCache } from "./_helpers";
 import { defineAction, ActionError } from "astro:actions";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { blogComments, blogCommentModerations, blogPosts, blogNotifications } from "@database/schemas";
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -18,7 +18,7 @@ export const createBlogComment = defineAction({
     blogPublicRateLimit(context, "comment-create", { window: 300, max: 5 });
     const db = getDrizzle();
     const [post] = await db
-      .select({ id: blogPosts.id, commentStatus: blogPosts.commentStatus, organizationId: blogPosts.organizationId })
+      .select({ id: blogPosts.id, commentStatus: blogPosts.commentStatus })
       .from(blogPosts)
       .where(and(eq(blogPosts.id, input.postId), publicBlogPostScope(blogPosts)))
       .limit(1);
@@ -95,12 +95,9 @@ export const createBlogComment = defineAction({
 });
 
 export const moderateBlogComment = defineAction({
-  input: blogCommentModerationSchema.extend({
-    organizationId: blogOrganizationIdSchema,
-  }),
+  input: blogCommentModerationSchema,
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blogComment: ["moderate"] });
+    const user = await assertBlogPermission(context, { blogComment: ["moderate"] });
 
     const db = getDrizzle();
     const { newStatus } = await db.transaction(async (tx) => {
@@ -113,18 +110,10 @@ export const moderateBlogComment = defineAction({
           content: blogComments.content,
           status: blogComments.status,
           postAuthorId: blogPosts.authorId,
-          organizationId: blogPosts.organizationId,
         })
         .from(blogComments)
         .innerJoin(blogPosts, eq(blogComments.postId, blogPosts.id))
-        .where(
-          and(
-            eq(blogComments.id, input.commentId),
-            tenant.organizationId === null
-              ? isNull(blogPosts.organizationId)
-              : eq(blogPosts.organizationId, tenant.organizationId),
-          ),
-        )
+        .where(eq(blogComments.id, input.commentId))
         .limit(1);
 
       if (!comment) throw new ActionError({ code: "NOT_FOUND", message: "Commentaire introuvable." });
@@ -167,7 +156,6 @@ export const moderateBlogComment = defineAction({
         if (becameApproved) {
           await tx.insert(blogNotifications).values({
             userId: comment.authorId,
-            organizationId: comment.organizationId,
             type: "COMMENT_APPROVED",
             commentId: comment.id,
             fromUserId: user.id,
@@ -176,7 +164,6 @@ export const moderateBlogComment = defineAction({
         } else if (becameRejected) {
           await tx.insert(blogNotifications).values({
             userId: comment.authorId,
-            organizationId: comment.organizationId,
             type: "COMMENT_REJECTED",
             commentId: comment.id,
             fromUserId: user.id,
@@ -206,7 +193,6 @@ export const moderateBlogComment = defineAction({
         if (recipientId && recipientId !== user.id && recipientId !== comment.authorId) {
           await tx.insert(blogNotifications).values({
             userId: recipientId,
-            organizationId: comment.organizationId,
             type: notificationType,
             postId: comment.postId,
             commentId: comment.id,

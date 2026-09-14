@@ -1,6 +1,6 @@
 import { defineAction, ActionError } from "astro:actions";
 import { z } from "astro/zod";
-import { eq, and, desc, isNull, ne } from "drizzle-orm";
+import { eq, and, desc, ne } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import {
   blogPosts,
@@ -18,32 +18,29 @@ import { generateExcerpt, getOgLocale } from "@/lib/blog/utils";
 import { BLOG_DEFAULTS } from "@/lib/blog/constants";
 import {
   assertBlogPermission,
-  resolveBlogTenant,
-  assertPostInTenant,
-  assertCategoryInTenant,
-  assertTagInTenant,
-  assertMediaInTenant,
+  assertBlogPostExists,
+  assertBlogCategoryExists,
+  assertBlogTagExists,
+  assertBlogMediaExists,
   blogRateLimit,
   auditBlog,
   invalidateBlogCache,
-  blogOrganizationIdSchema,
 } from "./_helpers";
 
 export const createBlogPost = defineAction({
-  input: blogPostFormSchema.extend({ organizationId: blogOrganizationIdSchema }),
+  input: blogPostFormSchema,
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, {
+    const user = await assertBlogPermission(context, {
       blog: input.status === "PUBLISHED" ? ["create", "publish"] : ["create"],
     });
     blogRateLimit(context, user.id, "post-create");
 
     const db = getDrizzle();
     await Promise.all([
-      ...(input.categoryIds ?? []).map((categoryId) => assertCategoryInTenant(categoryId, tenant)),
-      ...(input.tagIds ?? []).map((tagId) => assertTagInTenant(tagId, tenant)),
-      ...(input.featuredImageId ? [assertMediaInTenant(input.featuredImageId, tenant)] : []),
-      ...(input.ogImageId ? [assertMediaInTenant(input.ogImageId, tenant)] : []),
+      ...(input.categoryIds ?? []).map((categoryId) => assertBlogCategoryExists(categoryId)),
+      ...(input.tagIds ?? []).map((tagId) => assertBlogTagExists(tagId)),
+      ...(input.featuredImageId ? [assertBlogMediaExists(input.featuredImageId)] : []),
+      ...(input.ogImageId ? [assertBlogMediaExists(input.ogImageId)] : []),
     ]);
 
     const now = new Date();
@@ -62,7 +59,6 @@ export const createBlogPost = defineAction({
     try {
       post = await db.transaction(async (tx) => {
         const [createdPost] = await tx.insert(blogPosts).values({
-          organizationId: tenant.organizationId,
           authorId: user.id,
           slug: input.slug,
           status: input.status,
@@ -78,7 +74,6 @@ export const createBlogPost = defineAction({
 
         await tx.insert(blogPostTranslations).values({
           postId: createdPost.id,
-          organizationId: tenant.organizationId,
           locale: input.locale,
           title: input.title,
           slug: input.slug,
@@ -127,7 +122,7 @@ export const createBlogPost = defineAction({
       });
     } catch (err) {
       if (err instanceof Error && /duplicate|unique/i.test(err.message)) {
-        throw new ActionError({ code: "CONFLICT", message: "Un article avec ce slug existe déjà pour ce tenant/locale." });
+        throw new ActionError({ code: "CONFLICT", message: "Un article avec ce slug existe déjà pour cette locale." });
       }
       throw err;
     }
@@ -135,7 +130,7 @@ export const createBlogPost = defineAction({
     auditBlog(context, user.id, "BLOG_POST_CREATE", {
       resource: "blog_posts",
       resourceId: post.id,
-      metadata: { organizationId: tenant.organizationId, locale: input.locale, slug: input.slug },
+      metadata: { locale: input.locale, slug: input.slug },
     });
     invalidateBlogCache();
     return { id: post.id, slug: input.slug };
@@ -144,23 +139,21 @@ export const createBlogPost = defineAction({
 
 export const updateBlogPost = defineAction({
   input: blogPostUpdateSchema.safeExtend({
-    organizationId: blogOrganizationIdSchema,
     categoryIds: z.array(z.uuid()).max(10).optional(),
     tagIds: z.array(z.uuid()).max(20).optional(),
   }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blog: ["update"] });
+    const user = await assertBlogPermission(context, { blog: ["update"] });
     blogRateLimit(context, user.id, "post-update");
 
-    const { id, organizationId: _, categoryIds, tagIds, seo, status: _status, publishedAt: _publishedAt, ...data } = input;
-    const existingPost = await assertPostInTenant(id, tenant);
+    const { id, categoryIds, tagIds, seo, status: _status, publishedAt: _publishedAt, ...data } = input;
+    const existingPost = await assertBlogPostExists(id);
 
     await Promise.all([
-      ...(categoryIds ?? []).map((categoryId) => assertCategoryInTenant(categoryId, tenant)),
-      ...(tagIds ?? []).map((tagId) => assertTagInTenant(tagId, tenant)),
-      ...(data.featuredImageId ? [assertMediaInTenant(data.featuredImageId, tenant)] : []),
-      ...(data.ogImageId ? [assertMediaInTenant(data.ogImageId, tenant)] : []),
+      ...(categoryIds ?? []).map((categoryId) => assertBlogCategoryExists(categoryId)),
+      ...(tagIds ?? []).map((tagId) => assertBlogTagExists(tagId)),
+      ...(data.featuredImageId ? [assertBlogMediaExists(data.featuredImageId)] : []),
+      ...(data.ogImageId ? [assertBlogMediaExists(data.ogImageId)] : []),
     ]);
 
     const db = getDrizzle();
@@ -174,27 +167,20 @@ export const updateBlogPost = defineAction({
       ? await db.select().from(blogPostTranslations).where(and(eq(blogPostTranslations.postId, id), eq(blogPostTranslations.locale, locale))).limit(1).then((rows) => rows[0])
       : null;
 
-    if (existingTranslation && (existingTranslation.organizationId ?? null) !== tenant.organizationId) {
-      throw new ActionError({ code: "FORBIDDEN", message: "Cette traduction n'appartient pas au même tenant que son article." });
-    }
-
     const isCanonicalLocale = locale === LOCALES[0];
     if (data.slug) {
       if (isCanonicalLocale) {
-        const orgCond = tenant.organizationId === null ? isNull(blogPosts.organizationId) : eq(blogPosts.organizationId, tenant.organizationId);
-        const [dupPost] = await db.select({ id: blogPosts.id }).from(blogPosts).where(and(eq(blogPosts.slug, data.slug), orgCond, ne(blogPosts.id, id))).limit(1);
-        if (dupPost) throw new ActionError({ code: "CONFLICT", message: "Un article avec ce slug existe déjà pour ce tenant." });
+        const [dupPost] = await db.select({ id: blogPosts.id }).from(blogPosts).where(and(eq(blogPosts.slug, data.slug), ne(blogPosts.id, id))).limit(1);
+        if (dupPost) throw new ActionError({ code: "CONFLICT", message: "Un article avec ce slug existe déjà." });
       }
       if (locale) {
-        const transOrgCond = tenant.organizationId === null ? isNull(blogPostTranslations.organizationId) : eq(blogPostTranslations.organizationId, tenant.organizationId);
         const translationConditions = [
           eq(blogPostTranslations.slug, data.slug),
           eq(blogPostTranslations.locale, locale),
-          transOrgCond,
           ...(existingTranslation ? [ne(blogPostTranslations.id, existingTranslation.id)] : []),
         ];
         const [dupTrans] = await db.select({ id: blogPostTranslations.id }).from(blogPostTranslations).where(and(...translationConditions)).limit(1);
-        if (dupTrans) throw new ActionError({ code: "CONFLICT", message: "Une traduction avec ce slug existe déjà pour cette locale/tenant." });
+        if (dupTrans) throw new ActionError({ code: "CONFLICT", message: "Une traduction avec ce slug existe déjà pour cette locale." });
       }
     }
 
@@ -243,7 +229,6 @@ export const updateBlogPost = defineAction({
           } else {
             await tx.insert(blogPostTranslations).values({
               postId: id,
-              organizationId: tenant.organizationId,
               locale,
               title: data.title!,
               slug: data.slug!,
@@ -305,7 +290,7 @@ export const updateBlogPost = defineAction({
       });
     } catch (err) {
       if (err instanceof Error && /duplicate|unique/i.test(err.message)) {
-        throw new ActionError({ code: "CONFLICT", message: "Un article avec ce slug existe déjà pour ce tenant/locale." });
+        throw new ActionError({ code: "CONFLICT", message: "Un article avec ce slug existe déjà pour cette locale." });
       }
       throw err;
     }
@@ -313,7 +298,7 @@ export const updateBlogPost = defineAction({
     auditBlog(context, user.id, "BLOG_POST_UPDATE", {
       resource: "blog_posts",
       resourceId: id,
-      metadata: { organizationId: tenant.organizationId },
+      metadata: {},
     });
     invalidateBlogCache();
     return { id };
@@ -321,11 +306,10 @@ export const updateBlogPost = defineAction({
 });
 
 export const lockBlogPost = defineAction({
-  input: z.object({ id: z.uuid(), organizationId: blogOrganizationIdSchema }),
+  input: z.object({ id: z.uuid() }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blog: ["update"] });
-    await assertPostInTenant(input.id, tenant);
+    const user = await assertBlogPermission(context, { blog: ["update"] });
+    await assertBlogPostExists(input.id);
 
     const db = getDrizzle();
     const now = new Date();
@@ -350,11 +334,10 @@ export const lockBlogPost = defineAction({
 });
 
 export const unlockBlogPost = defineAction({
-  input: z.object({ id: z.uuid(), organizationId: blogOrganizationIdSchema }),
+  input: z.object({ id: z.uuid() }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blog: ["update"] });
-    await assertPostInTenant(input.id, tenant);
+    const user = await assertBlogPermission(context, { blog: ["update"] });
+    await assertBlogPostExists(input.id);
 
     const db = getDrizzle();
     await db.delete(blogPostLocks).where(and(eq(blogPostLocks.postId, input.id), eq(blogPostLocks.userId, user.id)));
@@ -364,11 +347,10 @@ export const unlockBlogPost = defineAction({
 });
 
 export const listBlogPostRevisions = defineAction({
-  input: z.object({ postId: z.uuid(), organizationId: blogOrganizationIdSchema }),
+  input: z.object({ postId: z.uuid() }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    await assertBlogPermission(context, tenant, { blog: ["read"] });
-    await assertPostInTenant(input.postId, tenant);
+    await assertBlogPermission(context, { blog: ["read"] });
+    await assertBlogPostExists(input.postId);
 
     const db = getDrizzle();
     return db.select().from(blogPostRevisions).where(eq(blogPostRevisions.postId, input.postId)).orderBy(desc(blogPostRevisions.createdAt)).limit(50);

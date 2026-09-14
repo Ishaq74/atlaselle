@@ -17,8 +17,13 @@ src/modules/blog/
 ├── search
 ├── seo
 ├── utils
-└── validation
+├── validation
+├── capabilities.ts
+├── module.ts
+└── index.ts
 ```
+
+À la racine du module : uniquement `capabilities.ts` + `module.ts` + `index.ts`, sans `workflow.ts` (le workflow blog vit dans `src/lib/blog/constants.ts` via `BLOG_POST_TRANSITIONS` et `src/actions/blog/lifecycle.ts`).
 
 The module uses Astro SSR, Astro Actions, Drizzle, Zod, shared Media, the generic ContentEditor, tenant guards, RBAC, audit, cache, search and shared administrative resource primitives.
 
@@ -27,6 +32,8 @@ Concordia contributed validated editorial/admin product patterns only. Its API a
 ## Module capabilities
 
 Blog declares shared capabilities for content, localization, media, SEO, taxonomy, search, publication/workflow, revisions, locks, engagement, moderation, notifications, audit and cache.
+
+Presentations (`module.ts:11`) : `card: [default, compact, featured]`, `list: [default, dense, search]`, `single: [default, reader]`, `ui: [author, meta, rating, taxonomy, publication]` — avec `searchDefinition: blogSearchDefinition`.
 
 Its public/editorial presentation follows the module grammar:
 
@@ -45,7 +52,7 @@ ARCHIVED   -> DRAFT | DELETED
 DELETED    -> DRAFT
 ```
 
-Ordinary post updates cannot change publication state. Explicit lifecycle Actions own publish, unpublish, archive, restore and delete so transition validation, authorization, revisions, audit and cache invalidation remain consistent.
+Ordinary post updates cannot change publication state. Explicit lifecycle Actions (`src/actions/blog/lifecycle.ts`) own publish, unpublish, archive, restore and delete so transition validation, authorization, revisions, audit and targeted cache invalidation (`invalidateBlogCache()`) remain consistent. `bulkBlogPostLifecycle` (`src/actions/blog/bulk.ts`) et les locks/notifications suivent la même chaîne mais `bulk` reste non exposé dans la ressource (`bulk:false`).
 
 ## Duplication
 
@@ -67,9 +74,9 @@ Relations remain explicit Blog relations. No polymorphic taxonomy relation syste
 
 ## Administration
 
-Blog uses the shared Admin Resource model for both global and organization administration.
+Blog uses the shared Admin Resource model for both global and organization administration. Ressource déclarée dans `src/modules/blog/admin/resource.ts:28-57` (`blog-post`, `permissionNamespace: "blog"`, `bulk:false`).
 
-The unified Blog admin exposes:
+The unified Blog admin (`BlogAdminPage.astro:64-71`) exposes the 5 tabs below — tabs OK — mais les loaders/actions restent hors module (`src/actions/blog/` + `src/database/loaders/blog.loader.ts:206` `getBlogPostBySlug`), consommés via la façade `src/modules/blog/` :
 
 ```text
 Posts
@@ -85,7 +92,7 @@ The organization surface uses the same resource and domain Actions with the orga
 
 ## Localization
 
-The editor supports `fr`, `en`, `es` and `ar`. Locale switching is protected against accidental loss of unsaved changes. Localized content and localized slugs remain relational rows rather than JSONB translation maps.
+The editor supports `fr`, `en`, `es` and `ar`. Labels éditeur dans `src/i18n/blog/fr.ts` (+ `en|es|ar`) et primitives partagées dans `src/core/localization`. Le module `src/modules/blog/i18n` n'est qu'un re-export vers `src/i18n/blog/fr|en|es|ar`. Locale switching is protected against accidental loss of unsaved changes. Localized content and localized slugs remain relational rows rather than JSONB translation maps.
 
 Arabic uses the shared RTL-capable primitives.
 
@@ -97,7 +104,7 @@ Admin internal-link management uses searchable target selection rather than `win
 
 ## Media
 
-Blog uses the Atlaselle shared Media and MediaPicker infrastructure for featured/OG/inline/gallery media. There is no `blog_media` table.
+Blog uses the Atlaselle shared Media and MediaPicker infrastructure for featured/OG/inline/gallery media. There is no `blog_media` table. `src/modules/blog/components/cards/index.ts` ne contient que des re-exports vers `@components/blog` (`PostCard`, `PostCardGrid`, `PostCardHorizontal`).
 
 ## Engagement and moderation
 
@@ -115,7 +122,7 @@ Search continues to use Atlaselle's PostgreSQL full-text search architecture rat
 
 ## Public routes
 
-Canonical routes remain localized and support global and organization contexts, category/tag pages, author pages and canonical post URLs. Organization routes never bypass organization ownership checks.
+Canonical routes remain localized and support global and organization contexts, category/tag pages, author pages and canonical post URLs. Seules routes physiques : `src/pages/[lang]/blog/index.astro` + `[...slug].astro`. Organization routes never bypass organization ownership checks.
 
 ## Security and tenancy
 

@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { LOCALES } from "@/i18n/config";
+import { resolveLocalizedRoute } from "@/i18n/routes";
 import { bootstrapModules } from "@/lib/cms/bootstrap";
 import { defineMiddleware } from "astro:middleware";
 
@@ -7,11 +8,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
   bootstrapModules();
 
   // ─── Locale guard — reject invalid [lang] segments with 404 ─────
-  const pathSegments = new URL(context.request.url).pathname.split('/').filter(Boolean);
+  const url = new URL(context.request.url);
+  const pathSegments = url.pathname.split('/').filter(Boolean);
   const maybeLang = pathSegments[0];
   if (maybeLang && /^[a-z]{2}$/.test(maybeLang) && !(LOCALES as readonly string[]).includes(maybeLang)) {
     return new Response('Not Found', { status: 404 });
   }
+
+  // ─── Localized segments rewrite (voyages/viajes → trips, candidature/postulacion → apply) ──
+  // Les URLs canoniques localisées (TODO Annexe A) sont servies par les routes physiques
+  // [lang]/trips et [lang]/apply. L'URL reste localisée (canonique + hreflang intacts).
+  const rewritten = resolveLocalizedRoute(url.pathname);
+  if (rewritten) return context.rewrite(rewritten + url.search);
 
   let timedOut = false;
   let isAuthed: Awaited<ReturnType<typeof auth.api.getSession>> | null = null;
@@ -52,7 +60,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   const response = await next();
-  const url = new URL(context.request.url);
   const lowerPath = url.pathname.toLowerCase();
   if (lowerPath.startsWith('/uploads/') && (lowerPath.endsWith('.svg') || lowerPath.endsWith('.svgz'))) {
     response.headers.set('Content-Disposition', 'attachment');

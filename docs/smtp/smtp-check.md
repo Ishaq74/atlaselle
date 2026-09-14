@@ -99,9 +99,18 @@ pnpm smtp:check --email                   # utilise SMTP_TEST_TO du .env
 ## Fichiers impliqués
 
 - `src/smtp/commands/smtp.check.ts` — script principal
-- `src/smtp/env.ts` — résolution du provider et des variables d'environnement
+- `src/smtp/env.ts` — résolution du provider et des variables d'environnement + `checkSmtpConfig()` (env.ts:111-122, health probe sans appel réseau)
 - `src/smtp/send.ts` — point d'entrée unifié `sendEmail()`
+- `src/smtp/types.ts` — types partagés (`SmtpProvider`, `EmailPayload`, `EmailFrom`)
 - `src/smtp/commands/_utils.ts` — couleurs ANSI, `logSmtpTarget()`
+- `src/smtp/commands/logs.rotate.ts` — rotation des logs `logs/*.jsonl` (rétention `LOGS_RETENTION_DAYS`, défaut 30 j)
 - `src/smtp/providers/nodemailer.ts` — adapter Nodemailer
 - `src/smtp/providers/brevo.ts` — adapter Brevo API v3
 - `src/smtp/providers/resend.ts` — adapter Resend SDK
+- `src/smtp/templates/blog-newsletter.ts` — templates newsletter blog (confirm + unsubscribe)
+
+## Timeouts, safeName et dead-letter
+
+- **Timeouts 10 s** : Brevo/Resend via `AbortController` (`setTimeout(..., 10_000)`), Nodemailer via `connectionTimeout: 10_000` + `socketTimeout: 10_000`.
+- **safeName** : `from.name` sanitisé par regex `[^a-zA-Z0-9 àâäéèêëïîôùûüÿçñ'\-]` (fallback `'Atlaselle'`) dans les 3 providers — anti injection d'en-tête.
+- **Dead-letter** (send.ts:54-70) : après `MAX_RETRIES = 3` ou erreur non-retryable, écrit `logs/email-dead-letter-YYYY-MM-DD.jsonl` (`{ timestamp, to, subject, provider, error, code, attempts }`, mode `0o600`), puis rethrow.

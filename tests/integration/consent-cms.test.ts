@@ -16,7 +16,7 @@ const expectedPrivacyUrls: Record<string, string> = {
   fr: '/fr/mentions-legales',
   en: '/en/legal-notice',
   es: '/es/aviso-legal',
-  ar: '/ar/الشروط-القانونية',
+  ar: '/ar/legal-notice',
 };
 
 // ─── Seed data presence ──────────────────────────────────────────────

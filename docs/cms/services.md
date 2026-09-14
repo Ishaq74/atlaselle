@@ -40,7 +40,7 @@ single/
 ui/
 ```
 
-avec des variantes métier (`default`, `compact`, `featured`, `horizontal`, `dense`, `search`, etc.).
+avec les variantes déclarées dans `module.ts:11` : `card` = `default|compact|featured|horizontal`, `list` = `default|dense|search`, `single` = `default|detail`, `ui` = `price|rating|meta|taxonomy|availability|provider`.
 
 ## Domaine
 
@@ -63,7 +63,7 @@ Les champs métier fortement structurants restent typés. Les attributs configur
 
 ## Localisation
 
-Chaque ligne de `service_translations` représente une paire `service × locale`. Le module utilise les quatre locales Atlaselle :
+Chaque ligne de `service_translations` représente une paire `service × locale`. Les locales passent par `src/i18n` + `src/core/localization` (fr/en/es/ar) ; le dossier `src/modules/services/i18n/` ne contient pas un fichier par locale mais `engagement|form|index|notifications|sort` (les traductions fr/en/es/ar sont portées par `index.ts` sous forme de `Record<string, ServiceTranslations>`).
 
 ```text
 fr
@@ -105,7 +105,7 @@ timezone
 maxParticipants
 ```
 
-Les valeurs sont validées au niveau runtime et au niveau SQL pour garantir :
+Les valeurs sont validées au niveau runtime (`validation/index.ts` : `dayOfWeek` 0-6) et au niveau SQL pour garantir :
 
 - jour entre 0 et 6;
 - heure de fin strictement postérieure à l'heure de début;
@@ -113,7 +113,7 @@ Les valeurs sont validées au niveau runtime et au niveau SQL pour garantir :
 
 ## SEO
 
-Le contenu localisé porte les métadonnées de page et `service_seo` porte les métadonnées d'optimisation éditoriale complémentaires. Le score est calculé par une fonction canonique du module, sans second moteur de score caché.
+Le contenu localisé porte les métadonnées de page et `service_seo` porte les métadonnées d'optimisation éditoriale complémentaires. `seo/index.ts:5` définit uniquement `buildServiceJsonLd` ; le score vit dans `validation/index.ts` (`calculateServiceSeoScore`), sans second moteur de score caché.
 
 ## Workflow
 
@@ -126,7 +126,7 @@ ARCHIVED   → DRAFT | DELETED
 DELETED    → DRAFT
 ```
 
-`updateService` ne change pas le statut ni la date de publication. Ces opérations passent exclusivement par les Actions lifecycle.
+`updateService` ne change pas le statut ni la date de publication. Ces opérations passent exclusivement par les Actions lifecycle (`src/actions/services/lifecycle.ts` : `publishService` / `unpublishService` / `archiveService` / `restoreService` / `duplicateService`).
 
 Chaque transition effectue les contrôles d'autorisation et de tenant, applique l'invariant de transition, met à jour les métadonnées, journalise l'action et invalide le cache.
 
@@ -176,11 +176,11 @@ moderation
 notifications
 ```
 
-Les réactions suivent une sémantique mono-réaction par utilisateur et service. Le changement de type remplace l'état précédent.
+Les réactions suivent une sémantique mono-réaction par utilisateur et service (`LIKE|LOVE|FIRE|CLAP`). Le changement de type remplace l'état précédent.
 
 Les signalements sont à cible unique (`service` ou `comment` ou `review`) au niveau SQL. Les cibles secondaires sont vérifiées contre le service avant insertion ou résolution.
 
-Les avis approuvés alimentent les agrégats `ratingAverage100` et `ratingCount` du service.
+Les avis approuvés alimentent les agrégats `ratingAverage100` et `ratingCount` du service. Les attributs configurables passent par `serviceAttributeDefinitions` / `serviceAttributeValues`, sans remplacer les champs métier typés.
 
 ## Notifications
 
@@ -188,7 +188,7 @@ Les notifications sont tenant-scoped via leur service cible. Les types de commen
 
 ## Recherche
 
-Services déclare une définition `SearchResourceDefinition` dans `src/modules/services/search/` avec des champs explicitement :
+Services déclare une définition `SearchResourceDefinition` dans `src/modules/services/search/` (`search/index.ts:19` : `servicesSearchDefinition`) avec des champs explicitement :
 
 ```text
 searchable
@@ -200,7 +200,7 @@ La recherche reste branchée sur l'architecture PostgreSQL/SSR d'Atlaselle et ne
 
 ## Administration globale et organisationnelle
 
-### Global
+### Global (routes existantes)
 
 ```text
 /{lang}/admin/services
@@ -208,15 +208,9 @@ La recherche reste branchée sur l'architecture PostgreSQL/SSR d'Atlaselle et ne
 /{lang}/admin/services/{id}/edit
 ```
 
-### Organisation
+Seules ces 3 routes existent (`index` | `new` | `[id]/edit`) ; aucun fichier `organizations/*` n'existe sous `src/pages/`. Les URLs d'organisation sont uniquement construites (`getOrgUrl`) sans page physique dédiée.
 
-```text
-/{lang}/organizations/{slug}/admin/services
-/{lang}/organizations/{slug}/admin/services/new
-/{lang}/organizations/{slug}/admin/services/{id}/edit
-```
-
-Les deux surfaces utilisent le même Admin Resource contract et les mêmes loaders, mais avec un tenant explicite dans le contexte organisationnel.
+Ressource déclarée dans `admin/resource.ts:6-26` (filtres `search|status|category|tag|provider|featured|mobile|locale`, tris `createdAt|updatedAt|publishedAt|title|priceMinor|ratingAverage100|viewCount`) et lue via `admin/loader.ts:27` (`getServiceAdminData`).
 
 La liste admin prend en charge recherche, statut, catégorie, tag, prestataire, mobile, locale, tri et pagination. Les statistiques sont calculées sur l'ensemble du tenant et non sur la page affichée.
 
@@ -243,7 +237,7 @@ Aucun service, média, tag, catégorie, commentaire, avis ou rapport appartenant
 
 ## i18n et RTL
 
-Les textes du module résident dans `src/modules/services/i18n/` pour `fr`, `en`, `es`, `ar`. L'interface arabe doit fonctionner avec le RTL fourni par Atlaselle. Les composants ne doivent pas introduire une direction ou une traduction concurrente.
+Les textes du module résident dans `src/modules/services/i18n/` (`engagement|form|index|notifications|sort`, locales `fr|en|es|ar` portées par `index.ts`, via `src/i18n` + `src/core/localization`). L'interface arabe doit fonctionner avec le RTL fourni par Atlaselle. Les composants ne doivent pas introduire une direction ou une traduction concurrente.
 
 ## Tests attendus
 
@@ -264,7 +258,7 @@ La couverture du module doit protéger au minimum :
 - cohérence des notifications;
 - agrégats de reviews;
 - visibilité publique des seuls services publiés;
-- routes globales et organisationnelles.
+- routes globales (URLs d'organisation construites, sans pages physiques dédiées).
 
 Les tests E2E doivent utiliser la même matrice de locales et de tenancy que le Blog lorsque les parcours sont communs.
 

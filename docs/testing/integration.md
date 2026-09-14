@@ -4,10 +4,10 @@
 
 ---
 
-## Vue d'ensemble
+## Vue d'ensemble (15 fichiers sur disque — extraits ci-dessous)
 
-| Fichier | Cible | Tests | Status |
-| :-- | :-- | --: | :-- |
+| Fichier | Cible | Status |
+| :-- | :-- | :-- |
 | `tests/integration/auth.test.ts` | better-auth API — session, admin, org, impersonation, RGPD | 13 | ✅ |
 | `tests/integration/auth-flow.test.ts` | Sign-up → Sign-in → Sign-out flow | 5 | ✅ |
 | `tests/integration/audit.test.ts` | `logAuditEvent()` + hooks integration | 6 | ✅ |
@@ -247,15 +247,12 @@ BETTER_AUTH_URL=http://localhost:4321
 ## Résumé couverture intégration
 
 ```text
-Auth flows testés :          13 (session, admin, org, impersonation, RGPD)
-Auth advanced :              10 (password, email, profile)
-Auth org :                   5 (CRUD, invitations, membres)
-Audit :                      6 (logging + hooks)
-Export RGPD :                3
-Middleware :                  4
-DB health :                   3
-Auth sign-up/in/out :        5
-Total tests intégration :    49
-Fichiers :                   8
-Temps d'exécution :          ~5–8 s (dépend de la DB)
+Auth flows testés :          session, admin, org, impersonation, RGPD
+Auth advanced :              password, email, profile
+Auth org :                   CRUD, invitations, membres
+Audit :                      logging + hooks
+Export RGPD :                via API
+Middleware :                  via getSession (le middleware Astro lui-même injecte session + security headers, voir src/middleware.ts)
+DB health :                   connexion, singleton, raw query
+Total fichiers intégration : 15 sur disque
 ```

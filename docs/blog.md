@@ -1,7 +1,7 @@
 # Module Blog
 
 > **Fichiers** : `src/database/schemas/blog.schema.ts`, `src/database/loaders/blog.loader.ts`, `src/actions/blog/`, `src/components/blog/`, `src/components/pages/blog/`, `src/pages/[lang]/blog/`, `src/pages/[lang]/admin/blog/`, `src/i18n/blog/`, `src/lib/blog/`
-> **Pattern** : Astro 6 SSR + Drizzle ORM + Astro Actions, multi-tenant (blog global **et** blog par organisation)
+> **Pattern** : Astro 7 SSR + Drizzle ORM + Astro Actions, multi-tenant (blog global **et** blog par organisation)
 
 ---
 
@@ -28,29 +28,34 @@
 ```text
 src/
 ├── database/
-│   ├── schemas/blog.schema.ts     # 20 tables Drizzle + relations
-│   └── loaders/blog.loader.ts     # Lecture publique + admin, cache TTL
+│   ├── schemas/blog.schema.ts     # 24 tables Drizzle + relations
+│   └── loaders/blog.loader.ts     # Lecture publique + admin, cache TTL (loaders batchés anti-N+1, voir §6)
 ├── actions/blog/
-│   ├── _helpers.ts                 # assertBlogPermission, tenant guards, rate-limit
-│   ├── post.ts                     # CRUD post, publish, lock/unlock, révisions
+│   ├── _helpers.ts                 # assertBlogPermission, tenant guards, rate-limit, invalidateBlogCache() ciblée
+│   ├── post.ts                     # create/update, lock/unlock, listRevisions
+│   ├── lifecycle.ts                # publish/unpublish/archive/restore/duplicate + restoreBlogPostRevision
+│   ├── bulk.ts                     # bulkBlogPostLifecycle (non exposé dans la ressource admin)
+│   ├── gallery.ts / link.ts        # Galeries, liens manuels entre articles
+│   ├── profile.ts                  # updateUserProfile (bio/website/twitter/linkedin)
 │   ├── category.ts / tag.ts        # CRUD taxonomies (slugs localisés)
 │   ├── comment.ts / review.ts      # Commentaires + avis (public + modération)
 │   ├── reaction.ts                 # Réactions + favoris
 │   ├── moderation.ts               # Signalements + file de modération
 │   ├── view.ts                     # Comptage des vues (viewCount + stats)
+│   ├── subscription.ts             # Newsletter (subscribe/confirm/unsubscribe)
 │   ├── notification.ts             # Marquer les notifications comme lues
 │   └── index.ts                    # Ré-export vers src/actions/index.ts
 ├── lib/blog/
 │   ├── constants.ts                # Enums, valeurs par défaut, slugs réservés
 │   ├── types.ts                    # Types dérivés du schéma Drizzle
-│   ├── utils.ts                    # Construction d'URLs, extraits, TOC, reading time
+│   ├── utils.ts                    # Construction d'URLs (buildBlogUrl, org inclus), extraits, TOC, reading time
+│   ├── public-visibility.ts        # Prédicat publicBlogPostScope (PUBLISHED + publishedAt <= now)
 │   └── validation.ts                # Schémas Zod (formulaires + filtres)
-├── components/blog/                # Composants "feature" (cartes, formulaires, sidebars…)
-├── components/pages/blog/          # Templates de page complets (listing, post, auteur)
-├── pages/[lang]/blog/               # Routes publiques (blog global)
+├── modules/blog/ + core/*          # Façade module (capabilities.ts + module.ts + index.ts) consommant les contrats src/core/*
+├── components/blog/                # Composants "feature" (cartes, grids, sidebars dont NewsletterSidebar, formulaires…)
+├── components/pages/blog/          # Templates de page complets (listing, post BlogPostPage.astro, auteur)
+├── pages/[lang]/blog/               # Routes publiques (blog global : index.astro + [...slug].astro seuls)
 ├── pages/[lang]/admin/blog/          # Admin blog global
-├── pages/[lang]/organizations/[slug]/blog/          # Routes publiques (blog d'organisation)
-├── pages/[lang]/organizations/[slug]/admin/blog/     # Admin blog d'organisation
 └── i18n/blog/{fr,en,es,ar}.ts        # Traductions (labels, admin, statuts, erreurs)
 ```
 
@@ -58,7 +63,7 @@ src/
 
 ## 2. Modèle de données
 
-20 tables dans `blog.schema.ts` :
+24 tables dans `blog.schema.ts` (la 24e, `blog_subscribers`, est déclarée à `blog.schema.ts:471`) :
 
 | Domaine | Tables |
 | :-- | :-- |
@@ -69,6 +74,7 @@ src/
 | Médias | `blog_post_galleries`, `blog_post_gallery_media` |
 | SEO & analytics | `blog_post_seo`, `blog_post_view_stats` |
 | Autres | `blog_notifications`, `blog_post_links` |
+| Newsletter | `blog_subscribers` (org-scoped, token unique, PENDING/CONFIRMED/UNSUBSCRIBED) |
 
 Points clés :
 
@@ -82,6 +88,8 @@ Points clés :
 ## 3. Multi-tenant : blog global vs. blog d'organisation
 
 Une seule table sert les deux cas : `organizationId = NULL` → blog global (accessible à `/​{lang}​/blog`), `organizationId = '<uuid>'` → blog d'une organisation (`/​{lang}​/organizations/​{slug}​/blog`).
+
+> Aucune page `src/pages/[lang]/organizations/*` n'existe dans le dépôt : les URLs d'organisation sont uniquement construites par `buildBlogUrl()` (`src/lib/blog/utils.ts:19`) et listées par `src/pages/sitemap-blog-org.xml.ts:38`. Il n'y a donc pas de routes physiques `organizations/[slug]/blog/` ni `organizations/[slug]/admin/blog/`.
 
 Toutes les actions passent par `resolveBlogTenant(input)` (`_helpers.ts`) puis vérifient l'appartenance de la ressource au tenant avec `assertPostInTenant` / `assertCategoryInTenant` / `assertTagInTenant` **avant** toute lecture/écriture — y compris côté page Astro pour les routes d'édition (404 si `post.organizationId !== tenant attendu`).
 
@@ -97,8 +105,8 @@ Toutes les actions passent par `resolveBlogTenant(input)` (`_helpers.ts`) puis v
 | `/{lang}/blog/{categorySlug}` | Listing filtré par catégorie |
 | `/{lang}/blog/tags/{tagSlug}` (segment localisé) | Listing filtré par tag |
 | `/{lang}/blog/{routes.author}/{username}` (segment localisé, ex. `/fr/blog/auteur/{username}`) | Profil auteur (`BlogAuthorPage.astro`) |
-| `/{lang}/blog/{categorySlug}/{postSlug}` | Détail d'un article (`BlogPostPage_new.astro`) |
-| `/{lang}/organizations/{orgSlug}/blog/...` | Mêmes gabarits, scope organisation |
+| `/{lang}/blog/{categorySlug}/{postSlug}` | Détail d'un article (`BlogPostPage.astro`) |
+| `/{lang}/organizations/{orgSlug}/blog/...` | Mêmes gabarits, scope organisation (URL construite par `buildBlogUrl()`, sans page physique dédiée) |
 
 Les anciennes URLs `/{lang}/blog/categories/{slug}` et les URLs d'article à un seul segment redirigent (301) vers la forme canonique dès qu'une catégorie existe pour l'article. Les segments `categories`/`tags` proviennent de `src/i18n/blog/*.ts` (`routes.categories`, `routes.tags`) et sont localisés (ex. arabe).
 
@@ -108,8 +116,13 @@ Les anciennes URLs `/{lang}/blog/categories/{slug}` et les URLs d'article à un 
 
 | Fichier | Actions | Notes sécurité |
 | :-- | :-- | :-- |
-| `post.ts` | `createBlogPost`, `updateBlogPost`, `deleteBlogPost`, `publishBlogPost`, `lockBlogPost`, `unlockBlogPost`, `listBlogPostRevisions` | RBAC + rate-limit + verrou d'édition concurrente |
+| `post.ts` | `createBlogPost`, `updateBlogPost`, `deleteBlogPost`, `lockBlogPost`, `unlockBlogPost`, `listBlogPostRevisions` | RBAC + rate-limit + verrou d'édition concurrente |
+| `lifecycle.ts:32-35` | `publishBlogPost`, `unpublishBlogPost`, `archiveBlogPost`, `restoreBlogPost` (+ `deleteBlogPost`, `duplicateBlogPost`, `restoreBlogPostRevision`) | Transitions explicites validées, révision + audit + `invalidateBlogCache()` |
+| `bulk.ts` | `bulkBlogPostLifecycle` (publish/archive/restore/delete groupés) | Vérifie tenant + locks, non exposé dans la ressource admin (`bulk:false`) |
 | `category.ts` / `tag.ts` | CRUD taxonomies | Vérifie l'unicité du slug canonique **et** du slug localisé par tenant |
+| `gallery.ts` | `createBlogGallery` / `updateBlogGallery` / `deleteBlogGallery` / `addGalleryMedia` / `removeGalleryMedia` | Ownership tenant vérifiée avant association média |
+| `link.ts` | `createBlogLink` / `updateBlogLink` / `deleteBlogLink` | Liens manuels RELATED/PREVIOUS/NEXT/REFERENCE, anti self-link |
+| `profile.ts` | `updateUserProfile` | Champs `bio` / `website` / `twitter` / `linkedin` |
 | `comment.ts` | `createBlogComment` (public, invités autorisés), `moderateBlogComment` | `sanitizeHtml()` + rate-limit **IP** (`blogPublicRateLimit`, 5 / 5 min) |
 | `review.ts` | `createBlogReview` (connecté uniquement), `moderateBlogReview`, `voteBlogReviewHelpful` | `sanitizeHtml()` + rate-limit **utilisateur** (10 / h) |
 | `reaction.ts` | `toggleBlogReaction`, `toggleBlogFavorite` | Rate-limit utilisateur (60 / min) |
@@ -128,9 +141,9 @@ Toutes les actions publiques d'écriture (commentaires, avis, réactions, signal
 - **Cachées (TTL, `cached()`)** : `getBlogPosts`, `getBlogPostBySlug`, `getBlogCategories`, `getBlogCategoryBySlug`, `getBlogTags`, `getBlogTagBySlug`, `getBlogAuthorByUsername`, `getRelatedBlogPosts`.
 - **Non cachées** (données changeantes / admin) : `getBlogComments`, `getBlogReviews`, `getBlogReviewStats`, `getBlogPostStats`, `getBlogPostForAdmin`, `getBlogPostsForAdmin`, `getBlogModerationQueue`, `getBlogNotifications`, `getUnreadBlogNotificationCount`.
 
-`invalidateCache("blog:")` est appelé après **chaque** mutation blog — il vide toutes les entrées préfixées `blog:` (toutes locales/tenants/filtres confondus), pas seulement la clé concernée. C'est volontairement large plutôt que finement ciblé : simple et correct, au prix d'un taux de cache-hit plus faible sur un blog très actif.
+`invalidateBlogCache()` (`_helpers.ts:91-92`) est appelée après chaque mutation blog — elle invalide de façon ciblée les sous-préfixes `blog:post:` / `blog:list:` / `blog:related:` / `blog:author:` / `blog:categories:` / `blog:category:` / `blog:tags:` / `blog:tag:` / `blog:slugs:` / `blog:link-targets:`, pas seulement la clé concernée.
 
-`hydrateBlogPostListItems()` exécute 5 requêtes complémentaires par article affiché (catégories, tags, nb commentaires, moyenne des avis, réactions) — connu, accepté, atténué par le cache TTL. À optimiser en une seule requête agrégée si le volume de trafic le justifie.
+`hydrateBlogPostListItems()` (`blog.loader.ts:65-78`) exécute 5 requêtes batchées pour toute la page (catégories, tags, nb commentaires, moyenne des avis, réactions) au lieu de 5 requêtes par article — pas de pattern N+1. Le cache TTL atténue le coût résiduel.
 
 ---
 
@@ -145,9 +158,9 @@ Toutes les actions publiques d'écriture (commentaires, avis, réactions, signal
 
 ## 8. SEO & découvrabilité
 
-- **Sitemap** (`src/pages/sitemap-cms.xml.ts`) : liste le blog global (listing, catégories, tags, tous les articles publiés) pour chaque locale. Les blogs d'organisation ne sont **pas** inclus (pas de mécanisme de découverte par org).
+- **Sitemap** (`src/pages/sitemap-cms.xml.ts`) : liste le blog global (listing, catégories, tags, tous les articles publiés) pour chaque locale. Les blogs d'organisation sont listés séparément par `src/pages/sitemap-blog-org.xml.ts` (et `src/pages/sitemap-services-org.xml.ts` pour les services).
 - **RSS** (`src/pages/rss.xml.ts`) : agrège pages CMS + articles du blog global, triés par date de publication.
-- **Recherche sitewide** (`src/pages/api/search.ts`) : `UNION ALL` entre `pages.search_vector` et `blog_post_translations.search_vector`, re-classé par `ts_rank` commun. Retourne un champ `type: "page" | "blog_post"` et construit l'URL adaptée (`buildBlogPostUrl` pour le blog).
+- **Recherche sitewide** (`src/pages/api/search.ts`) : `UNION ALL` entre `pages` + `blog_post` + `service`, re-classé par `ts_rank` commun. Retourne un champ `type: "page" | "blog_post" | "service"` et construit l'URL adaptée (`buildBlogPostUrl` pour le blog).
 - Métadonnées par article : meta title/description, Open Graph, Twitter Card, JSON-LD `BlogPosting` + breadcrumb — générées dans les pages `[...slug].astro`.
 
 ---
@@ -156,17 +169,18 @@ Toutes les actions publiques d'écriture (commentaires, avis, réactions, signal
 
 `src/i18n/blog/{fr,en,es,ar}.ts` respectent tous la même forme (`satisfies BlogTranslations`, vérifié structurellement par TypeScript). Sections : `meta`, `routes`, `labels`, `admin` (dont `notificationTypes`, `reportReasons`, `taxonomy`, `moderationQueue`…), `statuses`, `errors`.
 
-> Les composants clients (`<script>` Astro) n'ont pas accès aux variables du frontmatter serveur : les libellés traduits nécessaires au JS (toasts, erreurs) sont passés via des attributs `data-t-*` sur un élément du DOM, lus par `dataset` côté client (voir `CommentForm.astro`, `ReactionBar.astro`, `ShareBar.astro`, `AdminModerationQueue.astro` pour des exemples du pattern).
+> Les composants clients (`<script>` Astro) n'ont pas accès aux variables du frontmatter serveur : les libellés traduits nécessaires au JS (toasts, erreurs) sont passés via des attributs `data-t-*` sur un élément du DOM, lus par `dataset` côté client (voir `CommentForm.astro`, `ReactionBar.astro`, `ShareBar.astro`, `AdminModerationQueue.astro` — ce dernier expose `feedbackT.genericError`/`feedbackT.saved` via `data-t-error`/`data-t-saved` — pour des exemples du pattern).
 
 ---
 
 ## 10. Tests
 
-- **Unitaires** : `tests/unit/blog-helpers.test.ts` (gardes tenant/RBAC), `tests/unit/blog-post-actions.test.ts`, `tests/unit/blog-taxonomy-actions.test.ts`, `tests/unit/blog-engagement-actions.test.ts`, `tests/unit/blog-loader.test.ts`.
+- **Unitaires** : `tests/unit/blog-*.test.ts` = 14 fichiers (helpers, post-actions, taxonomy-actions, engagement-actions, loader, lifecycle, gallery, link, profile, public-visibility, newsletter, validation…), plus `tests/unit/blog/` (ex. `status-transitions.test.ts`).
+- **Intégration** : `tests/integration/blog-actions.test.ts`.
 - **E2E** : `tests/e2e/blog.spec.ts` (parcours public + admin, multi-navigateur).
 - **A11y/perf** : les URLs `/blog`, `/blog/{category}/{post}` et `/admin/blog` sont incluses dans `.pa11yci.cjs` et `lighthouserc.cjs` pour chaque locale.
 
-Commande de seed de démo : `corepack pnpm db:seed-blog-demo` (3 articles globaux fr/en/es/ar, catégories, tags, commentaires/avis approuvés + en attente, réactions, un signalement en attente).
+Seeds disponibles : `pnpm db:seed` et `pnpm db:seed-media` (aucun script `seed-blog-demo` dans `package.json`).
 
 ---
 
@@ -189,7 +203,7 @@ Le blog utilise un **éditeur de contenu réutilisable et découplé** (`src/com
 
 ### 11.2 Insertion d'images
 
-Le bouton image de `ContentEditor` ouvre le `MediaPicker` (`new CustomEvent('open')`) ; à la sélection (`media-select` → `{ url, alt, fileId }`) il insère un `<img src alt loading="lazy">` via `buildImageToken`. Le blog déclare 3 pickers dans `AdminPostForm.astro` (dont `blog-content-picker` pour le corps).
+Le bouton image de `ContentEditor` ouvre le `MediaPicker` (`new CustomEvent('open')`) ; à la sélection (`media-select` → `{ url, alt, fileId }`) il insère un `<img src alt loading="lazy">` via `buildImageToken`. Le blog déclare 4 pickers dans `AdminPostForm.astro:59-62` (`blog-featured-picker`, `blog-og-picker`, `blog-content-picker` pour le corps, `blog-gallery-picker`).
 
 ### 11.3 Liens internes & détection des liens morts
 
@@ -220,7 +234,9 @@ _(Aucune fonctionnalité majeure du blog n'est connue comme incomplète à ce jo
 - **Galeries de post** (`blog_post_galleries` / `blog_post_gallery_media`) : UI admin dans `AdminPostForm.astro` (onglet Galeries) + actions `createBlogGallery` / `updateBlogGallery` / `deleteBlogGallery` / `addGalleryMedia` / `removeGalleryMedia`. Le rendu public reste dans `PostContent.astro`.
 - **Liens manuels entre articles** (`blog_post_links` — RELATED/PREVIOUS/NEXT/REFERENCE) : actions `createBlogLink` / `updateBlogLink` / `deleteBlogLink` + loader `getBlogPostLinks`. UI admin dans `AdminPostForm.astro` (onglet Liens). Les « articles similaires » continuent d'utiliser le scoring automatique (`getRelatedBlogPosts`), indépendant de cette table.
 - **Profil auteur** : champs `bio` / `website` / `twitter` / `linkedin` sur `user` + action `updateUserProfile` + rendu dans `BlogAuthorPage.astro`.
-- **Cache** : invalidation ciblée via `invalidateBlogCache()` (sous-préfixes `blog:post:` / `blog:list:` / `blog:related:` / `blog:author:` / `blog:categories:` / `blog:category:` / `blog:tags:` / `blog:tag:`) au lieu de vider aveuglément `blog:`.
+- **Cache** : invalidation ciblée via `invalidateBlogCache()` (sous-préfixes `blog:post:` / `blog:list:` / `blog:related:` / `blog:author:` / `blog:categories:` / `blog:category:` / `blog:tags:` / `blog:tag:` / `blog:slugs:` / `blog:link-targets:`) au lieu de vider aveuglément `blog:`.
+- **Visibilité publique** : `publicBlogPostScope()` (`src/lib/blog/public-visibility.ts:20`) exige `status = 'PUBLISHED'` **et** `publishedAt <= now()` — les posts planifiés restent privés jusqu'à échéance.
+- **Présentation** : composants `cards/` (`PostCard`, `PostCardGrid`, `PostCardHorizontal`), `grids/` (`PostGrid`), `sidebars/` (`CategorySidebar`, `TagSidebar`, `NewsletterSidebar`).
 
 ---
 
@@ -233,8 +249,8 @@ _(Aucune fonctionnalité majeure du blog n'est connue comme incomplète à ce jo
 
 ---
 
-## 13. Audit (clôture)
+## 13. Audit (suivi)
 
-> **Statut** : ✅ Clôturé — 30 findings traités, 0 régression (`pnpm check` 0 erreur, `pnpm lint` 0 erreur, `pnpm test` 1155/1155).
+> **Statut** : tranche P0 de durcissement en cours de validation — voir [`docs/blog/audit.md`](blog/audit.md):10-14. Ce document ne certifie pas une clôture et les anciens totaux de tests en ont été retirés.
 
-L'audit statique du module Blog (sécurité, performance/loaders, UX/composants, données/schéma, SEO/RSS, observabilité) est consigné et clôturé dans **[`docs/blog/audit.md`](./audit.md)**, avec pour chaque finding : statut de résolution et preuve dans le code/tests. Toute nouvelle itération sur le blog doit y être reportée pour garder la traçabilité.
+Le suivi statique du module Blog (sécurité, performance/loaders, UX/composants, données/schéma, SEO/RSS, observabilité) est consigné dans **[`docs/blog/audit.md`](blog/audit.md)**, avec pour chaque finding : statut de résolution et preuve dans le code/tests. Toute nouvelle itération sur le blog doit y être reportée pour garder la traçabilité.

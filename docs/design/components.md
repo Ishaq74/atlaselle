@@ -8,15 +8,17 @@
 
 ## Vue d'ensemble
 
-**47 composants** répartis selon l'Atlaselle Design :
+**48 dossiers atoms** (45 entrées dans `starwind.config.json` — `container`, `icon-picker` et `media-picker` n'y figurent pas) répartis selon l'Atlaselle Design :
 
 | Niveau | Emplacement | Composants |
 | :-- | :-- | --: |
-| Atoms | `src/components/atoms/` | 47 |
-| Molecules | `src/components/molecules/` | — |
-| Organisms | `src/components/organisms/` | AdminSidebar, AuthLayout, AuthSidebar, Footer, Header, OrgSidebar, Testimonials |
-| Pages | `src/components/pages/` | Home, About, Contact, Legal, Auth (7), Admin (8), Org (2), CMS (1) |
-| Wow | `src/components/wow/` | 8 effets visuels |
+| Atoms | `src/components/atoms/` | 48 (container, kbd, icon-picker, media-picker inclus ; pas de combobox) |
+| Molecules | `src/components/molecules/` | 3 (AdminPagination, DataView, AdminResourceStats.astro) |
+| Organisms | `src/components/organisms/` | AdminSidebar, AuthLayout, AuthSidebar, Category, CookieConsent, Footer, Header, Testimonials (+ AdminFormShell, AdminResourceList, AdminResourceShell) |
+| Pages | `src/components/pages/` | HomePage, AboutPage, ContactPage, LegalPage, TripPage, AtlaselleHome, CmsPage, Auth (8), Admin (10), Org (3), Blog (3), CMS (1) |
+
+> `blog` (BlogListingPage, BlogPostPage, BlogAuthorPage), `services` (ServiceCard/Grid/Detail via `src/modules/services/components/`), `trips` (TripPage), `faq` et `terms` sont des **routes** (`src/pages/[lang]/blog/`, `services/`, `trips/`, `faq.astro`, `terms.astro`) — les composants de pages ci-dessus sont leurs blocs de rendu.
+| Wow | `src/components/wow/` | 8 fichiers `.astro` + dossier HorizontalScrollCarousel |
 
 ---
 
@@ -164,11 +166,11 @@
 
 ---
 
-## 14. Combobox
+## 14. Container
 
-| Composant | Import | Props | Slot |
-| :-- | :-- | :-- | :-- |
-| Combobox | `@atoms/combobox` | `options`, `placeholder`, `label`, `error` | — |
+| Composant | Import | Props | Slot | Pattern |
+| :-- | :-- | :-- | :-- | :-- |
+| Container | `@atoms/container` | `size` (8), `gutter` (5), `paddingY` (5), `background` (11), `border` (6), `rounded` (7), `minHeight` (3), `layout` (3), `bleed`, `as` | ✅ + nommé `media` (mode split/bleed) | 3× `tv()` (container / outerStyles / innerStyles) + Polymorphic `as` — absent de `starwind.config.json` |
 
 ---
 
@@ -466,3 +468,28 @@ Voir [theming.md](theming.md) pour le mécanisme complet.
 | Composant | Import | Props | Slot |
 | :-- | :-- | :-- | :-- |
 | Video | `@atoms/video` | `src`, `controls`, `autoplay`, `poster` | — |
+
+---
+
+## 46. Kbd
+
+| Composant | Import | Props | Slot | Pattern |
+| :-- | :-- | :-- | :-- | :-- |
+| Kbd | `@atoms/kbd` | `class` (+ attributs `<kbd>`) | ✅ | `tv()` base unique (pas de variants) |
+| KbdGroup | `@atoms/kbd` | — | ✅ | Groupe de touches |
+
+---
+
+## 47. IconPicker
+
+| Composant | Import | Props | Slot | Pattern |
+| :-- | :-- | :-- | :-- | :-- |
+| IconPicker | `@atoms/icon-picker` | `id`, `name`, `value`, `placeholder`, `searchPlaceholder`, `clearLabel` | — | Custom JS (Iconify API + sanitisation SVG), sans `tv()` — absent de `starwind.config.json` |
+
+---
+
+## 48. MediaPicker
+
+| Composant | Import | Props | Slot | Pattern |
+| :-- | :-- | :-- | :-- | :-- |
+| MediaPicker | `@atoms/media-picker` | `id`, `locale`, `organizationId` | — | Custom Element `<media-picker>` (dialog médiathèque, event `media-select`), sans `tv()` — absent de `starwind.config.json` |

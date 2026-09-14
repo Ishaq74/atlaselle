@@ -1,8 +1,8 @@
 # Testing — Rapport & Index
 
 > **Projet** : Atlaselle  
-> **Stack** : Astro 6 + better-auth + Drizzle/PostgreSQL + Vitest + Playwright + Pa11y + Lighthouse  
-> **Couverture globale** : **741 tests** · **102 audits e2e** · **52 URLs a11y** · **62 fichiers de test** · **5 générateurs de rapports**  
+> **Stack** : Astro 7.3.1 + better-auth + Drizzle/PostgreSQL + Vitest + Playwright + Pa11y + Lighthouse  
+> **Couverture globale** : **102 fichiers unit + 15 fichiers integration + 6 specs e2e** · **60 URLs a11y** · **60 URLs Lighthouse** · **5 générateurs de rapports**  
 > **Dernière mise à jour** : 31/03/2026
 
 ---
@@ -25,14 +25,13 @@
 
 ### Par type de test
 
-| Type | Fichiers | Tests/Audits | Status |
-| :-- | :-- | :-- | :-- |
-| Unit | 48 | 656 | ✅ 656/656 |
-| Integration | 11 | 85 | ✅ 85/85 |
-| E2E (Playwright) | 3 | 34 (×3 browsers = 102) | ✅ 0 skip déclarés ; Chromium + Firefox + WebKit |
-| A11y — Pa11y-ci (WCAG AAA) | 1 config | 52 URLs | ✅ 52/52 |
-| A11y — Lighthouse CI | 3 configs | 52 URLs | ✅ Configuration stabilisée (`maxWaitForLoad`, flags Chrome) |
-| **Total** | **62** (+11 support) | **741 tests + 52 a11y audits + 102 e2e** | |
+| Type | Fichiers | Status |
+| :-- | :-- | :-- |
+| Unit | 102 | ✅ |
+| Integration | 15 | ✅ |
+| E2E (Playwright) | 6 specs (app, auth, blog, cms-admin, services, services-lifecycle) ×3 browsers | ✅ Chromium + Firefox + WebKit |
+| A11y — Pa11y-ci (WCAG2AAA non strict) | 1 config | ✅ 60 URLs |
+| A11y — Lighthouse CI | 3 batches | ✅ 60 URLs (32 + 8 + 20) |
 
 ### Coverage v8 (seuils vitest.config.ts)
 
@@ -57,8 +56,8 @@
 | `tests/helpers/vitest-report.cjs` | Génère `tests/reports/vitest-report.txt` depuis le JSON Vitest |
 | `tests/helpers/playwright-report.cjs` | Génère `tests/reports/playwright-report.txt` depuis le JSON Playwright |
 | `tests/helpers/lighthouse-report.cjs` | Génère `tests/reports/lighthouse-report.txt` (scores, CWV, audits échoués) |
-| `.pa11yci.cjs` | Configuration Pa11y-ci (52 URLs, WCAG AAA, axe) |
-| `lighthouserc.cjs` | Configuration Lighthouse CI (28 URLs publiques, ≥0.9 gates) |
+| `.pa11yci.cjs` | Configuration Pa11y-ci (60 URLs, WCAG2AAA non strict, axe) |
+| `lighthouserc.cjs` | Configuration Lighthouse CI (32 URLs publiques collectées + 8 + 20 via batches, ≥0.9 gates) |
 
 ### Par module source — Couverture v8
 
@@ -137,25 +136,24 @@
 | `createMenu` / `updateMenu` / `deleteMenu` | `menus.ts` | ⚠️ E2E only | ⚠️ |
 | `assertAdmin` / `adminRateLimit` / `auditAdmin` | `_helpers.ts` | Couvert via toutes les actions ci-dessus | ✅ |
 
-### `src/smtp/` — Email
+### `src/smtp/` — Emails (section unique)
 
 | Fonction | Fichier source | Type | Test | Status |
 | :-- | :-- | :-- | :-- | :-- |
-| `sendEmail(payload)` | `src/smtp/send.ts` | Side-effect | `tests/unit/send-email.test.ts` | ✅ 7 tests (mock + retry) |
 | `maskApiKey(key)` | `src/smtp/env.ts` | Pure | `tests/unit/mask-utils.test.ts` | ✅ 4 tests |
-| `getSmtpProvider()` | `src/smtp/env.ts` | Config | Indirectement via `send-email` | ⚠️ Implicite |
-| `getSmtpFrom()` | `src/smtp/env.ts` | Config | `tests/unit/smtp-env.test.ts` | ✅ 3 tests |
-| Providers (brevo, resend, nodemailer) | `src/smtp/providers/` | Side-effect | Mockés dans `send-email.test.ts` | ✅ Mockés |
+| `sendEmail(payload)` | `src/smtp/send.ts` | Side-effect (réseau) | `tests/unit/send-email.test.ts` | ✅ 7 tests (mock + retry) |
+| `getSmtpProvider()` | `src/smtp/env.ts` | Env reader | Indirectement via `send-email` | ⚠️ Implicite |
+| `getSmtpFrom()` | `src/smtp/env.ts` | Env reader | `tests/unit/smtp-env.test.ts` | ✅ 3 tests |
+| `checkSmtpConfig()` | `src/smtp/env.ts` | Health probe (sans réseau) | — | ❌ Non testé |
+| `getNodemailerConfig()` | `src/smtp/env.ts` | Env reader | — | ❌ Non testé |
+| Autres config providers | `src/smtp/env.ts` | Env readers | — | ❌ Non testé |
 
-### `src/middleware.ts` — Session injection
+### `src/middleware.ts` — Middleware Astro (section unique)
 
 | Fonction | Fichier source | Type | Test | Status |
 | :-- | :-- | :-- | :-- | :-- |
-| `onRequest` (session injection) | `src/middleware.ts` | Middleware | `tests/integration/middleware.test.ts` | ✅ 4 tests |
-| `getDbEnv()` | `src/database/env.ts` | Pure | — | ❌ Non testé |
-| `isProd()` / `isTest()` / `isLocal()` | `src/database/env.ts` | Pure | — | ❌ Non testé |
-| `getDbUrl(env?)` | `src/database/env.ts` | Env reader | — | ❌ Non testé |
-| `getPoolConfig(env?)` | `src/database/env.ts` | Pure | — | ❌ Non testé |
+| `onRequest` (session + locale guard + security headers) | `src/middleware.ts` | Middleware | `tests/integration/middleware.test.ts` (via `getSession`, 4 cas headers) | ⚠️ Indirect — `onRequest` lui-même non testé directement |
+| `getDbEnv()` / `isProd()` / `isTest()` / `isLocal()` / `getDbUrl()` / `getPoolConfig()` | `src/database/env.ts` | Env readers | — | ❌ Non testé |
 | Schemas (8 tables) | `src/database/schemas/` | Déclaratif | — | ❌ Non testé |
 | CLI: `db.check`, `db.migrate`, etc. | `src/database/commands/` | Scripts | — | ❌ Non testé |
 | `_utils.ts` helpers | `src/database/commands/_utils.ts` | Utilitaires | — | ❌ Non testé |
@@ -176,23 +174,6 @@
 | `deleteUpload(url)` | `src/media/delete.ts` | I/O (disque) | `tests/unit/upload.test.ts` | ✅ 2 tests |
 | `UPLOAD_DIRS`, `ALLOWED_MIME_TYPES`, `DEFAULT_MAX_SIZE` | `src/media/types.ts` | Constantes | `tests/unit/upload.test.ts` | ✅ 3 tests |
 | `UploadError` | `src/media/upload.ts` | Classe | `tests/unit/upload.test.ts` | ✅ Implicite |
-
-### `src/smtp/` — Emails
-
-| Fonction | Fichier source | Type | Test | Status |
-| :-- | :-- | :-- | :-- | :-- |
-| `maskApiKey(key)` | `src/smtp/env.ts` | Pure | `tests/unit/mask-utils.test.ts` | ✅ 4 tests |
-| `sendEmail(payload)` | `src/smtp/send.ts` | Side-effect (réseau) | `tests/unit/send-email.test.ts` | ✅ 7 tests (mock + retry) |
-| `getSmtpProvider()` | `src/smtp/env.ts` | Env reader | Indirectement via `send-email` | ⚠️ Implicite |
-| `getSmtpFrom()` | `src/smtp/env.ts` | Env reader | `tests/unit/smtp-env.test.ts` | ✅ 3 tests |
-| `getNodemailerConfig()` | `src/smtp/env.ts` | Env reader | — | ❌ Non testé |
-| Autres config providers | `src/smtp/env.ts` | Env readers | — | ❌ Non testé |
-
-### `src/middleware.ts` — Middleware Astro
-
-| Fonction | Fichier source | Type | Test | Status |
-| :-- | :-- | :-- | :-- | :-- |
-| `onRequest` | `src/middleware.ts` | Middleware | — | ❌ Non testé |
 
 ### `src/components/pages/` — Pages Astro
 
@@ -221,14 +202,14 @@
 ## Score global
 
 ```text
- Vitest (unit + intégration) :  741 tests          ✅ 100% pass
- Coverage v8 :                  90%+ stmts/lines    ✅ Tous seuils dépassés
- Playwright E2E :               34 scénarios / 102 exécutions   ✅ 0 skip déclarés
- Pa11y WCAG AAA :               52/52 URLs           ✅ 0 violations
- Lighthouse CI :                ✅ Configuration durcie pour CI (NO_NAVSTART corrigé)
+ Vitest (unit + intégration) :  102 + 15 fichiers sur disque
+ Coverage v8 :                  seuils 80/75/75/80 (vitest.config.ts)
+ Playwright E2E :               6 specs × 3 navigateurs
+ Pa11y WCAG2AAA non strict :    60 URLs (ignore color-contrast + hideElements)
+ Lighthouse CI :                60 URLs (32 + 8 + 20) — configuration durcie pour CI (NO_NAVSTART corrigé)
 ```
 
-> **Chemins critiques couverts** : auth (sign-up/sign-in/sign-out), admin CRUD complet (10 actions × handler + Zod validation), RGPD (export, suppression user), audit (hooks + insert), upload (validation, sécurité), i18n (URLs, slugs, translations), accessibilité (WCAG AAA 52 URLs).
+> **Chemins critiques couverts** : auth (sign-up/sign-in/sign-out), admin CRUD (handlers + Zod validation), RGPD (export, suppression user), audit (hooks + insert), upload (validation, sécurité), i18n (URLs, slugs, translations), accessibilité (60 URLs Pa11y + 60 Lighthouse).
 
 ---
 
@@ -253,7 +234,7 @@ pnpm qa:offline               # check → build → lint → test+coverage + rap
 | `pnpm check` | Type-check Astro (astro check) | — |
 | `pnpm build` | Build production SSR | — |
 | `pnpm lint` | ESLint src/**/*.{js,ts,astro} | — |
-| `pnpm test` | Vitest run (741 tests) | — |
+| `pnpm test` | Vitest run | — |
 | `pnpm test -- --coverage` | + coverage v8 | — |
 | `pnpm test:watch` | Vitest en mode watch | — |
 | `pnpm test:report` | Génère `tests/reports/vitest-report.txt` | Après `pnpm test` |
@@ -265,9 +246,9 @@ pnpm qa:offline               # check → build → lint → test+coverage + rap
 | `pnpm a11y:lighthouse-only` | Lighthouse uniquement (via orchestrateur) | DB |
 | `pnpm a11y:setup` | Seed users a11y + export cookies | DB + preview |
 | `pnpm a11y:teardown` | Supprime les users a11y | DB |
-| `pnpm a11y:pa11y` | Pa11y-ci brut (52 URLs) | Preview + cookies |
-| `pnpm a11y:lighthouse` | LHCI autorun (pages publiques) | Preview |
-| `pnpm a11y:lighthouse:authed` | LHCI pages auth/admin | Preview + cookies |
+| `pnpm a11y:pa11y` | Pa11y-ci brut (60 URLs) | Preview + cookies |
+| `pnpm a11y:lighthouse` | LHCI autorun (32 pages publiques) | Preview |
+| `pnpm a11y:lighthouse:authed` | LHCI pages auth (8) + admin (20) | Preview + cookies |
 | `pnpm a11y:lighthouse:rename` | Renomme rapports LHCI | Après LHCI |
 | `pnpm a11y:report` | Génère rapport texte Lighthouse | Après LHCI |
 
@@ -371,22 +352,19 @@ tests/reports/
 │   lint-and-check    │  ESLint + astro check + pnpm audit
 └──────┬──────────────┘
        │
-   ┌───┴───┐
+       ▼
+┌──────────────┐
+│ unit-tests   │  Vitest unit + integration
+└──┬───────┬───┘
    ▼       ▼
 ┌──────┐ ┌───────────┐
-│ unit │ │ a11y-perf │  Pa11y + Lighthouse (parallèle)
+│ e2e  │ │ a11y-perf │  Pa11y (60) + Lighthouse (60)
 │tests │ └───────────┘
 └──┬───┘
-   │
-   ▼
-┌──────┐
-│ e2e  │  Playwright Chromium + Firefox + WebKit
-│tests │
-└──┬───┘
-   │
+   │ (avec a11y-perf)
    ▼
 ┌────────┐
-│ deploy │  Build + artifact (main branch only)
+│ deploy │  needs: [unit-tests, e2e-tests, a11y-perf] (main branch only)
 └────────┘
        │
        ▼
@@ -412,33 +390,36 @@ tests/reports/
 
 ```md
 tests/
-├── unit/                          # 48 fichiers — 656 tests
-│   ├── admin-contact.test.ts      # updateContactInfo (10 : handler + Zod)
-│   ├── admin-hours.test.ts        # updateOpeningHours (13 : handler + Zod)
-│   ├── admin-navigation-items.test.ts  # CRUD navigation (11)
-│   ├── admin-pages.test.ts        # CRUD pages + publish (14)
-│   ├── admin-sections.test.ts     # CRUD sections + reorder (15)
-│   ├── admin-site.test.ts         # upsert/update site settings (6)
-│   ├── admin-social.test.ts       # CRUD social links (9)
-│   ├── admin-theme.test.ts        # CRUD thèmes + activation (10)
+├── unit/                          # 102 fichiers sur disque (extraits ci-dessous)
+│   ├── admin-contact.test.ts      # updateContactInfo (handler + Zod)
+│   ├── admin-hours.test.ts        # updateOpeningHours (handler + Zod)
+│   ├── admin-navigation-items.test.ts  # CRUD navigation
+│   ├── admin-pages.test.ts        # CRUD pages + publish
+│   ├── admin-sections.test.ts     # CRUD sections + reorder
+│   ├── admin-site.test.ts         # upsert/update site settings
+│   ├── admin-social.test.ts       # CRUD social links
+│   ├── admin-theme.test.ts        # CRUD thèmes + activation
 │   ├── cache.test.ts              # Cache mémoire + stats + shutdown
-│   ├── navigation-loader.test.ts  # getMenu / getMenusList / getMenuMeta (7)
-│   ├── theme-tokens.test.ts       # OKLCH parser + CSS generation (33)
-│   ├── ... (37 autres fichiers)
+│   ├── navigation-loader.test.ts  # getMenu / getMenusList / getMenuMeta
+│   ├── theme-tokens.test.ts       # OKLCH parser + CSS generation
+│   ├── ... (voir dossier tests/unit/)
 │
-├── integration/                   # 11 fichiers — 85 tests
-│   ├── auth.test.ts               # Sign-up/sign-in/sessions (22)
-│   ├── auth-advanced.test.ts      # Ban/unban, rôles, password (10)
-│   ├── auth-org.test.ts           # Organisations (10)
-│   ├── audit.test.ts              # Insertion audit_log (6)
-│   ├── middleware.test.ts         # Session injection (4)
-│   ├── ... (5 autres fichiers)
+├── integration/                   # 15 fichiers sur disque (extraits ci-dessous)
+│   ├── auth.test.ts               # Sign-up/sign-in/sessions
+│   ├── auth-advanced.test.ts      # Ban/unban, rôles, password
+│   ├── auth-org.test.ts           # Organisations
+│   ├── audit.test.ts              # Insertion audit_log
+│   ├── middleware.test.ts         # getSession (4 cas headers)
+│   ├── ... (voir dossier tests/integration/)
 │
-├── e2e/                           # 3 fichiers — 34 specs ×3 browsers = 102
+├── e2e/                           # 6 specs ×3 browsers
 │   ├── app.spec.ts                # Homepage, i18n, security headers
 │   ├── auth.spec.ts               # Sign-up/sign-in, guards, session
+│   ├── blog.spec.ts               # Blog + workflow (seed admin)
 │   ├── cms-admin.spec.ts          # Admin pages (site, nav, theme)
-│   ├── global-setup.ts            # Seed admin user
+│   ├── services.spec.ts           # Services public + admin (seed admin)
+│   ├── services-lifecycle.spec.ts # Lifecycle services (seed admin)
+│   ├── global-setup.ts            # Seed user vérifié admin
 │   └── global-teardown.ts         # Cleanup
 │
 ├── a11y/                          # Orchestration accessibilité

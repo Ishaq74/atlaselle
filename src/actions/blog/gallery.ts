@@ -8,12 +8,10 @@ import {
 } from "@database/schemas";
 import {
   assertBlogPermission,
-  resolveBlogTenant,
-  assertPostInTenant,
-  assertMediaInTenant,
+  assertBlogPostExists,
+  assertBlogMediaExists,
   blogRateLimit,
   auditBlog,
-  blogOrganizationIdSchema,
 } from "./_helpers";
 
 export const createBlogGallery = defineAction({
@@ -22,14 +20,12 @@ export const createBlogGallery = defineAction({
     title: z.string().trim().max(200).optional(),
     description: z.string().trim().max(500).optional(),
     sortOrder: z.number().int().min(0).default(0),
-    organizationId: blogOrganizationIdSchema,
   }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blog: ["update"] });
+    const user = await assertBlogPermission(context, { blog: ["update"] });
     blogRateLimit(context, user.id, "gallery-create");
 
-    await assertPostInTenant(input.postId, tenant);
+    await assertBlogPostExists(input.postId);
 
     const db = getDrizzle();
     const [gallery] = await db
@@ -58,11 +54,9 @@ export const updateBlogGallery = defineAction({
     title: z.string().trim().max(200).optional(),
     description: z.string().trim().max(500).optional(),
     sortOrder: z.number().int().min(0).optional(),
-    organizationId: blogOrganizationIdSchema,
   }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blog: ["update"] });
+    const user = await assertBlogPermission(context, { blog: ["update"] });
     blogRateLimit(context, user.id, "gallery-update");
 
     const db = getDrizzle();
@@ -73,7 +67,7 @@ export const updateBlogGallery = defineAction({
       .limit(1);
     if (!gallery) throw new ActionError({ code: "NOT_FOUND", message: "Galerie introuvable." });
 
-    await assertPostInTenant(gallery.postId, tenant);
+    await assertBlogPostExists(gallery.postId);
 
     await db
       .update(blogPostGalleries)
@@ -97,11 +91,9 @@ export const updateBlogGallery = defineAction({
 export const deleteBlogGallery = defineAction({
   input: z.object({
     id: z.uuid(),
-    organizationId: blogOrganizationIdSchema,
   }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blog: ["update"] });
+    const user = await assertBlogPermission(context, { blog: ["update"] });
     blogRateLimit(context, user.id, "gallery-delete");
 
     const db = getDrizzle();
@@ -112,7 +104,7 @@ export const deleteBlogGallery = defineAction({
       .limit(1);
     if (!gallery) throw new ActionError({ code: "NOT_FOUND", message: "Galerie introuvable." });
 
-    await assertPostInTenant(gallery.postId, tenant);
+    await assertBlogPostExists(gallery.postId);
 
     await db.delete(blogPostGalleries).where(eq(blogPostGalleries.id, input.id));
 
@@ -133,11 +125,9 @@ export const addGalleryMedia = defineAction({
     altText: z.string().trim().min(1).max(500),
     caption: z.string().trim().max(500).optional(),
     sortOrder: z.number().int().min(0).default(0),
-    organizationId: blogOrganizationIdSchema,
   }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blog: ["update"] });
+    const user = await assertBlogPermission(context, { blog: ["update"] });
     blogRateLimit(context, user.id, "gallery-media-add");
 
     const db = getDrizzle();
@@ -148,9 +138,9 @@ export const addGalleryMedia = defineAction({
       .limit(1);
     if (!gallery) throw new ActionError({ code: "NOT_FOUND", message: "Galerie introuvable." });
 
-    await assertPostInTenant(gallery.postId, tenant);
+    await assertBlogPostExists(gallery.postId);
 
-    await assertMediaInTenant(input.mediaId, tenant);
+    await assertBlogMediaExists(input.mediaId);
 
     const [row] = await db
       .insert(blogPostGalleryMedia)
@@ -177,11 +167,9 @@ export const removeGalleryMedia = defineAction({
   input: z.object({
     galleryId: z.uuid(),
     mediaId: z.uuid(),
-    organizationId: blogOrganizationIdSchema,
   }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blog: ["update"] });
+    const user = await assertBlogPermission(context, { blog: ["update"] });
     blogRateLimit(context, user.id, "gallery-media-remove");
 
     const db = getDrizzle();
@@ -192,8 +180,8 @@ export const removeGalleryMedia = defineAction({
       .limit(1);
     if (!gallery) throw new ActionError({ code: "NOT_FOUND", message: "Galerie introuvable." });
 
-    await assertPostInTenant(gallery.postId, tenant);
-    await assertMediaInTenant(input.mediaId, tenant);
+    await assertBlogPostExists(gallery.postId);
+    await assertBlogMediaExists(input.mediaId);
 
     await db
       .delete(blogPostGalleryMedia)

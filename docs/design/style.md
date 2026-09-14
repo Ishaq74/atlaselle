@@ -11,12 +11,12 @@ src/styles/
 └── global.css          ← Point d'entrée unique
 ```
 
-Le fichier `global.css` organise les styles en **4 sections** :
+Le fichier `global.css` organise les styles en **5 sections** :
 
 | Section | Rôle |
 | :-- | :-- |
-| Imports & plugins | Tailwind CSS, tw-animate-css, @tailwindcss/forms |
-| `@theme` | Keyframes d'animation (accordion) |
+| Imports & plugins | Tailwind CSS, tw-animate-css, @tailwindcss/forms + `@custom-variant dark` |
+| `@theme` | Keyframes d'animation (accordion via `--starwind-accordion-content-height`) |
 | `@theme inline` | Mapping CSS variables → Tailwind utilities |
 | `:root` / `.dark` | Tokens OKLCH light/dark |
 | `@layer base` | Résets globaux |
@@ -48,22 +48,59 @@ Le bloc `@theme inline` mappe chaque CSS variable vers une Tailwind utility :
 ```css
 @theme inline {
   /* Couleurs → bg-primary, text-primary, border-primary */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-accent: var(--primary-accent);
+  --color-primary-deep: var(--primary-deep);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-accent: var(--secondary-accent);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-error: var(--error);
+  --color-error-foreground: var(--error-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-outline: var(--outline);
+  --color-gradient-warm: var(--gradient-warm);
+  --color-gradient-cool: var(--gradient-cool);
 
-  /* Radius → rounded-xs, rounded-sm, rounded-md, rounded-lg... */
+  /* Radius → rounded-xs … rounded-3xl */
   --radius-xs: calc(var(--radius) - 0.375rem);
   --radius-sm: calc(var(--radius) - 0.25rem);
+  --radius-md: calc(var(--radius) - 0.125rem);
   --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.25rem);
+  --radius-2xl: calc(var(--radius) + 0.5rem);
+  --radius-3xl: calc(var(--radius) + 1rem);
 
-  /* Sidebar → bg-sidebar, text-sidebar-foreground... */
+  /* Sidebar → bg-sidebar, text-sidebar-foreground… */
   --color-sidebar: var(--sidebar-background);
   --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-outline: var(--sidebar-outline);
 }
 ```
 
-**Résultat** : écrire `bg-primary` en Tailwind résout `var(--primary)` qui vaut `oklch(0.880 0.200 68)`.
+**Résultat** : écrire `bg-primary` en Tailwind résout `var(--primary)` qui vaut `oklch(0.880 0.200 68)`. Snippet complet : `global.css:29-78`.
 
 ---
 
@@ -107,12 +144,21 @@ slide-in-from-bottom-2              /* Translate */
 data-[state=closed]:fill-mode-forwards  /* Maintient l'état final */
 ```
 
-Les animations Accordion sont définies en `@theme` (pas `@theme inline`) car ce sont des keyframes, pas des tokens :
+Les animations Accordion sont définies en `@theme` (pas `@theme inline`) car ce sont des keyframes, pas des tokens. Elles animent `height` vers `var(--starwind-accordion-content-height)` (global.css:6-27) :
 
 ```css
 @theme {
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to   { height: var(--starwind-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--starwind-accordion-content-height); }
+    to   { height: 0; }
+  }
 }
 ```
 

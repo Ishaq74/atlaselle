@@ -25,7 +25,7 @@ Les primitives d'interface restent génériques. Les règles métier, permission
 
 Les contrats et primitives partagés résident sous `src/core/admin` et dans les composants Admin existants.
 
-Le Resource Contract décrit :
+Le Resource Contract (`src/core/admin/resource-contract.ts:46` `AdminResourceDefinition`) décrit :
 
 - management capabilities : list, search, filters, sort, pagination, stats;
 - editorial actions : create, read, update, duplicate, publish, unpublish, archive, restore, delete;
@@ -33,9 +33,9 @@ Le Resource Contract décrit :
 - presentation variants;
 - permission namespace.
 
-La compatibilité resource/module est vérifiée à l'enregistrement. Les capacités dépendantes d'une autre capacité ne peuvent pas être annoncées incohéramment.
+La compatibilité resource/module est vérifiée à l'enregistrement. Les capacités dépendantes d'une autre capacité ne peuvent pas être annoncées incohéramment. Les filtres/tri sont validés par `assertAdminResourceListDefinition` (`src/core/admin/filter-contract.ts:33`).
 
-Bulk actions restent opt-in : elles ne doivent être exposées que lorsqu'une implémentation batch sûre existe dans le domaine.
+Bulk actions restent opt-in : elles ne doivent être exposées que lorsqu'une implémentation batch sûre existe dans le domaine. `bulkBlogPostLifecycle` existe (`src/actions/blog/bulk.ts`) mais reste non exposé : les deux ressources déclarent `bulk:false`.
 
 ## Global Admin routes
 
@@ -56,18 +56,7 @@ Ces pages sont SSR et utilisent les permissions du domaine plutôt qu'une garde 
 
 ## Organization Admin routes
 
-Les ressources tenant-scoped exposent également :
-
-| Route | Module | Description |
-| :-- | :-- | :-- |
-| `/{lang}/organizations/{slug}/admin/blog` | Blog | Administration Blog de l'organisation |
-| `/{lang}/organizations/{slug}/admin/blog/new` | Blog | Création dans l'organisation |
-| `/{lang}/organizations/{slug}/admin/blog/[id]/edit` | Blog | Édition dans l'organisation |
-| `/{lang}/organizations/{slug}/admin/services` | Services | Administration Services de l'organisation |
-| `/{lang}/organizations/{slug}/admin/services/new` | Services | Création dans l'organisation |
-| `/{lang}/organizations/{slug}/admin/services/[id]/edit` | Services | Édition dans l'organisation |
-
-La surface organisationnelle réutilise le même domain code et les mêmes Actions que la surface globale. Le tenant est résolu à partir de l'organisation et chaque référence métier est revalidée dans ce tenant.
+Aucun fichier `src/pages/[lang]/organizations/*/admin/blog|services` n'existe (0 fichier `organizations/*` sous `src/pages/`). Les URLs d'organisation sont uniquement construites par `getOrgUrl()` (`src/i18n/utils.ts`) et `buildBlogAdminUrl()` (`src/lib/blog/utils.ts:68`), sans page physique dédiée. La surface organisationnelle, quand elle existera, devra réutiliser le même domain code et les mêmes Actions que la surface globale, tenant résolu depuis l'organisation et références revalidées dans ce tenant.
 
 ## Blog resource
 
@@ -103,7 +92,7 @@ Les statistiques sont globales au tenant : total, publiés, brouillons, featured
 
 ## Shared form architecture
 
-Les formulaires de module s'appuient sur les primitives partagées :
+À la racine de `src/components/organisms/`, seuls `AdminFormShell` | `AdminResourceShell` | `AdminResourceList` existent. Les formulaires de module s'appuient sur les primitives partagées :
 
 ```text
 AdminFormShell

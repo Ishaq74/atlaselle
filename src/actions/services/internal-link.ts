@@ -11,11 +11,10 @@ export const resolveServiceInternalLink = defineAction({
     target: z.string().trim().min(1).max(200),
     mode: z.enum(["resolve", "search"]).default("resolve"),
     query: z.string().trim().max(120).optional(),
-    organizationId: z.string().trim().min(1).optional().nullable(),
     locale: z.string().refine(isValidLocale, "Unsupported locale"),
   }),
   handler: async (input) => {
-    const ctx = { locale: input.locale, organizationId: input.organizationId ?? null };
+    const ctx = { locale: input.locale };
     if (input.mode === "search") return { results: await serviceInternalLinkResolver.search(input.query ?? "", { ...ctx, limit: 10 }) };
     return { resolution: await serviceInternalLinkResolver.resolve(input.target, ctx) };
   },

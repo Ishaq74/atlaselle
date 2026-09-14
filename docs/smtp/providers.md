@@ -20,10 +20,12 @@ src/smtp/
 │   ├── reset-password.ts # Réinitialisation mot de passe
 │   ├── delete-account.ts # Confirmation suppression de compte (RGPD)
 │   ├── contact-form.ts   # Notification admin — formulaire de contact
-│   └── organization-invitation.ts # Invitation à rejoindre une organisation
+│   └── blog-newsletter.ts # Newsletter blog (confirm + unsubscribe)
+│   # Pas de organization-invitation.ts (supprimé avec les pages org — ne pas référencer)
 └── commands/
     ├── _utils.ts         # Couleurs ANSI, logSmtpTarget()
-    └── smtp.check.ts     # Commande pnpm smtp:check
+    ├── smtp.check.ts     # Commande pnpm smtp:check
+    └── logs.rotate.ts    # Rotation logs/*.jsonl (LOGS_RETENTION_DAYS, défaut 30 j)
 ```
 
 ## NODEMAILER (SMTP générique)
@@ -47,6 +49,8 @@ SMTP_PASS=mon_mot_de_passe
 - **Auth optionnelle** : si `SMTP_USER` est absent, aucune auth n'est envoyée (mode relais)
 - **STARTTLS** : port 587 + `secure=false` → upgrade TLS automatique (comportement Nodemailer natif)
 - **TLS directe** : port 465 + `secure=true` → chiffrement dès la connexion
+- **Timeouts** : `connectionTimeout: 10_000` + `socketTimeout: 10_000`
+- **safeName** : nom expéditeur sanitisé par regex (fallback `'Atlaselle'`)
 - **verify()** : appelle `transporter.verify()` — effectue le handshake SMTP sans envoyer
 
 ### Référence NODEMAILER
@@ -69,8 +73,9 @@ BREVO_API_KEY=xkeysib-votre-cle-api
 - **Envoi** : `POST https://api.brevo.com/v3/smtp/email`
   - Body : `{ sender, to, subject, htmlContent, textContent }`
   - Header : `api-key: <BREVO_API_KEY>`
-  - Retourne un `messageId` pour traçabilité
-- **verify()** : `GET https://api.brevo.com/v3/account` — valide la clé API
+  - Retourne `Promise<void>` (pas de messageId — brevo.ts:6-41)
+  - Timeout 10 s via `AbortController`, `safeName` sanitisé par regex
+- **verify()** : `GET https://api.brevo.com/v3/account` — valide la clé API (timeout 10 s)
 
 ### Prérequis BREVO
 
@@ -137,4 +142,6 @@ Tous les templates sont dans `src/smtp/templates/` et utilisent un layout HTML r
 | `reset-password` | Lien de réinitialisation mot de passe | better-auth (automatique) |
 | `delete-account` | Confirmation de suppression de compte (RGPD) | Action utilisateur |
 | `contact-form` | Notification admin d'un message de contact | `POST /api/contact` |
-| `organization-invitation` | Invitation à rejoindre une organisation | better-auth organizations |
+| `blog-newsletter` | Confirmation + désinscription newsletter blog | Souscription newsletter |
+
+Soit 5 fichiers de templates (avec `layout.ts` et `i18n.ts` utilitaires). Vérifié `src/smtp/templates/` 2026-09-14.

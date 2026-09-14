@@ -2,8 +2,22 @@
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { Icon } from 'astro-icon/components';
 import { LOCALES, LOCALE_LABELS, type Locale } from '@i18n/config';
-import { toLocale } from '@i18n/utils';
+import { toLocale, mapStaticSlugPath, type StaticSlugMaps } from '@i18n/utils';
 import { getTripBySlug, tripUrl } from '@/data/trips';
+import frCommon from '@/i18n/fr/common';
+import enCommon from '@/i18n/en/common';
+import esCommon from '@/i18n/es/common';
+import arCommon from '@/i18n/ar/common';
+import frAuth from '@/i18n/fr/auth';
+import enAuth from '@/i18n/en/auth';
+import esAuth from '@/i18n/es/auth';
+import arAuth from '@/i18n/ar/auth';
+import {
+  APPLY_SEGMENT,
+  TRIP_LIST_SEGMENT,
+  TRIP_SLUGS,
+  getApplyPath,
+} from '@i18n/routes';
 import {
   Dropdown,
   DropdownContent,
@@ -29,18 +43,28 @@ const { label = 'Switch language' } = Astro.props;
 // Extract the path after the locale prefix (e.g. /fr/about → /about)
 const pathWithoutLocale = currentPath.replace(new RegExp(`^/${currentLocale}(?=/|$)`), '') || '/';
 
+// Tables synchrones (mêmes sources que [slug].astro et auth/[slug].astro — zéro dérive).
+const STATIC_MAPS: StaticSlugMaps = {
+  pageRoutes: { fr: frCommon.pageRoutes, en: enCommon.pageRoutes, es: esCommon.pageRoutes, ar: arCommon.pageRoutes },
+  authRoutes: { fr: frAuth.routes, en: enAuth.routes, es: esAuth.routes, ar: arAuth.routes },
+};
+
 function localizedHref(loc: Locale): string {
-  const tripMatch = currentPath.match(/^\/(?:en|fr|es|ar)\/(?:trips|voyages)\/([^/]+)$/);
+  const tripSegments = [...new Set(Object.values(TRIP_LIST_SEGMENT))].join('|');
+  const tripMatch = currentPath.match(new RegExp(`^/(?:en|fr|es|ar)/(?:${tripSegments})/([^/]+)$`));
   if (tripMatch) {
     const trip = getTripBySlug(currentLocale, tripMatch[1]);
     if (trip) return tripUrl(loc, trip);
   }
-  const isApply = currentPath.match(/^\/(?:en|fr|es|ar)\/(?:apply|candidature)\/([^/]+)$/);
+  const applySegments = [...new Set(Object.values(APPLY_SEGMENT))].join('|');
+  const isApply = currentPath.match(new RegExp(`^/(?:en|fr|es|ar)/(?:${applySegments})/([^/]+)$`));
   if (isApply) {
     const trip = getTripBySlug(currentLocale, isApply[1]);
-    if (trip) return loc === 'fr' ? `/fr/candidature/${trip.translations.fr.slug}` : `/${loc}/apply/${loc === 'es' ? trip.id : trip.translations[loc as Exclude<Locale, 'es'>].slug}`;
+    if (trip) return getApplyPath(loc, TRIP_SLUGS[trip.id][loc]);
   }
-  if (pathWithoutLocale === '/conditions' || pathWithoutLocale === '/terms') return loc === 'fr' ? '/fr/conditions' : `/${loc}/terms`;
+  // Slugs structurels (about/contact/legal, auth, universels terms/faq — TODO §7.6 : page équivalente ou repli, jamais de contenu d'une autre langue)
+  const mapped = mapStaticSlugPath(currentLocale, loc, pathWithoutLocale, STATIC_MAPS);
+  if (mapped) return mapped;
   return getRelativeLocaleUrl(loc, pathWithoutLocale);
 }
 ---

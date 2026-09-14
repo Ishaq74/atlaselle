@@ -1,9 +1,9 @@
 # Design System — Index
 
 > **Projet** : Atlaselle  
-> **Stack** : Astro 6 + Tailwind CSS 4 + Starwind UI + tailwind-variants  
+> **Stack** : Astro 7.3.1 + Tailwind CSS 4 + Starwind UI + tailwind-variants  
 > **Palette** : Fire Brand — OKLCH color space — hue 68° (golden yellow)  
-> **Composants** : 47 atoms + 8 wow effects  
+> **Composants** : 48 dossiers atoms + 8 fichiers wow (+ dossier HorizontalScrollCarousel) + 45 entrées starwind.config  
 > **Thème** : Light / Dark + thèmes custom extensibles
 
 ---
@@ -13,7 +13,7 @@
 | Document | Contenu |
 | :-- | :-- |
 | [tokens.md](tokens.md) | Design tokens OKLCH — couleurs, rayons, surfaces, gradients, mode sombre |
-| [components.md](components.md) | Catalogue complet des 47 composants — props, slots, variants |
+| [components.md](components.md) | Catalogue complet des 48 composants — props, slots, variants |
 | [variants.md](variants.md) | Système de variants Tailwind — `tv()`, compound variants, composition |
 | [create-component.md](create-component.md) | Guide pas-à-pas pour créer un nouveau composant Starwind |
 | [theming.md](theming.md) | Créer un thème custom (retro, luxury, zen…) — light + dark, accessible |
@@ -34,13 +34,13 @@ src/
 │   ├── positioning.ts          ← Système de positionnement flottant
 │   └── config-schema.json      ← Schéma JSON de la config Starwind
 ├── components/
-│   ├── atoms/                  ← 47 composants de base (Button, Card, Input…)
+│   ├── atoms/                  ← 48 dossiers de base (Button, Card, Input, Container, Kbd, IconPicker, MediaPicker…)
 │   │   └── {name}/
 │   │       ├── {Name}.astro    ← Composant principal + tv() variants
 │   │       ├── {Sub}.astro     ← Sous-composants (CardHeader, AlertTitle…)
 │   │       ├── index.ts        ← Re-exports
 │   │       └── {Name}.md       ← Doc du composant (optionnel)
-│   ├── molecules/              ← Composants composés (à venir)
+│   ├── molecules/              ← Composants composés (AdminPagination, DataView, AdminResourceStats.astro)
 │   ├── organisms/              ← Header, Footer, Testimonials
 │   ├── pages/                  ← Composants de pages
 │   └── wow/                    ← Effets visuels et animations
@@ -72,7 +72,7 @@ Chaque composant définit ses styles via `tv()` :
 | Niveau | Contenu | Exemples |
 | :-- | :-- | :-- |
 | **Atoms** | Composants indivisibles | Button, Input, Badge, Label |
-| **Molecules** | Combinaisons d'atoms | (à venir) |
+| **Molecules** | Combinaisons d'atoms | AdminPagination, DataView, AdminResourceStats |
 | **Organisms** | Sections de page | Header, Footer, Testimonials |
 | **Pages** | Compositions full-page | HomePage, ContactPage, AdminStatsPage |
 | **Wow** | Effets visuels | ScrollReveal, Particles, Marquee |

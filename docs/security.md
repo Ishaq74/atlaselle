@@ -1,7 +1,7 @@
 # Sécurité
 
 > **Projet** : Atlaselle  
-> **Stack** : Astro 6 (SSR) + better-auth + Drizzle/PostgreSQL  
+> **Stack** : Astro 7.3.1 (SSR) + better-auth ^1.7.4 + Drizzle/PostgreSQL  
 > **Objectif** : OWASP Top 10, WCAG AAA, sécurité multicouches
 
 ---
@@ -36,7 +36,7 @@ Requête HTTP
   │   └─ requireAdmin() → redirige non-admins vers /dashboard
   │
   ├─ Rate limiting
-  │   ├─ better-auth (100 req/60s, /sign-in: 3/10s) → auth endpoints
+  │   ├─ better-auth (100 req/60s global, `/sign-in/email`: 5/10s, `/sign-up/email` + `/forget-password`: 3/60s…) → auth endpoints
   │   └─ Custom (src/lib/rate-limit.ts) → admin actions, uploads, exports
   │
   ├─ Validation (Zod + Astro Actions)
@@ -45,22 +45,22 @@ Requête HTTP
   │   └─ Sanitisation HTML (DOMPurify, 500 KB max)
   │
   └─ Audit (src/lib/audit.ts)
-      └─ 49 types d'événements → table audit_log PostgreSQL
+      └─ ≈160 types d'événements → table audit_log PostgreSQL
 ```
 
 ---
 
 ## 2. Authentification & sessions
 
-**Bibliothèque** : [better-auth](https://www.better-auth.com/) v1.5.5
+**Bibliothèque** : [better-auth](https://www.better-auth.com/) ^1.7.4
 
 | Fonctionnalité | Détail |
 | :-- | :-- |
 | Stockage sessions | Cookies `httpOnly`, `secure`, signés |
-| Hash mots de passe | Argon2 / bcrypt (better-auth built-in) |
+| Hash mots de passe | scrypt par défaut (better-auth built-in, format `s:<hash>:<salt>`) — ni Argon2 ni bcrypt configurés |
 | Vérification email | Flow email avec token, envoi via SMTP |
 | Plugins actifs | `admin`, `organization`, `username` |
-| Trusted origins | Validé via `BETTER_AUTH_URL` (protocole http/https vérifié, **erreur fatale si absente**) |
+| Trusted origins | Validé via `BETTER_AUTH_URL` (protocole http/https vérifié ; `throw` **seulement** dans `sendInvitationEmail` organisation) |
 
 ### Guards d'accès
 
@@ -92,7 +92,14 @@ Définis dans `src/middleware.ts` et appliqués à **toutes les réponses** :
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Fuite de referer |
 | `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | API device |
 | `X-XSS-Protection` | `0` | Désactive filtre XSS legacy (peut causer des bugs) |
-| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` | Force HTTPS |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | Force HTTPS |
+| `Cross-Origin-Opener-Policy` | `same-origin` | Isolation du contexte de navigation |
+| `Cross-Origin-Resource-Policy` | `same-origin` | Restreint le chargement cross-origin des ressources |
+| `Cross-Origin-Embedder-Policy` | `credentialless` | Isolation des embeds cross-origin |
+
+### CSP (`astro.config.mjs`)
+
+Directives Content-Security-Policy (`security.csp.directives`) : `default-src 'self'`, `img-src 'self' data: blob:`, `font-src 'self'`, `connect-src 'self' https://api.iconify.design`, `frame-src https://www.google.com https://www.youtube.com https://player.vimeo.com`, `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`, `object-src 'none'`, `upgrade-insecure-requests` (hashes des scripts/styles gérés par Astro).
 
 ### SVG XSS Prevention
 
@@ -129,8 +136,11 @@ security: {
 | :-- | :-- | :-- |
 | `/api/contact` | POST | ✅ checkOrigin |
 | `/api/upload` | POST | ✅ checkOrigin |
+| `/api/content-import` | POST | ✅ checkOrigin |
 | `/api/export-data` | GET | N/A (GET non-mutant) |
 | `/api/audit-export` | GET | N/A (GET non-mutant) |
+| `/api/content-export` | GET | N/A (GET non-mutant) |
+| `/api/search` | GET | N/A (GET non-mutant) |
 | `/api/media` | GET | N/A (GET non-mutant) |
 | `/api/preview` | GET | N/A (GET non-mutant) |
 | `/_actions/*` | POST | ✅ checkOrigin + Astro Actions built-in |
@@ -138,7 +148,7 @@ security: {
 
 ### Astro Actions (POST)
 
-Les `defineAction()` d'Astro 6 incluent une protection CSRF implicite :
+Les `defineAction()` d'Astro 7 incluent une protection CSRF implicite :
 
 - Vérification automatique de l'origine de la requête (via `checkOrigin`)
 - Les actions sont exposées comme endpoints publics (`/_actions/{name}`) — les mêmes vérifications d'autorisation que pour les endpoints API s'appliquent
@@ -166,10 +176,14 @@ sanitizeHtml(dirty: unknown): string
 
 | Paramètre | Détail |
 | :-- | :-- |
-| Tags autorisés | `p`, `strong`, `em`, `a`, `ul`, `ol`, `li`, `h1`–`h6`, `blockquote`, `img`, `br`, `hr`, `table`, `code`, `pre`, `span`, `div`, `figure`, `sub`, `sup`, `mark`, `small` |
-| Attributs autorisés | `href`, `src`, `alt`, `title`, `class`, `id`, `target`, `rel`, `width`, `height`, `colspan`, `rowspan`, `loading` |
-| Taille max | 500 000 caractères (≈500 KB) — au-delà, retourne `""` |
+| Tags autorisés | `p`, `b`, `i`, `u`, `strong`, `em`, `a`, `ul`, `ol`, `li`, `h1`–`h6`, `blockquote`, `img`, `br`, `hr`, `table`, `thead`, `tbody`, `tr`, `th`, `td`, `code`, `pre`, `span`, `div`, `figure`, `figcaption`, `sub`, `sup`, `mark`, `small` |
+| Attributs autorisés | `href`, `src`, `alt`, `title`, `class`, `target`, `rel`, `width`, `height`, `colspan`, `rowspan`, `loading`, `id` (headings uniquement, valeur contrôlée), `data-internal-link` (liens `<a>` uniquement, valeur contrôlée) |
+| Taille max | 500 000 caractères (≈500 KB) — au-delà, **throw** `Error` |
 | Input non-string | Retourne `""` |
+| URLs (`<a href>`) | `safeUrl()` — `http(s)://`, `mailto:`, `tel:`, `/chemin` uniquement |
+| Embeds (`<iframe src>`) | `safeEmbedUrl()` — `https://` uniquement |
+| JSON-LD | `safeJsonLd()` — échappe `<` en `\u003c` (anti-`</script>`) |
+| Nouvel onglet | `rel="noopener noreferrer"` forcé sur `target="_blank"` (anti reverse-tabnabbing) |
 
 ### Auto-escaping Astro
 
@@ -191,8 +205,21 @@ Les templates email (`src/smtp/templates/layout.ts`) utilisent une fonction `esc
 
 | Couche | Scope | Implémentation |
 | :-- | :-- | :-- |
-| **better-auth** (built-in) | Auth endpoints | 100 req/60s global, `/sign-in/email`: 3/10s |
-| **Custom** (`src/lib/rate-limit.ts`) | Admin actions, uploads, exports | Sliding window in-memory |
+| **better-auth** (built-in) | Auth endpoints | 100 req/60s global + 7 `customRules` (voir ci-dessous) |
+| **Custom** (`src/lib/rate-limit.ts`) | Admin actions, uploads, exports | Fixed-window in-memory via `getRateLimitStore()` pluggable |
+
+### Règles better-auth (`src/lib/auth.ts`)
+
+| Règle | Window | Max |
+| :-- | --: | --: |
+| Global | 60s | 100 |
+| `/sign-in/email` | 10s | 5 |
+| `/sign-up/email` | 60s | 3 |
+| `/forget-password` | 60s | 3 |
+| `/reset-password/*` | 60s | 5 |
+| `/change-password` | 60s | 5 |
+| `/delete-user/*` | 60s | 2 |
+| `/organization/create` | 60s | 5 |
 
 ### Endpoints et limites custom
 
@@ -200,9 +227,18 @@ Les templates email (`src/smtp/templates/layout.ts`) utilisent une fonction `esc
 | :-- | :-- | --: | --: |
 | `POST /api/upload` | `upload:{ip}` | 60s | 10 |
 | `GET /api/export-data` | `export:{userId}` | 60s | 5 |
+| `GET /api/content-export` | `content-export:{userId}` | 60s | 5 |
+| `POST /api/content-import` | `content-import:{userId}` | 60s | 3 |
+| `GET /api/audit-export` | `audit-export:{userId}` | 60s | 5 |
+| `GET /api/search` | `search_<clientAddress>` | 60s | 60 |
+| `POST /api/contact` | `contact:{ip}` (fallback global `contact:__global__`) | 300s | 3 (10 en global) |
+| `GET /api/preview` | `preview:{userId}` (admin uniquement + audit `PAGE_PREVIEW`) | 60s | 30 |
 | Admin actions (CMS) | `admin-{scope}:{userId}` | 60s | 30 |
+| Blog actions | `blog-{scope}:{userId}` | 60s | 30 |
 
-> **Limitation** : le store est en mémoire process-local. En déploiement multi-instance, chaque nœud a son propre compteur. Migration Redis recommandée pour le scaling.
+> **Limitation** : le store est en mémoire process-local (`MemoryRateLimitStore`, voir `src/lib/store.ts` — backend interchangeable via `setStores()`). En déploiement multi-instance, chaque nœud a son propre compteur. Migration Redis recommandée pour le scaling.
+>
+> **Garde-fous** (`src/lib/rate-limit.ts`) : `MAX_ENTRIES = 10000` — à capacité atteinte (après purge des expirées), rejet fail-closed ; jitter ±2s sur `resetAt` lors du refus pour empêcher le timing d'attaquant.
 
 Voir [rate-limit.md](rate-limit.md) pour le détail de l'API.
 
@@ -217,11 +253,12 @@ Voir [rate-limit.md](rate-limit.md) pour le détail de l'API.
 | Auth obligatoire | Session vérifiée |
 | Rate limit | 10 uploads / 60s par IP |
 | Type MIME | Magic bytes (pas l'extension) — JPEG, PNG, WebP, AVIF, ICO, SVG |
-| Taille max | 2 MB par défaut |
+| Taille max | 2 MB par défaut ; SVG limité à 256 KB (sanitisation coûteuse) |
 | Fichier vide | Rejeté (`file.size === 0`) |
-| SVG | Sanitisé via DOMPurify avant écriture |
-| Nommage | Hash SHA-256 — empêche les collisions et la prédiction |
-| Path traversal | Regex `^/uploads/[a-zA-Z0-9_\-/]+\.[a-zA-Z0-9]+$` |
+| SVG | Sanitisé via DOMPurify avant écriture (rejeté si vide après sanitisation) |
+| Nommage | `randomUUID()` + extension déduite du MIME — empêche les collisions et la prédiction |
+| Variantes WebP | Générées via sharp (`quality: 80`) pour JPEG/PNG |
+| Path traversal | Sous-dossier validé (`/^[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)?$/`) ; `oldUrl` restreint au répertoire du type d'upload + regex 2 sous-dossiers (`^/uploads/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+\.[a-zA-Z0-9]+$`) ; `deleteUpload()` vérifie `resolve().startsWith(uploadsRoot)` |
 | Suppression ciblée | `oldUrl` restreint au répertoire du type d'upload (pas de suppression cross-type) |
 | Messages d'erreur | Génériques — ne révèlent pas le type MIME détecté |
 
@@ -229,7 +266,7 @@ Voir [rate-limit.md](rate-limit.md) pour le détail de l'API.
 
 ## 8. Audit & journalisation
 
-49 types d'actions audités, incluant les tentatives échouées (`_FAILED`) pour les opérations d'authentification.
+≈160 types d'actions audités, incluant les tentatives échouées (`_FAILED`) pour les opérations d'authentification.
 
 Voir [audit.md](audit.md) pour le détail complet.
 
@@ -246,29 +283,21 @@ Voir [audit.md](audit.md) pour le détail complet.
 
 - Type validé (`typeof string`)
 - Longueur limitée (≤255 caractères par valeur)
-- Extraction IP : `x-forwarded-for` puis `x-real-ip`, avec validation IPv4/IPv6
+- Extraction IP : `x-forwarded-for` puis `x-real-ip` **seulement si `TRUST_PROXY === "true"`**, sinon `clientAddress` — validation IPv4/IPv6 via `isIP()`
 
 ---
 
-## 8b. Escalade de privilège — admin global vs. organisations
+## 8b. Isolation des tenants — blog (pas de bypass superuser)
 
-**Comportement par conception** (voir `src/actions/blog/_helpers.ts` → `assertBlogPermission`) :
+**Comportement réel** (voir `src/actions/blog/_helpers.ts` → `hasBlogPermission` / `assertBlogPermission`) :
 
-> Un utilisateur avec `role === "admin"` (admin **global** de la plateforme) est traité comme **superuser** et peut agir sur **n'importe quel tenant**, y compris créer/éditer/supprimer/modérer le contenu d'une organisation dont il **n'est pas membre**. `createBlogPost` / `updateBlogPost` acceptent un `organizationId` fourni par le client et l'admin global peut cibler n'importe quelle org.
-
-**Menace associée** : si la session d'un admin global est compromise (vol de cookie, XSS sur l'admin), l'attaquant pilote le contenu de **toutes** les organisations. Il n'y a pas de séparation des devoirs entre « admin plateforme » et « admin contenu d'org ».
+> Il n'y a **pas de bypass superuser** : même un utilisateur avec `role === "admin"` passe par la vérification RBAC. En contexte org (`isOrgContext`), la permission est vérifiée via `auth.api.hasPermission({ organizationId: tenant.organizationId, permissions })` ; hors contexte org, via `auth.api.userHasPermission({ userId, permissions })`. Un compte banni est rejeté avant toute vérification. L'appartenance au tenant est stricte : `assertPostInTenant` / `assertCategoryInTenant` / `assertTagInTenant` / `assertMediaInTenant` comparent `(ressource.organizationId ?? null) !== tenant.organizationId` et lèvent `FORBIDDEN` en cas de mismatch.
 
 **Mitigations en place** :
-- Le bypass est **précédé** de la vérification `user.banned` (compte suspendu → `FORBIDDEN`).
 - Toute action passe par `assertBlogPermission` (RBAC) + `blogRateLimit` + `auditBlog` (traçabilité).
 - Les écritures sont auditées (`BLOG_POST_*`, `BLOG_COMMENT_*`, etc.) → détection a posteriori.
 
-**Recommandations (si le modèle de menace évolue)** :
-- Remplacer le `if (user.role === "admin") return user;` par un `assertOrgMembership()` **même pour les admins** si une isolation stricte org↔org est requise.
-- Ou introduire un rôle dédié `platform-operator` distinct de `admin` (owner/admin d'org), avec permissions explicites et non héritées.
-- Ajouter une alerte/notification sur les mutations de contenu d'org par un admin global (surveillance).
-
-> Ce comportement est **délibéré** (opérateurs de plateforme devant intervenir sur n'importe quelle org) et **documenté ici** pour ne pas être confondu avec un bug. Toute modification doit être validée par le threat model.
+> Toute modification de ce modèle (ex. ajout d'un bypass admin global) doit être validée par le threat model et re-documentée ici.
 
 ---
 
@@ -299,7 +328,7 @@ Toutes les actions admin utilisent des schemas Zod stricts :
 | Variable | Usage | Sensible |
 | :-- | :-- | :-- |
 | `BETTER_AUTH_SECRET` | Signature des cookies / tokens | ✅ |
-| `BETTER_AUTH_URL` | URL de base pour les liens (emails, redirections) | ⚠️ protocole validé, **obligatoire** |
+| `BETTER_AUTH_URL` | URL de base pour les liens d'invitation org (emails) | ⚠️ protocole http/https validé, `throw` si absente/invalide — **seulement** dans `sendInvitationEmail` organisation |
 | `DATABASE_URL` | Connexion PostgreSQL | ✅ |
 | `SMTP_FROM_EMAIL` | Adresse expéditeur | Non |
 | `SMTP_FROM_NAME` | Nom expéditeur | Non |

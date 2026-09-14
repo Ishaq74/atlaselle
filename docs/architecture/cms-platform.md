@@ -51,6 +51,14 @@ src/modules/services/
 
 These boundaries are architectural conventions, not permission to duplicate infrastructure. Existing implementation files remain canonical where extraction would only create wrappers.
 
+## Dual authority `src/core` ↔ `src/lib/cms`
+
+As detailed in [Module System](./module-system.md), canonical authority is shared between `src/core/` and `src/lib/cms/` through cross re-exports without duplication: the module contract and registry are canonical in `src/core/modules/` and re-exported by `src/lib/cms/` (`module-contract.ts`, `module-registry.ts`), while the capability catalogue is canonical in `src/lib/cms/capabilities.ts` and re-exported by `src/core/capabilities/index.ts`. Bootstrap (`bootstrapModules`, canonical in `src/core/modules/bootstrap.ts`, re-exported by `src/lib/cms/bootstrap.ts`) is invoked by the middleware (`src/middleware.ts:3,7`).
+
+## Action duality `src/actions/<module>/` ↔ `src/modules/<module>/actions/`
+
+Action implementations live in `src/actions/blog/` (19 files) and `src/actions/services/` (13 files); `src/actions/index.ts` aggregates all of them (142 exports) into the Astro `server`. Modules consume them through `src/modules/<module>/actions/`: blog re-exports the whole barrel (`export * from "@/actions/blog"` in `src/modules/blog/actions/index.ts`), while services re-exports name by name from `@/actions/services/*` (`src/modules/services/actions/index.ts`). There is therefore a single implementation of each action, exposed under two import paths.
+
 ## Core platform boundaries
 
 The shared capability surface is exposed through `src/core/` and the capability catalog. Current concerns are:

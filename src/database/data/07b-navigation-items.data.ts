@@ -18,8 +18,8 @@ export default [
   // ── Header (ar) ──
   { id: "nav-header-ar-services", menuId: "menu-header", locale: "ar", label: "الخدمات", url: "/ar/services", sortOrder: 0, icon: "mdi:calendar-star", parentId: null, isActive: true, openInNewTab: false },
   { id: "nav-header-ar-blog", menuId: "menu-header", locale: "ar", label: "المدونة", url: "/ar/blog", sortOrder: 1, icon: "mdi:post-outline", parentId: null, isActive: true, openInNewTab: false },
-  { menuId: "menu-header", locale: "ar", label: "حول", url: "/ar/من-نحن", sortOrder: 0, icon: "mdi:information-outline", parentId: null, isActive: true, openInNewTab: false },
-  { menuId: "menu-header", locale: "ar", label: "اتصل بنا", url: "/ar/اتصل-بنا", sortOrder: 1, icon: "mdi:email-outline", parentId: null, isActive: true, openInNewTab: false },
+  { menuId: "menu-header", locale: "ar", label: "حول", url: "/ar/about", sortOrder: 0, icon: "mdi:information-outline", parentId: null, isActive: true, openInNewTab: false },
+  { menuId: "menu-header", locale: "ar", label: "اتصل بنا", url: "/ar/contact", sortOrder: 1, icon: "mdi:email-outline", parentId: null, isActive: true, openInNewTab: false },
 
   // ── Footer primary (fr) ──
   { menuId: "menu-footer-primary", locale: "fr", label: "Accueil", url: "/fr/", sortOrder: 0, icon: "mdi:home-outline", parentId: null, isActive: true, openInNewTab: false },
@@ -35,8 +35,8 @@ export default [
   { menuId: "menu-footer-primary", locale: "es", label: "Contacto", url: "/es/contacto", sortOrder: 2, icon: "mdi:email-outline", parentId: null, isActive: true, openInNewTab: false },
   // ── Footer primary (ar) ──
   { menuId: "menu-footer-primary", locale: "ar", label: "الرئيسية", url: "/ar/", sortOrder: 0, icon: "mdi:home-outline", parentId: null, isActive: true, openInNewTab: false },
-  { menuId: "menu-footer-primary", locale: "ar", label: "حول", url: "/ar/من-نحن", sortOrder: 1, icon: "mdi:information-outline", parentId: null, isActive: true, openInNewTab: false },
-  { menuId: "menu-footer-primary", locale: "ar", label: "اتصل بنا", url: "/ar/اتصل-بنا", sortOrder: 2, icon: "mdi:email-outline", parentId: null, isActive: true, openInNewTab: false },
+  { menuId: "menu-footer-primary", locale: "ar", label: "حول", url: "/ar/about", sortOrder: 1, icon: "mdi:information-outline", parentId: null, isActive: true, openInNewTab: false },
+  { menuId: "menu-footer-primary", locale: "ar", label: "اتصل بنا", url: "/ar/contact", sortOrder: 2, icon: "mdi:email-outline", parentId: null, isActive: true, openInNewTab: false },
 
   // ── Footer secondary (fr) ──
   { menuId: "menu-footer-secondary", locale: "fr", label: "Tarifs", url: "#pricing", sortOrder: 0, icon: null, parentId: null, isActive: true, openInNewTab: false },
@@ -64,7 +64,7 @@ export default [
   { menuId: "menu-footer-legal", locale: "es", label: "Política de privacidad", url: "/es/aviso-legal#section-1", sortOrder: 1, icon: null, parentId: null, isActive: true, openInNewTab: false },
   { menuId: "menu-footer-legal", locale: "es", label: "Condiciones generales de venta", url: "/es/aviso-legal#section-2", sortOrder: 2, icon: null, parentId: null, isActive: true, openInNewTab: false },
   // ── Footer legal (ar) ──
-  { menuId: "menu-footer-legal", locale: "ar", label: "إشعار قانوني", url: "/ar/الشروط-القانونية#section-0", sortOrder: 0, icon: null, parentId: null, isActive: true, openInNewTab: false },
-  { menuId: "menu-footer-legal", locale: "ar", label: "سياسة الخصوصية", url: "/ar/الشروط-القانونية#section-1", sortOrder: 1, icon: null, parentId: null, isActive: true, openInNewTab: false },
-  { menuId: "menu-footer-legal", locale: "ar", label: "الشروط العامة للبيع", url: "/ar/الشروط-القانونية#section-2", sortOrder: 2, icon: null, parentId: null, isActive: true, openInNewTab: false },
+  { menuId: "menu-footer-legal", locale: "ar", label: "إشعار قانوني", url: "/ar/legal-notice#section-0", sortOrder: 0, icon: null, parentId: null, isActive: true, openInNewTab: false },
+  { menuId: "menu-footer-legal", locale: "ar", label: "سياسة الخصوصية", url: "/ar/legal-notice#section-1", sortOrder: 1, icon: null, parentId: null, isActive: true, openInNewTab: false },
+  { menuId: "menu-footer-legal", locale: "ar", label: "الشروط العامة للبيع", url: "/ar/legal-notice#section-2", sortOrder: 2, icon: null, parentId: null, isActive: true, openInNewTab: false },
 ];

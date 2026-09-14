@@ -1,7 +1,7 @@
-import { assertBlogPermission, resolveBlogTenant, auditBlog, blogOrganizationIdSchema, blogRateLimit, invalidateBlogCache } from "./_helpers";
+import { assertBlogPermission, auditBlog, blogRateLimit, invalidateBlogCache } from "./_helpers";
 import { defineAction, ActionError } from "astro:actions";
 import { z } from "astro/zod";
-import { eq, and, count, isNull } from "drizzle-orm";
+import { eq, and, count } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { blogPostReviews, blogPostReviewHelpful, blogPosts, blogNotifications } from "@database/schemas";
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -26,7 +26,6 @@ export const createBlogReview = defineAction({
           id: blogPosts.id,
           allowReviews: blogPosts.allowReviews,
           authorId: blogPosts.authorId,
-          organizationId: blogPosts.organizationId,
         })
         .from(blogPosts)
         .where(and(eq(blogPosts.id, input.postId), publicBlogPostScope(blogPosts)))
@@ -54,7 +53,6 @@ export const createBlogReview = defineAction({
       if (post.authorId !== user.id) {
         await tx.insert(blogNotifications).values({
           userId: post.authorId,
-          organizationId: post.organizationId,
           type: "NEW_REVIEW",
           postId: input.postId,
           reviewId: createdReview.id,
@@ -72,12 +70,9 @@ export const createBlogReview = defineAction({
 });
 
 export const moderateBlogReview = defineAction({
-  input: blogReviewModerationSchema.extend({
-    organizationId: blogOrganizationIdSchema,
-  }),
+  input: blogReviewModerationSchema,
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blogReview: ["moderate"] });
+    const user = await assertBlogPermission(context, { blogReview: ["moderate"] });
 
     const db = getDrizzle();
     await db.transaction(async (tx) => {
@@ -87,18 +82,10 @@ export const moderateBlogReview = defineAction({
           authorId: blogPostReviews.authorId,
           status: blogPostReviews.status,
           postId: blogPostReviews.postId,
-          organizationId: blogPosts.organizationId,
         })
         .from(blogPostReviews)
         .innerJoin(blogPosts, eq(blogPostReviews.postId, blogPosts.id))
-        .where(
-          and(
-            eq(blogPostReviews.id, input.reviewId),
-            tenant.organizationId === null
-              ? isNull(blogPosts.organizationId)
-              : eq(blogPosts.organizationId, tenant.organizationId),
-          ),
-        )
+        .where(eq(blogPostReviews.id, input.reviewId))
         .limit(1);
 
       if (!review) throw new ActionError({ code: "NOT_FOUND", message: "Avis introuvable." });
@@ -116,7 +103,6 @@ export const moderateBlogReview = defineAction({
       ) {
         await tx.insert(blogNotifications).values({
           userId: review.authorId,
-          organizationId: review.organizationId,
           type: "REVIEW_APPROVED",
           reviewId: review.id,
           fromUserId: user.id,

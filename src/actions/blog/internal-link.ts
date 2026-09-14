@@ -18,13 +18,12 @@ export const resolveBlogInternalLink = defineAction({
     mode: z.enum(["resolve", "search"]).default("resolve"),
     query: z.string().trim().optional(),
     resolverName: z.string().trim().optional(),
-    organizationId: z.string().trim().min(1).optional().nullable(),
     locale: z.string().trim().min(2).max(5),
   }),
   handler: async (input, context) => {
     const resolver = resolveResolver(input.resolverName, context.request.headers.get("referer"));
     if (!resolver) return { results: [], resolution: { href: "#", title: null, exists: false } };
-    const ctx = { locale: input.locale, organizationId: input.organizationId ?? null };
+    const ctx = { locale: input.locale };
     if (input.mode === "search") {
       const results = await resolver.search(input.query ?? "", { ...ctx, limit: 10 });
       return { results };

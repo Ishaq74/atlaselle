@@ -1,6 +1,6 @@
 import { defineAction, ActionError } from "astro:actions";
 import { z } from "astro/zod";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { rename } from "node:fs/promises";
 import { join, resolve, extname } from "node:path";
 import { getDrizzle } from "@database/drizzle";
@@ -16,80 +16,10 @@ const localeEnum = z.enum(LOCALES, {
   message: `La locale doit être l'une des suivantes : ${LOCALES.join(", ")}.`,
 });
 
-interface MediaTenantContext {
-  organizationId: string | null;
-  isOrgContext: boolean;
-}
-
-function resolveMediaTenant(input: { organizationId?: string | null }): MediaTenantContext {
-  return {
-    organizationId: input.organizationId ?? null,
-    isOrgContext: !!input.organizationId,
-  };
-}
-
-function mediaFolderScope(organizationId: string | null) {
-  return organizationId === null
-    ? isNull(mediaFolders.organizationId)
-    : eq(mediaFolders.organizationId, organizationId);
-}
-
-function mediaFileScope(organizationId: string | null) {
-  return organizationId === null
-    ? isNull(mediaFiles.organizationId)
-    : eq(mediaFiles.organizationId, organizationId);
-}
-
-async function assertMediaPermission(
-  context: Parameters<typeof assertPermission>[0],
-  tenant: MediaTenantContext,
-  permissions: Parameters<typeof assertPermission>[1],
-) {
-  const user = context.locals.user;
-  if (!user) {
-    throw new ActionError({
-      code: "UNAUTHORIZED",
-      message: "Vous devez être connecté pour effectuer cette action.",
-    });
-  }
-  if (user.banned) {
-    throw new ActionError({ code: "FORBIDDEN", message: "Compte suspendu." });
-  }
-
-  if (user.role === "admin") {
-    return user;
-  }
-
-  if (tenant.isOrgContext) {
-    const { auth } = await import("@/lib/auth");
-    const fullOrg = await auth.api.getFullOrganization({
-      query: { organizationId: tenant.organizationId! },
-      headers: context.request.headers,
-    });
-
-    if (!fullOrg) {
-      throw new ActionError({ code: "NOT_FOUND", message: "Organisation introuvable." });
-    }
-
-    const member = (fullOrg.members ?? []).find(
-      (item: { userId: string }) => item.userId === user.id,
-    );
-
-    if (!member || (member.role !== "owner" && member.role !== "admin")) {
-      throw new ActionError({
-        code: "FORBIDDEN",
-        message: "Vous devez être propriétaire ou administrateur de cette organisation.",
-      });
-    }
-  }
-
-  return assertPermission(context, permissions);
-}
-
-async function assertFolderInTenant(folderId: string, tenant: MediaTenantContext) {
+async function assertFolderExists(folderId: string) {
   const db = getDrizzle();
   const [folder] = await db
-    .select({ id: mediaFolders.id, organizationId: mediaFolders.organizationId, parentId: mediaFolders.parentId })
+    .select({ id: mediaFolders.id, parentId: mediaFolders.parentId })
     .from(mediaFolders)
     .where(eq(mediaFolders.id, folderId))
     .limit(1);
@@ -98,14 +28,10 @@ async function assertFolderInTenant(folderId: string, tenant: MediaTenantContext
     throw new ActionError({ code: "NOT_FOUND", message: "Dossier introuvable." });
   }
 
-  if ((folder.organizationId ?? null) !== tenant.organizationId) {
-    throw new ActionError({ code: "FORBIDDEN", message: "Ce dossier n'appartient pas à ce tenant." });
-  }
-
   return folder;
 }
 
-async function assertFileInTenant(fileId: string, tenant: MediaTenantContext) {
+async function assertFileExists(fileId: string) {
   const db = getDrizzle();
   const [file] = await db
     .select()
@@ -115,10 +41,6 @@ async function assertFileInTenant(fileId: string, tenant: MediaTenantContext) {
 
   if (!file) {
     throw new ActionError({ code: "NOT_FOUND", message: "Fichier introuvable." });
-  }
-
-  if ((file.organizationId ?? null) !== tenant.organizationId) {
-    throw new ActionError({ code: "FORBIDDEN", message: "Ce fichier n'appartient pas à ce tenant." });
   }
 
   return file;
@@ -136,18 +58,16 @@ export const createMediaFolder = defineAction({
       .min(1, "Le nom du dossier est requis.")
       .max(200, "Le nom ne peut pas dépasser 200 caractères."),
     parentId: z.string().nullable().optional(),
-    organizationId: z.uuid().optional().nullable(),
   }),
   handler: async (input, context) => {
-    const tenant = resolveMediaTenant(input);
-    const user = await assertMediaPermission(context, tenant, { media: ["upload"] });
+    const user = await assertPermission(context, { media: ["upload"] });
     adminRateLimit(context, user.id, "media");
 
     const db = getDrizzle();
 
     // Validate parent exists if provided
     if (input.parentId) {
-      await assertFolderInTenant(input.parentId, tenant);
+      await assertFolderExists(input.parentId);
     }
 
     let created;
@@ -155,7 +75,6 @@ export const createMediaFolder = defineAction({
       [created] = await db
         .insert(mediaFolders)
         .values({
-          organizationId: tenant.organizationId,
           name: input.name,
           parentId: input.parentId ?? null,
         })
@@ -170,7 +89,7 @@ export const createMediaFolder = defineAction({
     auditAdmin(context, user.id, "MEDIA_FOLDER_CREATE", {
       resource: "media_folders",
       resourceId: created.id,
-      metadata: { name: created.name, parentId: created.parentId, organizationId: tenant.organizationId },
+      metadata: { name: created.name, parentId: created.parentId },
     });
 
     invalidateCache("media:");
@@ -188,19 +107,17 @@ export const updateMediaFolder = defineAction({
       .max(200, "Le nom ne peut pas dépasser 200 caractères.")
       .optional(),
     parentId: z.string().nullable().optional(),
-    organizationId: z.uuid().optional().nullable(),
   }),
   handler: async (input, context) => {
-    const tenant = resolveMediaTenant(input);
-    const user = await assertMediaPermission(context, tenant, { media: ["upload"] });
+    const user = await assertPermission(context, { media: ["upload"] });
     adminRateLimit(context, user.id, "media");
 
-    const { id, organizationId: _, ...data } = input;
+    const { id, ...data } = input;
     const db = getDrizzle();
 
-    await assertFolderInTenant(id, tenant);
+    await assertFolderExists(id);
     if (data.parentId) {
-      await assertFolderInTenant(data.parentId, tenant);
+      await assertFolderExists(data.parentId);
     }
 
     const [updated] = await db.transaction(async (tx) => {
@@ -230,7 +147,7 @@ export const updateMediaFolder = defineAction({
         return tx
           .update(mediaFolders)
           .set(data)
-          .where(and(eq(mediaFolders.id, id), mediaFolderScope(tenant.organizationId)))
+          .where(eq(mediaFolders.id, id))
           .returning();
       } catch (err: unknown) {
         if (typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "23505") {
@@ -247,7 +164,7 @@ export const updateMediaFolder = defineAction({
     auditAdmin(context, user.id, "MEDIA_FOLDER_UPDATE", {
       resource: "media_folders",
       resourceId: id,
-      metadata: { name: updated.name, organizationId: tenant.organizationId },
+      metadata: { name: updated.name },
     });
 
     invalidateCache("media:");
@@ -258,22 +175,20 @@ export const updateMediaFolder = defineAction({
 export const deleteMediaFolder = defineAction({
   input: z.object({
     id: z.string().min(1, "L'identifiant est requis."),
-    organizationId: z.uuid().optional().nullable(),
   }),
   handler: async (input, context) => {
-    const tenant = resolveMediaTenant(input);
-    const user = await assertMediaPermission(context, tenant, { media: ["delete"] });
+    const user = await assertPermission(context, { media: ["delete"] });
     adminRateLimit(context, user.id, "media");
 
     const db = getDrizzle();
 
-    await assertFolderInTenant(input.id, tenant);
+    await assertFolderExists(input.id);
 
     // Check for child folders
     const children = await db
       .select({ id: mediaFolders.id })
       .from(mediaFolders)
-      .where(and(eq(mediaFolders.parentId, input.id), mediaFolderScope(tenant.organizationId)))
+      .where(eq(mediaFolders.parentId, input.id))
       .limit(1);
     if (children.length > 0) {
       throw new ActionError({
@@ -286,7 +201,7 @@ export const deleteMediaFolder = defineAction({
     const files = await db
       .select({ id: mediaFiles.id })
       .from(mediaFiles)
-      .where(and(eq(mediaFiles.folderId, input.id), mediaFileScope(tenant.organizationId)))
+      .where(eq(mediaFiles.folderId, input.id))
       .limit(1);
     if (files.length > 0) {
       throw new ActionError({
@@ -297,7 +212,7 @@ export const deleteMediaFolder = defineAction({
 
     const [deleted] = await db
       .delete(mediaFolders)
-      .where(and(eq(mediaFolders.id, input.id), mediaFolderScope(tenant.organizationId)))
+      .where(eq(mediaFolders.id, input.id))
       .returning();
 
     if (!deleted) {
@@ -307,7 +222,7 @@ export const deleteMediaFolder = defineAction({
     auditAdmin(context, user.id, "MEDIA_FOLDER_DELETE", {
       resource: "media_folders",
       resourceId: input.id,
-      metadata: { name: deleted.name, organizationId: tenant.organizationId },
+      metadata: { name: deleted.name },
     });
 
     invalidateCache("media:");
@@ -324,18 +239,16 @@ export const uploadMediaFile = defineAction({
   input: z.object({
     file: z.instanceof(File),
     folderId: z.string().nullable().optional(),
-    organizationId: z.uuid().optional().nullable(),
   }),
   handler: async (input, context) => {
-    const tenant = resolveMediaTenant(input);
-    const user = await assertMediaPermission(context, tenant, { media: ["upload"] });
+    const user = await assertPermission(context, { media: ["upload"] });
     adminRateLimit(context, user.id, "media");
 
     const db = getDrizzle();
 
     // Validate folder exists if provided
     if (input.folderId) {
-      await assertFolderInTenant(input.folderId, tenant);
+      await assertFolderExists(input.folderId);
     }
 
     // Upload file to disk via the existing media pipeline
@@ -359,7 +272,6 @@ export const uploadMediaFile = defineAction({
     const [created] = await db
       .insert(mediaFiles)
       .values({
-        organizationId: tenant.organizationId,
         folderId: input.folderId ?? null,
         filename: input.file.name,
         url: result.url,
@@ -378,7 +290,6 @@ export const uploadMediaFile = defineAction({
         mimeType: created.mimeType,
         size: created.size,
         folderId: created.folderId,
-        organizationId: tenant.organizationId,
       },
     });
 
@@ -399,16 +310,14 @@ export const renameMediaFile = defineAction({
         (name) => /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(name),
         "Le nom ne peut contenir que des lettres, chiffres, tirets, underscores et points.",
       ),
-    organizationId: z.uuid().optional().nullable(),
   }),
   handler: async (input, context) => {
-    const tenant = resolveMediaTenant(input);
-    const user = await assertMediaPermission(context, tenant, { media: ["upload"] });
+    const user = await assertPermission(context, { media: ["upload"] });
     adminRateLimit(context, user.id, "media");
 
     const db = getDrizzle();
 
-    const file = await assertFileInTenant(input.id, tenant);
+    const file = await assertFileExists(input.id);
 
     // Keep the original extension
     const origExt = extname(file.filename);
@@ -448,7 +357,7 @@ export const renameMediaFile = defineAction({
       [updated] = await db
         .update(mediaFiles)
         .set({ filename: finalName, url: newUrl })
-        .where(and(eq(mediaFiles.id, input.id), mediaFileScope(tenant.organizationId)))
+        .where(eq(mediaFiles.id, input.id))
         .returning();
     } catch (err) {
       // Rollback disk rename on DB failure
@@ -462,7 +371,7 @@ export const renameMediaFile = defineAction({
     auditAdmin(context, user.id, "MEDIA_FILE_RENAME", {
       resource: "media_files",
       resourceId: input.id,
-      metadata: { oldFilename: file.filename, newFilename: finalName, organizationId: tenant.organizationId },
+      metadata: { oldFilename: file.filename, newFilename: finalName },
     });
 
     invalidateCache("media:");
@@ -474,25 +383,23 @@ export const moveMediaFile = defineAction({
   input: z.object({
     id: z.string().min(1, "L'identifiant est requis."),
     folderId: z.string().nullable(),
-    organizationId: z.uuid().optional().nullable(),
   }),
   handler: async (input, context) => {
-    const tenant = resolveMediaTenant(input);
-    const user = await assertMediaPermission(context, tenant, { media: ["upload"] });
+    const user = await assertPermission(context, { media: ["upload"] });
     adminRateLimit(context, user.id, "media");
 
     const db = getDrizzle();
 
-    await assertFileInTenant(input.id, tenant);
+    await assertFileExists(input.id);
 
     if (input.folderId) {
-      await assertFolderInTenant(input.folderId, tenant);
+      await assertFolderExists(input.folderId);
     }
 
     const [updated] = await db
       .update(mediaFiles)
       .set({ folderId: input.folderId })
-      .where(and(eq(mediaFiles.id, input.id), mediaFileScope(tenant.organizationId)))
+      .where(eq(mediaFiles.id, input.id))
       .returning();
 
     if (!updated) {
@@ -502,7 +409,7 @@ export const moveMediaFile = defineAction({
     auditAdmin(context, user.id, "MEDIA_FILE_MOVE", {
       resource: "media_files",
       resourceId: input.id,
-      metadata: { folderId: input.folderId, organizationId: tenant.organizationId },
+      metadata: { folderId: input.folderId },
     });
 
     invalidateCache("media:");
@@ -513,16 +420,14 @@ export const moveMediaFile = defineAction({
 export const deleteMediaFile = defineAction({
   input: z.object({
     id: z.string().min(1, "L'identifiant est requis."),
-    organizationId: z.uuid().optional().nullable(),
   }),
   handler: async (input, context) => {
-    const tenant = resolveMediaTenant(input);
-    const user = await assertMediaPermission(context, tenant, { media: ["delete"] });
+    const user = await assertPermission(context, { media: ["delete"] });
     adminRateLimit(context, user.id, "media");
 
     const db = getDrizzle();
 
-    const file = await assertFileInTenant(input.id, tenant);
+    const file = await assertFileExists(input.id);
 
     // Delete from disk
     try {
@@ -532,12 +437,12 @@ export const deleteMediaFile = defineAction({
     }
 
     // Delete from DB (alts cascade)
-    await db.delete(mediaFiles).where(and(eq(mediaFiles.id, input.id), mediaFileScope(tenant.organizationId)));
+    await db.delete(mediaFiles).where(eq(mediaFiles.id, input.id));
 
     auditAdmin(context, user.id, "MEDIA_FILE_DELETE", {
       resource: "media_files",
       resourceId: input.id,
-      metadata: { filename: file.filename, url: file.url, organizationId: tenant.organizationId },
+      metadata: { filename: file.filename, url: file.url },
     });
 
     invalidateCache("media:");
@@ -555,17 +460,15 @@ export const upsertMediaFileAlt = defineAction({
     locale: localeEnum,
     alt: z.string().trim().min(1, "Le texte alternatif est requis.").max(500, "500 caractères maximum."),
     title: z.string().trim().max(500, "500 caractères maximum.").nullable().optional(),
-    organizationId: z.uuid().optional().nullable(),
   }),
   handler: async (input, context) => {
-    const tenant = resolveMediaTenant(input);
-    const user = await assertMediaPermission(context, tenant, { media: ["upload"] });
+    const user = await assertPermission(context, { media: ["upload"] });
     adminRateLimit(context, user.id, "media");
 
     const db = getDrizzle();
 
     // Ensure file exists
-    await assertFileInTenant(input.fileId, tenant);
+    await assertFileExists(input.fileId);
 
     // Upsert: update if exists, otherwise insert
     const [existing] = await db
@@ -601,7 +504,7 @@ export const upsertMediaFileAlt = defineAction({
     auditAdmin(context, user.id, "MEDIA_FILE_ALT_UPDATE", {
       resource: "media_file_alts",
       resourceId: result.id,
-      metadata: { fileId: input.fileId, locale: input.locale, organizationId: tenant.organizationId },
+      metadata: { fileId: input.fileId, locale: input.locale },
     });
 
     invalidateCache("media:");
@@ -613,16 +516,14 @@ export const deleteMediaFileAlt = defineAction({
   input: z.object({
     fileId: z.string().min(1),
     locale: localeEnum,
-    organizationId: z.uuid().optional().nullable(),
   }),
   handler: async (input, context) => {
-    const tenant = resolveMediaTenant(input);
-    const user = await assertMediaPermission(context, tenant, { media: ["delete"] });
+    const user = await assertPermission(context, { media: ["delete"] });
     adminRateLimit(context, user.id, "media");
 
     const db = getDrizzle();
 
-    await assertFileInTenant(input.fileId, tenant);
+    await assertFileExists(input.fileId);
 
     const [deleted] = await db
       .delete(mediaFileAlts)
@@ -641,7 +542,7 @@ export const deleteMediaFileAlt = defineAction({
     auditAdmin(context, user.id, "MEDIA_FILE_ALT_DELETE", {
       resource: "media_file_alts",
       resourceId: deleted.id,
-      metadata: { fileId: input.fileId, locale: input.locale, organizationId: tenant.organizationId },
+      metadata: { fileId: input.fileId, locale: input.locale },
     });
 
     invalidateCache("media:");

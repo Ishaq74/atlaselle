@@ -6,12 +6,15 @@
 
 ## Vue d'ensemble
 
-| Fichier | Scope | Tests | Status |
-| :-- | :-- | --: | :-- |
-| `tests/e2e/app.spec.ts` | Homepage, i18n, guest guards, security headers | 14 | ✅ |
-| `tests/e2e/auth.spec.ts` | Sign-up/in, dashboard, profile, pages publiques | 12 | ✅ |
-| `tests/e2e/cms-admin.spec.ts` | Pages admin CMS (site, navigation, theme) | 8 | ✅ |
-| **Total** | | **34** | **✅** |
+| Fichier | Scope | Status |
+| :-- | :-- | :-- |
+| `tests/e2e/app.spec.ts` | Homepage, i18n, guest guards, security headers | ✅ |
+| `tests/e2e/auth.spec.ts` | Sign-up/in, dashboard, profile, pages publiques | ✅ |
+| `tests/e2e/blog.spec.ts` | Blog public + workflow éditorial (seed admin) | ✅ |
+| `tests/e2e/cms-admin.spec.ts` | Pages admin CMS (site, navigation, theme) | ✅ |
+| `tests/e2e/services.spec.ts` | Services publics + admin (seed admin) | ✅ |
+| `tests/e2e/services-lifecycle.spec.ts` | Lifecycle éditorial services (seed admin) | ✅ |
+| **Total** | **6 specs** | **✅** |
 
 ### Infrastructure
 
@@ -53,9 +56,11 @@ Le `global-teardown` :
 
 ### Homepage & i18n (5 tests)
 
+> URLs sans slash final (sauf `/` et `/{lang}/`) — ex. `/fr/auth/connexion`, `/fr/admin/stats`. Redirect `/` → `/en/` (`DEFAULT_LOCALE = 'en'`, `src/pages/index.astro`).
+
 | # | Test | URL | Assertion |
 | :-- | :-- | :-- | :-- |
-| 1 | `homepage redirects to default locale /fr/` | `/` | `page.url()` termine par `/fr/` |
+| 1 | `homepage redirects to default locale /en/` | `/` | `page.url()` termine par `/en/` |
 | 2 | `French page has lang="fr" and dir="ltr"` | `/fr/` | `<html lang="fr" dir="ltr">` |
 | 3 | `English page has lang="en"` | `/en/` | `<html lang="en">` |
 | 4 | `Arabic page has dir="rtl"` | `/ar/` | `<html dir="rtl">` |
@@ -65,10 +70,10 @@ Le `global-teardown` :
 
 | # | Test | URL | Assertion |
 | :-- | :-- | :-- | :-- |
-| 6 | `sign-in page renders the login form` | `/fr/auth/connexion/` | Formulaire avec input email visible |
-| 7 | `sign-up page renders the registration form` | `/fr/auth/inscription/` | Formulaire avec input name visible |
-| 8 | `dashboard redirects unauthenticated user to sign-in` | `/fr/auth/tableau-de-bord/` | Redirigé vers page de connexion |
-| 9 | `profile redirects unauthenticated user to sign-in` | `/fr/auth/profil/` | Redirigé vers page de connexion |
+| 6 | `sign-in page renders the login form` | `/fr/auth/connexion` | Formulaire avec input email visible |
+| 7 | `sign-up page renders the registration form` | `/fr/auth/inscription` | Formulaire avec input name visible |
+| 8 | `dashboard redirects unauthenticated user to sign-in` | `/fr/auth/tableau-de-bord` | Redirigé vers page de connexion |
+| 9 | `profile redirects unauthenticated user to sign-in` | `/fr/auth/profil` | Redirigé vers page de connexion |
 | 10 | `admin redirects unauthenticated user to sign-in` | `/fr/admin/stats` | Redirigé vers page de connexion |
 
 ### Security headers (4 tests)
@@ -109,18 +114,18 @@ Le `global-teardown` :
 
 | # | Test | Ce qu'il fait |
 | :-- | :-- | :-- |
-| 5 | `organisations page redirects to sign-in` | `/fr/organisations/` sans auth → redirigé |
-| 6 | `verify-email page is accessible without auth` | `/fr/verification-email/` → accessible (pas de redirect) |
-| 7 | `reset-password page is accessible without auth` | `/fr/reinitialiser-mot-de-passe/` → accessible |
+| 5 | `organisations page redirects to sign-in` | `/fr/organisations` sans auth → redirigé (slug `organisations`, i18n/fr/auth.ts:24) |
+| 6 | `verify-email page is accessible without auth` | `/fr/auth/verifier-email` → accessible (pas de redirect ; slug `verifier-email`, i18n/fr/auth.ts:22) |
+| 7 | `reset-password page is accessible without auth` | `/fr/auth/reinitialiser-mot-de-passe` → accessible (slug `reinitialiser-mot-de-passe`, i18n/fr/auth.ts:21) |
 
 ### Public pages (5 tests)
 
 | # | Test | Ce qu'il fait |
 | :-- | :-- | :-- |
-| 8 | `about page loads` | `/fr/a-propos/` → status 200, contenu visible |
-| 9 | `contact page loads` | `/fr/contact/` → status 200, contenu visible |
-| 10 | `legal page loads` | `/fr/mentions-legales/` → status 200, contenu visible |
-| 11 | `forgot password page loads` | `/fr/mot-de-passe-oublie/` → accessible |
+| 8 | `about page loads` | `/fr/a-propos` → status 200, contenu visible |
+| 9 | `contact page loads` | `/fr/contact` → status 200, contenu visible |
+| 10 | `legal page loads` | `/fr/mentions-legales` → status 200, contenu visible |
+| 11 | `forgot password page loads` | `/fr/auth/mot-de-passe-oublie` → accessible |
 | 12 | `Spanish locale loads correctly` | `/es/` → `lang="es"`, contenu espagnol |
 
 ### Stratégie — auth.spec.ts
@@ -168,18 +173,17 @@ pnpm test:e2e:report
 ## Résumé couverture E2E
 
 ```md
-Pages testées :              15 URLs distinctes
+Pages testées :              15+ URLs distinctes (sans slash final)
 Locales testées :            4 (fr, en, ar, es)
 Auth guards :                6 redirections vérifiées
 Formulaires :                2 (sign-up, sign-in)
 Flow authentifié :           2 (dashboard, profil)
 Pages publiques :            5
 Pages admin CMS :            3 (site, navigation, theme)
+Specs blog/services :        blog.spec.ts, services.spec.ts, services-lifecycle.spec.ts (seed admin via global-setup, rôle admin)
 Security headers :           4
-Scénarios Playwright :       34
 Navigateurs :                Chromium + Firefox + WebKit
-Exécutions totales :         102
-Fichiers :                   3 (+2 setup/teardown)
+Fichiers :                   6 specs (+2 setup/teardown)
 Temps d'exécution :          ~45–90 s
 ```
 

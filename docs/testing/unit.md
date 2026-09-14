@@ -4,10 +4,10 @@
 
 ---
 
-## Vue d'ensemble
+## Vue d'ensemble (extraits — 102 fichiers sur disque, tableau partiel ci-dessous)
 
-| Fichier | Cible | Tests | Status |
-| :-- | :-- | :-- | :-- |
+| Fichier | Cible | Status |
+| :-- | :-- | :-- |
 | `tests/unit/rate-limit.test.ts` | `src/lib/rate-limit.ts` → `checkRateLimit()` | 8 | ✅ |
 | `tests/unit/i18n-utils.test.ts` | `src/i18n/utils.ts` → `toLocale()`, `isRTL()`, `getDirection()` | 6 | ✅ |
 | `tests/unit/extract-ip.test.ts` | `src/lib/audit.ts` → `extractIp()` | 12 | ✅ |
@@ -64,7 +64,7 @@
 | # | Describe | Test | Inputs | Expected |
 | :-- | :-- | :-- | :-- | :-- |
 | 1 | `toLocale` | `returns the locale if valid` | `'fr'`, `'en'`, `'es'`, `'ar'` | Retourne la même valeur |
-| 2 | `toLocale` | `returns default locale for invalid input` | `'xx'`, `undefined`, `''` | `'fr'` (DEFAULT_LOCALE) |
+| 2 | `toLocale` | `returns default locale for invalid input` | `'xx'`, `undefined`, `''` | `'en'` (DEFAULT_LOCALE) |
 | 3 | `isRTL` | `returns true for Arabic` | `'ar'` | `true` |
 | 4 | `isRTL` | `returns false for LTR locales` | `'fr'`, `'en'`, `'es'` | `false` |
 | 5 | `getDirection` | `returns rtl for Arabic` | `'ar'` | `'rtl'` |
@@ -79,7 +79,7 @@
 
 ## `extract-ip.test.ts` — Extraction d'IP
 
-**Cible** : `extractIp(headers)` → `string | null`
+**Cible** : `extractIp(headers, clientAddress?)` → `string | null` — les headers `x-forwarded-for` / `x-real-ip` ne sont pris en compte que si `TRUST_PROXY=true`, sinon seul `clientAddress` (validé via `net.isIP()`) est utilisé.
 
 | # | Test | Headers | Expected |
 | :-- | :-- | :-- | :-- |
@@ -341,11 +341,9 @@ Round-trip et cas `null` pour slug inconnu.
 ## Résumé couverture unitaire
 
 ```text
-Fonctions pures testées :     28 / ~30 fonctions pures du projet = 93 %
-Fonctions side-effect :       1 testée en unit (sendEmail mock) + reste couvert en intégration
-Total tests unitaires :       217
-Fichiers de test :            14
-Temps d'exécution :           ~500 ms (les 14 fichiers)
+Fonctions pures testées :     voir matrice (couverture partielle ci-dessus)
+Total fichiers unitaires :    102 sur disque
+Temps d'exécution :           variable (DB + mocks)
 ```
 
 ---

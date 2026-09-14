@@ -73,6 +73,8 @@ A module that supports tenancy exposes the same resource contract through two ad
 /{lang}/organizations/{slug}/admin/<resource>
 ```
 
+> État actuel : seule la surface globale existe (aucun fichier `organizations/*` sous `src/pages/`). La surface organisation est une convention de contrat pour quand elle sera matérialisée : même contrat de ressource et même UI, seul le contexte de tenant différera.
+
 The global surface resolves the global tenant context. The organization surface resolves the organization by slug and passes the organization id to every loader/action. The resource contract and UI are shared; only tenant context differs.
 
 ## Permissions

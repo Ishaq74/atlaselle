@@ -17,12 +17,12 @@ Chaque composant Starwind vit dans son propre dossier sous `src/components/atoms
 
 ```md
 src/components/atoms/my-component/
-├── MyComponent.astro     ← Composant principal
+├── MyComponent.astro     ← Composant principal (+ tv() si variants)
 ├── MyComponentSub.astro  ← Sous-composant (si nécessaire)
 └── index.ts              ← Réexportation publique
 ```
 
-**Convention de nommage** : PascalCase pour le fichier et le composant, kebab-case pour le dossier.
+**Convention de nommage** : PascalCase pour le fichier et le composant, kebab-case pour le dossier. Cas réels : `container/` ne contient que `Container.astro` + `index.ts`, `kbd/` contient `Kbd.astro` + `KbdGroup.astro` + `index.ts`, `media-picker/` ne contient que `MediaPicker.astro` (sans `index.ts`), `icon-picker/` contient `IconPicker.astro` + `index.ts` — tous les dossiers n'ont pas de sous-composant ni la même structure.
 
 ---
 
@@ -181,10 +181,10 @@ Pour les composants avec plusieurs zones de contenu :
 </div>
 ```
 
-Exemples dans le design system :
+Exemples dans le design system (vérifiés dans le code) :
 
-- **ThemeToggle** : `<slot name="light-icon" />`, `<slot name="dark-icon" />`
-- **Container** : `<slot name="media" />`
+- **ThemeToggle** : `<slot />` par défaut + `<slot name="light-icon" />`, `<slot name="dark-icon" />` (ThemeToggle.astro:81-90)
+- **Container** : `<slot />` par défaut + `<slot name="media" />` uniquement en mode wrapper (`bleed` ou `layout="split"`, Container.astro:205-219) — pas de slot `media` en mode simple
 
 ---
 
@@ -206,10 +206,13 @@ export { default as MyComponentContent } from "./MyComponentContent.astro";
 
 ## Étape 7 — Enregistrement Starwind (optionnel)
 
-Si le composant fait partie du registre Starwind, ajouter dans `starwind.config.json` :
+Si le composant fait partie du registre Starwind, ajouter dans `starwind.config.json` (45 entrées réelles ; `container`, `icon-picker`, `media-picker` n'y sont pas) :
 
 ```json
 {
+  "tailwind": { "css": "@styles/global.css", "baseColor": "stone", "cssVariables": true },
+  "componentDir": "@atoms",
+  "utilsDir": "@starwind",
   "components": [
     { "name": "my-component", "version": "1.0.0" }
   ]

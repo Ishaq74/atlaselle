@@ -1,7 +1,6 @@
 import { ActionError } from "astro:actions";
 import type { ActionAPIContext } from "astro:actions";
 import { eq } from "drizzle-orm";
-import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
 import { blogPosts, blogCategories, blogTags, mediaFiles } from "@database/schemas";
 import { logAuditEvent, extractIp, type AuditAction } from "@/lib/audit";
@@ -13,22 +12,11 @@ type Statement = typeof statement;
 export type BlogPermissions = { [K in keyof Statement]?: Statement[K][number][] };
 type BlogPermissionContext = Pick<ActionAPIContext, "locals" | "request">;
 
-export interface BlogTenantContext { organizationId: string | null; isOrgContext: boolean; }
-export const blogOrganizationIdSchema = z.string().trim().min(1).optional().nullable();
-
-export function resolveBlogTenant(input: { organizationId?: string | null }): BlogTenantContext {
-  return { organizationId: input.organizationId ?? null, isOrgContext: Boolean(input.organizationId) };
-}
-
-export async function hasBlogPermission(context: BlogPermissionContext, tenant: BlogTenantContext, permissions: BlogPermissions): Promise<boolean> {
+export async function hasBlogPermission(context: BlogPermissionContext, permissions: BlogPermissions): Promise<boolean> {
   const user = context.locals.user;
   if (!user || user.banned) return false;
   try {
     const { auth } = await import("@/lib/auth");
-    if (tenant.isOrgContext) {
-      const result = await auth.api.hasPermission({ headers: context.request.headers, body: { organizationId: tenant.organizationId!, permissions: permissions as Record<string, string[]> } });
-      return result.success;
-    }
     const result = await auth.api.userHasPermission({ body: { userId: user.id, permissions: permissions as Record<string, string[]> } });
     return result.success;
   } catch {
@@ -36,39 +24,35 @@ export async function hasBlogPermission(context: BlogPermissionContext, tenant: 
   }
 }
 
-export async function assertBlogPermission(context: ActionAPIContext, tenant: BlogTenantContext, permissions: BlogPermissions) {
+export async function assertBlogPermission(context: ActionAPIContext, permissions: BlogPermissions) {
   const user = context.locals.user;
   if (!user) throw new ActionError({ code: "UNAUTHORIZED", message: "Vous devez être connecté pour effectuer cette action." });
   if (user.banned) throw new ActionError({ code: "FORBIDDEN", message: "Compte suspendu." });
-  if (!(await hasBlogPermission(context, tenant, permissions))) throw new ActionError({ code: "FORBIDDEN", message: "Permissions insuffisantes." });
+  if (!(await hasBlogPermission(context, permissions))) throw new ActionError({ code: "FORBIDDEN", message: "Permissions insuffisantes." });
   return user;
 }
 
-export async function assertPostInTenant(postId: string, tenant: BlogTenantContext) {
+export async function assertBlogPostExists(postId: string) {
   const [post] = await getDrizzle().select().from(blogPosts).where(eq(blogPosts.id, postId)).limit(1);
   if (!post) throw new ActionError({ code: "NOT_FOUND", message: "Article introuvable." });
-  if ((post.organizationId ?? null) !== tenant.organizationId) throw new ActionError({ code: "FORBIDDEN", message: "Cet article n'appartient pas à ce tenant." });
   return post;
 }
 
-export async function assertCategoryInTenant(categoryId: string, tenant: BlogTenantContext) {
-  const [category] = await getDrizzle().select({ id: blogCategories.id, organizationId: blogCategories.organizationId }).from(blogCategories).where(eq(blogCategories.id, categoryId)).limit(1);
+export async function assertBlogCategoryExists(categoryId: string) {
+  const [category] = await getDrizzle().select({ id: blogCategories.id }).from(blogCategories).where(eq(blogCategories.id, categoryId)).limit(1);
   if (!category) throw new ActionError({ code: "NOT_FOUND", message: "Catégorie introuvable." });
-  if ((category.organizationId ?? null) !== tenant.organizationId) throw new ActionError({ code: "FORBIDDEN", message: "Cette catégorie n'appartient pas à ce tenant." });
   return category;
 }
 
-export async function assertTagInTenant(tagId: string, tenant: BlogTenantContext) {
-  const [tag] = await getDrizzle().select({ id: blogTags.id, organizationId: blogTags.organizationId }).from(blogTags).where(eq(blogTags.id, tagId)).limit(1);
+export async function assertBlogTagExists(tagId: string) {
+  const [tag] = await getDrizzle().select({ id: blogTags.id }).from(blogTags).where(eq(blogTags.id, tagId)).limit(1);
   if (!tag) throw new ActionError({ code: "NOT_FOUND", message: "Tag introuvable." });
-  if ((tag.organizationId ?? null) !== tenant.organizationId) throw new ActionError({ code: "FORBIDDEN", message: "Ce tag n'appartient pas à ce tenant." });
   return tag;
 }
 
-export async function assertMediaInTenant(mediaId: string, tenant: BlogTenantContext) {
-  const [media] = await getDrizzle().select({ id: mediaFiles.id, organizationId: mediaFiles.organizationId }).from(mediaFiles).where(eq(mediaFiles.id, mediaId)).limit(1);
+export async function assertBlogMediaExists(mediaId: string) {
+  const [media] = await getDrizzle().select({ id: mediaFiles.id }).from(mediaFiles).where(eq(mediaFiles.id, mediaId)).limit(1);
   if (!media) throw new ActionError({ code: "NOT_FOUND", message: "Média introuvable." });
-  if ((media.organizationId ?? null) !== tenant.organizationId) throw new ActionError({ code: "FORBIDDEN", message: "Ce média n'appartient pas à ce tenant." });
   return media;
 }
 

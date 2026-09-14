@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
-import { sql, eq } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
-import { organization } from "@database/schemas";
 import { isValidLocale } from "@i18n/utils";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { DEFAULT_LOCALE } from "@i18n/config";
@@ -17,7 +16,6 @@ const ERROR_CODES = { QUERY_TOO_SHORT: "QUERY_TOO_SHORT", INVALID_LOCALE: "INVAL
 export const GET: APIRoute = async ({ url, clientAddress }) => {
   const q = url.searchParams.get("q")?.trim();
   const locale = url.searchParams.get("locale") ?? DEFAULT_LOCALE;
-  const orgSlug = url.searchParams.get("org")?.trim() || null;
   const limit = Math.min(parseInt(url.searchParams.get("limit") ?? "20", 10) || 20, 100);
   if (!q || q.length < 2) return new Response(JSON.stringify({ error: ERROR_CODES.QUERY_TOO_SHORT }), { status: 400, headers: { "Content-Type": "application/json" } });
   if (!isValidLocale(locale)) return new Response(JSON.stringify({ error: ERROR_CODES.INVALID_LOCALE }), { status: 400, headers: { "Content-Type": "application/json" } });
@@ -29,15 +27,6 @@ export const GET: APIRoute = async ({ url, clientAddress }) => {
 
   const db = getDrizzle();
   const regconfig = getRegconfig(locale);
-  let orgId: string | null = null;
-  if (orgSlug) {
-    const [orgRow] = await db.select({ id: organization.id }).from(organization).where(eq(organization.slug, orgSlug)).limit(1);
-    orgId = orgRow?.id ?? null;
-    if (!orgId) return new Response(JSON.stringify({ query: q, locale, count: 0, results: [] }), { status: 200, headers: { "Content-Type": "application/json" } });
-  }
-
-  const blogOrganizationPredicate = orgId ? sql`bp.organization_id = ${orgId}` : sql`bp.organization_id IS NULL`;
-  const serviceOrganizationPredicate = orgId ? sql`s.organization_id = ${orgId}` : sql`s.organization_id IS NULL`;
   const blogPublicationPredicate = publicBlogPostColumnsScope(sql.raw("bp.status"), sql.raw("bp.published_at"));
 
   const raw = await db.execute<{
@@ -83,7 +72,6 @@ export const GET: APIRoute = async ({ url, clientAddress }) => {
       FROM blog_posts bp
       JOIN blog_post_translations bpt ON bpt.post_id = bp.id AND bpt.locale = ${locale}
       WHERE bpt.search_vector @@ to_tsquery(${sql.raw(`'${regconfig}'`)}, ${tsQuery})
-        AND ${blogOrganizationPredicate}
         AND ${blogPublicationPredicate}
 
       UNION ALL
@@ -101,7 +89,6 @@ export const GET: APIRoute = async ({ url, clientAddress }) => {
       FROM services s
       JOIN service_translations st ON st.service_id = s.id AND st.locale = ${locale}
       WHERE st.search_vector @@ to_tsquery(${sql.raw(`'${regconfig}'`)}, ${tsQuery})
-        AND ${serviceOrganizationPredicate}
         AND s.status = 'PUBLISHED'
     ) combined
     ORDER BY rank DESC
@@ -123,9 +110,9 @@ export const GET: APIRoute = async ({ url, clientAddress }) => {
       rank: row.rank,
       publishedAt: row.published_at,
       url: row.type === "blog_post"
-        ? buildBlogPostUrl(locale, orgSlug, row.slug, row.category_slug)
+        ? buildBlogPostUrl(locale, null, row.slug, row.category_slug)
         : row.type === "service"
-          ? buildServiceUrl(locale, orgSlug, row.slug, row.category_slug)
+          ? buildServiceUrl(locale, null, row.slug, row.category_slug)
           : `/${locale}/${row.slug}`,
     })),
   }), { status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "public, max-age=60" } });

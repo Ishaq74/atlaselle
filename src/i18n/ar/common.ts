@@ -6,9 +6,9 @@ export default {
     description: 'رحلات مصممة بعناية عبر أفريقيا والبحر المتوسط.',
   },
   pageRoutes: {
-    about: 'من-نحن',
-    contact: 'اتصل-بنا',
-    legal: 'الشروط-القانونية',
+    about: 'about',
+    contact: 'contact',
+    legal: 'legal-notice',
   },
   nav: {
     features: 'الميزات',

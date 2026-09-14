@@ -4,7 +4,7 @@
 
 **Atlaselle** is a full-stack SSR web application with complete authentication, organization management, audit trails, and accessibility compliance. We welcome contributions!
 
-**Tech Stack**: Astro 6 · better-auth · Drizzle ORM · PostgreSQL 16 · Tailwind CSS 4 · Vitest · Playwright
+**Tech Stack**: Astro 7.3.1 · better-auth · Drizzle ORM · PostgreSQL 16 · Tailwind CSS 4 · Vitest · Playwright
 
 ## Prerequisites
 
@@ -79,31 +79,32 @@ Visit `http://localhost:4321` — hot reload enabled ✓
 ```md
 src/
 ├── actions/                   # Astro server actions (mutations)
-│   ├── admin/                # Admin panel actions
-│   └── org/                  # Organization management
+│   ├── admin/                # Admin panel actions (consent, contact, hours, media, menus, navigation, pages, sections, site, social, theme, versions)
+│   ├── blog/                 # Blog actions
+│   └── services/             # Services CMS actions
 ├── components/               # Atlaselle design
-│   ├── atoms/               # Basic UI (Button, Input, Card, Badge)
+│   ├── atoms/               # Basic UI (48 composants Starwind)
 │   ├── molecules/           # Combinations (SearchBar, FormGroup)
 │   ├── organisms/           # Complex features (MediaPicker, RoleMatrix)
-│   └── pages/               # Full page components (admin, org views)
+│   └── pages/               # Full page components (admin, auth, AboutPage, ContactPage, … — pas de dossier org/, dossier vide non versionné utile)
 ├── database/
-│   ├── schemas/             # Drizzle table definitions
-│   ├── loaders/             # Data fetching with caching (RTL config)
+│   ├── schemas/             # Drizzle table definitions (11 fichiers : audit-log, auth, blog, consent, media, navigation, page, page-version, services, services-engagement, site)
+│   ├── data/                # Seeds versionnés (63 fichiers)
+│   ├── loaders/             # Data fetching avec cache (blog, consent, media, navigation, page, site, …)
 │   ├── cache.ts             # TTL-based in-memory cache
-│   ├── migrations/          # Generated migration files
-│   └── commands/            # CLI utilities (seed, reset, migrate)
+│   ├── migrations/          # Generated migration files (0000 → 0009)
+│   └── commands/            # CLI utilities (seed, reset, migrate, check, compare, …)
 ├── i18n/
-│   ├── config.ts            # Locale config (fr, en, es, ar)
+│   ├── config.ts            # Locale config (fr, en, es, ar — défaut en, ar RTL)
+│   ├── routes.ts            # Table centralisée des segments traduits (TRIP_LIST_SEGMENT, APPLY_SEGMENT, TRIP_SLUGS, helpers getTripPath/…)
 │   ├── utils.ts             # i18n helpers & locale detection
-│   └── {locale}/            # Per-locale translation files
-│       ├── common.ts
-│       ├── auth.ts
-│       ├── pages.ts
-│       └── ...
+│   ├── {fr,en,es,ar}/       # Per-locale translation files (about, auth, common, contact, home)
+│   └── blog/                # Traductions blog (fr, en, es, ar)
 ├── layouts/
 │   └── BaseLayout.astro     # Main layout with nav, footer, theme
 ├── lib/
-│   ├── auth.ts              # better-auth client
+│   ├── auth.ts              # better-auth serveur
+│   ├── auth-client.ts       # better-auth client
 │   ├── auth-data.ts         # Admin user/org fetching
 │   ├── auth-guards.ts       # Route protection helpers
 │   ├── rate-limit.ts        # Token bucket rate limiting
@@ -115,46 +116,34 @@ src/
 │   ├── list.ts              # File enumeration
 │   └── types.ts             # Media type definitions
 ├── pages/
-│   ├── index.astro          # Homepage
-│   ├── admin/               # Admin routes
-│   ├── org/                 # Organization routes
+│   ├── index.astro          # Homepage racine (redirect locale)
+│   ├── [lang]/              # Routage unique localisé (index, a-propos, contact, faq, terms, [slug], admin/, apply/, auth/, blog/, services/, trips/)
 │   └── api/                 # API endpoints
 │       ├── search.ts        # Full-text search (PostgreSQL)
 │       ├── contact.ts       # Contact form
 │       └── ...
 ├── smtp/
-│   ├── index.ts             # Multi-provider email service
+│   ├── send.ts              # Multi-provider email service (point d'entrée, pas de index.ts)
+│   ├── env.ts               # Validation env SMTP
+│   ├── types.ts             # Email payload types
 │   ├── providers/           # Brevo, Resend, Nodemailer
-│   ├── templates/           # HTML email templates
-│   └── types.ts             # Email payload types
+│   ├── templates/           # HTML email templates (verify-email, reset-password, delete-account, contact-form, blog-newsletter + layout, i18n — pas de organization-invitation.ts)
+│   └── commands/            # smtp.check, logs.rotate (dead-letter dans logs/ racine, pas src/smtp/logs/)
 └── styles/
-    ├── globals.css          # Tailwind directives + CSS variables
-    └── design-tokens.css    # Color, spacing, typography
+    └── global.css           # Tailwind + CSS variables (fichier unique, pas de globals.css ni design-tokens.css)
 ```
 
 ### Tests (`tests/`)
 
 ```md
 tests/
-├── unit/                    # Fast, no DB required
-│   ├── admin-roles.test.ts
-│   ├── media.test.ts
-│   └── ...
-├── integration/             # Requires PostgreSQL
-│   ├── auth.test.ts
-│   ├── organizations.test.ts
-│   └── ...
-├── e2e/                     # Playwright against running app
-│   ├── auth.spec.ts
-│   ├── admin.spec.ts
-│   └── ...
-├── a11y/                    # Accessibility audits
-│   ├── pa11y-ci.cjs        # Pa11y automation
-│   └── lighthouse.cjs      # Lighthouse CI
+├── unit/                    # Fast, no DB required (81 fichiers : upload, mask-utils, i18n-urls, schema-validation, …)
+├── integration/             # Requires PostgreSQL (15 fichiers : auth-flow, auth-org, audit, middleware, contact-api, …)
+├── e2e/                     # Playwright against running app (auth, app, blog, cms-admin, services, services-lifecycle + global-setup/teardown)
+├── a11y/                    # Accessibility audits (setup.ts, run.cjs, lhci-*.cjs — config racine : .pa11yci.cjs, lighthouserc.cjs)
 └── helpers/
-    ├── test-db.ts          # Test database setup
-    ├── mocks.ts            # Common test fixtures
-    └── reporters.cjs       # Custom test reports
+    ├── auth.ts             # Test auth helpers
+    └── *.cjs               # Custom test reports (vitest-report, playwright-report, qa-report, lighthouse-report)
 ```
 
 ## Architectural Patterns
@@ -163,7 +152,7 @@ tests/
 
 Use Astro server actions for all data mutations. They're **type-safe**, **validated**, and **CSRF-protected** by default.
 
-**File**: `src/actions/admin/users.ts`
+**File**: `src/actions/admin/pages.ts`
 
 ```typescript
 import { defineAction } from 'astro:actions';
@@ -222,7 +211,7 @@ if (!rl.allowed) {
 
 **Always** use loaders for data fetching. They automatically implement TTL caching.
 
-**File**: `src/database/loaders/users.loader.ts`
+**File**: `src/database/loaders/page.loader.ts`
 
 ```typescript
 export const getUser = cached('user', async (id: string) => {
@@ -241,7 +230,7 @@ const user = await getUser(userId); // 1st call = DB, 2nd call = cache
 
 ### 4. i18n: Multi-Locale Architecture
 
-**4 locales**: `fr` (default) | `en` | `es` | `ar` (RTL)
+**4 locales**: `en` (default) | `fr` | `es` | `ar` (RTL)
 
 **Rule**: Every translation key **must exist in all 4 locales**. CI enforces this.
 
@@ -259,8 +248,8 @@ export default {
 
 ```typescript
 ---
-import type { Locale } from '@i18n/config';
-const locale: Locale = Astro.params.locale ?? 'fr';
+import type { Locale } from '@/i18n/config';
+const locale: Locale = Astro.params.locale ?? 'en';
 const { t } = await getTranslations(locale);
 ---
 
@@ -299,7 +288,7 @@ export async function requireAuth(headers: Headers) {
   return session;
 }
 
-// src/pages/admin.astro
+// src/pages/[lang]/admin/pages.astro
 const session = await requireAuth(Astro.request.headers);
 ```
 
@@ -406,12 +395,12 @@ describe('loginUser', () => {
 
 ### Coverage Requirements
 
-- **Statements**: ≥ 70%
-- **Branches**: ≥ 65%
-- **Lines**: ≥ 70%
-- **Functions**: ≥ 65%
+- **Statements**: ≥ 80%
+- **Branches**: ≥ 75%
+- **Lines**: ≥ 80%
+- **Functions**: ≥ 75%
 
-Check coverage: `pnpm test -- --coverage`
+Check coverage: `pnpm test -- --coverage` (seuils `vitest.config.ts:59-64`)
 
 ### E2E Tests (Playwright)
 
@@ -492,9 +481,9 @@ const users = await db.query.users.findMany({
 - **Lazy load** images (`loading="lazy"`)
 - Use **CSS Grid/Flexbox** (no floats)
 
-## Accessibility (WCAG 2.1 AA)
+## Accessibility (WCAG 2.1 AAA non strict + Lighthouse ≥ 0.9)
 
-All new features must pass accessibility checks.
+All new features must pass accessibility checks. Config racine : `.pa11yci.cjs` (standard `WCAG2AAA`, `ignore: color-contrast` — axe-core ne résout pas OKLCH, paires vérifiées AAA manuellement) + `lighthouserc.cjs` (gates ≥ 0.9 perf/a11y/best-practices/seo).
 
 ### Checklist
 

@@ -81,13 +81,11 @@ Les gaps ci-dessous sont de **priorité très basse** (P4) — ils ne bloquent r
 
 ## Gaps accessibilité & performance (Pa11y + Lighthouse)
 
-> Identifiés lors de la mise en place des audits a11y/perf. **Tous les gaps a11y ont été résolus** — Pa11y passe maintenant 52/52 URLs en WCAG AAA.
+> Identifiés lors de la mise en place des audits a11y/perf. Pa11y passe 60/60 URLs en WCAG2AAA non strict (ignore color-contrast + hideElements).
 
-### Pa11y-ci — WCAG AAA ✅
+### Pa11y-ci — WCAG2AAA non strict ✅
 
-**Score** : 52/52 URLs configurées (100 %)
-
-> Dont 12 URLs CMS admin (site, navigation, theme × 4 locales) ajoutées récemment.
+**Score** : 60/60 URLs configurées (100 %) — 32 publiques (homepage, about, contact, legal, blog × 4 locales) + 8 authentifiées + 20 admin (stats, site, navigation, theme, blog × 4 locales).
 
 Tous les problèmes d'accessibilité ont été corrigés :
 
@@ -103,18 +101,18 @@ Tous les problèmes d'accessibilité ont été corrigés :
 
 ### Lighthouse CI — Performance
 
-**Scores a11y/best-practices/SEO** : ✅ ≥ 0.9 partout (52 URLs auditées : 28 publiques + 8 authentifiées + 16 admin CMS)
+**Scores a11y/best-practices/SEO** : ✅ ≥ 0.9 partout (60 URLs auditées : 32 publiques dont blog + 8 authentifiées + 20 admin dont blog)
 
 **Scores performance** : ≤7 URLs < 0.9
 
 | URL | Score | Cause probable |
 | :-- | :-- | :-- |
-| `ar--من-نحن` | 79 | LCP 2.4s, SI 2.6s |
+| `ar--about` | 79 | LCP 2.4s, SI 2.6s |
 | `es--home` | 83 | LCP 1.9s, SI 2.8s |
 | `en--about` | 86 | LCP 1.4s, SI 4.0s |
 | `fr--home` | 87 | LCP 1.2s, SI 4.0s |
 | `en--home` | 88 | LCP 1.3s, SI 3.6s |
-| `ar--الشروط-القانونية` | 89 | CLS 0.223 |
+| `ar--legal-notice` | 89 | CLS 0.223 |
 | `es--acerca-de` | 89 | SI 3.2s |
 
 > Toutes les autres pages (auth, contact, dashboard, profile, admin) sont à **98-100** en performance.
@@ -129,16 +127,17 @@ Tous les problèmes d'accessibilité ont été corrigés :
 
 ---
 
-## Couverture par module
+## Couverture par module (mis à jour 2026-09-14 — voir docs/ETAT-REEL.md)
 
-| Module | Fonctions | Testées | Couverture |
+| Module | Réel | Testé | Couverture |
 | :-- | :-- | :-- | :-- |
 | `src/lib/rate-limit.ts` | 1 | 1 | 100 % |
 | `src/lib/audit.ts` | 2 | 2 | 100 % |
 | `src/lib/auth.ts` | ~15 API methods | ~15 | ~100 % |
 | `src/i18n/utils.ts` | ~12 | ~12 | ~100 % |
+| `src/i18n/routes.ts` | segments + TRIP_SLUGS + helpers | 100 % | 100 % (`tests/unit/i18n-routes.test.ts`) |
 | `src/database/env.ts` | 3 | 3 | 100 % |
-| `src/database/schemas.ts` | 8 tables | 8 | 100 % |
+| `src/database/schemas/` | 11 fichiers | 11 | 100 % |
 | `src/database/commands/_utils.ts` | 3 | 3 | 100 % |
 | `src/smtp/send.ts` | 1 | 1 | 100 % |
 | `src/smtp/env.ts` | 3 | 3 | 100 % |
@@ -146,12 +145,11 @@ Tous les problèmes d'accessibilité ont été corrigés :
 | `src/media/delete.ts` | 1 | 1 | 100 % |
 | `src/media/types.ts` | 3 constants | 3 | 100 % |
 | `src/pages/api/export-data.ts` | 1 | 1 | 100 % |
-| `src/database/schemas/` (CMS) | 7 tables | 7 | 100 % |
-| `src/database/data/` (CMS seeds) | 6 fichiers seed | 6 | 100 % |
-| `src/database/loaders/` (CMS) | ~6 fonctions | ~3 (E2E) | ~50 % |
-| `src/actions/admin/` | 19 actions | 0 (structurel E2E) | 0 % |
-| `src/i18n/` (CMS keys) | 4 locales × clés CMS | 4 | 100 % |
-| `src/lib/audit.ts` (CMS actions) | 12 AuditAction | 12 | 100 % |
+| `src/database/data/` (seeds) | 63 fichiers seed | 63 | 100 % |
+| `src/database/loaders/` | ~9 fichiers | ~3 (E2E) | ~50 % |
+| `src/actions/` | 46 fichiers TS (admin/blog/services) | 0 handlers individuels (structurel E2E) | 0 % handlers, couvert structurellement |
+| `src/i18n/` (clés) | 4 locales × clés | 4 | 100 % |
+| `src/lib/audit.ts` (actions) | 12 AuditAction | 12 | 100 % |
 | **Estimation globale** | | | **~90 %** |
 
 > Note : l'estimation de 90 % exclut les composants UI (Astro/React), le code client-side, et les Astro Actions admin (pas de harness de test standard).

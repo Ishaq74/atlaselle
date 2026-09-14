@@ -4,15 +4,14 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { getLazyDrizzle, getDrizzle, schema } from "@database/drizzle";
 import { session as sessionTable } from "@database/schemas";
 import { eq } from "drizzle-orm";
-import { username, admin, organization, testUtils } from "better-auth/plugins";
-import { ac, adminRole, editorRole, userRole, orgOwnerRole, orgAdminRole, orgMemberRole } from "@/lib/permissions";
+import { username, admin, testUtils } from "better-auth/plugins";
+import { ac, adminRole, editorRole, userRole } from "@/lib/permissions";
 
 const isTest = process.env.NODE_ENV === 'test';
 import { type Locale, LOCALES, DEFAULT_LOCALE } from "@i18n/config";
 import { verifyEmailTemplate } from "@smtp/templates/verify-email";
 import { resetPasswordTemplate } from "@smtp/templates/reset-password";
 import { deleteAccountTemplate } from "@smtp/templates/delete-account";
-import { organizationInvitationTemplate } from "@smtp/templates/organization-invitation";
 import { deleteUpload } from "@/media/delete";
 import { logAuditEvent, extractIp, type AuditAction } from "@/lib/audit";
 
@@ -44,7 +43,6 @@ export const auth = betterAuth({
       "/reset-password/*": { window: 60, max: 5 },
       "/change-password": { window: 60, max: 5 },
       "/delete-user/*": { window: 60, max: 2 },
-      "/organization/create": { window: 60, max: 5 },
     },
   },
   emailAndPassword: {
@@ -121,15 +119,6 @@ export const auth = betterAuth({
         "/admin/impersonate-user": { action: "IMPERSONATION_START", resource: "session" },
         "/admin/stop-impersonating": { action: "IMPERSONATION_STOP", resource: "session" },
         "/admin/remove-user": { action: "USER_DELETE", resource: "user" },
-        "/organization/create": { action: "ORG_CREATE", resource: "organization" },
-        "/organization/update": { action: "ORG_UPDATE", resource: "organization" },
-        "/organization/delete": { action: "ORG_DELETE", resource: "organization" },
-        "/organization/invite-member": { action: "ORG_INVITATION_SEND", resource: "invitation" },
-        "/organization/accept-invitation": { action: "ORG_INVITATION_ACCEPT", resource: "invitation" },
-        "/organization/reject-invitation": { action: "ORG_INVITATION_REJECT", resource: "invitation" },
-        "/organization/cancel-invitation": { action: "ORG_INVITATION_CANCEL", resource: "invitation" },
-        "/organization/remove-member": { action: "ORG_MEMBER_REMOVE", resource: "member" },
-        "/organization/update-member-role": { action: "ORG_MEMBER_ROLE_CHANGE", resource: "member" },
       };
 
       const mapping = pathActionMap[ctx.path];
@@ -169,7 +158,7 @@ export const auth = betterAuth({
       const ua = ctx.headers?.get("user-agent") ?? null;
 
       // Build metadata from body — whitelist safe fields only (IDs and roles, no PII)
-      const SAFE_FIELDS = new Set(['userId', 'organizationId', 'memberId', 'invitationId', 'role', 'slug']);
+      const SAFE_FIELDS = new Set(['userId', 'role', 'slug']);
       const body: Record<string, string> = {};
       if (ctx.body) {
         for (const [key, value] of Object.entries(ctx.body)) {
@@ -184,7 +173,7 @@ export const auth = betterAuth({
           userId,
           action: mapping.action,
           resource: mapping.resource,
-          resourceId: (body.organizationId ?? body.memberId ?? body.invitationId ?? body.userId ?? null) as string | null,
+          resourceId: (body.userId ?? null) as string | null,
           metadata: Object.keys(body).length > 0 ? body : null,
           ipAddress: ip,
           userAgent: ua,
@@ -212,52 +201,6 @@ export const auth = betterAuth({
         admin: adminRole,
         editor: editorRole,
         user: userRole,
-      },
-    }),
-    organization({
-      ac,
-      roles: {
-        owner: orgOwnerRole,
-        admin: orgAdminRole,
-        member: orgMemberRole,
-      },
-      dynamicAccessControl: { enabled: true },
-      async sendInvitationEmail(data) {
-        const rawBaseUrl = process.env.BETTER_AUTH_URL;
-        if (!rawBaseUrl) {
-          throw new Error('[AUTH] BETTER_AUTH_URL is required — set it in your environment variables.');
-        }
-        let baseUrl: string;
-        try {
-          const parsed = new URL(rawBaseUrl);
-          if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Invalid protocol');
-          baseUrl = parsed.origin;
-        } catch {
-          throw new Error(`[AUTH] BETTER_AUTH_URL is invalid: "${rawBaseUrl}". Must be a valid http(s) URL.`);
-        }
-        const inviterLocale = (data.inviter.user as Record<string, unknown>).locale as Locale | undefined ?? DEFAULT_LOCALE;
-        const inviteUrl = `${baseUrl}/${inviterLocale}/auth/${inviterLocale === 'fr' ? 'organisations' : 'organizations'}?org=${encodeURIComponent(data.organization.slug)}&invitation=${encodeURIComponent(data.id)}`;
-        const { subject, html, text } = organizationInvitationTemplate({
-          locale: inviterLocale,
-          inviterName: data.inviter.user.name,
-          orgName: data.organization.name,
-          role: data.role ?? 'member',
-          inviteUrl,
-        });
-        if (!isTest) import("@smtp/send").then(m => m.sendEmail({ to: data.email, subject, html, text })).catch(err => {
-          console.error('[SMTP] Organization invitation email failed:', err);
-          void logAuditEvent({ action: 'EMAIL_SEND_FAILED', resource: 'email', metadata: { template: 'org-invitation', to: data.email, error: String(err) } });
-        });
-      },
-      organizationHooks: {
-        beforeDeleteOrganization: async (data) => {
-          const org = data.organization;
-          if (org.logo?.startsWith('/uploads/')) {
-            try {
-              await deleteUpload(org.logo);
-            } catch { /* file may already be gone */ }
-          }
-        },
       },
     }),
     ...(isTest ? [testUtils()] : []),

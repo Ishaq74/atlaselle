@@ -23,10 +23,11 @@ Utiliser `db:infra` pour tout ce qui ne doit pas vivre dans les schémas Drizzle
 
 1. Lit `DB_ENV` et résout la base cible via `env.ts`
 2. Si `DB_ENV=PROD` → demande confirmation (`CONFIRM_PROD=oui` ou prompt interactif)
-3. Lit les fichiers `.sql` dans `src/database/infra/` par ordre alphabétique
-4. Découpe chaque fichier sur les marqueurs `--> statement-breakpoint`
-5. Exécute chaque fichier dans une transaction dédiée
-6. Stoppe au premier échec pour éviter un état partiellement appliqué dans le fichier courant
+3. Pré-vol : abort si la table `__drizzle_migrations` est absente (lancer d'abord `pnpm run db:migrate`)
+4. Lit les fichiers `.sql` dans `src/database/infra/` par ordre alphabétique
+5. Découpe chaque fichier sur les marqueurs `--> statement-breakpoint` puis via un tokenizer qui ne coupe que sur les `;` de top-level (protège les blocs dollar-quoted `$$`, les strings/identifiants quotés et les commentaires `--` / `/* */`)
+6. Exécute chaque fichier dans une transaction dédiée
+7. Stoppe au premier échec pour éviter un état partiellement appliqué dans le fichier courant
 
 ## Workflow recommandé
 

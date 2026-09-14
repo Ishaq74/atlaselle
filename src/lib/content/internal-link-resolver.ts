@@ -27,16 +27,16 @@ export interface InternalLinkResolver {
    * Resolve a target identifier (slug or id) to a URL + existence flag.
    * Must be safe to call many times (it may hit the DB / cache).
    */
-  resolve(target: string, ctx: { locale: string; organizationId?: string | null }): Promise<InternalLinkResolution>;
+  resolve(target: string, ctx: { locale: string }): Promise<InternalLinkResolution>;
   /**
    * Return the set of valid target identifiers for a tenant, used to detect
    * dead links in rendered HTML without N+1 queries.
    */
-  listValidTargets(ctx: { locale: string; organizationId?: string | null }): Promise<Set<string>>;
+  listValidTargets(ctx: { locale: string }): Promise<Set<string>>;
   /**
    * Search targets by query, for the editor's internal-link picker.
    */
-  search(query: string, ctx: { locale: string; organizationId?: string | null; limit?: number }): Promise<
+  search(query: string, ctx: { locale: string; limit?: number }): Promise<
     { id: string; label: string; href: string }[]
   >;
 }

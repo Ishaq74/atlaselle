@@ -31,10 +31,9 @@ interface Props {
   fileCounts: Record<string, number>;
   stats: { totalFiles: number; totalSize: number; totalFolders: number };
   baseUrl?: string;
-  organizationId?: string | null;
 }
 
-const { t, locale, folderTree, foldersList, files, currentFolderId, editFile, fileCounts, stats, baseUrl, organizationId } = Astro.props;
+const { t, locale, folderTree, foldersList, files, currentFolderId, editFile, fileCounts, stats, baseUrl } = Astro.props;
 const mediaT = t.admin.cms.media;
 
 const adminUrl = baseUrl ?? `/${locale}/admin/media`;
@@ -112,7 +111,6 @@ function filenameExt(name: string): string {
   data-locale={locale}
   data-current-folder={currentFolderId ?? ''}
   data-admin-url={adminUrl}
-  data-organization-id={organizationId ?? ''}
   data-t-saved={mediaT.saved}
   data-t-deleted={mediaT.deleted}
   data-t-uploaded={mediaT.uploaded}
@@ -594,12 +592,10 @@ function filenameExt(name: string): string {
   class MediaManager extends HTMLElement {
     private currentFolder = '';
     private adminUrl = '';
-    private organizationId = '';
 
     connectedCallback() {
       this.currentFolder = this.dataset.currentFolder ?? '';
       this.adminUrl = this.dataset.adminUrl ?? '';
-      this.organizationId = this.dataset.organizationId ?? '';
 
       this.setupFolderCreate();
       this.setupFolderDelete();
@@ -637,10 +633,9 @@ function filenameExt(name: string): string {
       submit?.addEventListener('click', async () => {
         const name = (this.querySelector('#new-folder-name') as HTMLInputElement)?.value.trim();
         const parentId = (this.querySelector('#new-folder-parent') as HTMLSelectElement)?.value || null;
-        const organizationId = this.organizationId || undefined;
 
         if (!name) return;
-        const { error } = await actions.createMediaFolder({ name, parentId, organizationId });
+        const { error } = await actions.createMediaFolder({ name, parentId });
         if (error) { this.showError(error.message); return; }
         this.showSuccess(this.dataset.tSaved ?? 'Enregistré');
         this.reload();
@@ -654,12 +649,11 @@ function filenameExt(name: string): string {
           e.stopPropagation();
           const folderId = btn.dataset.folderId;
           const folderName = btn.dataset.folderName ?? '';
-          const organizationId = this.organizationId || undefined;
           if (!folderId) return;
           const confirmMessage = (this.dataset.tConfirmDeleteFolder ?? 'Delete folder {name}?').replace('{name}', folderName);
           if (!confirm(confirmMessage)) return;
 
-          const { error } = await actions.deleteMediaFolder({ id: folderId, organizationId });
+          const { error } = await actions.deleteMediaFolder({ id: folderId });
           if (error) { this.showError(error.message); return; }
           this.showSuccess(this.dataset.tDeleted ?? 'Supprimé');
           this.reload();
@@ -678,10 +672,9 @@ function filenameExt(name: string): string {
         const doRename = async () => {
           const fileId = btn.dataset.fileId;
           const newName = input.value.trim();
-          const organizationId = this.organizationId || undefined;
           if (!fileId || !newName) return;
 
-          const { error } = await actions.renameMediaFile({ id: fileId, filename: newName, organizationId });
+          const { error } = await actions.renameMediaFile({ id: fileId, filename: newName });
           if (error) { this.showError(error.message); return; }
           this.showSuccess(this.dataset.tRenamed ?? 'Fichier renommé');
           this.reload();
@@ -709,9 +702,6 @@ function filenameExt(name: string): string {
         const formData = new FormData();
         formData.set('file', file);
         formData.set('folderId', this.currentFolder || '');
-        if (this.organizationId) {
-          formData.set('organizationId', this.organizationId);
-        }
 
         const { error } = await actions.uploadMediaFile(formData);
         if (error) { this.showError(error.message); return; }
@@ -726,11 +716,10 @@ function filenameExt(name: string): string {
       this.querySelectorAll<HTMLElement>('.delete-file-btn').forEach((btn) => {
         btn.addEventListener('click', async () => {
           const fileId = btn.dataset.fileId;
-          const organizationId = this.organizationId || undefined;
           if (!fileId) return;
           if (!confirm(this.dataset.tConfirmDeleteFile ?? 'Supprimer ce fichier ?')) return;
 
-          const { error } = await actions.deleteMediaFile({ id: fileId, organizationId });
+          const { error } = await actions.deleteMediaFile({ id: fileId });
           if (error) { this.showError(error.message); return; }
           this.showSuccess(this.dataset.tDeleted ?? 'Supprimé');
           location.href = this.currentFolder ? `${this.adminUrl}?folder=${this.currentFolder}` : this.adminUrl;
@@ -744,11 +733,10 @@ function filenameExt(name: string): string {
       this.querySelectorAll<HTMLSelectElement>('.move-select').forEach((select) => {
         select.addEventListener('change', async () => {
           const fileId = select.dataset.fileId;
-          const organizationId = this.organizationId || undefined;
           if (!fileId) return;
           const folderId = select.value || null;
 
-          const { error } = await actions.moveMediaFile({ id: fileId, folderId, organizationId });
+          const { error } = await actions.moveMediaFile({ id: fileId, folderId });
           if (error) { this.showError(error.message); return; }
           this.showSuccess(this.dataset.tSaved ?? 'Enregistré');
           this.reload();
@@ -776,7 +764,6 @@ function filenameExt(name: string): string {
       this.querySelectorAll<HTMLElement>('.save-alts-btn').forEach((btn) => {
         btn.addEventListener('click', async () => {
           const fileId = btn?.dataset.fileId;
-          const organizationId = this.organizationId || undefined;
           if (!fileId) return;
 
           const altInputs = this.querySelectorAll<HTMLInputElement>('.alt-input');
@@ -797,9 +784,9 @@ function filenameExt(name: string): string {
                 ti => ti.dataset.locale === loc && ti.dataset.fileId === fileId
               );
               const title = titleInput?.value.trim() || null;
-              promises.push(actions.upsertMediaFileAlt({ fileId, locale: loc as Locale, alt, title, organizationId }));
+              promises.push(actions.upsertMediaFileAlt({ fileId, locale: loc as Locale, alt, title }));
             } else {
-              promises.push(actions.deleteMediaFileAlt({ fileId, locale: loc as Locale, organizationId }).catch(() => {}));
+              promises.push(actions.deleteMediaFileAlt({ fileId, locale: loc as Locale }).catch(() => {}));
             }
           });
 

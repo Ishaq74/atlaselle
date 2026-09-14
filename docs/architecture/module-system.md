@@ -19,6 +19,7 @@ src/core/
   engagement/     # shared engagement contracts
   localization/   # shared localization contracts
   locks/          # shared editorial-lock contracts
+  media/          # shared media boundary (lifecycle + MediaPicker, see index.ts)
   moderation/     # shared moderation contracts
   modules/        # module contracts, registry and bootstrap
   notifications/  # shared notification contracts
@@ -36,6 +37,17 @@ src/modules/
 ```
 
 Existing platform implementations may remain in their established locations when moving them would add no architectural value. Core boundaries are contracts/adapters and must not create duplicate implementations.
+
+## Dual authority: `src/core` ↔ `src/lib/cms`
+
+Canonical authority is shared between `src/core/` and `src/lib/cms/` through cross re-exports — there is no duplicated implementation, each side re-exports the other's canonical file:
+
+- module contract is canonical in `src/core/modules/module-contract.ts`, re-exported by `src/lib/cms/module-contract.ts`;
+- module registry is canonical in `src/core/modules/module-registry.ts`, re-exported by `src/lib/cms/module-registry.ts`;
+- the capability catalogue is canonical in `src/lib/cms/capabilities.ts`, re-exported by `src/core/capabilities/index.ts`;
+- bootstrap is canonical in `src/core/modules/bootstrap.ts` (registers `blogModule`, `servicesModule`, their search definitions and the internal-link resolvers), re-exported by `src/lib/cms/bootstrap.ts` (`export { bootstrapModules } from "@/core/modules/bootstrap"`).
+
+The effective boot goes through `@/lib/cms/bootstrap`: `src/middleware.ts:3` imports `bootstrapModules` from `@/lib/cms/bootstrap` and calls it (`src/middleware.ts:7`) before any request handling.
 
 ## Module contract
 

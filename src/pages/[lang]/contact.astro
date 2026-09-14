@@ -1,12 +1,22 @@
 ---
-import { toLocale, getContactTranslations } from '@i18n/utils';
+import { toLocale, getContactTranslations, getCommonTranslations } from '@i18n/utils';
+import { LOCALES, type Locale } from '@i18n/config';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import ContactPage from '@pages/ContactPage/ContactPage.astro';
 
 const locale = toLocale(Astro.params.lang);
-const t = await getContactTranslations(locale);
+const [t, commonT] = await Promise.all([getContactTranslations(locale), getCommonTranslations(locale)]);
+// Canonique = slug localisé (pageRoutes) ; les deux voies (statique + [slug]) consolident via cross-canonical.
+const canonicalPath = `/${locale}/${commonT.pageRoutes.contact}`;
+const alternateUrls: Record<string, string> = {};
+await Promise.all(
+  LOCALES.map(async (loc: Locale) => {
+    const lt = await getCommonTranslations(loc);
+    alternateUrls[loc] = `/${loc}/${lt.pageRoutes.contact}`;
+  }),
+);
 ---
 
-<BaseLayout>
+<BaseLayout canonicalPath={canonicalPath} alternateUrls={alternateUrls}>
   <ContactPage t={t} />
 </BaseLayout>

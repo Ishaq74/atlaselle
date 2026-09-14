@@ -1,7 +1,7 @@
 # Actions & API Endpoints
 
 > **Fichiers** : `src/actions/` (Astro Actions), `src/pages/api/` (API Routes)  
-> **Pattern** : Astro 6 `defineAction()` + API Routes classiques
+> **Pattern** : Astro 7.3.1 `defineAction()` + API Routes classiques
 
 ---
 
@@ -20,45 +20,78 @@
 ```text
 src/
 ├── actions/
-│   ├── index.ts           # Export centralisé → server { ... }
-│   └── admin/
-│       ├── _helpers.ts    # assertAdmin, adminRateLimit, auditAdmin
-│       ├── site.ts        # updateSiteSettings
-│       ├── social.ts      # CRUD liens sociaux + reorder
-│       ├── contact.ts     # updateContactInfo
-│       ├── hours.ts       # updateOpeningHours
-│       ├── menus.ts       # CRUD menus navigation
-│       ├── navigation.ts  # CRUD items navigation + reorder
-│       ├── pages.ts       # CRUD pages + publish
-│       ├── sections.ts    # CRUD sections + reorder
-│       └── theme.ts       # CRUD thèmes
-└── pages/api/
+│   ├── index.ts           # Export centralisé → server { ... } (142 exports)
+│   ├── admin/             # 14 fichiers : socle CMS générique
+│   │   ├── _helpers.ts    # assertAdmin, assertPermission (RBAC), adminRateLimit, auditAdmin
+│   │   ├── site.ts        # updateSiteSettings, upsertSiteSettings
+│   │   ├── social.ts      # CRUD liens sociaux + reorder
+│   │   ├── contact.ts     # updateContactInfo
+│   │   ├── hours.ts       # updateOpeningHours
+│   │   ├── menus.ts       # CRUD menus navigation
+│   │   ├── navigation.ts  # CRUD items navigation + reorder (assertPermission RBAC)
+│   │   ├── pages.ts       # CRUD pages + publish/schedule/bulk/clone/lock (17 exports)
+│   │   ├── sections.ts    # CRUD sections + reorder
+│   │   ├── theme.ts       # CRUD thèmes
+│   │   ├── consent.ts     # updateConsentSettings
+│   │   ├── media.ts       # dossiers + fichiers médias (9 exports)
+│   │   ├── roles.ts       # rôles org + member roles (5 exports)
+│   │   └── versions.ts    # versions de pages (3 exports)
+│   ├── blog/              # 19 fichiers : actions du module blog
+│   │   ├── index.ts       # barrel de ré-export
+│   │   ├── _helpers.ts, bulk.ts, post.ts, lifecycle.ts
+│   │   ├── category.ts, tag.ts, comment.ts, review.ts
+│   │   ├── reaction.ts, moderation.ts, notification.ts
+│   │   ├── link.ts, internal-link.ts, check-links.ts
+│   │   ├── gallery.ts, view.ts, profile.ts, subscription.ts
+│   └── services/          # 13 fichiers : actions du module services
+│       ├── _helpers.ts, service.ts, lifecycle.ts
+│       ├── engagement.ts, availability.ts, reactions.ts
+│       ├── notification.ts, views.ts, attributes.ts
+│       └── taxonomy.ts, moderation.ts, media.ts, internal-link.ts
+└── pages/api/             # 14 fichiers
     ├── auth/[...all].ts   # Handler better-auth (catch-all)
-    ├── health.ts           # GET — health check (DB connectivity)
+    ├── health.ts           # GET — health check (401 sans token/loopback)
     ├── contact.ts          # POST — formulaire de contact public
     ├── upload.ts           # POST — upload fichier
-    └── export-data.ts      # GET — export données RGPD
+    ├── export-data.ts      # GET — export données RGPD (audit logs limités à 1000)
+    ├── audit-export.ts
+    ├── content-export.ts
+    ├── content-import.ts
+    ├── media.ts
+    ├── preview.ts
+    ├── search.ts
+    ├── blog/newsletter/confirm.ts
+    ├── blog/newsletter/unsubscribe.ts
+    └── cron/publish.ts
 ```
 
 ---
 
 ## 2. Astro Actions (admin CMS)
 
-Toutes les actions admin utilisent `defineAction()` d'Astro 6 avec validation Zod et protection CSRF implicite.
+Toutes les actions admin utilisent `defineAction()` d'Astro 7.3.1 avec validation Zod et protection CSRF implicite.
 
-### Liste complète (25 actions)
+### Liste complète (142 exports dans `src/actions/index.ts`)
+
+Le `server` exporté par `src/actions/index.ts` contient **142 actions** : **42** dont le nom contient `Blog` (`*Blog*`), **40** contenant `Service` (`*Service*`), **4** `bulk*` (`bulkPublishPages`, `bulkArchivePages`, `bulkRestorePages`, `bulkDeletePages` dans `admin/pages.ts`) et **56** autres (socle : site, social, contact, hours, menus, navigation, pages, sections, theme, consent, media, versions, roles — y compris `addGalleryMedia`, `removeGalleryMedia` et `updateUserProfile`, issus du barrel blog mais sans préfixe `Blog`).
 
 | Module | Actions | Fichier |
 | :-- | :-- | :-- |
-| **Site** | `updateSiteSettings` | `admin/site.ts` |
+| **Site** | `updateSiteSettings`, `upsertSiteSettings` | `admin/site.ts` |
 | **Social** | `createSocialLink`, `updateSocialLink`, `deleteSocialLink`, `reorderSocialLinks` | `admin/social.ts` |
 | **Contact** | `updateContactInfo` | `admin/contact.ts` |
 | **Horaires** | `updateOpeningHours` | `admin/hours.ts` |
 | **Menus** | `createNavigationMenu`, `updateNavigationMenu`, `deleteNavigationMenu` | `admin/menus.ts` |
 | **Navigation** | `createNavigationItem`, `updateNavigationItem`, `deleteNavigationItem`, `reorderNavigationItems` | `admin/navigation.ts` |
-| **Pages** | `createPage`, `updatePage`, `deletePage`, `publishPage` | `admin/pages.ts` |
+| **Pages** | `createPage`, `updatePage`, `deletePage`, `publishPage`, `schedulePage`, `unschedulePage`, `scheduleUnpublishPage`, `unscheduleUnpublishPage`, `restoreFromTrash`, `permanentlyDeletePage`, `bulkPublishPages`, `bulkArchivePages`, `bulkRestorePages`, `bulkDeletePages`, `clonePage`, `lockPage`, `unlockPage` (17) | `admin/pages.ts` |
 | **Sections** | `createSection`, `updateSection`, `deleteSection`, `reorderSections` | `admin/sections.ts` |
 | **Thème** | `createTheme`, `updateTheme`, `deleteTheme` | `admin/theme.ts` |
+| **Consentement** | `updateConsentSettings` | `admin/consent.ts` |
+| **Médias** | `createMediaFolder`, `updateMediaFolder`, `deleteMediaFolder`, `uploadMediaFile`, `renameMediaFile`, `moveMediaFile`, `deleteMediaFile`, `upsertMediaFileAlt`, `deleteMediaFileAlt` (9) | `admin/media.ts` |
+| **Versions** | `createPageVersion`, `listPageVersions`, `restorePageVersion` | `admin/versions.ts` |
+| **Rôles** | `listOrgRoles`, `createOrgRole`, `updateOrgRole`, `deleteOrgRole`, `updateMemberRole` | `admin/roles.ts` |
+| **Blog** | 42 exports `*Blog*` (+ `addGalleryMedia`, `removeGalleryMedia`, `updateUserProfile`) | `blog/` (19 fichiers, barrel `blog/index.ts`) |
+| **Services** | 40 exports `*Service*` | `services/` (13 fichiers) |
 
 ### Pattern standard
 
@@ -68,8 +101,8 @@ Chaque action suit le même pattern :
 export const createNavigationItem = defineAction({
   input: z.object({ /* schema Zod */ }),
   handler: async (input, context) => {
-    // 1. Auth + rôle admin
-    const user = assertAdmin(context);
+    // 1. Auth + permission RBAC
+    const user = await assertPermission(context, { navigation: ["update"] });
 
     // 2. Rate limit
     adminRateLimit(context, user.id, "nav");
@@ -135,18 +168,17 @@ Export RGPD des données utilisateur au format JSON.
 | :-- | :-- |
 | Auth | Session requise |
 | Rate limit | 5 req/60s par userId |
-| Données | user, accounts, sessions, memberships, invitations, audit logs (max 10 000 entrées) |
+| Données | user, accounts, sessions, memberships, invitations, audit logs (`.limit(1000)` + `_warning` « Audit logs truncated to 1000 entries. Contact support for full export. » si tronqué) |
 | Retour | JSON avec `Content-Disposition: attachment` |
 
 ### `GET /api/health`
 
-Health check — vérifie la connectivité à la base de données PostgreSQL.
+Health check — vérifie la DB, le SMTP et l'accès disque `public/uploads`.
 
 | Étape | Détail |
 | :-- | :-- |
-| Auth | Aucune (endpoint public) |
-| Réponse 200 | `{ status: "ok", db: { ok: true, latencyMs: N } }` |
-| Réponse 503 | `{ status: "degraded"\|"error", db: { ok: false } }` |
+| Auth | **401** `{ error: "Unauthorized" }` sans `HEALTH_TOKEN` (Bearer) ; si `HEALTH_TOKEN` n'est pas configuré, seules les requêtes loopback directes (sans `x-forwarded-for`) sont autorisées |
+| Réponse 200/503 | `{ status: "ok"\|"degraded", version, uptime, timestamp, db: { ok }, smtp: { ok, provider }, disk: { uploadsWritable }, cache: { size, hits, misses } }` (503 si DB, SMTP ou disque KO ; `status: "error"` en cas d'exception) |
 | Cache | `Cache-Control: no-store` |
 
 ### `POST /api/contact`
@@ -165,13 +197,13 @@ Soumission du formulaire de contact public. Envoie un email au destinataire conf
 
 ### `GET /sitemap-cms.xml`
 
-Sitemap XML dynamique des pages CMS. Génère les URLs pour chaque locale (homepage + pages publiées).
+Sitemap XML dynamique des pages CMS, du blog et des services. Génère les URLs pour chaque locale.
 
 | Étape | Détail |
 | :-- | :-- |
 | Auth | Aucune (endpoint public) |
-| Données | `getPagesList()` par locale (4 locales) |
-| Retour | XML `sitemap/0.9` |
+| Données | `getPagesList()` + `pageRoutes` (i18n) + `getBlogCategories` / `getBlogTags` / `getBlogPosts` + `getServices` / `getServiceCategories` / `getServiceTags`, par locale |
+| Retour | XML `sitemap/0.9` avec `Cache-Control: public, max-age=3600` |
 
 ---
 
@@ -186,6 +218,13 @@ Vérifie que l'utilisateur est connecté et a le rôle `admin`. Lève une `Actio
 - `UNAUTHORIZED` si non connecté
 - `FORBIDDEN` si non admin
 
+### `assertPermission(context, permissions): Promise<User>`
+
+Contrôle d'accès RBAC utilisé par les actions (ex. `await assertPermission(context, { navigation: ["update"] })` dans `admin/navigation.ts`). Vérifie la session, rejette les comptes suspendus (`banned`), puis délègue à `auth.api.userHasPermission` avec le rôle de l'utilisateur. Lève une `ActionError` :
+
+- `UNAUTHORIZED` si non connecté
+- `FORBIDDEN` si compte suspendu ou permissions insuffisantes
+
 ### `adminRateLimit(context, userId, scope, opts?)`
 
 Applique un rate limit par userId et scope. Lève `TOO_MANY_REQUESTS` si dépassé.
@@ -199,6 +238,10 @@ Applique un rate limit par userId et scope. Lève `TOO_MANY_REQUESTS` si dépass
 ### `auditAdmin(context, userId, action, opts?)`
 
 Enregistre un événement d'audit de manière non-bloquante (`void`). Extrait automatiquement l'IP et le User-Agent des headers de la requête.
+
+### Bootstrap des modules — `src/lib/cms/bootstrap.ts`
+
+`src/lib/cms/bootstrap.ts` ré-exporte `bootstrapModules` depuis `@/core/modules/bootstrap`. Le middleware (`src/middleware.ts`) l'appelle à chaque requête avant tout traitement, ce qui enregistre les modules blog/services, leurs définitions de recherche et leurs resolvers de liens internes.
 
 ### Helpers admin data — `src/lib/auth-data.ts`
 
@@ -229,7 +272,7 @@ Fonctions de lecture pour les pages admin (SSR loaders). Chaque fonction vérifi
    });
    ```
 
-3. **Implémenter le handler** avec le pattern standard (assertAdmin → rate limit → DB → audit → cache invalidation)
+3. **Implémenter le handler** avec le pattern standard (assertPermission RBAC → rate limit → DB → audit → cache invalidation)
 
 4. **Exporter** dans `src/actions/index.ts` :
 

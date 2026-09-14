@@ -64,11 +64,12 @@ src/modules/<module>/
 ├── utils/
 ├── validation/
 ├── capabilities.ts
-├── module.ts
-└── workflow.ts
+└── module.ts
 ```
 
 The convention describes ownership and responsibility. It does not require duplicating shared infrastructure.
+
+Only Services adds a `workflow.ts` (`src/modules/services/workflow.ts`, the `SERVICE_WORKFLOW` state machine). Blog has no `workflow.ts` — its lifecycle lives in `src/actions/blog/lifecycle.ts` on top of the shared contract (`src/lib/cms/workflow.ts`).
 
 ## Administration surfaces
 
@@ -79,14 +80,9 @@ Global
   /{lang}/admin/<module>
   /{lang}/admin/<module>/new
   /{lang}/admin/<module>/{id}/edit
-
-Organization
-  /{lang}/organizations/{slug}/admin/<module>
-  /{lang}/organizations/{slug}/admin/<module>/new
-  /{lang}/organizations/{slug}/admin/<module>/{id}/edit
 ```
 
-The organization slug selects tenant context only. Authentication, RBAC and ownership checks remain server-side.
+There are no `/{lang}/organizations/...` routes: no `organizations/*` file exists under `src/pages/[lang]/`. Authentication, RBAC and ownership checks remain server-side.
 
 ## Blog reference module
 
@@ -129,7 +125,7 @@ configurable attributes
 
 without introducing a second CMS, media system, workflow engine, search engine, revision system, notification engine or audit system.
 
-Services also exercises the same public and organization-scoped routes, admin resource model, presentation grammar, i18n and tenant boundaries as Blog.
+Services also exercises the same public routes, admin resource model, presentation grammar, i18n and tenant boundaries as Blog.
 
 ## Shared versus domain-specific ownership
 

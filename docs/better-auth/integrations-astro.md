@@ -8,21 +8,16 @@ Before you start, make sure you have a Better Auth instance configured. If you h
 
 Mount the handler [#mount-the-handler]
 
-To enable Better Auth to handle requests, we need to mount the handler to a catch all API route. Create a file inside `/pages/api/auth` called `[...all].ts` and add the following code:
+Better Auth requests are handled by the catch-all API route `src/pages/api/auth/[...all].ts`:
 
-```ts title="pages/api/auth/[...all].ts"
-import { auth } from "~/auth";
+```ts title="src/pages/api/auth/[...all].ts"
+import { auth } from "@/lib/auth";
 import type { APIRoute } from "astro";
 
 export const ALL: APIRoute = async (ctx) => {
-	// If you want to use rate limiting, make sure to set the 'x-forwarded-for' header to the request headers from the context
-	// ctx.request.headers.set("x-forwarded-for", ctx.clientAddress);
-	return auth.handler(ctx.request);
+  return auth.handler(ctx.request);
 };
 ```
-
-
-  You can change the path on your better-auth configuration but it's recommended to keep it as `/api/auth/[...all]`
 
 
 Create a client [#create-a-client]
@@ -93,17 +88,49 @@ declare namespace App {
 
 Middleware [#middleware]
 
-To protect your routes, you can check if the user is authenticated using the `getSession` method in middleware and set the user and session data using the Astro locals with the types we set before. Start by creating a `middleware.ts` file in the root of your project and follow the example below:
+The project middleware (`src/middleware.ts`) resolves the session via `auth.api.getSession({ headers })` — without `x-forwarded-for`. It also calls `bootstrapModules()`, rejects invalid `[lang]` segments with a 404 locale-guard, and returns `503` (+ `Retry-After: 5`) if the session check exceeds a 5s timeout:
 
-```ts title="middleware.ts"
-import { auth } from "@/auth";
+```ts title="src/middleware.ts"
+import { auth } from "@/lib/auth";
+import { LOCALES } from "@/i18n/config";
+import { bootstrapModules } from "@/lib/cms/bootstrap";
 import { defineMiddleware } from "astro:middleware";
 
 export const onRequest = defineMiddleware(async (context, next) => {
-    const isAuthed = await auth.api
-        .getSession({
-            headers: context.request.headers,
-        })
+    bootstrapModules();
+
+    // ─── Locale guard — reject invalid [lang] segments with 404 ─────
+    const pathSegments = new URL(context.request.url).pathname.split('/').filter(Boolean);
+    const maybeLang = pathSegments[0];
+    if (maybeLang && /^[a-z]{2}$/.test(maybeLang) && !(LOCALES as readonly string[]).includes(maybeLang)) {
+        return new Response('Not Found', { status: 404 });
+    }
+
+    let timedOut = false;
+    let isAuthed: Awaited<ReturnType<typeof auth.api.getSession>> | null = null;
+    const sessionPromise = auth.api.getSession({ headers: context.request.headers });
+
+    try {
+        isAuthed = await Promise.race([
+            sessionPromise,
+            new Promise<null>((resolve) => setTimeout(() => { timedOut = true; resolve(null); }, 5000)),
+        ]);
+    } catch (err) {
+        console.error('[middleware] Session check failed:', err);
+        isAuthed = null;
+    }
+
+    sessionPromise.catch((err) => {
+        if (timedOut) console.warn('[middleware] Orphaned session check failed after timeout:', err);
+    });
+
+    if (timedOut) {
+        console.warn('[middleware] Session check timed out (5s) — returning 503');
+        return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), {
+            status: 503,
+            headers: { 'Retry-After': '5', 'Content-Type': 'application/json' },
+        });
+    }
 
     if (isAuthed) {
         context.locals.user = isAuthed.user;

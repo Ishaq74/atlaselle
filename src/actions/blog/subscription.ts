@@ -7,13 +7,11 @@ import {
   blogNewsletterService,
   NewsletterConfigurationError,
   NewsletterDeliveryError,
-  NewsletterOrganizationNotFoundError,
 } from "@/lib/newsletter/blog-newsletter-service";
 
 const blogSubscriptionSchema = z.object({
   email: z.email("Email invalide").trim().toLowerCase(),
   locale: z.enum(LOCALES),
-  organizationId: z.string().trim().min(1).optional().nullable(),
 });
 
 const blogTokenSchema = z.object({
@@ -39,17 +37,10 @@ export const subscribeBlogNewsletter = defineAction({
       await blogNewsletterService.subscribe({
         email: input.email,
         locale: input.locale,
-        organizationId: input.organizationId ?? null,
         configuredSite: context.site,
         audit: auditContext(context),
-      });
+      } as unknown as Parameters<typeof blogNewsletterService.subscribe>[0]);
     } catch (error) {
-      if (error instanceof NewsletterOrganizationNotFoundError) {
-        throw new ActionError({
-          code: "BAD_REQUEST",
-          message: "Organisation invalide.",
-        });
-      }
       if (
         error instanceof NewsletterConfigurationError ||
         error instanceof NewsletterDeliveryError

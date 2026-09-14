@@ -13,10 +13,10 @@ pnpm run db:migrate -- --reset # supprime TOUTES les tables puis applique toutes
 
 1. Lit `DB_ENV` et résout l'URL via `env.ts`
 2. Si `DB_ENV=PROD` → demande confirmation (`CONFIRM_PROD=oui` ou prompt interactif)
-3. Si `--reset` → demande une confirmation destructive, supprime toutes les tables via `resetAllTables()`, puis efface le journal `__drizzle_migrations`
+3. Si `--reset` → demande une confirmation destructive, supprime toutes les tables via `resetAllTables()` (DROP), puis recrée le journal `__drizzle_migrations` (via `ensureMigrationsTable()`)
 4. Crée la table `__drizzle_migrations` si elle n'existe pas
 5. Compare les fichiers `.sql` dans `src/database/migrations/` avec le journal
-6. Applique chaque migration SQL en attente (statement par statement, transaction par statement)
+6. Applique chaque migration en attente dans un `BEGIN` global, avec un `SAVEPOINT` par statement : les erreurs "already exists" (`42P07`, `42710`, `42701`) sont ignorées (skip idempotent), toute autre erreur provoque un `ROLLBACK`
 7. Enregistre chaque migration appliquée dans `__drizzle_migrations`
 8. Si le projet utilise `src/database/infra/`, appliquer ensuite `pnpm run db:infra` pour la couche SQL avancée hors Drizzle
 

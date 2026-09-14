@@ -7,7 +7,6 @@ import {
   getAuthTranslations,
   getCommonTranslations,
   getAdminUrl,
-  getOrgUrl,
   toLocale,
   isValidLocale,
   isRTL,
@@ -52,21 +51,23 @@ const AUTH_ROUTES: Record<Locale, Record<AuthPageId, string>> = {
     organizations: 'organizaciones',
   },
   ar: {
-    'sign-in': 'تسجيل-الدخول',
-    'sign-up': 'انشاء-حساب',
-    dashboard: 'لوحة-التحكم',
-    admin: 'الادارة',
-    'forgot-password': 'نسيت-كلمة-المرور',
-    'reset-password': 'اعادة-تعيين-كلمة-المرور',
-    'verify-email': 'تاكيد-البريد',
-    profile: 'الملف-الشخصي',
-    organizations: 'المؤسسات',
+    'sign-in': 'sign-in',
+    'sign-up': 'sign-up',
+    dashboard: 'dashboard',
+    admin: 'admin',
+    'forgot-password': 'forgot-password',
+    'reset-password': 'reset-password',
+    'verify-email': 'verify-email',
+    profile: 'profile',
+    organizations: 'organizations',
   },
 };
 
-const PAGE_ROUTES: Record<'fr' | 'en', Record<PageId, string>> = {
+const PAGE_ROUTES: Record<Locale, Record<PageId, string>> = {
   fr: { about: 'a-propos', contact: 'contact', legal: 'mentions-legales' },
   en: { about: 'about', contact: 'contact', legal: 'legal-notice' },
+  es: { about: 'acerca-de', contact: 'contacto', legal: 'aviso-legal' },
+  ar: { about: 'about', contact: 'contact', legal: 'legal-notice' },
 };
 
 const AUTH_PAGE_IDS: AuthPageId[] = [
@@ -111,7 +112,7 @@ describe('resolveAuthSlug', () => {
 // ─── getPageUrl ─────────────────────────────────────────────────────
 
 describe('getPageUrl', () => {
-  it.each(['fr', 'en'] as const)('generates correct page URLs for locale %s', async (locale) => {
+  it.each(LOCALES)('generates correct page URLs for locale %s', async (locale) => {
     const t = await getCommonTranslations(locale);
     for (const [pageId, slug] of Object.entries(PAGE_ROUTES[locale])) {
       const url = getPageUrl(locale, pageId as PageId, t);
@@ -123,7 +124,7 @@ describe('getPageUrl', () => {
 // ─── resolvePageSlug ────────────────────────────────────────────────
 
 describe('resolvePageSlug', () => {
-  it.each(['fr', 'en'] as const)('resolves all page slugs back to pageId for locale %s', async (locale) => {
+  it.each(LOCALES)('resolves all page slugs back to pageId for locale %s', async (locale) => {
     const t = await getCommonTranslations(locale);
     for (const [pageId, slug] of Object.entries(PAGE_ROUTES[locale])) {
       expect(resolvePageSlug(slug, t)).toBe(pageId);
@@ -174,20 +175,6 @@ describe('getAdminUrl', () => {
   });
 });
 
-// ─── getOrgUrl ──────────────────────────────────────────────────────
-
-describe('getOrgUrl', () => {
-  it('generates base org URL without subpage', () => {
-    expect(getOrgUrl('fr', 'my-org')).toBe('/fr/organizations/my-org');
-  });
-
-  it('generates org URL with subpage', () => {
-    expect(getOrgUrl('en', 'acme', 'members')).toBe('/en/organizations/acme/members');
-    expect(getOrgUrl('en', 'acme', 'blog')).toBe('/en/organizations/acme/admin/blog');
-    expect(getOrgUrl('fr', 'acme', 'settings')).toBe('/fr/organizations/acme/settings');
-  });
-});
-
 // ─── toLocale ───────────────────────────────────────────────────────
 
 describe('toLocale', () => {
@@ -198,9 +185,9 @@ describe('toLocale', () => {
   });
 
   it('returns default locale for invalid value', () => {
-    expect(toLocale('xx')).toBe('fr');
-    expect(toLocale(undefined)).toBe('fr');
-    expect(toLocale('')).toBe('fr');
+    expect(toLocale('xx')).toBe('en');
+    expect(toLocale(undefined)).toBe('en');
+    expect(toLocale('')).toBe('en');
   });
 });
 

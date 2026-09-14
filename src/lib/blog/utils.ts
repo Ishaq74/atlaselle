@@ -14,9 +14,9 @@ const BLOG_ROUTE_SEGMENTS: Record<Locale, string> = {
   ar: arBlog.routes.blog,
 };
 
-export function buildBlogUrl(locale: Locale, organizationSlug: string | null, ...segments: (string | undefined)[]): string {
+export function buildBlogUrl(locale: Locale, ...segments: (string | undefined)[]): string {
   const blogRoute = BLOG_ROUTE_SEGMENTS[locale];
-  const base = organizationSlug ? `/${locale}/organizations/${organizationSlug}/${blogRoute}` : `/${locale}/${blogRoute}`;
+  const base = `/${locale}/${blogRoute}`;
   const path = segments.filter(Boolean).join("/");
   return path ? `${base}/${path}` : base;
 }
@@ -26,21 +26,16 @@ export function buildBlogHref(baseUrl: string, ...segments: (string | null | und
   return path ? `${baseUrl}/${path}` : baseUrl;
 }
 
-export function extractOrgSlugFromBaseUrl(baseUrl: string): string | null {
-  const match = baseUrl.match(/\/organizations\/([^/]+)\/blog(?:\/|$)/);
-  return match ? match[1] : null;
+export function buildBlogPostUrl(locale: Locale, slug: string, categorySlug?: string | null): string {
+  return buildBlogUrl(locale, categorySlug ?? undefined, slug);
 }
 
-export function buildBlogPostUrl(locale: Locale, organizationSlug: string | null, slug: string, categorySlug?: string | null): string {
-  return buildBlogUrl(locale, organizationSlug, categorySlug ?? undefined, slug);
+export function buildBlogCategoryUrl(locale: Locale, slug: string): string {
+  return buildBlogUrl(locale, slug);
 }
 
-export function buildBlogCategoryUrl(locale: Locale, organizationSlug: string | null, slug: string): string {
-  return buildBlogUrl(locale, organizationSlug, slug);
-}
-
-export function buildBlogTagUrl(locale: Locale, organizationSlug: string | null, tagSegment: string, slug: string): string {
-  return buildBlogUrl(locale, organizationSlug, tagSegment, slug);
+export function buildBlogTagUrl(locale: Locale, tagSegment: string, slug: string): string {
+  return buildBlogUrl(locale, tagSegment, slug);
 }
 
 export function buildBlogPostHref(baseUrl: string, slug: string, categorySlug?: string | null): string {
@@ -55,17 +50,17 @@ export function buildBlogTagHref(baseUrl: string, tagSegment: string, slug: stri
   return buildBlogHref(baseUrl, tagSegment, slug);
 }
 
-export function buildBlogAuthorUrl(locale: Locale, organizationSlug: string | null, username: string): string {
+export function buildBlogAuthorUrl(locale: Locale, username: string): string {
   const authorSegment = ({ fr: frBlog, en: enBlog, es: esBlog, ar: arBlog } as const)[locale].routes.author;
-  return buildBlogUrl(locale, organizationSlug, authorSegment, username);
+  return buildBlogUrl(locale, authorSegment, username);
 }
 
 export function buildBlogAuthorHref(baseUrl: string, authorSegment: string, username: string): string {
   return buildBlogHref(baseUrl, authorSegment, username);
 }
 
-export function buildBlogAdminUrl(locale: Locale, organizationSlug: string | null, ...segments: (string | undefined)[]): string {
-  const base = organizationSlug ? `/${locale}/organizations/${organizationSlug}/admin/blog` : `/${locale}/admin/blog`;
+export function buildBlogAdminUrl(locale: Locale, ...segments: (string | undefined)[]): string {
+  const base = `/${locale}/admin/blog`;
   const path = segments.filter(Boolean).join("/");
   return path ? `${base}/${path}` : base;
 }

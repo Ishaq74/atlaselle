@@ -6,25 +6,20 @@ import { blogPostLinks } from "@database/schemas";
 import { blogLinkFormSchema, blogLinkUpdateSchema } from "@/lib/blog/validation";
 import {
   assertBlogPermission,
-  resolveBlogTenant,
-  assertPostInTenant,
+  assertBlogPostExists,
   blogRateLimit,
   auditBlog,
   invalidateBlogCache,
-  blogOrganizationIdSchema,
 } from "./_helpers";
 
 export const createBlogLink = defineAction({
-  input: blogLinkFormSchema.extend({
-    organizationId: blogOrganizationIdSchema,
-  }),
+  input: blogLinkFormSchema,
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blog: ["update"] });
+    const user = await assertBlogPermission(context, { blog: ["update"] });
     blogRateLimit(context, user.id, "link-create");
 
-    await assertPostInTenant(input.sourcePostId, tenant);
-    await assertPostInTenant(input.targetPostId, tenant);
+    await assertBlogPostExists(input.sourcePostId);
+    await assertBlogPostExists(input.targetPostId);
     if (input.sourcePostId === input.targetPostId) {
       throw new ActionError({
         code: "BAD_REQUEST",
@@ -56,12 +51,9 @@ export const createBlogLink = defineAction({
 });
 
 export const updateBlogLink = defineAction({
-  input: blogLinkUpdateSchema.extend({
-    organizationId: blogOrganizationIdSchema,
-  }),
+  input: blogLinkUpdateSchema,
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blog: ["update"] });
+    const user = await assertBlogPermission(context, { blog: ["update"] });
     blogRateLimit(context, user.id, "link-update");
 
     const db = getDrizzle();
@@ -72,7 +64,7 @@ export const updateBlogLink = defineAction({
       .limit(1);
     if (!link) throw new ActionError({ code: "NOT_FOUND", message: "Lien introuvable." });
 
-    await assertPostInTenant(link.sourcePostId, tenant);
+    await assertBlogPostExists(link.sourcePostId);
 
     await db
       .update(blogPostLinks)
@@ -96,11 +88,9 @@ export const updateBlogLink = defineAction({
 export const deleteBlogLink = defineAction({
   input: z.object({
     id: z.uuid(),
-    organizationId: blogOrganizationIdSchema,
   }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blog: ["update"] });
+    const user = await assertBlogPermission(context, { blog: ["update"] });
     blogRateLimit(context, user.id, "link-delete");
 
     const db = getDrizzle();
@@ -111,7 +101,7 @@ export const deleteBlogLink = defineAction({
       .limit(1);
     if (!link) throw new ActionError({ code: "NOT_FOUND", message: "Lien introuvable." });
 
-    await assertPostInTenant(link.sourcePostId, tenant);
+    await assertBlogPostExists(link.sourcePostId);
 
     await db.delete(blogPostLinks).where(eq(blogPostLinks.id, input.id));
 

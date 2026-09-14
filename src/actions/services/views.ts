@@ -5,18 +5,16 @@ import { getDrizzle } from "@database/drizzle";
 import { services, serviceViewStats } from "@database/schemas";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { extractIp } from "@/lib/audit";
-import { resolveServiceTenant, assertServiceInTenant, serviceOrganizationIdSchema } from "./_helpers";
+import { assertServiceExists } from "./_helpers";
 
 export const recordServiceView = defineAction({
   input: z.object({
     serviceId: z.uuid(),
-    organizationId: serviceOrganizationIdSchema,
     referrer: z.string().url().optional().nullable(),
     country: z.string().length(2).optional().nullable(),
   }),
   handler: async (input, context) => {
-    const tenant = resolveServiceTenant(input);
-    const service = await assertServiceInTenant(input.serviceId, tenant);
+    const service = await assertServiceExists(input.serviceId);
     if (service.status !== "PUBLISHED") return { success: false };
 
     const ip = extractIp(context.request.headers, context.clientAddress);

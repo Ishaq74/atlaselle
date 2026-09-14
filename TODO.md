@@ -1,3 +1,15 @@
+> STATUT DOCUMENT (2026-09-14) — TRAJECTOIRE DATÉE, PAS ÉTAT TEMPS RÉEL.
+> Source de vérité temps réel : `docs/ETAT-REEL.md` + `package.json` + `src/`.
+> Déjà réalisés depuis la rédaction (ne plus traiter comme gaps) :
+> `src/i18n/routes.ts` existe (152 lignes, TODO §4.3/§7.2 obsolète) ;
+> CSP existe (`astro.config.mjs:75-88`, TODO §18.1 obsolète) ;
+> legacy `src/pages/fr/`, `src/pages/ar/` supprimés (TODO §1.1/§4.1/A.2 fait) ;
+> `src/pages/api/booking-quote.ts` supprimé (mock, TODO §1.1 obsolète) ;
+> `src/components/pages/org/` vidé (pages org supprimées) ;
+> `src/pages/sitemap-blog-org.xml.ts`, `sitemap-services-org.xml.ts` supprimés.
+> Restent vrais gaps : schémas/services voyage (Trip, Departure, Pricing, Availability, Application, Reservation, Payment), modules `src/modules/trips|departures|…`, loaders `loadTripPage()`, templates email voyage 12×4, migrations 0010→0015, seeds 41→46.
+> README*.md non édités ici (générés par `pnpm readme:generate` — voir `readme-builder/`).
+
 Ce que définit ce document
 Ce document définit :
 
@@ -122,9 +134,9 @@ Le repo implémente aujourd'hui :
 
 ✅ une brique ATLASELLE partielle : src/components/pages/AtlaselleHome.astro, src/components/pages/TripPage.astro, src/pages/[lang]/trips/[slug].astro, src/pages/[lang]/apply/[trip].astro ;
 
-⚠️ src/pages/api/booking-quote.ts = mock statique sur src/data/trips (pas de DB, pas de service) — à supprimer/remplacer par PricingService + AvailabilityService ;
+✅ FAIT (2026-09-14) : `src/pages/api/booking-quote.ts` supprimé (était mock statique sur src/data/trips). Reste `src/data/trips.ts` comme données statiques temporaires en attendant PricingService + AvailabilityService ;
 
-🟡 des routes legacy src/pages/fr/... et src/pages/ar/... à supprimer. Routage unique : src/pages/[lang]/... (Astro dynamique, jamais de dossiers fr/en/es/ar en dur). Pas de redirection 301 : le site n'existe pas encore en production ;
+✅ FAIT (2026-09-14) : routes legacy `src/pages/fr/...` et `src/pages/ar/...` supprimées. Routage unique : src/pages/[lang]/... (Astro dynamique, jamais de dossiers fr/en/es/ar en dur). Pas de redirection 301 : le site n'existe pas encore en production ;
 
 ❌ aucun schéma DB voyage (Trip, Departure, Itinerary, Traveler, Application, Reservation, Payment, SeatHold) ;
 
@@ -210,8 +222,8 @@ Adapter      : @astrojs/node (SSR)
 Data         : PostgreSQL 16, Drizzle ORM, Drizzle Kit
 Validation   : Zod
 Auth         : better-auth (email/password, organisations, rôles, impersonation)
-UI           : Tailwind CSS 4 + Starwind (47+ composants accessibles)
-Tests        : Vitest (741 tests) + Playwright (34 E2E × 3 navigateurs)
+UI           : Tailwind CSS 4 + Starwind (48 atoms vérifiés, voir docs/ETAT-REEL.md)
+Tests        : Vitest (81 unit + 15 intégration, voir docs/ETAT-REEL.md) + Playwright (6 specs E2E × 3 navigateurs)
 Qualité      : ESLint, Prettier, TypeScript strict, GitHub Actions, CodeQL
 Emails       : SMTP (Brevo / Resend / Nodemailer) + dead-letter queue JSONL
 Sanitisation : src/lib/sanitize.ts
@@ -271,9 +283,8 @@ src/
 │   ├── 404.astro, 500.astro
 │   ├── robots.txt.ts, rss.xml.ts
 │   ├── sitemap-*.xml.ts
-│   ├── api/                    (audit-export, auth/[...all], blog/newsletter, booking-quote, contact, content-export, content-import, cron/publish, export-data, health, media, preview, search, upload)
-│   ├── fr/                     ⚠️ LEGACY à supprimer (candidature/[voyage], conditions, voyages/[slug])
-│   ├── ar/                     ⚠️ LEGACY à supprimer (conditions)
+│   ├── api/                    (audit-export, auth/[...all], blog/newsletter, contact, content-export, content-import, cron/publish, export-data, health, media, preview, search, upload — booking-quote supprimé 2026-09-14)
+│   ├── fr/, ar/                ✅ SUPPRIMÉS 2026-09-14 (plus de dossiers statiques de langue)
 │   └── [lang]/                 ✅
 │       ├── a-propos.astro
 │       ├── admin/              (audit, blog, index, media, navigation, pages, roles, services, site, stats, theme, users)
@@ -287,8 +298,8 @@ src/
 │       ├── terms.astro
 │       ├── trips/[slug].astro  ✅ (détail voyage ATLASELLE)
 │       └── [slug].astro        (pages CMS dynamiques)
-├── smtp/                       ✅ (providers: brevo, resend, nodemailer ; templates ; logs/ dead-letter)
-├── styles/global.css           ✅ (86 CSS custom properties)
+├── smtp/                       ✅ (providers: brevo, resend, nodemailer ; templates ; dead-letter dans logs/ racine, pas src/smtp/logs/)
+├── styles/global.css           ✅ (voir docs/ETAT-REEL.md pour le compte réel des tokens)
 └── middleware.ts               ✅
 4.2 Structure cible — modules à créer
 text
@@ -323,7 +334,7 @@ services : présent. Deux options : soit renommé/remplacé par trips, soit cons
 
 Routage : conserver [lang] dynamique. Supprimer les dossiers legacy src/pages/fr/ et src/pages/ar/ — ils court-circuitent le segment [lang] et dupliquent la logique.
 
-i18n/routes.ts : à créer — table centralisée des slugs traduits par langue.
+i18n/routes.ts : ✅ FAIT 2026-09-14 (`src/i18n/routes.ts`, 152 lignes) — table centralisée des slugs traduits par langue.
 
 5. DESIGN SYSTEM & TOKENS
 5.1 Composants minimum — ✅ déjà présents
@@ -332,7 +343,7 @@ Le repo contient 48 composants atoms/ couvrant : accordion, alert, alert-dialog,
 Le design system est accessible par défaut. Aucun module admin ne recrée son propre Button.
 
 5.2 Tokens — ✅ déjà présents
-src/styles/global.css — 86 CSS custom properties :
+src/styles/global.css (compte réel : voir docs/ETAT-REEL.md, l'ancien chiffre 86 est obsolète) :
 
 css
 --animate-accordion-down, --animate-accordion-up
@@ -388,7 +399,8 @@ Segments d'URL des langues latines (FR, ES) : traduits.
 
 Segments d'URL arabes : anglais translittéré ASCII (fiabilité partage / copier-coller / indexation). Contenu de la page : entièrement en arabe.
 
-Routage technique : segment dynamique [lang] unique OBLIGATOIRE. Interdit : dossiers statiques src/pages/fr/, src/pages/en/, src/pages/es/, src/pages/ar/. Toute page publique et admin vit sous src/pages/[lang]/.... Table centralisée dans src/i18n/routes.ts (❌ à créer). Décision : slugs voyage traduits par langue (trip_translations.slug, UNIQUE(locale, slug)) ; slugs AR en ASCII anglais.
+Routage technique : segment dynamique [lang] unique OBLIGATOIRE. Interdit : dossiers statiques src/pages/fr/, src/pages/en/, src/pages/es/, src/pages/ar/. Toute page publique et admin vit sous src/pages/[lang]/.... Table centralisée dans src/i18n/routes.ts (✅ FAIT 2026-09-14). Décision : slugs voyage traduits par langue (trip_translations.slug, UNIQUE(locale, slug)) ; slugs AR voyage en ASCII anglais.
+> ✅ TRANCHÉ 2026-09-14 (SEO + usage réel : Google accepte les deux, translittéré explicitement OK ; arabe natif → %D9… illisible au partage, 404 alef/hamza, fonctionnel mondial en latin) : AR structurel = EN ASCII partout (`about`, `contact`, `legal-notice`, auth, `trips`, `apply`). Contenu arabe intégral. Voir docs/ETAT-REEL.md §5.
 
 Zone	FR	EN	AR	ES
 Accueil	/fr/	/en/	/ar/	/es/
@@ -686,7 +698,7 @@ Révision juridique qualifiée étendue aux 4 langues (traduction juridique, pas
 
 14. EMAILS, NOTIFICATIONS, JOBS, OUTBOX
 14.1 Emails transactionnels
-État actuel : ✅ src/smtp/ avec providers Brevo / Resend / Nodemailer, templates i18n (verify-email, reset-password, organization-invitation, contact-form, delete-account, blog-newsletter), dead-letter queue (src/smtp/logs/, JSONL par jour).
+État actuel : ✅ src/smtp/ avec providers Brevo / Resend / Nodemailer, templates i18n (verify-email, reset-password, contact-form, delete-account, blog-newsletter + layout, i18n), dead-letter queue (logs/ racine, JSONL par jour). organization-invitation.ts N'EXISTE PAS (supprimé avec les pages org — ne pas le référencer).
 
 À ajouter :
 
@@ -833,7 +845,7 @@ Guards existants : src/lib/auth-guards.ts — à réutiliser.
 18. SÉCURITÉ APPLICATIVE
 18.1 En-têtes de sécurité — 🟡 partiels (vérifié src/middleware.ts)
 Posés : X-Content-Type-Options, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy, HSTS, COOP/CORP/COEP.
-Manquants : Content-Security-Policy (à créer, avec allowlist Stripe.js), requestId. Middleware ne pose pas dir (géré par layout).
+Manquants : requestId (à créer). CSP ✅ FAIT (astro.config.mjs:75-88, `security.csp` + `checkOrigin:true` ; allowlist Stripe.js à ajouter quand le module payments arrivera). Middleware ne pose pas dir (géré par layout).
 
 18.2 Rate limiting et anti-bot — ✅ présent
 src/lib/rate-limit.ts (in-memory). Limitation sur : contact, newsletter, candidature, login admin, reset password, initiation paiement. Protection additionnelle possible : honeypot, timing, captcha — selon spam observé.
@@ -1004,9 +1016,9 @@ RTL : ordre tabulation cohérent avec sens lecture arabe, focus suivant directio
 Unit → Integration → E2E.
 
 26.2 Tests unitaires obligatoires
-Existants : 741 tests Vitest couvrant sanitize, XSS, schema, SEO, theme, auth, rate-limit, permissions, i18n, admin, blog, services, cache, search, loaders.
+Existants : 81 fichiers unit Vitest (voir docs/ETAT-REEL.md) couvrant sanitize, XSS, schema, SEO, theme, auth, rate-limit, permissions, i18n, admin, blog, services, cache, search, loaders.
 
-À ajouter : pricing, availability, transitions d'état ATLASELLE, permissions voyage, mapping routes i18n (4 langues), sanitisation bidi, calculs politique.
+À ajouter : pricing, availability, transitions d'état ATLASELLE, permissions voyage, mapping routes i18n (4 langues — partiellement fait : tests/unit/i18n-routes.test.ts), sanitisation bidi, calculs politique.
 
 26.3 Tests d'intégration
 Existants : auth-flow, auth-org, audit, middleware, blog-actions, cms-admin, consent-cms, contact-api, legal-cms, navigation-cycle, db-health.
@@ -1014,7 +1026,7 @@ Existants : auth-flow, auth-org, audit, middleware, blog-actions, cms-admin, con
 À ajouter : action candidature, action approbation, service réservation, webhook paiement, pipeline email voyage, permissions admin voyage, transactions DB capacité.
 
 26.4 Tests E2E
-Existants : auth.spec.ts, blog.spec.ts, cms-admin.spec.ts, services.spec.ts, services-lifecycle.spec.ts × 3 navigateurs (Chromium, Firefox, WebKit).
+Existants : app, auth, blog, cms-admin, services, services-lifecycle × 3 navigateurs (Chromium, Firefox, WebKit).
 
 À ajouter : scénario complet voyage (EN, FR, AR, ES), avec validation RTL bout-en-bout pour AR. Admin : connexion, création voyage, traduction 4 langues, publication, mise à jour départ, revue candidature, recherche réservation/paiement, audit.
 
@@ -1120,7 +1132,7 @@ text
 02. env/config                        ✅
 03. tokens de design                  ✅
 04. primitives UI                     ✅
-05. i18n (4 langues)                  🟡 (base présente, i18n/routes.ts à créer)
+05. i18n (4 langues)                  🟡 (base présente + src/i18n/routes.ts FAIT 2026-09-14 avec tests/unit/i18n-routes.test.ts ; reste divergence AR ASCII vs slugs arabes à trancher)
 06. fondations base de données        ✅
 07. types de domaine voyage           ❌
 08. Trip                              ❌
@@ -1234,13 +1246,13 @@ Dernière place, deux acheteuses : l'une réussit, l'autre DEPARTURE_SOLD_OUT
 Concurrence admin : verrouillage optimiste
 
 33. COMPLÉMENTS ET CORRECTIONS DE CETTE VERSION
-Astro 7.3.1 — vérifié package.json (README mentionne 6 : obsolète à corriger).
+Astro 7.3.1 — vérifié package.json (README généré, non édité ici — corriger `readme-builder/` si besoin).
 
 better-auth (pas custom) — email/password, email verification, org, rôles, impersonation. Ne pas confondre avec Stripe : le plugin better-auth-stripe ne sert pas au tunnel voyage ; module payments générique + adaptateur Stripe dédié.
 
-Locale par défaut = en — aligné sur src/i18n/config.ts, décision actée (README mentionne fr : obsolète).
+Locale par défaut = en — aligné sur src/i18n/config.ts:5 et astro.config.mjs:38, décision actée (README généré non édité ici).
 
-Routage [lang] dynamique uniquement — les dossiers statiques fr/ et ar/ sont legacy à supprimer sans 301 (site pas encore en prod). Ne jamais recréer de dossiers fr/en/es/ar en dur.
+Routage [lang] dynamique uniquement — ✅ FAIT 2026-09-14 : dossiers statiques fr/ et ar/ supprimés, sans 301 (site pas encore en prod). Ne jamais recréer de dossiers fr/en/es/ar en dur.
 
 Ne pas confondre src/modules/services/ (CMS vitrine générique, inachevé) avec les domain services voyage (pricing, availability, booking) ni avec les 11 nouveaux modules.
 
@@ -1252,19 +1264,19 @@ Migrations 0000 → 0009 documentées. Nouvelles migrations 0010 → 0015 prévu
 
 SMTP Brevo/Resend/Nodemailer + dead-letter queue JSONL documentés.
 
-Starwind 47+ composants documentés comme base UI.
+Starwind 48 atoms vérifiés comme base UI (voir docs/ETAT-REEL.md).
 
-Tests existants : 741 Vitest + 34 E2E × 3 navigateurs — infrastructure à étendre.
+Tests existants : voir docs/ETAT-REEL.md (comptes réels unit/intégration/E2E) — infrastructure à étendre.
 
 Pa11y (WCAG AAA) + Lighthouse CI — déjà en place, à étendre aux pages voyage.
 
 Rôles better-auth (user, admin, organization_role) → extension vers super_admin, trip_manager, reviewer, finance, support, editor.
 
-Composants ATLASELLE partiels identifiés : AtlaselleHome.astro, TripPage.astro, apply/[trip].astro, trips/[slug].astro. booking-quote.ts = mock statique à supprimer (hors architecture).
+Composants ATLASELLE partiels identifiés : AtlaselleHome.astro, TripPage.astro, apply/[trip].astro, trips/[slug].astro. ✅ booking-quote.ts supprimé 2026-09-14 (était mock hors architecture).
 
-Legacy à supprimer : src/pages/fr/candidature/[voyage].astro, src/pages/fr/voyages/[slug].astro, src/pages/fr/conditions.astro, src/pages/ar/conditions.astro.
+✅ FAIT 2026-09-14 — Legacy supprimé : src/pages/fr/candidature/[voyage].astro, src/pages/fr/voyages/[slug].astro, src/pages/fr/conditions.astro, src/pages/ar/conditions.astro.
 
-i18n/routes.ts à créer pour centraliser la table des slugs traduits.
+✅ FAIT 2026-09-14 — i18n/routes.ts créé (src/i18n/routes.ts + tests/unit/i18n-routes.test.ts).
 
 Publication progressive par langue (localeVisible sur trip_translations).
 
@@ -1485,7 +1497,7 @@ Audit (audit_log + src/lib/audit.ts)
 
 Rate limiting, sanitisation, permissions, guards
 
-Starwind (47+ composants) + 86 tokens CSS
+Starwind (48 atoms vérifiés, voir docs/ETAT-REEL.md) + tokens CSS (voir docs/ETAT-REEL.md)
 
 CMS (pages, sections, navigation, consentement, thème)
 
@@ -1495,7 +1507,7 @@ Services (module CMS vitrine générique, inachevé : service, traduction, caté
 
 Back-office admin (audit, blog, media, navigation, pages, roles, services, site, stats, theme, users)
 
-Tests : 741 Vitest + 34 E2E × 3 navigateurs
+Tests : voir docs/ETAT-REEL.md (comptes réels)
 
 Pa11y (WCAG AAA) + Lighthouse CI
 
@@ -1545,17 +1557,19 @@ Module outbox (événements domaine)
 
 Module email-voyage (templates 4 langues, deliveries, events)
 
-src/i18n/routes.ts (table slugs traduits)
+✅ FAIT 2026-09-14 — src/i18n/routes.ts (table slugs traduits) + tests/unit/i18n-routes.test.ts
 
 Pages publiques : /voyages (liste), /checkout, booking-confirmed
 
 Pages admin : trips, departures, applications, reservations, payments, policies, email-templates, travelers
 
-Suppression legacy src/pages/fr/ et src/pages/ar/
+✅ FAIT 2026-09-14 — Suppression legacy src/pages/fr/ et src/pages/ar/
+
+✅ FAIT 2026-09-14 — src/pages/api/booking-quote.ts supprimé (était listé ici comme mock à supprimer)
 
 loadTripPage(), loadAdminTrips(), loadAdminTrip(), loadAdminApplications(), loadAdminReservations()
 
-Extension middleware.ts : CSP (allowlist Stripe) + requestId (dir RTL déjà géré par BaseLayout, ne pas dupliquer)
+Extension : CSP ✅ FAIT (astro.config.mjs) + requestId restant (dir RTL déjà géré par BaseLayout, ne pas dupliquer ; allowlist Stripe à ajouter avec payments)
 
 Renforcement sanitize.ts : neutralisation Unicode bidi
 

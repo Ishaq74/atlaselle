@@ -291,24 +291,30 @@ L'interface permet :
 
 ### Tokens gérés en base
 
-Le schéma `themeSettings` stocke tous les design tokens en base de données :
+Le schéma `themeSettings` (`src/database/schemas/site.schema.ts`) stocke les design tokens en base de données. Source de vérité : `lightTokens` / `darkTokens` (JSON) ; colonnes legacy conservées pour compatibilité :
 
 | Champ | Type | Exemple |
 | :-- | :-- | :-- |
-| `primaryColor` | text | `oklch(0.88 0.18 68)` |
-| `secondaryColor` | text | `oklch(0.90 0.01 80)` |
-| `accentColor` | text | `oklch(0.95 0.005 75)` |
-| `backgroundColor` | text | `oklch(0.985 0.005 75)` |
-| `foregroundColor` | text | `oklch(0.145 0.02 75)` |
-| `mutedColor` | text | `oklch(0.945 0.005 75)` |
-| `mutedForegroundColor` | text | `oklch(0.47 0.015 75)` |
+| `name` | text (unique) | `fire-brand` |
+| `isActive` | boolean (unique partiel : un seul actif) | `true` |
+| `lightTokens` | text (JSON) | Map de tokens light |
+| `darkTokens` | text (JSON) | Map de tokens dark |
+| `primaryColor` | text (legacy) | `oklch(0.88 0.18 68)` |
+| `secondaryColor` | text (legacy) | `oklch(0.90 0.01 80)` |
+| `accentColor` | text (legacy) | `oklch(0.95 0.005 75)` |
+| `backgroundColor` | text (legacy) | `oklch(0.985 0.005 75)` |
+| `foregroundColor` | text (legacy) | `oklch(0.145 0.02 75)` |
+| `mutedColor` | text (legacy) | `oklch(0.945 0.005 75)` |
+| `mutedForegroundColor` | text (legacy) | `oklch(0.47 0.015 75)` |
 | `fontHeading` | text | `Inter` |
 | `fontBody` | text | `Inter` |
 | `borderRadius` | text | `0.625rem` |
-| `isDefault` | boolean | Thème par défaut (non supprimable) |
-| `isActive` | boolean | Thème actuellement appliqué |
+
+> Pas de colonne `isDefault` dans le code — seul `isActive` (avec index unique partiel `theme_one_active_uidx`) garantit un seul thème actif.
 
 ### Actions Astro
+
+Les actions admin vivent dans `src/actions/admin/` (14 fichiers : `_helpers.ts`, `consent.ts`, `contact.ts`, `hours.ts`, `media.ts`, `menus.ts`, `navigation.ts`, `pages.ts`, `roles.ts`, `sections.ts`, `site.ts`, `social.ts`, `theme.ts`, `versions.ts`) :
 
 | Action | Fichier | Description |
 | :-- | :-- | :-- |
@@ -319,10 +325,11 @@ Le schéma `themeSettings` stocke tous les design tokens en base de données :
 ### Loader
 
 ```ts
-import { getActiveTheme, getAllThemes } from '@database/loaders/site.loader';
+import { getActiveTheme, getAllThemes, getActiveThemeCss } from '@database/loaders/site.loader';
 
 const active = await getActiveTheme();     // thème actif actuel
 const themes = await getAllThemes();        // tous les thèmes
+const css = await getActiveThemeCss();      // CSS injectable (`<style>` dans BaseLayout.astro:41)
 ```
 
 ### Flux de données
@@ -331,4 +338,4 @@ const themes = await getAllThemes();        // tous les thèmes
 Admin UI → Astro Action → DB (themeSettings) → Loader → BaseLayout → CSS variables
 ```
 
-Le `BaseLayout` charge le thème actif via `getActiveTheme()` et injecte les CSS variables dans `<style>` pour que tout le design system s'adapte automatiquement.
+Le `BaseLayout` (ligne 41) charge le thème actif via `getActiveThemeCss()` et injecte les CSS variables dans `<style>` pour que tout le design system s'adapte automatiquement. Il charge aussi `getSiteSettings`, `getSocialLinks`, `getMenu`/`getMenuMeta` (navigation), `getConsentSettings` (bandeau consentement via `CookieConsent`), et expose la prop `alternateUrls` pour les `<link rel="alternate" hreflang>` (dont `x-default`, qui pointe dans le code sur `alternateUrls['fr']` — alors que `defaultLocale` Astro est `en`).

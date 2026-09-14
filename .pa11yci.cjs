@@ -36,18 +36,18 @@ if (fs.existsSync(COOKIES_PATH)) {
 const locales = ['fr', 'en', 'es', 'ar'];
 
 const pageRoutes = {
-  about:   { fr: 'a-propos', en: 'about', es: 'acerca-de', ar: 'من-نحن' },
-  contact: { fr: 'contact',  en: 'contact', es: 'contacto', ar: 'اتصل-بنا' },
-  legal:   { fr: 'mentions-legales', en: 'legal-notice', es: 'aviso-legal', ar: 'الشروط-القانونية' },
+  about:   { fr: 'a-propos', en: 'about', es: 'acerca-de', ar: 'about' },
+  contact: { fr: 'contact',  en: 'contact', es: 'contacto', ar: 'contact' },
+  legal:   { fr: 'mentions-legales', en: 'legal-notice', es: 'aviso-legal', ar: 'legal-notice' },
 };
 
 const authRoutes = {
-  'sign-in':         { fr: 'connexion', en: 'sign-in', es: 'iniciar-sesion', ar: 'تسجيل-الدخول' },
-  'sign-up':         { fr: 'inscription', en: 'sign-up', es: 'registro', ar: 'انشاء-حساب' },
-  'forgot-password': { fr: 'mot-de-passe-oublie', en: 'forgot-password', es: 'contrasena-olvidada', ar: 'نسيت-كلمة-المرور' },
-  'dashboard':       { fr: 'tableau-de-bord', en: 'dashboard', es: 'panel', ar: 'لوحة-التحكم' },
-  'profile':         { fr: 'profil', en: 'profile', es: 'perfil', ar: 'الملف-الشخصي' },
-  'admin':           { fr: 'administration', en: 'admin', es: 'administracion', ar: 'الادارة' },
+  'sign-in':         { fr: 'connexion', en: 'sign-in', es: 'iniciar-sesion', ar: 'sign-in' },
+  'sign-up':         { fr: 'inscription', en: 'sign-up', es: 'registro', ar: 'sign-up' },
+  'forgot-password': { fr: 'mot-de-passe-oublie', en: 'forgot-password', es: 'contrasena-olvidada', ar: 'forgot-password' },
+  'dashboard':       { fr: 'tableau-de-bord', en: 'dashboard', es: 'panel', ar: 'dashboard' },
+  'profile':         { fr: 'profil', en: 'profile', es: 'perfil', ar: 'profile' },
+  'admin':           { fr: 'administration', en: 'admin', es: 'administracion', ar: 'admin' },
 };
 
 // ── Build URL lists ──────────────────────────────────────────────────

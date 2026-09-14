@@ -1,5 +1,7 @@
 # Audit Atlaselle CMS, Blog et Services
 
+> SNAPSHOT ARCHIVÉ 2026-09-14 — NE PAS UTILISER COMME VÉRITÉ. État daté du 2026-09-05 (build échouait à l'époque). Source de vérité actuelle : `docs/ETAT-REEL.md` + `docs/testing/index.md`.
+
 Date : 2026-09-05. Audit du code local et validations locales, sans correction applicative.
 
 ## Conclusion immediate

@@ -15,12 +15,13 @@ interface Props {
   title?: string;
   description?: string;
   alternateUrls?: Record<string, string>;
+  canonicalPath?: string;
   ogImage?: string;
   ogType?: string;
   jsonLd?: string;
 }
 
-const { title: titleOverride, description: descriptionOverride, alternateUrls, ogImage: ogImageOverride, ogType, jsonLd } = Astro.props;
+const { title: titleOverride, description: descriptionOverride, alternateUrls, canonicalPath, ogImage: ogImageOverride, ogType, jsonLd } = Astro.props;
 const locale = toLocale(Astro.currentLocale) as Locale;
 const direction = getDirection(locale);
 const t = await getCommonTranslations(locale);
@@ -60,11 +61,11 @@ function toNavLinks(tree: NavTreeItem[]): NavLink[] {
 }
 
 const publicNav = locale === "fr"
-  ? [{ label: "Voyages", href: "/fr/voyages/sicile-malte" }, { label: "FAQ", href: "/fr/faq" }, { label: "Conditions", href: "/fr/conditions" }]
+  ? [{ label: "Voyages", href: "/fr/voyages/sicile-malte" }, { label: "FAQ", href: "/fr/faq" }, { label: "Conditions", href: "/fr/terms" }]
   : locale === "ar"
-    ? [{ label: "الرحلات", href: "/ar/trips/sicily-malta" }, { label: "الأسئلة الشائعة", href: "/ar/faq" }, { label: "الشروط", href: "/ar/conditions" }]
+    ? [{ label: "الرحلات", href: "/ar/trips/sicily-malta" }, { label: "الأسئلة الشائعة", href: "/ar/faq" }, { label: "الشروط", href: "/ar/terms" }]
     : locale === "es"
-      ? [{ label: "Viajes", href: "/es/trips/sicily-malta" }, { label: "Preguntas frecuentes", href: "/es/faq" }, { label: "Condiciones", href: "/es/terms" }]
+      ? [{ label: "Viajes", href: "/es/viajes/sicilia-malta" }, { label: "Preguntas frecuentes", href: "/es/faq" }, { label: "Condiciones", href: "/es/terms" }]
       : [{ label: "Journeys", href: "/en/trips/sicily-malta" }, { label: "FAQ", href: "/en/faq" }, { label: "Terms", href: "/en/terms" }];
 const links: NavLink[] = headerNav.length > 0 ? toNavLinks(headerNav) : publicNav;
 
@@ -99,7 +100,9 @@ const legalHeading = footerLegalMeta?.showHeading !== false
   ? (siteData?.footerLegalHeading || footerLegalMeta?.displayLabel || t.footer.legalHeading)
   : undefined;
 
-const canonicalUrl = new URL(Astro.url.pathname, Astro.url.origin).href;
+const canonicalUrl = new URL(canonicalPath ?? Astro.url.pathname, Astro.url.origin).href;
+// hreflang exige des URLs absolues (Google Search Central) — les pages passent des chemins relatifs.
+const toAbsUrl = (u: string) => new URL(u, Astro.url.origin).href;
 ---
 
 <html lang={locale} dir={direction}>
@@ -112,9 +115,9 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.url.origin).href;
     <meta name="description" content={metaDesc} />
     <link rel="canonical" href={canonicalUrl} />
     {alternateUrls && Object.entries(alternateUrls).map(([lang, url]) => (
-      <link rel="alternate" hreflang={lang} href={url} />
+      <link rel="alternate" hreflang={lang} href={toAbsUrl(url)} />
     ))}
-    {alternateUrls && <link rel="alternate" hreflang="x-default" href={alternateUrls['fr'] ?? canonicalUrl} />}
+    {alternateUrls && <link rel="alternate" hreflang="x-default" href={toAbsUrl(alternateUrls['en'] ?? canonicalUrl)} />}
     <meta property="og:title" content={metaTitle} />
     <meta property="og:description" content={metaDesc} />
     <meta property="og:type" content={ogType ?? "website"} />

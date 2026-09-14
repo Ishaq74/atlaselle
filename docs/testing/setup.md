@@ -8,9 +8,9 @@
 
 ```text
 tests/
-├── unit/                              # 48 fichiers — 656 tests Vitest
-├── integration/                       # 11 fichiers — 85 tests Vitest + PostgreSQL
-├── e2e/                               # 3 specs + 2 hooks — 34 scénarios Playwright
+├── unit/                              # 102 fichiers — tests Vitest
+├── integration/                       # 15 fichiers — tests Vitest + PostgreSQL
+├── e2e/                               # 6 specs + 2 hooks — scénarios Playwright (app, auth, blog, cms-admin, services, services-lifecycle)
 ├── a11y/                              # 5 scripts — seed, orchestration, LHCI helpers
 └── helpers/                           # auth helper + générateurs de rapports
 
@@ -18,16 +18,15 @@ Rapports (gitignored) :
 └── tests/reports/                     # JSON + TXT + HTML pour Vitest, Playwright, Pa11y, Lighthouse
 
 Configs racine :
-├── .pa11yci.cjs                       # Pa11y-ci (52 URLs, WCAG AAA)
-├── lighthouserc.cjs                   # Lighthouse CI (28 URLs publiques, gates ≥0.9)
-├── vitest.config.ts                   # Vitest (unit + integration)
-└── playwright.config.ts               # Playwright (Chromium + Firefox + WebKit)
+├── .pa11yci.cjs                       # Pa11y-ci (60 URLs : 32 publiques + 8 auth + 20 admin, WCAG2AAA non strict — ignore color-contrast)
+├── lighthouserc.cjs                   # Lighthouse CI (32 URLs publiques collectées, + 8 auth + 20 admin via batches, gates ≥0.9)
+├── vitest.config.ts                   # Vitest (unit + integration, 7 alias, coverage 80/75/75/80)
+└── playwright.config.ts               # Playwright (Chromium + Firefox + WebKit, baseURL 4322, workers:1)
 
 TOTAL VALIDÉ :
-- 62 fichiers de test (`48 unit + 11 integration + 3 e2e`)
-- 741 tests Vitest (`656 unit + 85 integration`)
-- 34 scénarios E2E (`102 exécutions` sur 3 navigateurs)
-- 104 audits a11y/perf (`52 Pa11y + 52 Lighthouse`)
+- 123 fichiers de test (`102 unit + 15 integration + 6 e2e`)
+- 34+ scénarios E2E (×3 navigateurs)
+- 120 audits a11y/perf (`60 Pa11y + 60 Lighthouse`)
 ```
 
 ---
@@ -45,6 +44,7 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, 'src'),
       '@i18n': resolve(__dirname, 'src/i18n'),
+      '@components': resolve(__dirname, 'src/components'),
       '@lib': resolve(__dirname, 'src/lib'),
       '@database': resolve(__dirname, 'src/database'),
       '@smtp': resolve(__dirname, 'src/smtp'),
@@ -60,6 +60,11 @@ export default defineConfig({
     outputFile: {
       json: 'tests/reports/vitest-results.json',
     },
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary'],
+      thresholds: { statements: 80, branches: 75, functions: 75, lines: 80 },
+    },
   },
 });
 ```
@@ -74,7 +79,8 @@ export default defineConfig({
 | `testTimeout` | `15_000` | 15s max par test (tests DB peuvent être lents) |
 | `reporters` | `['default', 'json']` | Sortie console + JSON pour génération de rapports |
 | `outputFile.json` | `tests/reports/vitest-results.json` | Fichier JSON utilisé par `vitest-report.cjs` |
-| `alias` | 6 alias | Mêmes alias que `tsconfig.json` — nécessaire pour Vitest |
+| `alias` | 7 alias (dont `@components`) | Mêmes alias que `tsconfig.json` — nécessaire pour Vitest |
+| `coverage.thresholds` | statements 80 / branches 75 / functions 75 / lines 80 | Gates v8 |
 
 ### Alias résolution
 
@@ -82,6 +88,7 @@ export default defineConfig({
 | :-- | :-- |
 | `@/` | `src/` |
 | `@i18n` | `src/i18n/` |
+| `@components` | `src/components/` |
 | `@lib` | `src/lib/` |
 | `@database` | `src/database/` |
 | `@smtp` | `src/smtp/` |
@@ -103,13 +110,13 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,   // toujours 1 (local + CI) — un seul serveur preview SSR pour les 3 browsers
   reporter: [
-    ['html', { outputFolder: 'tests/reports/playwright' }],
+    ['html', { outputFolder: 'tests/reports/playwright', open: 'never' }],
     ['json', { outputFile: 'tests/reports/playwright-results.json' }],
   ],
   use: {
-    baseURL: 'http://localhost:4321',
+    baseURL: 'http://localhost:4322',
     trace: 'on-first-retry',
   },
   projects: [
@@ -118,10 +125,10 @@ export default defineConfig({
     { name: 'webkit',   use: { ...devices['Desktop Safari'] } },
   ],
   webServer: {
-    command: 'pnpm preview',
-    url: 'http://localhost:4321',
-    reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
+    command: 'pnpm run build && pnpm preview --host localhost --port 4322',
+    url: 'http://localhost:4322',
+    reuseExistingServer: false,   // toujours un serveur frais buildé du code courant
+    timeout: 180_000,
     env: { NODE_ENV: 'test' },
   },
 });
@@ -134,12 +141,13 @@ export default defineConfig({
 | `globalSetup` | `global-setup.ts` | Seed un user vérifié avant les tests |
 | `globalTeardown` | `global-teardown.ts` | Supprime le user après les tests |
 | `fullyParallel` | `true` | Tests parallèles en local |
-| `workers` | `1` en CI | Séquentiel en CI pour stabilité |
+| `workers` | `1` toujours | Séquentiel local + CI pour stabilité (un seul serveur SSR) |
 | `retries` | `2` en CI, `1` en local | Un retry local reste activé pour absorber les faux positifs transitoires |
-| `webServer.command` | `pnpm preview` | Lance le serveur SSR Astro |
+| `webServer.command` | `pnpm run build && pnpm preview --host localhost --port 4322` | Build + serveur SSR Astro frais |
 | `webServer.env` | `{ NODE_ENV: 'test' }` | **Critique** — désactive SMTP dans le serveur |
-| `reuseExistingServer` | `true` en local | Réutilise un serveur déjà lancé |
-| `reporter` | `[['html', ...], ['json', ...]]` | Rapport HTML dans `tests/reports/playwright/` + JSON pour génération de rapports |
+| `webServer.timeout` | `180_000` | 180 s pour le build + démarrage |
+| `reuseExistingServer` | `false` | Toujours un serveur frais (pas de build périmé) |
+| `reporter` | `[['html', { open: 'never', ... }], ['json', ...]]` | `open: 'never'` pour ne pas bloquer `pnpm qa` + JSON pour génération de rapports |
 
 ---
 
@@ -218,9 +226,9 @@ pnpm a11y:lighthouse-only    # Lighthouse seulement (avec orchestrateur)
 
 # Commandes individuelles a11y (serveur requis)
 pnpm a11y:setup              # Seed users + export cookies
-pnpm a11y:pa11y              # Pa11y-ci (40 URLs, WCAG AAA)
-pnpm a11y:lighthouse         # LHCI (26 URLs publiques)
-pnpm a11y:lighthouse:authed  # LHCI (8 user + 4 admin URLs)
+pnpm a11y:pa11y              # Pa11y-ci (60 URLs, WCAG2AAA non strict : ignore color-contrast)
+pnpm a11y:lighthouse         # LHCI (32 URLs publiques)
+pnpm a11y:lighthouse:authed  # LHCI (8 user + 20 admin URLs)
 pnpm a11y:lighthouse:rename  # Renommer rapports LHCI
 pnpm a11y:teardown           # Supprime users seed + cookies
 

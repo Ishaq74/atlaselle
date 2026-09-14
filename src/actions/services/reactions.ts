@@ -3,16 +3,15 @@ import { and, eq } from "drizzle-orm";
 import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
 import { serviceReactions } from "@database/schemas";
-import { assertServiceInTenant, assertServicePermission, resolveServiceTenant, serviceOrganizationIdSchema, serviceRateLimit } from "./_helpers";
+import { assertServiceExists, assertServicePermission, serviceRateLimit } from "./_helpers";
 import { auditService, invalidateServicesCache } from "./_helpers";
 import type { ServiceReactionType } from "@/modules/services/domain";
 
 export const toggleServiceReaction = defineAction({
-  input: z.object({ serviceId: z.uuid(), organizationId: serviceOrganizationIdSchema, reactionType: z.enum(["LIKE", "LOVE", "FIRE", "CLAP"]) }),
+  input: z.object({ serviceId: z.uuid(), reactionType: z.enum(["LIKE", "LOVE", "FIRE", "CLAP"]) }),
   handler: async (input, context) => {
-    const tenant = resolveServiceTenant(input);
-    const user = await assertServicePermission(context, tenant, { service: ["read"] });
-    await assertServiceInTenant(input.serviceId, tenant);
+    const user = await assertServicePermission(context, { service: ["read"] });
+    await assertServiceExists(input.serviceId);
     serviceRateLimit(context, user.id, "reaction");
     const db = getDrizzle();
     let result: { active: ServiceReactionType | null; previous: ServiceReactionType | null } = { active: null, previous: null };

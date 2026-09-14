@@ -36,24 +36,25 @@ Canonical entry point: `src/modules/services/index.ts`.
 
 ```text
 src/modules/services/
-├── admin/
-├── actions/
+├── actions/                 # index.ts (réexport)
+├── admin/                   # index.ts + loader.ts + resource.ts
 ├── components/
-│   ├── cards/
-│   ├── lists/
-│   ├── single/
-│   └── ui/
-├── domain/
-├── i18n/
-├── loaders/
-├── permissions/
-├── schema/
-├── search/
-├── seo/
-├── utils/
-├── validation/
+│   ├── cards/               # ServiceCard.astro
+│   ├── lists/               # ServiceGrid.astro + ServicesListingPage.astro
+│   ├── single/              # ServiceDetail.astro + ServiceEngagement.astro
+│   └── ui/                  # ServiceLocaleSwitcher.astro + ServiceMeta.astro
+├── domain/                  # index.ts
+├── i18n/                    # engagement.ts + form.ts + notifications.ts + sort.ts (+ index.ts)
+├── loaders/                 # index.ts
+├── permissions/             # index.ts
+├── schema/                  # index.ts
+├── search/                  # index.ts
+├── seo/                     # index.ts
+├── utils/                   # urls.ts (+ index.ts)
+├── validation/              # index.ts
 ├── capabilities.ts
 ├── module.ts
+├── workflow.ts              # Transitions de lifecycle DRAFT/PUBLISHED/ARCHIVED/DELETED
 └── index.ts
 ```
 
@@ -133,7 +134,11 @@ Global routes:
 /{lang}/services/{categorySlug}/{slug}
 ```
 
+> Fichiers réels : `index.astro`, `[slug].astro`, `[categorySlug].astro`, `[categorySlug]/[slug].astro`, `tags/[tagSlug].astro` — la coexistence de `[slug].astro` et `[categorySlug].astro` au même niveau crée une collision de routage (un slug de catégorie et un slug de service se résolvent au même pattern).
+
 Organization routes:
+
+> Aucune route `src/pages/[lang]/organizations/**` n'existe dans le code. `getOrgUrl()` (utils.ts:31) redirige les sous-pages `blog`/`services`/`media` vers `/{locale}/organizations/{slug}/admin/...`. Les URLs `/{lang}/organizations/{slug}/services…` et `/{lang}/organizations/{slug}/admin/services…` décrites ci-dessous sont donc des URLs construites par helpers (`buildServiceUrl` avec `organizationSlug`, `getOrgUrl`), sans fichiers de pages correspondants :
 
 ```text
 /{lang}/organizations/{slug}/services
@@ -145,7 +150,7 @@ Public loaders expose published services only and always apply tenant + locale s
 
 ## Administration
 
-Global Admin:
+Global Admin (fichiers réels : `src/pages/[lang]/admin/services/index.astro`, `new.astro`, `[id]/edit.astro`) :
 
 ```text
 /{lang}/admin/services
@@ -153,7 +158,7 @@ Global Admin:
 /{lang}/admin/services/[id]/edit
 ```
 
-Organization Admin:
+Organization Admin (aucun fichier `src/pages/[lang]/organizations/**` — URLs construites par helpers uniquement) :
 
 ```text
 /{lang}/organizations/{slug}/admin/services
@@ -228,7 +233,7 @@ src/modules/services/schema/index.ts
 src/database/migrations/0006_services_module.sql
 ```
 
-The Services migration is registered in the Drizzle journal.
+La migration `0006_services_module.sql` existe dans `src/database/migrations/` (ainsi que `0007_services_search_vector.sql` et `0008_services_notification_targets.sql`) ; vérifier le journal Drizzle avant d'affirmer l'enregistrement exact.
 
 ## Tests
 

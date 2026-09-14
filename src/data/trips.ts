@@ -1,6 +1,7 @@
 import type { Locale } from "@i18n/config";
+import { getTripPath, resolveTripSlug, TRIP_SLUGS, type TripId } from "@i18n/routes";
 
-export type TripId = "south-africa" | "sicily-malta" | "andalusia-morocco";
+export type { TripId };
 
 type LocalizedTrip = {
   slug: string;
@@ -53,12 +54,14 @@ export const TRIPS: Trip[] = [
 ];
 
 export function getTripBySlug(locale: Locale, slug: string) {
-  return TRIPS.find((trip) => trip.translations[locale as Exclude<Locale, "es">]?.slug === slug || (locale === "es" && trip.id === slug));
+  const resolved = resolveTripSlug(locale, slug);
+  if (resolved) return TRIPS.find((trip) => trip.id === resolved);
+  // Compat transition : anciens liens ES utilisaient l'id comme slug.
+  return TRIPS.find((trip) => trip.id === slug);
 }
 
 export function tripUrl(locale: Locale, trip: Trip) {
-  const slug = locale === "es" ? trip.id : trip.translations[locale as Exclude<Locale, "es">].slug;
-  return locale === "fr" ? `/fr/voyages/${slug}` : `/${locale}/trips/${slug}`;
+  return getTripPath(locale, TRIP_SLUGS[trip.id][locale]);
 }
 
 /** The sole server-side calculation used by application and payment flows. */

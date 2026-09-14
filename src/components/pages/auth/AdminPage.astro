@@ -1,7 +1,7 @@
 ---
 import type { AuthTranslations, Locale } from '@i18n/config';
 import type { AppUser } from '@/lib/types';
-import type { AdminUser, Organization, AuditLogRow } from '@/lib/auth-data';
+import type { AdminUser, AuditLogRow } from '@/lib/auth-data';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@atoms/tabs';
 import { Card, CardHeader, CardTitle, CardContent } from '@atoms/card';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@atoms/table';
@@ -19,16 +19,14 @@ import {
   DialogClose,
   DialogFooter,
 } from '@atoms/dialog';
-import { safeUrl } from '@lib/sanitize';
 
 interface Props {
   t: AuthTranslations;
   locale: Locale;
   user: AppUser;
   adminUsers?: AdminUser[];
-  adminOrgs?: Organization[];
   adminAuditLogs?: AuditLogRow[];
-  adminStats?: { totalUsers: number; totalOrganizations: number; recentSignups: number };
+  adminStats?: { totalUsers: number; recentSignups: number };
 }
 
 const {
@@ -36,9 +34,8 @@ const {
   locale,
   user,
   adminUsers = [],
-  adminOrgs = [],
   adminAuditLogs = [],
-  adminStats = { totalUsers: 0, totalOrganizations: 0, recentSignups: 0 },
+  adminStats = { totalUsers: 0, recentSignups: 0 },
 } = Astro.props;
 
 const ta = t.admin;
@@ -68,20 +65,15 @@ const uniqueActions = [...new Set(adminAuditLogs.map((l: any) => l.action))].sor
     <TabsList>
       <TabsTrigger value="stats">{ta.tabs.stats}</TabsTrigger>
       <TabsTrigger value="users">{ta.tabs.users}</TabsTrigger>
-      <TabsTrigger value="organizations">{ta.tabs.organizations}</TabsTrigger>
       <TabsTrigger value="audit-log">{ta.tabs.auditLog}</TabsTrigger>
     </TabsList>
 
     <!-- ─── Stats Tab ─── -->
     <TabsContent value="stats">
-      <div class="grid gap-4 sm:grid-cols-3 mt-4">
+      <div class="grid gap-4 sm:grid-cols-2 mt-4">
         <Card>
           <CardHeader><CardTitle class="text-sm text-muted-foreground">{ta.stats.totalUsers}</CardTitle></CardHeader>
           <CardContent><p class="text-3xl font-bold">{adminStats.totalUsers}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle class="text-sm text-muted-foreground">{ta.stats.totalOrganizations}</CardTitle></CardHeader>
-          <CardContent><p class="text-3xl font-bold">{adminStats.totalOrganizations}</p></CardContent>
         </Card>
         <Card>
           <CardHeader>
@@ -206,69 +198,6 @@ const uniqueActions = [...new Set(adminAuditLogs.map((l: any) => l.action))].sor
             </TableBody>
           </Table>
         </div>
-      </div>
-    </TabsContent>
-
-    <!-- ─── Organizations Tab ─── -->
-    <TabsContent value="organizations">
-      <div class="mt-4 rounded-md border overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{ta.organizations.columns.name}</TableHead>
-              <TableHead>{ta.organizations.columns.slug}</TableHead>
-              <TableHead>{ta.organizations.columns.members}</TableHead>
-              <TableHead>{ta.organizations.columns.created}</TableHead>
-              <TableHead class="text-right">{ta.organizations.columns.actions}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {adminOrgs.length === 0 ? (
-              <TableRow>
-                <TableCell colspan={5} class="text-center text-muted-foreground py-8">
-                  {ta.organizations.noResults}
-                </TableCell>
-              </TableRow>
-            ) : (
-              adminOrgs.map((org: any) => (
-                <TableRow>
-                  <TableCell>
-                    <div class="flex items-center gap-2">
-                      {org.logo && safeUrl(org.logo) && <img src={safeUrl(org.logo)!} alt={org.name} class="w-6 h-6 rounded" />}
-                      <span class="font-medium">{org.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell class="text-sm text-muted-foreground">{org.slug}</TableCell>
-                  <TableCell class="text-sm">{org.memberCount}</TableCell>
-                  <TableCell class="text-sm text-muted-foreground">
-                    {formatShortDate(org.createdAt)}
-                  </TableCell>
-                  <TableCell class="text-right">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button size="sm" variant="error">{ta.organizations.actions.delete}</Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>{ta.organizations.actions.delete}</DialogTitle>
-                          <DialogDescription>{ta.organizations.confirmDelete}</DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                          <DialogClose asChild>
-                            <Button variant="outline">Cancel</Button>
-                          </DialogClose>
-                          <Button variant="error" class="admin-delete-org-btn" data-org-id={org.id}>
-                            {ta.organizations.actions.delete}
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
       </div>
     </TabsContent>
 
@@ -414,16 +343,6 @@ const uniqueActions = [...new Set(adminAuditLogs.map((l: any) => l.action))].sor
       if (!userId) return;
       const { error } = await authClient.admin.removeUser({ userId });
       if (!error) { showToast('User deleted.'); location.reload(); }
-    });
-  });
-
-  // Delete organization
-  document.querySelectorAll('.admin-delete-org-btn').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const orgId = (btn as HTMLElement).dataset.orgId;
-      if (!orgId) return;
-      const { error } = await authClient.organization.delete({ organizationId: orgId });
-      if (!error) { showToast('Organization deleted.'); location.reload(); }
     });
   });
 </script>

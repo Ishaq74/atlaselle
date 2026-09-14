@@ -14,8 +14,9 @@ pnpm run db:check
 2. Valide le format de l'URL (`postgresql://` ou `postgres://`) et détecte les placeholders non remplacés
 3. Effectue un health check (`SELECT 1`) avec mesure de latence
 4. Affiche les métadonnées serveur (`current_database`, `current_user`, `inet_server_addr`)
-5. Liste les tables du schéma `public`
-6. Liste les contraintes (FK, PK, unique…)
+5. Vérifie la version PostgreSQL (recommandée : 14+ — avertissement si version antérieure détectée)
+6. Liste les tables du schéma `public`
+7. Liste les contraintes (FK, PK, unique…)
 
 ## Variables d'environnement
 
@@ -43,8 +44,12 @@ La commande affiche un message lisible (sans stack trace) pour chaque cas :
 | --- | --- |
 | `28P01` | ❌ Utilisateur ou mot de passe incorrect |
 | `3D000` | ❌ La base n'existe pas |
+| `28000` | ❌ Authentification refusée (vérifiez pg_hba.conf) |
+| `57P03` | ❌ Le serveur PostgreSQL démarre encore — réessayez dans quelques secondes |
 | `ECONNREFUSED` | ❌ Connexion refusée — le serveur PostgreSQL est-il démarré ? |
 | `ENOTFOUND` | ❌ Hôte introuvable |
+| `ETIMEDOUT` | ❌ Timeout de connexion — le serveur est-il accessible ? |
+| `ECONNRESET` | ❌ Connexion réinitialisée par le serveur |
 | Autre | ❌ Message d'erreur PG + code affiché |
 
 ## Sécurité PROD

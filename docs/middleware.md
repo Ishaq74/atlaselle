@@ -7,11 +7,13 @@
 
 ## Rôle
 
-Le middleware Astro intercepte **toutes les requêtes** avant qu'elles n'atteignent les pages ou endpoints API. Il gère trois responsabilités :
+Le middleware Astro intercepte **toutes les requêtes** avant qu'elles n'atteignent les pages ou endpoints API. Il gère cinq responsabilités :
 
-1. **Injection de session** — authentifie l'utilisateur et peuple `Astro.locals`
-2. **Protection SVG** — empêche l'exécution XSS via les fichiers SVG uploadés
-3. **En-têtes de sécurité** — ajoute les headers de protection sur toutes les réponses
+1. **Bootstrap des modules** — appelle `bootstrapModules()` (`@/lib/cms/bootstrap`, ré-export de `@/core/modules/bootstrap`) pour enregistrer blog/services avant traitement
+2. **Garde locale** — rejette les segments `[lang]` invalides (`/^[a-z]{2}$/` absent de `LOCALES`) avec une 404
+3. **Injection de session** — authentifie l'utilisateur et peuple `Astro.locals`
+4. **Protection SVG** — empêche l'exécution XSS via les fichiers SVG uploadés
+5. **En-têtes de sécurité** — ajoute les headers de protection sur toutes les réponses
 
 ---
 
@@ -33,7 +35,10 @@ try {
 
 if (timedOut) {
   console.warn('[middleware] Session check timed out (5s) — returning 503');
-  return new Response('Service temporarily unavailable', { status: 503, headers: { 'Retry-After': '5' } });
+  return new Response(JSON.stringify({ error: 'Service temporarily unavailable' }), {
+    status: 503,
+    headers: { 'Retry-After': '5', 'Content-Type': 'application/json' },
+  });
 }
 
 if (isAuthed) {
@@ -51,14 +56,14 @@ if (isAuthed) {
 | :-- | :-- | :-- | :-- |
 | Cookie valide, DB réactive | `User` ✅ | `Session` ✅ | Page normale |
 | Pas de cookie / invalid | `null` | `null` | Page normale |
-| DB lente (> 5s) | — | — | **503** + `Retry-After: 5` |
+| DB lente (> 5s) | — | — | **503** JSON `{ error }` (`Content-Type: application/json`) + `Retry-After: 5` |
 | Erreur session (exception) | `null` | `null` | Page normale |
 
 ### Timeout (5 secondes)
 
 Le `Promise.race` avec un timeout de 5 secondes protège contre les DB lentes. Si la requête de session dépasse 5s :
 
-- La requête est interrompue et renvoie **HTTP 503** (`Service temporarily unavailable`)
+- La requête est interrompue et renvoie **HTTP 503** JSON (`{ error: 'Service temporarily unavailable' }`, `Content-Type: application/json`)
 - Le header `Retry-After: 5` indique au client de réessayer
 - Un `console.warn` est émis pour le monitoring
 
@@ -71,11 +76,13 @@ Définis dans `src/env.d.ts` :
 ```typescript
 declare namespace App {
   interface Locals {
-    user: import('better-auth').User | null;
-    session: import('better-auth').Session | null;
+    user: Session["user"] | null;
+    session: (Session["session"] & { impersonatedBy?: string | null }) | null;
   }
 }
 ```
+
+(`Session` = `Auth["$Infer"]["Session"]`, avec support d'impersonation via `impersonatedBy`.)
 
 ---
 
@@ -101,7 +108,7 @@ Les fichiers SVG peuvent contenir du JavaScript. Sans protection, un SVG upload�
 
 ## 3. En-têtes de sécurité
 
-Appliqués à **toutes les réponses** :
+Appliqués à **toutes les réponses** (9 en-têtes) :
 
 | En-tête | Valeur |
 | :-- | :-- |
@@ -110,7 +117,10 @@ Appliqués à **toutes les réponses** :
 | `Referrer-Policy` | `strict-origin-when-cross-origin` |
 | `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` |
 | `X-XSS-Protection` | `0` |
-| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` |
+| `Cross-Origin-Opener-Policy` | `same-origin` |
+| `Cross-Origin-Resource-Policy` | `same-origin` |
+| `Cross-Origin-Embedder-Policy` | `credentialless` |
 
 ---
 
@@ -122,8 +132,12 @@ HTTP Request
   ▼
 Middleware onRequest()
   │
+  ├─ 0) bootstrapModules() → enregistre modules blog/services, recherche, resolvers
+  │
+  ├─ 0b) Garde locale → 404 si segment [lang] /^[a-z]{2}$/ hors LOCALES
+  │
   ├─ 1) auth.api.getSession() → locals.user / locals.session
-  │     └─ Timeout 5s → 503 (Retry-After: 5)
+  │     └─ Timeout 5s → 503 JSON { error } (Retry-After: 5, Content-Type: application/json)
   │     └─ Exception → locals = null, continue
   │
   ├─ 2) next() → Page / API endpoint traite la requête
@@ -140,9 +154,11 @@ HTTP Response
 
 ## Tests
 
-Le middleware est testé dans `tests/integration/middleware.test.ts` (4 tests) :
+Le middleware est testé dans `tests/integration/middleware.test.ts` (4 tests), qui ne couvre que `auth.api.getSession()` — la logique d'injection session — car le middleware Astro lui-même n'est pas importable (il dépend de `astro:middleware`) :
 
-- Injection session avec headers valides
-- `null` locals sans cookie
-- En-têtes de sécurité présents sur la réponse
-- SVG Content-Disposition
+- session + user retournés avec des headers authentifiés
+- `null` avec des headers vides (non authentifié)
+- `null` avec un token invalide
+- `null` après révocation de session (sign-out)
+
+Les en-têtes de sécurité, la protection SVG, le bootstrap des modules et la garde locale ne sont pas couverts par ce fichier.

@@ -3,10 +3,10 @@
  * to human-readable names based on the page URL.
  *
  * Example: lhr-1773479276175.html → fr--home.html
- *          lhr-1773479490151.html → ar--auth--تسجيل-الدخول.html
+ *          lhr-1773479490151.html → ar--auth--sign-in.html
  *
- * Arabic (and other non-ASCII) slugs are kept as-is after percent-decoding,
- * but characters unsafe for filenames are stripped.
+ * Slugs are ASCII by convention (AR structurel = EN, voir docs/ETAT-REEL.md §5) ;
+ * le decode + strip reste par sécurité pour tout slug non-ASCII résiduel.
  */
 
 const fs = require('node:fs');
@@ -30,7 +30,7 @@ if (!jsonFiles.length) {
 function urlToName(url) {
   try {
     const u = new URL(url);
-    // pathname like /fr/ or /en/auth/sign-in or /ar/من-نحن
+    // pathname like /fr/ or /en/auth/sign-in or /ar/about
     let p = decodeURIComponent(u.pathname);
     // Remove leading/trailing slashes
     p = p.replace(/^\/|\/$/g, '');

@@ -7,7 +7,6 @@ export {
 } from "@/i18n/config";
 export {
   getAdminUrl,
-  getOrgUrl,
   getBlogUrl,
   getBlogCategoryUrl,
   getBlogTagUrl,

@@ -14,11 +14,13 @@ pnpm run db:seed -- --reset # vide toutes les tables avant d'insérer
 1. Lit `DB_ENV` et résout l'URL via `env.ts`
 2. Si `DB_ENV=PROD` → demande confirmation
 3. Si `--reset` → demande une confirmation destructive, puis vide (TRUNCATE) toutes les tables via `truncateAllTables()`
-4. Parcourt le manifest (`src/database/data/manifest.ts`) dans l'ordre
+4. Parcourt le manifest (`src/database/data/manifest.ts`) dans l'ordre, dans une **transaction globale** (ROLLBACK complet en cas d'erreur)
 5. Pour chaque entrée :
-   - Résout l'export de schéma dans `schemas.ts`
+   - Résout l'export de schéma dans `schemas.ts` (`[SKIP]` + warning si introuvable)
+   - Valide le nom de fichier (`/^\d+[a-z]?-[a-z][a-z0-9-]*\.data\.ts$/` — préfixe numérique obligatoire, erreur sinon)
    - Importe dynamiquement le fichier de données
-   - Normalise les valeurs (booléens → 0/1, tableaux → JSON)
+   - `[SKIP]` si le dataset est vide ou introuvable
+   - Normalise les valeurs (tableaux → JSON via `JSON.stringify`)
    - Insère avec `onConflictDoNothing()`
 
 ## Manifest

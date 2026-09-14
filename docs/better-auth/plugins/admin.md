@@ -9,10 +9,18 @@ Le plugin Admin fournit des fonctions d’administration pour la gestion des uti
 ```ts
 import { betterAuth } from "better-auth"
 import { admin } from "better-auth/plugins"
+import { ac, adminRole, editorRole, userRole } from "@/lib/permissions"
 
 export const auth = betterAuth({
   plugins: [
-    admin()
+    admin({
+      ac,
+      roles: {
+        admin: adminRole,
+        editor: editorRole,
+        user: userRole,
+      },
+    })
   ]
 })
 ```
@@ -23,7 +31,13 @@ Ajoutez les champs suivants :
 
 | Table   | Champ              | Type    | Description                                      |
 |---------|--------------------|---------|--------------------------------------------------|
-| user    | role               | string  | Rôle de l’utilisateur (défaut : user)            |
+| user    | role               | string  | Rôle de l'utilisateur (`text`, nullable, sans défaut) |
+| user    | username           | string  | Nom d'utilisateur unique (nullable, plugin `username`) |
+| user    | displayUsername    | string  | Nom d'utilisateur affiché (nullable)             |
+| user    | bio                | string  | Biographie (nullable)                            |
+| user    | website            | string  | Site web (nullable)                              |
+| user    | twitter            | string  | Profil Twitter (nullable)                        |
+| user    | linkedin           | string  | Profil LinkedIn (nullable)                       |
 | user    | banned             | boolean | Indique si l’utilisateur est banni               |
 | user    | banReason          | string  | Raison du bannissement                           |
 | user    | banExpires         | date    | Date d’expiration du bannissement                |
@@ -46,10 +60,18 @@ npx @better-auth/cli generate
 ```ts
 import { createAuthClient } from "better-auth/client"
 import { adminClient } from "better-auth/client/plugins"
+import { ac, adminRole, editorRole, userRole } from "@/lib/permissions"
 
 export const authClient = createAuthClient({
   plugins: [
-    adminClient()
+    adminClient({
+      ac,
+      roles: {
+        admin: adminRole,
+        editor: editorRole,
+        user: userRole,
+      },
+    })
   ]
 })
 ```
@@ -126,7 +148,13 @@ export const auth = betterAuth({ plugins: [admin({ ac, roles: { admin } })] })
 
 | Table   | Champ              | Type    | Description                                      |
 |---------|--------------------|---------|--------------------------------------------------|
-| user    | role               | string  | Rôle de l’utilisateur (défaut : user)            |
+| user    | role               | string  | Rôle de l'utilisateur (`text`, nullable, sans défaut) |
+| user    | username           | string  | Nom d'utilisateur unique (nullable, plugin `username`) |
+| user    | displayUsername    | string  | Nom d'utilisateur affiché (nullable)             |
+| user    | bio                | string  | Biographie (nullable)                            |
+| user    | website            | string  | Site web (nullable)                              |
+| user    | twitter            | string  | Profil Twitter (nullable)                        |
+| user    | linkedin           | string  | Profil LinkedIn (nullable)                       |
 | user    | banned             | boolean | Indique si l’utilisateur est banni               |
 | user    | banReason          | string  | Raison du bannissement                           |
 | user    | banExpires         | date    | Date d’expiration du bannissement                |

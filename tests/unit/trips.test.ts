@@ -8,11 +8,15 @@ describe("ATLASELLE trip catalogue", () => {
     expect(tripUrl("en", trip)).toBe("/en/trips/south-africa");
     expect(tripUrl("fr", trip)).toBe("/fr/voyages/afrique-du-sud");
     expect(tripUrl("ar", trip)).toBe("/ar/trips/south-africa");
+    expect(tripUrl("es", trip)).toBe("/es/viajes/sudafrica");
   });
 
   it("resolves locale-specific slugs and retains Spanish support", () => {
     expect(getTripBySlug("fr", "sicile-malte")?.id).toBe("sicily-malta");
     expect(getTripBySlug("ar", "sicily-malta")?.id).toBe("sicily-malta");
+    expect(getTripBySlug("es", "sicilia-malta")?.id).toBe("sicily-malta");
+    expect(getTripBySlug("es", "sudafrica")?.id).toBe("south-africa");
+    // Compat transition : anciens liens ES utilisaient l'id comme slug.
     expect(getTripBySlug("es", "sicily-malta")?.id).toBe("sicily-malta");
   });
 

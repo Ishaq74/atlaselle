@@ -1,6 +1,6 @@
 # Internationalisation (i18n)
 
-> **Modules** : `src/i18n/config.ts`, `src/i18n/utils.ts`, `src/i18n/{locale}/`  
+> **Modules** : `src/i18n/config.ts`, `src/i18n/utils.ts`, `src/i18n/routes.ts`, `src/i18n/blog/*.ts`, `src/i18n/{locale}/`  
 > **Stratégie** : Route-based prefix `[lang]/`, 4 locales, SSR uniquement
 
 ---
@@ -25,7 +25,7 @@
 ```typescript
 export const LOCALES = ['fr', 'en', 'es', 'ar'] as const;
 export type Locale = (typeof LOCALES)[number];
-export const DEFAULT_LOCALE: Locale = 'fr';
+export const DEFAULT_LOCALE: Locale = 'en';
 export const RTL_LOCALES: Locale[] = ['ar'];
 ```
 
@@ -33,7 +33,7 @@ export const RTL_LOCALES: Locale[] = ['ar'];
 | :-- | :-- |
 | `LOCALES` | Tuple readonly — liste exhaustive des locales |
 | `Locale` | Type union : `'fr' \| 'en' \| 'es' \| 'ar'` |
-| `DEFAULT_LOCALE` | Locale par défaut (`'fr'`) — utilisée quand le paramètre `[lang]` est invalide |
+| `DEFAULT_LOCALE` | Locale par défaut (`'en'`) — utilisée quand le paramètre `[lang]` est invalide ; `astro.config.mjs` déclare aussi `defaultLocale: 'en'` avec `prefixDefaultLocale: true` et `redirectToDefaultLocale: true` |
 | `RTL_LOCALES` | Locales nécessitant `dir="rtl"` |
 | `LOCALE_LABELS` | Labels d'affichage : `{ fr: 'Français', en: 'English', ... }` |
 
@@ -43,8 +43,8 @@ export const RTL_LOCALES: Locale[] = ['ar'];
 
 | Code | Label | Direction | Statut |
 | :-- | :-- | :-- | :-- |
-| `fr` | Français | LTR | ✅ Par défaut |
-| `en` | English | LTR | ✅ |
+| `fr` | Français | LTR | ✅ |
+| `en` | English | LTR | ✅ Par défaut (`DEFAULT_LOCALE`, `astro.config` `defaultLocale`) |
 | `es` | Español | LTR | ✅ |
 | `ar` | العربية | RTL | ✅ |
 
@@ -58,7 +58,9 @@ Chaque locale a son propre dossier avec des fichiers TypeScript typés :
 src/i18n/
 ├── config.ts              # Constantes, types, interfaces de traduction
 ├── utils.ts               # Fonctions utilitaires (loaders, URL, locale helpers)
-├── fr/                    # Locale française (default)
+├── routes.ts              # Segments d'URL traduits (trips, apply, faq, terms, privacy, about, contact) + helpers getTripPath/getApplyPath/…
+├── blog/                  # Traductions blog par locale (fr.ts, en.ts, es.ts, ar.ts → BlogTranslations)
+├── fr/                    # Locale française
 │   ├── common.ts          # Navigation, footer, CTA, a11y, meta
 │   ├── home.ts            # Page d'accueil (hero, logos, pillars, etc.)
 │   ├── auth.ts            # Pages auth (sign-in, sign-up, dashboard, etc.)
@@ -76,7 +78,7 @@ Les traductions sont typées via des interfaces définies dans `config.ts` :
 | Interface | Fichier source | Contenu principal |
 | :-- | :-- | :-- |
 | `CommonTranslations` | `common.ts` | `meta`, `pageRoutes`, `nav`, `cta`, `footer`, `a11y` |
-| `HomeTranslations` | `home.ts` | `hero`, `logos`, `pillars`, `features`, `faq` |
+| `HomeTranslations` | `home.ts` | `hero`, `logos`, `pillars`, `testimonials`, `pricing`, `ctaBanner` |
 | `AuthTranslations` | `auth.ts` | `routes`, `signIn`, `signUp`, `dashboard`, `admin`, `org` |
 | `AboutTranslations` | `about.ts` | `hero`, `mission`, `team`, `values` |
 
@@ -98,8 +100,9 @@ Les traductions sont typées via des interfaces définies dans `config.ts` :
 | `getAuthTranslations(locale)` | `Promise<AuthTranslations>` | Pages auth + admin |
 | `getAboutTranslations(locale)` | `Promise<AboutTranslations>` | Page à propos |
 | `getContactTranslations(locale)` | `Promise<ContactTranslations>` | Page contact |
+| `getBlogTranslations(locale)` | `Promise<BlogTranslations>` | Blog (`src/i18n/blog/*.ts`), fallback `en` |
 
-Chaque loader utilise un `import()` dynamique pour ne charger que la locale demandée.
+Chaque loader utilise un `import()` dynamique pour ne charger que la locale demandée, avec fallback sur `en` (`DEFAULT_LOCALE`) en cas d'échec (utils.ts).
 
 ### Génération d'URLs
 
@@ -108,9 +111,13 @@ Chaque loader utilise un `import()` dynamique pour ne charger que la locale dema
 | `getAuthUrl` | `(locale, pageId, authT) → string` | `getAuthUrl('fr', 'sign-in', authT)` → `/fr/auth/connexion` |
 | `resolveAuthSlug` | `(slug, authT) → AuthPageId \| null` | `resolveAuthSlug('connexion', authT)` → `'sign-in'` |
 | `getAdminUrl` | `(locale, subpage?) → string` | `getAdminUrl('fr', 'users')` → `/fr/auth/admin/users` |
-| `getOrgUrl` | `(locale, orgSlug, subpage?) → string` | `getOrgUrl('fr', 'acme', 'members')` → `/fr/organizations/acme/members` |
+| `getOrgUrl` | `(locale, orgSlug, subpage?) → string` | `getOrgUrl('fr', 'acme', 'members')` → `/fr/organizations/acme/members` (`blog`/`services`/`media` redirigent vers `.../admin/...`) |
 | `getPageUrl` | `(locale, pageId, commonT) → string` | `getPageUrl('en', 'about', commonT)` → `/en/about` |
 | `resolvePageSlug` | `(slug, commonT) → PageId \| null` | `resolvePageSlug('a-propos', commonT)` → `'about'` |
+| `getBlogUrl` | `(locale, blogT) → string` | URL listing blog localisée |
+| `getBlogCategoryUrl` | `(locale, blogT, slug) → string` | URL catégorie blog |
+| `getBlogTagUrl` | `(locale, blogT, slug) → string` | URL tag blog (`…/tags/…`) |
+| `getBlogPostUrl` | `(locale, blogT, slug, categorySlug?) → string` | URL article (avec ou sans catégorie) |
 
 ### Helpers locale
 
@@ -131,23 +138,34 @@ Toutes les pages utilisent le paramètre dynamique `[lang]` :
 
 ```text
 src/pages/
-├── index.astro                    # Redirect → /fr/ (DEFAULT_LOCALE)
+├── index.astro                    # Redirect → /en/ (DEFAULT_LOCALE)
 └── [lang]/
     ├── index.astro                # Page d'accueil
-    ├── [page].astro               # Pages dynamiques CMS (about, contact, etc.)
+    ├── [slug].astro               # Pages dynamiques CMS (about, contact, etc.)
+    ├── a-propos.astro / contact.astro / faq.astro / terms.astro
     ├── auth/
-    │   ├── [auth].astro           # Pages auth (sign-in, sign-up, etc.)
-    │   ├── admin/
-    │   │   └── [...admin].astro   # Pages admin CMS
-    │   └── ...
-    └── organizations/
-        └── [slug]/                # Pages organisation
+    │   └── [slug].astro           # Pages auth (sign-in, sign-up, etc.)
+    ├── admin/
+    │   ├── index.astro + *.astro fixes (stats, site, navigation, theme, blog, users, …)
+    │   ├── blog/index.astro + new.astro + [id]/edit.astro
+    │   └── services/index.astro + new.astro + [id]/edit.astro
+    ├── blog/
+    │   ├── index.astro
+    │   └── [...slug].astro        # Listing, catégories, tags, articles
+    ├── services/
+    │   ├── index.astro + [slug].astro + [categorySlug].astro + [categorySlug]/[slug].astro + tags/[tagSlug].astro
+    ├── trips/
+    │   └── [slug].astro
+    └── apply/
+        └── [trip].astro
 ```
+
+> Il n'y a pas de route `src/pages/[lang]/organizations/**`. Les segments localisés complémentaires (voyages/trips, candidature/apply, faq, conditions/terms, confidentialité/privacy, à-propos/about, contact) sont centralisés dans `src/i18n/routes.ts`.
 
 ### Résolution de route
 
 1. Le paramètre `[lang]` est validé via `toLocale(Astro.params.lang)`
-2. Si la locale est invalide → fallback sur `fr` (DEFAULT_LOCALE)
+2. Si la locale est invalide → fallback sur `en` (DEFAULT_LOCALE)
 3. Les slugs de pages sont traduits via `pageRoutes` dans `CommonTranslations`
 4. Les slugs auth sont traduits via `routes` dans `AuthTranslations`
 

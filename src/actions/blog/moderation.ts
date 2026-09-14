@@ -1,7 +1,7 @@
-import { assertBlogPermission, resolveBlogTenant, auditBlog, blogOrganizationIdSchema, blogPublicRateLimit, invalidateBlogCache } from "./_helpers";
+import { assertBlogPermission, auditBlog, blogPublicRateLimit, invalidateBlogCache } from "./_helpers";
 import { defineAction, ActionError } from "astro:actions";
 import { z } from "astro/zod";
-import { eq, and, desc, isNull, or } from "drizzle-orm";
+import { eq, and, desc, or } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { blogReports, blogComments, blogPostReviews, blogPosts } from "@database/schemas";
 import { blogReportFormSchema, blogReportStatusSchema } from "@/lib/blog/validation";
@@ -85,16 +85,14 @@ export const updateBlogReport = defineAction({
   input: z.object({
     reportId: z.uuid(),
     status: blogReportStatusSchema,
-    organizationId: blogOrganizationIdSchema,
   }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    const user = await assertBlogPermission(context, tenant, { blogComment: ["moderate"] });
+    const user = await assertBlogPermission(context, { blogComment: ["moderate"] });
 
     const db = getDrizzle();
 
     // A report may target a post directly, or a comment/review (postId is null).
-    // Resolve the owning post to enforce tenant isolation in both cases.
+    // Resolve the owning post to enforce global visibility in both cases.
     const [report] = await db
       .select({
         id: blogReports.id,
@@ -114,11 +112,6 @@ export const updateBlogReport = defineAction({
     if (targetCount !== 1) {
       throw new ActionError({ code: "BAD_REQUEST", message: "Le signalement possède une cible invalide." });
     }
-
-    const orgFilter =
-      tenant.organizationId === null
-        ? isNull(blogPosts.organizationId)
-        : eq(blogPosts.organizationId, tenant.organizationId);
 
     let owningPostId: string | null = report.postId;
     if (!owningPostId && report.commentId) {
@@ -145,9 +138,9 @@ export const updateBlogReport = defineAction({
     const [post] = await db
       .select({ id: blogPosts.id })
       .from(blogPosts)
-      .where(and(eq(blogPosts.id, owningPostId), orgFilter))
+      .where(eq(blogPosts.id, owningPostId))
       .limit(1);
-    if (!post) throw new ActionError({ code: "FORBIDDEN", message: "Ce signalement n'appartient pas à ce tenant." });
+    if (!post) throw new ActionError({ code: "FORBIDDEN", message: "Ce signalement est introuvable." });
 
     await db
       .update(blogReports)
@@ -167,20 +160,14 @@ export const updateBlogReport = defineAction({
 
 export const getBlogModerationQueue = defineAction({
   input: z.object({
-    organizationId: blogOrganizationIdSchema,
     page: z.number().int().min(1).default(1),
     limit: z.number().int().min(1).max(100).default(20),
   }),
   handler: async (input, context) => {
-    const tenant = resolveBlogTenant(input);
-    await assertBlogPermission(context, tenant, { blogComment: ["moderate"] });
+    await assertBlogPermission(context, { blogComment: ["moderate"] });
 
     const db = getDrizzle();
     const offset = (input.page - 1) * input.limit;
-
-    const orgFilter = tenant.organizationId === null
-      ? isNull(blogPosts.organizationId)
-      : eq(blogPosts.organizationId, tenant.organizationId);
 
     const pendingComments = await db
       .select({
@@ -189,7 +176,7 @@ export const getBlogModerationQueue = defineAction({
       })
       .from(blogComments)
       .innerJoin(blogPosts, eq(blogComments.postId, blogPosts.id))
-      .where(and(eq(blogComments.status, "PENDING"), orgFilter))
+      .where(eq(blogComments.status, "PENDING"))
       .orderBy(desc(blogComments.createdAt))
       .limit(input.limit)
       .offset(offset);
@@ -201,7 +188,7 @@ export const getBlogModerationQueue = defineAction({
       })
       .from(blogPostReviews)
       .innerJoin(blogPosts, eq(blogPostReviews.postId, blogPosts.id))
-      .where(and(eq(blogPostReviews.status, "PENDING"), orgFilter))
+      .where(eq(blogPostReviews.status, "PENDING"))
       .orderBy(desc(blogPostReviews.createdAt))
       .limit(input.limit)
       .offset(offset);
@@ -222,7 +209,7 @@ export const getBlogModerationQueue = defineAction({
           eq(blogPostReviews.postId, blogPosts.id),
         ),
       )
-      .where(and(eq(blogReports.status, "PENDING"), orgFilter))
+      .where(eq(blogReports.status, "PENDING"))
       .orderBy(desc(blogReports.createdAt))
       .limit(input.limit)
       .offset(offset);

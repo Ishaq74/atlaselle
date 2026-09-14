@@ -29,7 +29,7 @@ export const productsData = [
 
 ### Conventions de nommage
 
-- Préfixe numérique pour l'ordre visuel : `01-products.data.ts`, `02-orders.data.ts`
+- Préfixe numérique **obligatoire** (validé par regex) : `/^\d+[a-z]?-[a-z][a-z0-9-]*\.data\.ts$/` — ex. `00-media.data.ts`, `00b-media-files.data.ts`, `07b-navigation-items.data.ts`
 - Suffixe `.data.ts` obligatoire
 - Exportez un tableau nommé (le seed prend le premier `Array` trouvé dans le module)
 
@@ -64,14 +64,25 @@ pnpm run db:seed -- --reset  # vide les tables puis insère
 ```md
 src/database/
 ├── data/
-│   ├── manifest.ts                  ← source de vérité : ordre + mapping
+│   ├── manifest.ts                  ← source de vérité : ordre + mapping (00 → 40b)
+│   ├── 00-media.data.ts             ← dossiers média
+│   ├── 00b-media-files.data.ts      ← fichiers média
+│   ├── 01-users.data.ts             ← utilisateurs
+│   ├── 01b-user-accounts.data.ts    ← comptes utilisateurs
+│   ├── 02-organizations.data.ts     ← organisations
+│   ├── 02b-organization-members.data.ts ← membres d'organisations
 │   ├── 03-site-settings.data.ts     ← paramètres site ×4 locales
 │   ├── 04-social-links.data.ts      ← liens sociaux
 │   ├── 05-contact-info.data.ts      ← coordonnées + géolocalisation
 │   ├── 06-opening-hours.data.ts     ← horaires ×7 jours + pause méridienne
 │   ├── 07-navigation.data.ts        ← menus (header, footer_primary, footer_secondary, footer_legal)
 │   ├── 07b-navigation-items.data.ts ← items de navigation ×4 locales
-│   └── 08-theme.data.ts             ← thème design (couleurs, fonts, CSS)
+│   ├── 08-theme.data.ts             ← thème design (couleurs, fonts, CSS)
+│   ├── 09-legal-pages.data.ts       ← pages légales
+│   ├── 09b-legal-sections.data.ts   ← sections des pages légales
+│   ├── 10-consent-settings.data.ts  ← paramètres de consentement
+│   ├── 11-… → 23b-*.data.ts         ← blog (catégories, tags, posts, commentaires, reviews, réactions, favoris, reports, liens, locks, notifications, subscribers, galeries)
+│   └── 24-… → 40b-*.data.ts         ← services (services, catégories, tags, liens, média, disponibilités, révisions, locks, SEO, favoris, reviews, commentaires, reports, stats, réactions, notifications, attributs)
 ├── schemas/
 │   ├── site.schema.ts
 │   ├── navigation.schema.ts
@@ -80,23 +91,29 @@ src/database/
 └── schemas.ts                       ← index de re-export
 ```
 
-### Seed CMS — Détail des données
+### Seed — Détail des données
 
-| Fichier | Table | Champs clés |
+| Fichiers | Domaine | Tables |
 | :-- | :-- | :-- |
-| `03-site-settings` | `siteSettings` | `siteName`, `siteDescription`, `siteSlogan`, `metaTitle`, `metaDescription`, `logoLight`, `logoDark`, `favicon`, `ogImage` ×4 locales |
-| `04-social-links` | `socialLinks` | `platform`, `url`, `label`, `icon`, `isActive`, `sortOrder` |
-| `05-contact-info` | `contactInfo` | `email`, `phone`, `address`, `city`, `postalCode`, `country`, `mapUrl`, `latitude`, `longitude` |
-| `06-opening-hours` | `openingHours` | `dayOfWeek` (0-6), `isClosed`, `openTime`/`closeTime`, `morningOpen/Close`, `afternoonOpen/Close` (pause méridienne) |
-| `07-navigation` | `navigationMenus` | `name` (header, footer_primary, footer_secondary, footer_legal) |
-| `07b-navigation-items` | `navigationItems` | `label`, `url`, `icon` (mdi:xxx), `sortOrder`, `parentId`, `isActive`, `openInNewTab` ×4 locales |
-| `08-theme` | `themeSettings` | couleurs (primary, secondary, accent, background, foreground, muted), `fontHeading`, `fontBody`, `borderRadius` |
+| `00`, `00b` | media | `mediaFolders`, `mediaFiles` |
+| `01`, `01b` | users | `user`, `account` |
+| `02`, `02b` | orgs | `organization`, `member` |
+| `03-site-settings` | site | `siteSettings` : `siteName`, `siteDescription`, `siteSlogan`, `metaTitle`, `metaDescription`, `logoLight`, `logoDark`, `favicon`, `ogImage` ×4 locales |
+| `04-social-links` | site | `socialLinks` : `platform`, `url`, `label`, `icon`, `isActive`, `sortOrder` |
+| `05-contact-info` | site | `contactInfo` : `email`, `phone`, `address`, `city`, `postalCode`, `country`, `mapUrl`, `latitude`, `longitude` |
+| `06-opening-hours` | site | `openingHours` : `dayOfWeek` (0-6), `isClosed`, `openTime`/`closeTime`, `morningOpen/Close`, `afternoonOpen/Close` (pause méridienne) |
+| `07-navigation` | navigation | `navigationMenus` : `name` (header, footer_primary, footer_secondary, footer_legal) |
+| `07b-navigation-items` | navigation | `navigationItems` : `label`, `url`, `icon` (mdi:xxx), `sortOrder`, `parentId`, `isActive`, `openInNewTab` ×4 locales |
+| `08-theme` | theme | `themeSettings` : couleurs (primary, secondary, accent, background, foreground, muted), `fontHeading`, `fontBody`, `borderRadius` |
+| `09`, `09b` | legal | `pages`, `pageSections` (pages légales + sections) |
+| `10` | consent | `consentSettings` |
+| `11` → `23b` | blog | `blogCategories`, `blogCategoryTranslations`, `blogTags`, `blogTagTranslations`, `blogPosts`, `blogPostTranslations`, `blogPostCategories`, `blogPostTags`, `blogPostSeo`, `blogPostRevisions`, `blogComments`, `blogCommentModerations`, `blogPostReviews`, `blogPostReviewHelpful`, `blogPostReactions`, `blogPostFavorites`, `blogReports`, `blogPostLinks`, `blogPostLocks`, `blogNotifications`, `blogSubscribers`, `blogPostGalleries`, `blogPostGalleryMedia` |
+| `24` → `40b` | services | `services`, `serviceTranslations`, `serviceCategories`, `serviceCategoryTranslations`, `serviceTags`, `serviceTagTranslations`, `serviceCategoryLinks`, `serviceTagLinks`, `serviceMedia`, `serviceAvailability`, `serviceRevisions`, `serviceLocks`, `serviceSeo`, `serviceFavorites`, `serviceReviews`, `serviceReviewHelpful`, `serviceComments`, `serviceReports`, `serviceViewStats`, `serviceReactions`, `serviceNotifications`, `serviceAttributeDefinitions`, `serviceAttributeValues` |
 
 ## Normalisation automatique
 
 Le script de seed normalise automatiquement :
 
-- `boolean` → `0` ou `1`
 - `Array` → `JSON.stringify()`
 
 ## Résolution des erreurs courantes

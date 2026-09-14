@@ -119,9 +119,9 @@ Composants simples (Input, Badge, Avatar) : `sm`, `md`, `lg`
 
 Button ajoute les variantes icon : `icon-sm`, `icon`, `icon-lg`
 
-### Pattern 3 — Multi-axes (Container : 8 axes)
+### Pattern 3 — Multi-axes (Container : 8 axes, hors registre Starwind)
 
-Container est le composant le plus riche — 8 axes indépendants :
+Container (`src/components/atoms/container/Container.astro`) est le composant le plus riche — 8 axes indépendants. Il n'est **pas enregistré dans `starwind.config.json`** (composant maison, voir catalogue) :
 
 | Axe | Options | Description |
 | :-- | --: | :-- |
@@ -153,6 +153,18 @@ Container utilise **3 instances** `tv()` pour gérer le mode `bleed` :
 | `container` | Composant unique | `bleed=false` |
 | `outerStyles` | Wrapper full-width | `bleed=true` |
 | `innerStyles` | Contenu contraint | `bleed=true` |
+
+Dialog suit le même pattern : le wrapper `Dialog.astro` n'a pas de `tv()`, mais `DialogContent.astro` exporte **3 instances** (`dialogBackdrop`, `dialogContent`, `dialogCloseButton`) — 7 instances `tv()` au total dans le dossier `dialog/`.
+
+### Pattern 5bis — Composants sans `tv()`
+
+`icon-picker` et `media-picker` n'utilisent **aucun `tv()`** (vérifié dans le code) : classes Tailwind directes + Custom JS / Custom Element (`<media-picker>`, event `media-select`). `kbd` utilise un `tv()` minimal à base unique, sans axe de variant :
+
+```ts
+export const kbd = tv({
+  base: [ "pointer-events-none inline-flex h-5 ...", "bg-muted text-muted-foreground", ... ],
+});
+```
 
 ### Pattern 6 — Sous-composants via groupe CSS
 
@@ -236,12 +248,14 @@ Points clés :
 
 | Composant | Axes | Compound | Polymorphic | Instances `tv()` |
 | :-- | --: | :-- | :-- | --: |
-| Container | 8 | — | `as` prop | 3 |
+| Container | 8 | — | `as` prop | 3 (hors `starwind.config.json`) |
 | Button | 2 (9×6) | — | href→tag | 1 |
 | Badge | 3 (9×3×bool) | 9 | href→tag | 1 |
 | Avatar | 2 (7×3) | — | — | 1 |
 | Alert | 1 (7) | — | — | 1 |
-| Card | 1 (2) | — | — | 1 |
+| Card | 1 (2) sur racine | — | — | 1 (racine) / 7 dans le dossier avec sous-composants |
 | Input | 1 (3) | — | — | 1 |
-| Dialog | — | — | — | 3 |
-| Tabs | — | — | — | 4 (1/part) |
+| Dialog | — (wrapper sans `tv()`) | — | — | 3 dans `DialogContent.astro` / 7 dans le dossier |
+| Tabs | — (racine sans variant) | — | — | 4 (1 par fichier : tabs, list, trigger, content) |
+| Kbd | — (base unique) | — | — | 1 |
+| IconPicker / MediaPicker | — (pas de `tv()`) | — | — | 0 |

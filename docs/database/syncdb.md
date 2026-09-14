@@ -23,11 +23,11 @@ pnpm db:sync TEST PROD     # écrase PROD avec les données de TEST
 2. Résout les URLs correspondantes via `env.ts`
 3. Demande une confirmation destructive (`confirmDestructive()`)
 4. Se connecte aux deux bases via `safeConnect()` — chaque connexion est testée individuellement
-5. Désactive les contraintes FK (`session_replication_role = replica`)
-6. Pour chaque table dans la base source :
-   - TRUNCATE la table cible
-   - INSERT toutes les lignes de la source
-7. Réactive les contraintes FK
+5. Vérifie la compatibilité du schéma (`validateTargetSchema()`) : abort si la cible ne contient pas toutes les tables de la source
+6. Pour chaque table dans la base source (dans une transaction `BEGIN`/`COMMIT` avec `ROLLBACK` en cas d'erreur) :
+   - `TRUNCATE TABLE "<table>" RESTART IDENTITY CASCADE` sur la cible
+   - `INSERT` toutes les lignes de la source par batch de 100
+7. Contraintes FK désactivées pendant la copie via `SET LOCAL session_replication_role = replica`
 
 ## Variables d'environnement
 

@@ -25,10 +25,8 @@ const authModules: Record<Locale, () => Promise<{ default: AuthTranslations }>> 
 export async function getAuthTranslations(locale: Locale): Promise<AuthTranslations> { try { return (await authModules[locale]()).default; } catch (err) { if (locale !== DEFAULT_LOCALE) return (await authModules[DEFAULT_LOCALE]()).default; throw err; } }
 export function getAuthUrl(locale: Locale, pageId: AuthPageId, authTranslations: AuthTranslations): string { return `/${locale}/auth/${authTranslations.routes[pageId]}`; }
 export function resolveAuthSlug(slug: string, authTranslations: AuthTranslations): AuthPageId | null { const match = (Object.entries(authTranslations.routes) as [AuthPageId, string][]).find(([, route]) => route === slug); return match?.[0] ?? null; }
-export type AdminSubpage = 'stats' | 'users' | 'organizations' | 'audit' | 'roles' | 'blog' | 'services' | 'site' | 'navigation' | 'pages' | 'media' | 'theme';
-export type OrgSubpage = 'members' | 'roles' | 'blog' | 'services' | 'media' | 'settings';
+export type AdminSubpage = 'stats' | 'users' | 'audit' | 'roles' | 'blog' | 'services' | 'site' | 'navigation' | 'pages' | 'media' | 'theme';
 export function getAdminUrl(locale: Locale, subpage?: AdminSubpage): string { return subpage ? `/${locale}/admin/${subpage}` : `/${locale}/admin`; }
-export function getOrgUrl(locale: Locale, orgSlug: string, subpage?: OrgSubpage): string { if (subpage === 'blog') return `/${locale}/organizations/${orgSlug}/admin/blog`; if (subpage === 'services') return `/${locale}/organizations/${orgSlug}/admin/services`; if (subpage === 'media') return `/${locale}/organizations/${orgSlug}/admin/media`; return subpage ? `/${locale}/organizations/${orgSlug}/${subpage}` : `/${locale}/organizations/${orgSlug}`; }
 export function getPageUrl(locale: Locale, pageId: PageId, commonTranslations: CommonTranslations): string { return `/${locale}/${commonTranslations.pageRoutes[pageId]}`; }
 const blogModules: Record<Locale, () => Promise<{ default: BlogTranslations }>> = { fr: () => import('./blog/fr'), en: () => import('./blog/en'), es: () => import('./blog/es'), ar: () => import('./blog/ar') };
 export async function getBlogTranslations(locale: Locale): Promise<BlogTranslations> { try { return (await blogModules[locale]()).default; } catch (err) { if (locale !== DEFAULT_LOCALE) return (await blogModules[DEFAULT_LOCALE]()).default; throw err; } }
@@ -39,5 +37,42 @@ export function getBlogPostUrl(locale: Locale, blogT: BlogTranslations, slug: st
 export function resolvePageSlug(slug: string, commonTranslations: CommonTranslations): PageId | null { const match = (Object.entries(commonTranslations.pageRoutes) as [PageId, string][]).find(([, route]) => route === slug); return match?.[0] ?? null; }
 export function toLocale(value: string | undefined): Locale { return value && LOCALES.includes(value as Locale) ? value as Locale : DEFAULT_LOCALE; }
 export function isValidLocale(value: string | undefined): value is Locale { return typeof value === 'string' && (LOCALES as readonly string[]).includes(value); }
+
+/** Tables de slugs par locale pour la correspondance inter-langues (sélecteur de langue, TODO §7.6). */
+export interface StaticSlugMaps {
+  pageRoutes: Record<Locale, Record<PageId, string>>;
+  authRoutes: Record<Locale, Record<AuthPageId, string>>;
+}
+
+/**
+ * Page équivalente dans la langue cible pour les slugs structurels
+ * (about/contact/legal, auth, pages universelles terms/faq).
+ * Pur et testé (tests/unit/i18n-switch.test.ts). Retourne le chemin ou `null`
+ * (repli : page parente / getRelativeLocaleUrl, jamais de contenu d'une autre langue).
+ */
+export function mapStaticSlugPath(
+  currentLocale: Locale,
+  targetLocale: Locale,
+  pathWithoutLocale: string,
+  maps: StaticSlugMaps,
+): string | null {
+  if (pathWithoutLocale === '/terms' || pathWithoutLocale === '/faq') {
+    return `/${targetLocale}${pathWithoutLocale}`;
+  }
+  const curPages = maps.pageRoutes[currentLocale];
+  const pageEntry = (Object.entries(curPages) as [PageId, string][]).find(
+    ([, slug]) => `/${slug}` === pathWithoutLocale,
+  );
+  if (pageEntry) return `/${targetLocale}/${maps.pageRoutes[targetLocale][pageEntry[0]]}`;
+  const authMatch = pathWithoutLocale.match(/^\/auth\/([^/]+)$/);
+  if (authMatch) {
+    const curAuth = maps.authRoutes[currentLocale];
+    const authEntry = (Object.entries(curAuth) as [AuthPageId, string][]).find(
+      ([, slug]) => slug === authMatch[1],
+    );
+    if (authEntry) return `/${targetLocale}/auth/${maps.authRoutes[targetLocale][authEntry[0]]}`;
+  }
+  return null;
+}
 export function isRTL(locale: Locale): boolean { return RTL_LOCALES.includes(locale); }
 export function getDirection(locale: Locale): 'rtl' | 'ltr' { return isRTL(locale) ? 'rtl' : 'ltr'; }

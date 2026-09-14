@@ -43,9 +43,8 @@ Supprime les entrées de la table `audit_log` dont `created_at` est antérieur �
 
 ## Protection
 
-- Confirmation requise avant exécution
-- Protection supplémentaire en production (`DB_ENV=PROD`)
-- Requête paramétrée (pas de SQL injection) : `DELETE FROM audit_log WHERE created_at < NOW() - INTERVAL '1 day' * $1`
+- Confirmation **uniquement en production** via `confirmProd()` — aucune confirmation en LOCAL/TEST
+- Suppression par batch de 1000 : `DELETE FROM audit_log WHERE id IN (SELECT id FROM audit_log WHERE created_at < NOW() - INTERVAL '1 day' * $1 LIMIT $2)` (boucle jusqu'à épuisement)
 
 ---
 

@@ -21,10 +21,10 @@ export const GET: APIRoute = async ({ request, clientAddress }) => {
     return Response.json({ error: 'Trop de requêtes' }, { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } });
   }
 
-  const { userResult, accounts, sessions, memberships, invitations, auditLogs } = await withDbActorContext(
+  const { userResult, accounts, sessions, auditLogs } = await withDbActorContext(
     { userId, isAdmin: session.user.role === 'admin' },
     async (db) => {
-      const [userResult, accounts, sessions, memberships, invitations, auditLogs] = await Promise.all([
+      const [userResult, accounts, sessions, auditLogs] = await Promise.all([
         db
           .select({
             id: schema.user.id,
@@ -62,28 +62,6 @@ export const GET: APIRoute = async ({ request, clientAddress }) => {
 
         db
           .select({
-            id: schema.member.id,
-            organizationId: schema.member.organizationId,
-            role: schema.member.role,
-            createdAt: schema.member.createdAt,
-          })
-          .from(schema.member)
-          .where(eq(schema.member.userId, userId)),
-
-        db
-          .select({
-            id: schema.invitation.id,
-            organizationId: schema.invitation.organizationId,
-            email: schema.invitation.email,
-            role: schema.invitation.role,
-            status: schema.invitation.status,
-            createdAt: schema.invitation.createdAt,
-          })
-          .from(schema.invitation)
-          .where(eq(schema.invitation.inviterId, userId)),
-
-        db
-          .select({
             id: schema.auditLog.id,
             action: schema.auditLog.action,
             resource: schema.auditLog.resource,
@@ -96,7 +74,7 @@ export const GET: APIRoute = async ({ request, clientAddress }) => {
           .limit(1000),
       ]);
 
-      return { userResult, accounts, sessions, memberships, invitations, auditLogs };
+      return { userResult, accounts, sessions, auditLogs };
     },
   );
 
@@ -105,8 +83,6 @@ export const GET: APIRoute = async ({ request, clientAddress }) => {
     user: userResult[0],
     accounts,
     sessions,
-    memberships,
-    invitations,
     auditLogs,
     ...(auditLogs.length >= 1000 && { _warning: 'Audit logs truncated to 1000 entries. Contact support for full export.' }),
   };

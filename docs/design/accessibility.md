@@ -4,9 +4,9 @@
 
 ---
 
-## Niveau cible : WCAG AAA
+## Niveau cible : WCAG AAA (avec réserves outillage)
 
-Le design system vise le **niveau AAA** des Web Content Accessibility Guidelines (WCAG 2.2) sur tous les composants.
+Le design system vise le **niveau AAA** des Web Content Accessibility Guidelines (WCAG 2.2) sur tous les composants. En pratique, Pa11y n'est pas strict WCAG2AAA : `.pa11yci.cjs` ignore la règle `color-contrast` (axe-core 4.12.1 ne résout pas les contrastes OKLCH — faux positifs sur des paires vérifiées manuellement AAA) et masque des sections animées via `hideElements` (marquees, overlays hero/CTA/pricing, fallbacks avatars du carousel).
 
 ---
 
@@ -14,15 +14,15 @@ Le design system vise le **niveau AAA** des Web Content Accessibility Guidelines
 
 ### Ratios vérifiés
 
-Tous les tokens du design system respectent les seuils suivants :
+Le code ne calcule aucun ratio (aucun calcul de contraste dans le code — les ratios ci-dessous reprennent les commentaires de `global.css` / `.pa11yci.cjs`, à valeur indicative) :
 
 | Paire | Mode Light | Mode Dark | Seuil |
 | :-- | :-- | :-- | :-- |
 | `background` ↔ `foreground` | ~20:1 | ~16:1 | 7:1 AAA ✅ |
 | `primary` ↔ `primary-foreground` | ~11:1 | ~11:1 | 7:1 AAA ✅ |
-| `primary-deep` ↔ `background` | ~5:1 | N/A | 4.5:1 AA ✅ (texte sur fond clair) |
+| `primary-deep` ↔ `background` | ~5:1 | N/A (vaut primary en dark) | 4.5:1 AA ✅ (texte sur fond clair) |
 | `card` ↔ `card-foreground` | ~18:1 | ~14:1 | 7:1 AAA ✅ |
-| `muted` ↔ `muted-foreground` | ~5:1 | ~4.5:1 | 4.5:1 AA ✅ |
+| `muted` ↔ `muted-foreground` (`0.400` en light) | ~5:1 | ~4.5:1 | 4.5:1 AA ✅ |
 | `error` ↔ `error-foreground` | ~7.7:1 | ~7:1 | 7:1 AAA ✅ |
 | `warning` ↔ `warning-foreground` | ~11:1 | ~11:1 | 7:1 AAA ✅ |
 
@@ -176,7 +176,7 @@ La direction est déterminée automatiquement à partir de la locale i18n :
 | `en`, `fr`, `es` | `ltr` |
 | `ar` | `rtl` |
 
-Les composants qui utilisent `gap`, `flex`, `grid`, `px` et les Tailwind utilities logiques (`ms-`, `me-`, `ps-`, `pe-`) s'adaptent automatiquement.
+Les composants qui utilisent `gap`, `flex`, `grid`, `px` s'adaptent automatiquement. Les utilities logiques (`ms-`, `me-`, `ps-`, `pe-`) ne sont utilisées que dans 7 fichiers vérifiés (`ReactionBar`, `ShareBar`, `TagCloud`, `SideCarouselCards`, `AdminRolesPage`, `OrgRolesPage`, `HorizontalScrollCarousel`) — ne pas affirmer un usage généralisé.
 
 ---
 
