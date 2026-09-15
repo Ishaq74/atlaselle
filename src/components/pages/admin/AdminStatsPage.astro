@@ -1,6 +1,7 @@
 ---
 import type { AuthTranslations, Locale } from '@i18n/config';
 import type { AppUser } from '@/lib/types';
+import type { VoyageHealth } from '@/modules/trips/loaders/admin-health.loader';
 import { Card, CardHeader, CardTitle, CardContent } from '@atoms/card';
 
 interface Props {
@@ -8,10 +9,14 @@ interface Props {
   locale: Locale;
   user: AppUser;
   adminStats: { totalUsers: number; recentSignups: number };
+  voyageStats?: VoyageHealth | null;
 }
 
-const { t, adminStats } = Astro.props;
+const { t, locale, adminStats, voyageStats } = Astro.props;
 const ta = t.admin;
+const vt = locale === "fr"
+  ? { title: "Voyages", pending: "Candidatures à relire", open: "Départs ouverts", upcoming: "Départs 7 j", recent: "Réservations 7 j", failed: "Paiements échoués", balances: "Soldes dus", unpublished: "Traductions non visibles" }
+  : { title: "Voyages", pending: "Applications to review", open: "Open departures", upcoming: "Departures 7d", recent: "Bookings 7d", failed: "Failed payments", balances: "Balances due", unpublished: "Hidden translations" };
 ---
 
 <div class="grid gap-4 sm:grid-cols-2">
@@ -29,3 +34,18 @@ const ta = t.admin;
     </CardContent>
   </Card>
 </div>
+
+{voyageStats ? (
+  <div class="mt-8">
+    <h2 class="mb-4 text-xl font-bold">{vt.title}</h2>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.pending}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.pendingApplications}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.open}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.openDepartures}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.upcoming}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.upcomingDepartures7d}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.recent}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.recentReservations7d}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.failed}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.failedPayments}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.balances}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.balancesDue}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.unpublished}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.unpublishedTrips}</p></CardContent></Card>
+    </div>
+  </div>
+) : null}

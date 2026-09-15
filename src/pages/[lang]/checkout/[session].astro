@@ -18,7 +18,11 @@ const fmt = (cents: number) => `${data.quote.currency === "EUR" ? "€" : data.q
 const l =
   locale === "fr"
     ? { title: "Paiement", room: "Chambre", shared: "Double partagée", single: "Individuelle", base: "Base", supplement: "Supplément", discount: "Réduction", tax: "Taxes", fee: "Frais", total: "Total", deposit: "Acompte prélevé aujourd'hui", balance: "Solde plus tard", terms: "J'ai lu et j'accepte les conditions de voyage.", pay: "Payer", dates: "Départ" }
-    : { title: "Checkout", room: "Room", shared: "Shared twin", single: "Single", base: "Base", supplement: "Supplement", discount: "Discount", tax: "Tax", fee: "Fee", total: "Total", deposit: "Deposit charged today", balance: "Balance later", terms: "I have read and accept the travel terms.", pay: "Pay", dates: "Departure" };
+    : locale === "es"
+      ? { title: "Pago", room: "Habitación", shared: "Doble compartida", single: "Individual", base: "Base", supplement: "Suplemento", discount: "Descuento", tax: "Impuestos", fee: "Gastos", total: "Total", deposit: "Anticipo cobrado hoy", balance: "Saldo después", terms: "He leído y acepto las condiciones del viaje.", pay: "Pagar", dates: "Salida" }
+      : locale === "ar"
+        ? { title: "الدفع", room: "الغرفة", shared: "مزدوجة مشتركة", single: "مفردة", base: "الأساس", supplement: "إضافة", discount: "خصم", tax: "ضرائب", fee: "رسوم", total: "المجموع", deposit: "الدفعة اليوم", balance: "الرصيد لاحقا", terms: "قرأت شروط السفر وأوافق عليها.", pay: "ادفع", dates: "المغادرة" }
+        : { title: "Checkout", room: "Room", shared: "Shared twin", single: "Single", base: "Base", supplement: "Supplement", discount: "Discount", tax: "Tax", fee: "Fee", total: "Total", deposit: "Deposit charged today", balance: "Balance later", terms: "I have read and accept the travel terms.", pay: "Pay", dates: "Departure" };
 const base = `/${locale}/checkout/${data.sessionId}`;
 ---
 <BaseLayout title={`${l.title} — ${data.tripTitle}`} description={data.tripTitle} canonicalPath={base}>

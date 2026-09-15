@@ -31,7 +31,9 @@ export const statement = {
   application: ["read", "review", "approve", "decline"],
   reservation: ["read", "cancel"],
   payment: ["read", "refund"],
+  traveler: ["read", "export", "anonymize"],
   policy: ["create", "read", "update", "publish"],
+  email: ["read", "retry"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -79,7 +81,9 @@ export const adminRole = ac.newRole({
   application: ["read", "review", "approve", "decline"],
   reservation: ["read", "cancel"],
   payment: ["read", "refund"],
-  policy: ["read"],
+  traveler: ["read", "export", "anonymize"],
+  policy: ["create", "read", "update", "publish"],
+  email: ["read", "retry"],
   ...cmsAdminServices,
 });
 
@@ -99,7 +103,9 @@ export const editorRole = ac.newRole({
   application: ["read"],
   reservation: ["read"],
   payment: ["read"],
+  traveler: ["read"],
   policy: ["read"],
+  email: ["read"],
   ...cmsEditorServices,
 });
 

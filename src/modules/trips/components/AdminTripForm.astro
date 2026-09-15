@@ -7,13 +7,14 @@ import type { DepartureStatus } from "@database/schemas/departures.schema";
 
 interface Props {
   detail: AdminTripDetail;
+  revisions: { id: string; createdAt: Date }[];
   locale: Locale;
   baseUrl: string;
   canUpdate: boolean;
   canPublish: boolean;
 }
 
-const { detail, locale, baseUrl, canUpdate, canPublish } = Astro.props;
+const { detail, revisions, locale, baseUrl, canUpdate, canPublish } = Astro.props;
 const { trip, translations, departures } = detail;
 const trByLocale = new Map(translations.map((t) => [t.locale, t]));
 const nextTransitions: Record<TripStatus, { to: string; label: string; publish: boolean }[]> = {
@@ -36,8 +37,8 @@ const nextTransitions: Record<TripStatus, { to: string; label: string; publish: 
 const transitions = nextTransitions[trip.status as TripStatus] ?? [];
 const departureStatuses: DepartureStatus[] = ["draft", "open", "limited", "waitlist", "closed", "cancelled"];
 const t = locale === "fr"
-  ? { facts: "Faits", save: "Enregistrer", translations: "Traductions", departures: "Départs", status: "Statut", newDeparture: "Nouveau départ", start: "Début", end: "Fin", price: "Prix (centimes)", capacity: "Capacité min/max", saved: "Enregistré.", error: "Erreur : " }
-  : { facts: "Facts", save: "Save", translations: "Translations", departures: "Departures", status: "Status", newDeparture: "New departure", start: "Start", end: "End", price: "Price (cents)", capacity: "Capacity min/max", saved: "Saved.", error: "Error: " };
+  ? { facts: "Faits", save: "Enregistrer", translations: "Traductions", revisions: "Révisions", restore: "Restaurer", departures: "Départs", status: "Statut", newDeparture: "Nouveau départ", start: "Début", end: "Fin", price: "Prix (centimes)", capacity: "Capacité min/max", saved: "Enregistré.", error: "Erreur : " }
+  : { facts: "Facts", save: "Save", translations: "Translations", revisions: "Revisions", restore: "Restore", departures: "Departures", status: "Status", newDeparture: "New departure", start: "Start", end: "End", price: "Price (cents)", capacity: "Capacity min/max", saved: "Saved.", error: "Error: " };
 ---
 <section class="mx-auto max-w-6xl space-y-10 px-6 py-10" data-trip-id={trip.id}>
   <div>
@@ -59,6 +60,7 @@ const t = locale === "fr"
   {canUpdate ? (
     <form data-facts-form class="space-y-4 rounded-xl border p-6">
       <h2 class="text-xl font-bold">{t.facts}</h2>
+      <input type="hidden" name="expectedUpdatedAt" value={trip.updatedAt.toISOString()} />
       <div class="grid gap-4 sm:grid-cols-3">
         <label class="block text-sm">countryCode<input name="countryCode" value={trip.countryCode} maxlength="2" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
         <label class="block text-sm">defaultCurrency<input name="defaultCurrency" value={trip.defaultCurrency} maxlength="3" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
@@ -84,6 +86,7 @@ const t = locale === "fr"
       return (
         <form data-translation-form={loc} class="space-y-3 rounded-xl border p-6">
           <h3 class="font-bold uppercase">{loc}{tr?.localeVisible ? " · visible" : ""}</h3>
+          <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt.toISOString() ?? ""} />
           <div class="grid gap-4 sm:grid-cols-2">
             <label class="block text-sm">slug (ASCII)<input name="slug" value={tr?.slug ?? ""} required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
             <label class="block text-sm">title<input name="title" value={tr?.title ?? ""} required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
@@ -99,6 +102,20 @@ const t = locale === "fr"
         </form>
       );
     })}
+  </div>
+
+  <div class="space-y-4">
+    <h2 class="text-xl font-bold">{t.revisions} ({revisions.length})</h2>
+    {revisions.length > 0 ? (
+      <ul class="space-y-2 text-sm">
+        {revisions.map((r) => (
+          <li class="flex items-center justify-between gap-4 rounded-xl border px-4 py-2" data-revision-id={r.id}>
+            <span class="font-mono text-xs">{r.id.slice(0, 8)} · {r.createdAt.toISOString().slice(0, 16).replace("T", " ")}</span>
+            {canUpdate ? <button type="button" class="text-primary underline" data-restore>{t.restore}</button> : null}
+          </li>
+        ))}
+      </ul>
+    ) : null}
   </div>
 
   <div class="space-y-4">
@@ -169,6 +186,7 @@ const t = locale === "fr"
     const data = new FormData(form);
     const { error } = await actions.updateTrip({
       id: tripId,
+      expectedUpdatedAt: String(data.get("expectedUpdatedAt") ?? "") || null,
       countryCode: str(data.get("countryCode"))?.toUpperCase(),
       defaultCurrency: str(data.get("defaultCurrency"))?.toUpperCase(),
       durationDays: num(data.get("durationDays")),
@@ -194,6 +212,7 @@ const t = locale === "fr"
       const locale = (target.getAttribute("data-translation-form") ?? "") as Locale;
       const { error } = await actions.upsertTripTranslation({
         tripId,
+        expectedUpdatedAt: String(data.get("expectedUpdatedAt") ?? "") || null,
         locale,
         slug: String(data.get("slug") ?? ""),
         title: String(data.get("title") ?? ""),
@@ -235,6 +254,17 @@ const t = locale === "fr"
       const id = row?.getAttribute("data-departure-id") ?? "";
       const to = row?.querySelector<HTMLSelectElement>("[data-departure-status]")?.value ?? "";
       const { error } = await actions.setDepartureStatus({ id, to: to as "open" });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+
+  document.querySelectorAll("[data-restore]")?.forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const li = (btn as HTMLElement).closest("[data-revision-id]");
+      const id = li?.getAttribute("data-revision-id") ?? "";
+      if (!id) return;
+      const { error } = await actions.restoreTripRevision({ id });
       if (error) alert(error.message);
       else window.location.reload();
     });

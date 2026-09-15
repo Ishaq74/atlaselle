@@ -18,7 +18,11 @@ const fmt = (cents: number) => `${booking.currency === "EUR" ? "€" : booking.c
 const l =
   locale === "fr"
     ? { title: "Réservation confirmée", number: "Numéro", trip: "Voyage", paid: "Payé", confirmed: "Votre place est réservée. Détails envoyés par e-mail.", pending: "Paiement en cours de confirmation — actualisez dans un instant.", balance: "Régler le solde restant", email: "E-mail de la réservation", payBalance: "Payer le solde" }
-    : { title: "Booking confirmed", number: "Number", trip: "Trip", paid: "Paid", confirmed: "Your seat is booked. Details sent by email.", pending: "Payment confirming — refresh in a moment.", balance: "Pay the remaining balance", email: "Booking email", payBalance: "Pay balance" };
+    : locale === "es"
+      ? { title: "Reserva confirmada", number: "Número", trip: "Viaje", paid: "Pagado", confirmed: "Su plaza está reservada. Detalles por correo.", pending: "Pago en confirmación — actualice en un instante.", balance: "Pagar el saldo restante", email: "Correo de la reserva", payBalance: "Pagar el saldo" }
+      : locale === "ar"
+        ? { title: "تم تأكيد الحجز", number: "الرقم", trip: "الرحلة", paid: "المدفوع", confirmed: "تم حجز مقعدك. التفاصيل بالبريد.", pending: "الدفع قيد التأكيد — حدّث بعد قليل.", balance: "ادفع الرصيد المتبقي", email: "بريد الحجز", payBalance: "ادفع الرصيد" }
+        : { title: "Booking confirmed", number: "Number", trip: "Trip", paid: "Paid", confirmed: "Your seat is booked. Details sent by email.", pending: "Payment confirming — refresh in a moment.", balance: "Pay the remaining balance", email: "Booking email", payBalance: "Pay balance" };
 const showBalanceForm = (booking.status === "confirmed" || booking.status === "balance_due") && booking.totalAmount - booking.amountPaid > 0;
 ---
 <BaseLayout title={`${l.title} — ${booking.tripTitle}`} description={booking.tripTitle} canonicalPath={`/${locale}/booking-confirmed`}>

@@ -1,0 +1,88 @@
+---
+import type { Locale } from "@i18n/config";
+import type { loadAdminApplication } from "@/modules/applications/loaders/admin-applications.loader";
+
+interface Props {
+  detail: NonNullable<Awaited<ReturnType<typeof loadAdminApplication>>>;
+  locale: Locale;
+  baseUrl: string;
+  canReview: boolean;
+}
+
+const { detail, locale, baseUrl, canReview } = Astro.props;
+const { application, traveler, decisions, events } = detail;
+const t = locale === "fr"
+  ? { traveler: "Voyageuse", answers: "Réponses", history: "Décisions", events: "Journal", note: "Note interne (optionnelle)", approve: "Approuver", decline: "Refuser", contact: "Demander un échange", room: "Chambre", diet: "Régime", access: "Accessibilité", motivation: "Motivation", expectations: "Attentes" }
+  : { traveler: "Traveler", answers: "Answers", history: "Decisions", events: "Timeline", note: "Internal note (optional)", approve: "Approve", decline: "Decline", contact: "Request a chat", room: "Room", diet: "Diet", access: "Accessibility", motivation: "Motivation", expectations: "Expectations" };
+const reviewable = ["submitted", "under_review", "contact_required"].includes(application.status);
+---
+<section class="mx-auto max-w-4xl space-y-8 px-6 py-10" data-application-id={application.id}>
+  <div>
+    <a class="text-sm text-primary underline" href={baseUrl}>← {application.id.slice(0, 8)}</a>
+    <h1 class="mt-2 text-3xl font-bold">{traveler?.legalName ?? traveler?.email}</h1>
+    <p class="mt-1 text-sm text-muted-foreground">{traveler?.email} · {application.status}</p>
+  </div>
+
+  {canReview && reviewable ? (
+    <div class="space-y-3 rounded-xl border p-6">
+      <label class="block text-sm">{t.note}<input name="internalNote" data-review-note maxlength="5000" class="mt-2 w-full rounded-md border bg-background p-2" /></label>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" class="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground" data-decision="approved">{t.approve}</button>
+        <button type="button" class="rounded-md border px-4 py-2 text-sm font-semibold" data-decision="contact_required">{t.contact}</button>
+        <button type="button" class="rounded-md border border-red-300 px-4 py-2 text-sm font-semibold" data-decision="declined">{t.decline}</button>
+      </div>
+    </div>
+  ) : null}
+
+  <div class="rounded-xl border p-6">
+    <h2 class="text-xl font-bold">{t.traveler}</h2>
+    <dl class="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+      <div><dt class="text-muted-foreground">Email</dt><dd>{traveler?.email}</dd></div>
+      <div><dt class="text-muted-foreground">Téléphone</dt><dd>{traveler?.phone ?? "—"}</dd></div>
+      <div><dt class="text-muted-foreground">Locale</dt><dd>{traveler?.locale ?? "—"}</dd></div>
+    </dl>
+  </div>
+
+  <div class="rounded-xl border p-6">
+    <h2 class="text-xl font-bold">{t.answers}</h2>
+    <dl class="mt-3 space-y-3 text-sm">
+      <div><dt class="text-muted-foreground">{t.room}</dt><dd>{application.roomPreference ?? "—"}</dd></div>
+      <div><dt class="text-muted-foreground">{t.diet}</dt><dd>{application.dietaryRequirements ?? "—"}</dd></div>
+      <div><dt class="text-muted-foreground">{t.access}</dt><dd>{application.accessibilityNeeds ?? "—"}</dd></div>
+      <div><dt class="text-muted-foreground">{t.motivation}</dt><dd class="whitespace-pre-wrap">{application.motivation ?? "—"}</dd></div>
+      <div><dt class="text-muted-foreground">{t.expectations}</dt><dd class="whitespace-pre-wrap">{application.expectations ?? "—"}</dd></div>
+    </dl>
+  </div>
+
+  <div class="rounded-xl border p-6">
+    <h2 class="text-xl font-bold">{t.history}</h2>
+    <ul class="mt-3 space-y-2 text-sm">
+      {decisions.length === 0 ? <li>—</li> : null}
+      {decisions.map((d) => (
+        <li class="flex justify-between gap-4 border-b py-1"><span class="font-semibold">{d.decision}</span><span class="text-muted-foreground">{d.createdAt.toISOString().slice(0, 16).replace("T", " ")}</span></li>
+      ))}
+    </ul>
+    <h2 class="mt-6 text-xl font-bold">{t.events}</h2>
+    <ul class="mt-3 space-y-2 text-sm">
+      {events.map((e) => (
+        <li class="flex justify-between gap-4 border-b py-1"><span>{e.event}</span><span class="text-muted-foreground">{e.createdAt.toISOString().slice(0, 16).replace("T", " ")}</span></li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<script>
+  import { actions } from "astro:actions";
+  const root = document.querySelector("section[data-application-id]");
+  const id = root?.getAttribute("data-application-id") ?? "";
+  document.querySelectorAll("[data-decision]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const el = btn as HTMLElement;
+      const decision = (el.dataset.decision ?? "") as "approved" | "declined" | "contact_required";
+      const internalNote = (document.querySelector("[data-review-note]") as HTMLInputElement | null)?.value || null;
+      const { error } = await actions.reviewApplication({ id, decision, internalNote });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+</script>

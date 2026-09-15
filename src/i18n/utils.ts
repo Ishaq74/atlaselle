@@ -25,7 +25,7 @@ const authModules: Record<Locale, () => Promise<{ default: AuthTranslations }>> 
 export async function getAuthTranslations(locale: Locale): Promise<AuthTranslations> { try { return (await authModules[locale]()).default; } catch (err) { if (locale !== DEFAULT_LOCALE) return (await authModules[DEFAULT_LOCALE]()).default; throw err; } }
 export function getAuthUrl(locale: Locale, pageId: AuthPageId, authTranslations: AuthTranslations): string { return `/${locale}/auth/${authTranslations.routes[pageId]}`; }
 export function resolveAuthSlug(slug: string, authTranslations: AuthTranslations): AuthPageId | null { const match = (Object.entries(authTranslations.routes) as [AuthPageId, string][]).find(([, route]) => route === slug); return match?.[0] ?? null; }
-export type AdminSubpage = 'stats' | 'users' | 'audit' | 'roles' | 'blog' | 'trips' | 'services' | 'site' | 'navigation' | 'pages' | 'media' | 'theme';
+export type AdminSubpage = 'stats' | 'users' | 'audit' | 'roles' | 'blog' | 'trips' | 'applications' | 'reservations' | 'payments' | 'travelers' | 'emails' | 'policies' | 'services' | 'site' | 'navigation' | 'pages' | 'media' | 'theme';
 export function getAdminUrl(locale: Locale, subpage?: AdminSubpage): string { return subpage ? `/${locale}/admin/${subpage}` : `/${locale}/admin`; }
 export function getPageUrl(locale: Locale, pageId: PageId, commonTranslations: CommonTranslations): string { return `/${locale}/${commonTranslations.pageRoutes[pageId]}`; }
 const blogModules: Record<Locale, () => Promise<{ default: BlogTranslations }>> = { fr: () => import('./blog/fr'), en: () => import('./blog/en'), es: () => import('./blog/es'), ar: () => import('./blog/ar') };

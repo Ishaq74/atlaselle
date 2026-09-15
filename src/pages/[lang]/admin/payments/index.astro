@@ -1,0 +1,43 @@
+---
+import { requirePermission } from "@/lib/auth-guards";
+import { hasVoyagePermission } from "@/actions/voyage/_helpers";
+import { loadAdminPayments } from "@/modules/payments/loaders/admin-payments.loader";
+import { PAYMENT_STATUSES } from "@database/schemas/payments.schema";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
+import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
+import AdminPaymentList from "@/modules/payments/components/AdminPaymentList.astro";
+
+export const prerender = false;
+
+const result = await requirePermission(Astro, { payment: ["read"] });
+if ("redirect" in result) return result.redirect;
+const { locale, authT } = result;
+
+const p = Astro.url.searchParams;
+const { rows, meta } = await loadAdminPayments({
+  page: p.get("page") ?? undefined,
+  pageSize: p.get("pageSize") ?? undefined,
+  status: p.get("status") ?? undefined,
+  type: p.get("type") ?? undefined,
+  sortOrder: p.get("sortOrder") ?? undefined,
+});
+const canRefund = await hasVoyagePermission(Astro, { payment: ["refund"] });
+const baseUrl = `/${locale}/admin/payments`;
+const title = authT.admin.tabs.payments;
+---
+
+<BaseLayout title={title} description={title} canonicalPath={baseUrl}>
+  <AuthLayout title={title}>
+    <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="payments" />
+    <AdminPaymentList
+      rows={rows}
+      meta={meta}
+      locale={locale}
+      baseUrl={baseUrl}
+      status={p.get("status") ?? undefined}
+      statuses={[...PAYMENT_STATUSES]}
+      canRefund={canRefund}
+    />
+  </AuthLayout>
+</BaseLayout>

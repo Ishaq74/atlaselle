@@ -1,0 +1,43 @@
+---
+import { requirePermission } from "@/lib/auth-guards";
+import { hasVoyagePermission } from "@/actions/voyage/_helpers";
+import { loadAdminReservations } from "@/modules/reservations/loaders/admin-reservations.loader";
+import { RESERVATION_STATUSES } from "@database/schemas/reservations.schema";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
+import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
+import AdminReservationList from "@/modules/reservations/components/AdminReservationList.astro";
+
+export const prerender = false;
+
+const result = await requirePermission(Astro, { reservation: ["read"] });
+if ("redirect" in result) return result.redirect;
+const { locale, authT } = result;
+
+const p = Astro.url.searchParams;
+const { rows, meta } = await loadAdminReservations({
+  page: p.get("page") ?? undefined,
+  pageSize: p.get("pageSize") ?? undefined,
+  status: p.get("status") ?? undefined,
+  tripId: p.get("tripId") ?? undefined,
+  sortOrder: p.get("sortOrder") ?? undefined,
+});
+const canCancel = await hasVoyagePermission(Astro, { reservation: ["cancel"] });
+const baseUrl = `/${locale}/admin/reservations`;
+const title = authT.admin.tabs.reservations;
+---
+
+<BaseLayout title={title} description={title} canonicalPath={baseUrl}>
+  <AuthLayout title={title}>
+    <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="reservations" />
+    <AdminReservationList
+      rows={rows}
+      meta={meta}
+      locale={locale}
+      baseUrl={baseUrl}
+      status={p.get("status") ?? undefined}
+      statuses={[...RESERVATION_STATUSES]}
+      canCancel={canCancel}
+    />
+  </AuthLayout>
+</BaseLayout>

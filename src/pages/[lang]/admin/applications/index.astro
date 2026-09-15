@@ -1,0 +1,41 @@
+---
+import { requirePermission } from "@/lib/auth-guards";
+import { loadAdminApplications } from "@/modules/applications/loaders/admin-applications.loader";
+import { APPLICATION_STATUSES } from "@database/schemas/applications.schema";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
+import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
+import AdminApplicationList from "@/modules/applications/components/AdminApplicationList.astro";
+
+export const prerender = false;
+
+const result = await requirePermission(Astro, { application: ["read"] });
+if ("redirect" in result) return result.redirect;
+const { locale, authT } = result;
+
+const p = Astro.url.searchParams;
+const { rows, meta } = await loadAdminApplications({
+  page: p.get("page") ?? undefined,
+  pageSize: p.get("pageSize") ?? undefined,
+  status: p.get("status") ?? undefined,
+  tripId: p.get("tripId") ?? undefined,
+  departureId: p.get("departureId") ?? undefined,
+  sortOrder: p.get("sortOrder") ?? undefined,
+});
+const baseUrl = `/${locale}/admin/applications`;
+const title = authT.admin.tabs.applications;
+---
+
+<BaseLayout title={title} description={title} canonicalPath={baseUrl}>
+  <AuthLayout title={title}>
+    <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="applications" />
+    <AdminApplicationList
+      rows={rows}
+      meta={meta}
+      locale={locale}
+      baseUrl={baseUrl}
+      status={p.get("status") ?? undefined}
+      statuses={[...APPLICATION_STATUSES]}
+    />
+  </AuthLayout>
+</BaseLayout>

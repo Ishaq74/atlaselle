@@ -2,10 +2,12 @@ import type { APIRoute } from "astro";
 import { getPagesList } from "@database/loaders/page.loader";
 import { getBlogCategories, getBlogTags, getBlogPosts } from "@database/loaders/blog.loader";
 import { getServices, getServiceCategories, getServiceTags } from "@/modules/services/loaders";
+import { loadTripsList } from "@/modules/trips/loaders/trip.loader";
 import { LOCALES, type Locale } from "@i18n/config";
 import { getCommonTranslations, getBlogTranslations } from "@i18n/utils";
 import { buildBlogCategoryUrl, buildBlogPostUrl, buildBlogTagUrl } from "@/lib/blog/utils";
 import { buildServiceUrl } from "@/modules/services/utils";
+import { getTripPath, getTripsBasePath } from "@i18n/routes";
 
 export const prerender = false;
 
@@ -34,6 +36,12 @@ export const GET: APIRoute = async ({ site }) => {
       const tags = await getServiceTags(locale as Locale, null); for (const tag of tags) urls.push(urlEntry(baseUrl, `/${locale}/services/tags/${tag.translation?.slug ?? tag.tag.slug}`));
       let page = 1; for (;;) { const data = await getServices({ organizationId: null, page, limit: 100, sortBy: "publishedAt", sortOrder: "desc" }, locale as Locale, true); for (const item of data.items) urls.push(urlEntry(baseUrl, buildServiceUrl(locale as Locale, item.translation?.slug ?? item.service.slug, item.categories[0]?.slug ?? null), item.service.publishedAt)); if (page >= data.totalPages) break; page += 1; }
     } catch (err) { console.error(`[sitemap] Failed to load services for locale "${locale}":`, err); }
+
+    try {
+      urls.push(urlEntry(baseUrl, getTripsBasePath(locale as Locale)));
+      const voyageTrips = await loadTripsList(locale as Locale);
+      for (const trip of voyageTrips) urls.push(urlEntry(baseUrl, getTripPath(locale as Locale, trip.slug)));
+    } catch (err) { console.error(`[sitemap] Failed to load trips for locale "${locale}":`, err); }
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>`;

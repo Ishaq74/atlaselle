@@ -1,10 +1,10 @@
 import { ActionError, defineAction, type ActionAPIContext } from "astro:actions";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
 import { trips, tripTranslations, tripRevisions } from "@database/schemas";
 import { LOCALES, type Locale } from "@i18n/config";
-import { assertVoyagePermission, assertTripExists, auditVoyage, invalidateVoyageCache } from "./_helpers";
+import { assertVoyagePermission, assertTripExists, assertFresh, auditVoyage, invalidateVoyageCache } from "./_helpers";
 import { assertTransitionTrip } from "@/modules/trips/domain/trip-transitions";
 import type { TripStatus } from "@database/schemas/trips.schema";
 
@@ -63,8 +63,35 @@ export const unpublishTrip = defineAction({ input: idInput, handler: (input, con
 export const archiveTrip = defineAction({ input: idInput, handler: (input, context) => transitionTrip(input.id, "archived", context) });
 export const restoreTrip = defineAction({ input: idInput, handler: (input, context) => transitionTrip(input.id, "restored", context) });
 
+export const restoreTripRevision = defineAction({
+  input: z.object({ id: z.string().uuid() }),
+  handler: async (input, context) => {
+    const user = await assertVoyagePermission(context, { trip: ["update"] });
+    const db = getDrizzle();
+    const [revision] = await db.select().from(tripRevisions).where(eq(tripRevisions.id, input.id)).limit(1);
+    if (!revision) throw new ActionError({ code: "NOT_FOUND", message: "Révision introuvable." });
+    const snapshot = JSON.parse(revision.snapshot) as Record<string, unknown>;
+    const current = await assertTripExists(revision.tripId);
+    const { id, createdAt, ...facts } = snapshot;
+    void id;
+    void createdAt;
+    await db.transaction(async (tx) => {
+      await tx.insert(tripRevisions).values({ tripId: revision.tripId, snapshot: JSON.stringify(current), createdBy: user.id });
+      await tx.update(trips).set({ ...facts, updatedAt: new Date() }).where(eq(trips.id, revision.tripId));
+    });
+    auditVoyage(context, user.id, "TRIP_REVISION_RESTORE", {
+      resource: "trips",
+      resourceId: revision.tripId,
+      metadata: { revisionId: revision.id },
+    });
+    invalidateVoyageCache();
+    return { success: true };
+  },
+});
+
 const tripFactsSchema = z.object({
   id: z.string().uuid(),
+  expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional(),
   countryCode: z.string().length(2).optional(),
   defaultCurrency: z.string().length(3).optional(),
   durationDays: z.number().int().positive().optional(),
@@ -84,7 +111,9 @@ export const updateTrip = defineAction({
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { trip: ["update"] });
     const current = await assertTripExists(input.id);
-    const { id, ...patch } = input;
+    assertFresh(current.updatedAt, input.expectedUpdatedAt ?? null, "Voyage");
+    const { id, expectedUpdatedAt, ...patch } = input;
+    void expectedUpdatedAt;
     const clean = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined));
     if (clean.groupMax !== undefined || clean.groupMin !== undefined) {
       const groupMin = (clean.groupMin as number | undefined) ?? current.groupMin;
@@ -100,6 +129,7 @@ export const updateTrip = defineAction({
 
 const tripTranslationSchema = z.object({
   tripId: z.string().uuid(),
+  expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional(),
   locale: z.enum(LOCALES),
   slug: z.string().min(1).max(160).regex(/^[a-z0-9-]+$/, "Slug ASCII uniquement (a-z, 0-9, tirets)."),
   title: z.string().min(1),
@@ -123,7 +153,15 @@ export const upsertTripTranslation = defineAction({
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { trip: ["update"] });
     await assertTripExists(input.tripId);
-    const { tripId, locale, ...fields } = input;
+    const { tripId, locale, expectedUpdatedAt, ...fields } = input;
+    if (expectedUpdatedAt != null) {
+      const [existing] = await getDrizzle()
+        .select({ updatedAt: tripTranslations.updatedAt })
+        .from(tripTranslations)
+        .where(and(eq(tripTranslations.tripId, tripId), eq(tripTranslations.locale, locale as Locale)))
+        .limit(1);
+      if (existing) assertFresh(existing.updatedAt, expectedUpdatedAt, "Traduction");
+    }
     await getDrizzle()
       .insert(tripTranslations)
       .values({ tripId, locale: locale as Locale, ...fields })

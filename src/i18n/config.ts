@@ -304,6 +304,12 @@ export interface AuthTranslations {
       roles: string;
       blog: string;
       trips: string;
+      applications: string;
+      reservations: string;
+      payments: string;
+      travelers: string;
+      emails: string;
+      policies: string;
       site: string;
       navigation: string;
       pages: string;

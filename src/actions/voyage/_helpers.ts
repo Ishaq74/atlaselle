@@ -35,6 +35,20 @@ export async function assertTripExists(tripId: string) {
   return trip;
 }
 
+// Verrouillage optimiste (TODO §16.8) : rejette les écritures sur version
+// obsolète — jamais d'écrasement silencieux. Comparaison à la seconde
+// (PostgreSQL stocke la microseconde, JS la milliseconde).
+export function assertFresh(currentUpdatedAt: Date, expected: string | null | undefined, label: string): void {
+  if (expected == null || expected === "") return;
+  const sameSecond = Math.floor(new Date(expected).getTime() / 1000) === Math.floor(currentUpdatedAt.getTime() / 1000);
+  if (!sameSecond) {
+    throw new ActionError({
+      code: "CONFLICT",
+      message: `${label} : votre version est obsolète, rechargez avant de modifier.`,
+    });
+  }
+}
+
 export function auditVoyage(
   context: Pick<ActionAPIContext, "request">,
   userId: string,

@@ -1,0 +1,27 @@
+---
+import { requirePermission } from "@/lib/auth-guards";
+import { hasVoyagePermission } from "@/actions/voyage/_helpers";
+import { loadAdminPolicies } from "@/modules/policies/loaders/admin-policies.loader";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
+import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
+import AdminPolicyList from "@/modules/policies/components/AdminPolicyList.astro";
+
+export const prerender = false;
+
+const result = await requirePermission(Astro, { policy: ["read"] });
+if ("redirect" in result) return result.redirect;
+const { locale, authT } = result;
+
+const docs = await loadAdminPolicies();
+const canPublish = await hasVoyagePermission(Astro, { policy: ["publish"] });
+const baseUrl = `/${locale}/admin/policies`;
+const title = authT.admin.tabs.policies;
+---
+
+<BaseLayout title={title} description={title} canonicalPath={baseUrl}>
+  <AuthLayout title={title}>
+    <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="policies" />
+    <AdminPolicyList docs={docs} locale={locale} canPublish={canPublish} />
+  </AuthLayout>
+</BaseLayout>

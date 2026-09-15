@@ -1,0 +1,63 @@
+---
+import type { Locale } from "@i18n/config";
+import type { AdminApplicationRow } from "@/modules/applications/loaders/admin-applications.loader";
+import type { ApplicationStatus } from "@database/schemas/applications.schema";
+
+interface Props {
+  rows: AdminApplicationRow[];
+  meta: { total: number; page: number; pageSize: number };
+  locale: Locale;
+  baseUrl: string;
+  status?: string;
+  statuses: ApplicationStatus[];
+}
+
+const { rows, meta, locale, baseUrl, status, statuses } = Astro.props;
+const totalPages = Math.max(1, Math.ceil(meta.total / meta.pageSize));
+const qs = (over: Record<string, string>) => {
+  const p = new URLSearchParams();
+  if (status) p.set("status", status);
+  for (const [k, v] of Object.entries(over)) {
+    if (v) p.set(k, v);
+    else p.delete(k);
+  }
+  const s = p.toString();
+  return s ? `${baseUrl}?${s}` : baseUrl;
+};
+const t = locale === "fr"
+  ? { title: "Candidatures", status: "Statut", all: "Tous", traveler: "Voyageuse", submitted: "Envoyée", open: "Ouvrir", prev: "←", next: "→", of: "sur" }
+  : { title: "Applications", status: "Status", all: "All", traveler: "Traveler", submitted: "Submitted", open: "Open", prev: "←", next: "→", of: "of" };
+---
+<section class="mx-auto max-w-6xl px-6 py-10">
+  <h1 class="text-3xl font-bold">{t.title} ({meta.total})</h1>
+  <form method="get" class="mt-6 flex flex-wrap gap-3 text-sm">
+    <select name="status" class="rounded-md border bg-background px-2 py-1.5" onchange="this.form.submit()">
+      <option value="">{t.status} : {t.all}</option>
+      {statuses.map((s) => (
+        <option value={s} selected={status === s}>{s}</option>
+      ))}
+    </select>
+  </form>
+  <div class="mt-6 overflow-x-auto rounded-xl border">
+    <table class="w-full text-left text-sm">
+      <thead class="bg-muted/60">
+        <tr><th class="px-4 py-2">{t.traveler}</th><th class="px-4 py-2">{t.status}</th><th class="px-4 py-2">{t.submitted}</th><th class="px-4 py-2"></th></tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr class="border-t">
+            <td class="px-4 py-2 font-medium">{row.travelerEmail}</td>
+            <td class="px-4 py-2"><span class="rounded-full bg-muted px-2 py-0.5 text-xs">{row.status}</span></td>
+            <td class="px-4 py-2">{row.submittedAt?.toISOString().slice(0, 10) ?? "—"}</td>
+            <td class="px-4 py-2 text-right"><a class="text-primary underline" href={`${baseUrl}/${row.id}`}>{t.open}</a></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <nav class="mt-4 flex items-center gap-3 text-sm" aria-label="Pagination">
+    {meta.page > 1 ? <a class="rounded-md border px-3 py-1" href={qs({ page: String(meta.page - 1) })}>{t.prev}</a> : null}
+    <span>{meta.page} {t.of} {totalPages}</span>
+    {meta.page < totalPages ? <a class="rounded-md border px-3 py-1" href={qs({ page: String(meta.page + 1) })}>{t.next}</a> : null}
+  </nav>
+</section>

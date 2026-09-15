@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
-import { trips, tripTranslations } from "@database/schemas/trips.schema";
+import { trips, tripTranslations, tripRevisions } from "@database/schemas/trips.schema";
 import { departures } from "@database/schemas/departures.schema";
 import type { TripStatus } from "@database/schemas/trips.schema";
 
@@ -109,4 +109,13 @@ export async function loadAdminTrip(id: string): Promise<AdminTripDetail | null>
     .where(eq(departures.tripId, id))
     .orderBy(asc(departures.startDate));
   return { trip, translations, departures: deps };
+}
+
+export async function listTripRevisions(tripId: string, limit = 10) {
+  return getDrizzle()
+    .select()
+    .from(tripRevisions)
+    .where(eq(tripRevisions.tripId, tripId))
+    .orderBy(desc(tripRevisions.createdAt))
+    .limit(limit);
 }

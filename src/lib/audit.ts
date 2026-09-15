@@ -28,7 +28,7 @@ export type AuditAction =
   | "DEPARTURE_CREATE" | "DEPARTURE_UPDATE" | "DEPARTURE_STATUS"
   | "APPLICATION_SUBMIT" | "APPLICATION_DECISION" | "APPLICATION_NOTE"
   | "RESERVATION_CREATE" | "RESERVATION_CANCEL"
-  | "PAYMENT_REFUND" | "CHECKOUT_CREATE";
+  | "PAYMENT_REFUND" | "CHECKOUT_CREATE" | "EMAIL_RETRY" | "POLICY_PUBLISH" | "TRIP_REVISION_RESTORE";
 
 export interface AuditEventInput { userId?: string | null; action: AuditAction; resource?: string | null; resourceId?: string | null; metadata?: Record<string, unknown> | null; ipAddress?: string | null; userAgent?: string | null; }
 const MAX_METADATA_SIZE = 10 * 1024;

@@ -1,0 +1,76 @@
+---
+import type { Locale } from "@i18n/config";
+import type { loadAdminReservations } from "@/modules/reservations/loaders/admin-reservations.loader";
+import type { ReservationStatus } from "@database/schemas/reservations.schema";
+
+type Row = Awaited<ReturnType<typeof loadAdminReservations>>["rows"][number];
+
+interface Props {
+  rows: Row[];
+  meta: { total: number; page: number; pageSize: number };
+  locale: Locale;
+  baseUrl: string;
+  status?: string;
+  statuses: ReservationStatus[];
+  canCancel: boolean;
+}
+
+const { rows, meta, locale, baseUrl, status, statuses, canCancel } = Astro.props;
+const totalPages = Math.max(1, Math.ceil(meta.total / meta.pageSize));
+const fmt = (cents: number, currency: string) => `${currency === "EUR" ? "€" : currency + " "}${(cents / 100).toLocaleString("en")}`;
+const t = locale === "fr"
+  ? { title: "Réservations", status: "Statut", all: "Tous", number: "N°", traveler: "Voyageuse", total: "Total", paid: "Payé", cancel: "Annuler", confirm: "Annuler cette réservation (politique appliquée) ?", prev: "←", next: "→", of: "sur" }
+  : { title: "Reservations", status: "Status", all: "All", number: "No.", traveler: "Traveler", total: "Total", paid: "Paid", cancel: "Cancel", confirm: "Cancel this booking (policy applies)?", prev: "←", next: "→", of: "of" };
+const cancellable = ["pending", "awaiting_payment", "confirmed", "balance_due"];
+---
+<section class="mx-auto max-w-6xl px-6 py-10">
+  <h1 class="text-3xl font-bold">{t.title} ({meta.total})</h1>
+  <form method="get" class="mt-6 flex flex-wrap gap-3 text-sm">
+    <select name="status" class="rounded-md border bg-background px-2 py-1.5" onchange="this.form.submit()">
+      <option value="">{t.status} : {t.all}</option>
+      {statuses.map((s) => (
+        <option value={s} selected={status === s}>{s}</option>
+      ))}
+    </select>
+  </form>
+  <div class="mt-6 overflow-x-auto rounded-xl border">
+    <table class="w-full text-left text-sm">
+      <thead class="bg-muted/60">
+        <tr><th class="px-4 py-2">{t.number}</th><th class="px-4 py-2">{t.traveler}</th><th class="px-4 py-2">{t.status}</th><th class="px-4 py-2">{t.total}</th><th class="px-4 py-2">{t.paid}</th><th class="px-4 py-2"></th></tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr class="border-t" data-reservation-id={row.id}>
+            <td class="px-4 py-2 font-mono text-xs">{row.reservationNumber}</td>
+            <td class="px-4 py-2">{row.travelerEmail}</td>
+            <td class="px-4 py-2"><span class="rounded-full bg-muted px-2 py-0.5 text-xs">{row.status}</span></td>
+            <td class="px-4 py-2">{fmt(row.totalAmount, row.currency)}</td>
+            <td class="px-4 py-2">{fmt(row.amountPaid, row.currency)}</td>
+            <td class="px-4 py-2 text-right">
+              {canCancel && cancellable.includes(row.status) ? <button type="button" class="text-red-600 underline" data-cancel>{t.cancel}</button> : null}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <nav class="mt-4 flex items-center gap-3 text-sm" aria-label="Pagination">
+    {meta.page > 1 ? <a class="rounded-md border px-3 py-1" href={`${baseUrl}?page=${meta.page - 1}${status ? `&status=${status}` : ""}`}>{t.prev}</a> : null}
+    <span>{meta.page} {t.of} {totalPages}</span>
+    {meta.page < totalPages ? <a class="rounded-md border px-3 py-1" href={`${baseUrl}?page=${meta.page + 1}${status ? `&status=${status}` : ""}`}>{t.next}</a> : null}
+  </nav>
+</section>
+
+<script>
+  import { actions } from "astro:actions";
+  document.querySelectorAll("[data-cancel]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const row = (btn as HTMLElement).closest("[data-reservation-id]");
+      const reservationId = row?.getAttribute("data-reservation-id") ?? "";
+      if (!reservationId || !window.confirm(btn.textContent ?? "OK")) return;
+      const { error } = await actions.cancelReservation({ reservationId });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+</script>

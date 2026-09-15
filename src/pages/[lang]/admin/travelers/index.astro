@@ -1,0 +1,31 @@
+---
+import { requirePermission } from "@/lib/auth-guards";
+import { loadAdminTravelers } from "@/modules/travelers/loaders/admin-travelers.loader";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
+import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
+import AdminTravelerList from "@/modules/travelers/components/AdminTravelerList.astro";
+
+export const prerender = false;
+
+const result = await requirePermission(Astro, { traveler: ["read"] });
+if ("redirect" in result) return result.redirect;
+const { locale, authT } = result;
+
+const p = Astro.url.searchParams;
+const { rows, meta } = await loadAdminTravelers({
+  page: p.get("page") ?? undefined,
+  pageSize: p.get("pageSize") ?? undefined,
+  search: p.get("search") ?? undefined,
+  sortOrder: p.get("sortOrder") ?? undefined,
+});
+const baseUrl = `/${locale}/admin/travelers`;
+const title = authT.admin.tabs.travelers;
+---
+
+<BaseLayout title={title} description={title} canonicalPath={baseUrl}>
+  <AuthLayout title={title}>
+    <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="travelers" />
+    <AdminTravelerList rows={rows} meta={meta} locale={locale} baseUrl={baseUrl} search={p.get("search") ?? undefined} />
+  </AuthLayout>
+</BaseLayout>

@@ -6,7 +6,7 @@ import { departures } from "@database/schemas";
 import { pricingRulesSchema } from "@/modules/pricing/domain/pricing";
 import { assertTransitionDeparture } from "@/modules/departures/domain/departure-transitions";
 import type { DepartureStatus } from "@database/schemas/departures.schema";
-import { assertVoyagePermission, assertTripExists, auditVoyage, invalidateVoyageCache } from "./_helpers";
+import { assertVoyagePermission, assertTripExists, assertFresh, auditVoyage, invalidateVoyageCache } from "./_helpers";
 
 const amountField = z.number().int().min(0).optional();
 const amountTypeField = z.enum(["fixed", "percent", "none"]).optional();
@@ -59,12 +59,13 @@ export const createDeparture = defineAction({
 });
 
 export const updateDeparture = defineAction({
-  input: departureSchema.partial().extend({ id: z.string().uuid() }),
+  input: departureSchema.partial().extend({ id: z.string().uuid(), expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional() }),
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { departure: ["update"] });
-    const { id, ...patch } = input;
+    const { id, expectedUpdatedAt, ...patch } = input;
     const [current] = await getDrizzle().select().from(departures).where(eq(departures.id, id)).limit(1);
     if (!current) throw new ActionError({ code: "NOT_FOUND", message: "Départ introuvable." });
+    assertFresh(current.updatedAt, expectedUpdatedAt ?? null, "Départ");
     const clean = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined));
     const start = (clean.startDate as Date | undefined) ?? current.startDate;
     const end = (clean.endDate as Date | undefined) ?? current.endDate;

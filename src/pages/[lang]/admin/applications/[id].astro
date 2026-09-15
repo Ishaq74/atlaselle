@@ -1,0 +1,30 @@
+---
+import { requirePermission } from "@/lib/auth-guards";
+import { hasVoyagePermission } from "@/actions/voyage/_helpers";
+import { loadAdminApplication } from "@/modules/applications/loaders/admin-applications.loader";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
+import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
+import AdminApplicationDetail from "@/modules/applications/components/AdminApplicationDetail.astro";
+
+export const prerender = false;
+
+const result = await requirePermission(Astro, { application: ["read"] });
+if ("redirect" in result) return result.redirect;
+const { locale, authT } = result;
+
+const id = Astro.params.id ?? "";
+const detail = await loadAdminApplication(id);
+if (!detail) return Astro.rewrite("/404");
+
+const canReview = await hasVoyagePermission(Astro, { application: ["approve"] });
+const baseUrl = `/${locale}/admin/applications`;
+const title = `${detail.traveler?.email ?? id} — ${authT.admin.tabs.applications}`;
+---
+
+<BaseLayout title={title} description={title} canonicalPath={`${baseUrl}/${detail.application.id}`}>
+  <AuthLayout title={title}>
+    <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="applications" />
+    <AdminApplicationDetail detail={detail} locale={locale} baseUrl={baseUrl} canReview={canReview} />
+  </AuthLayout>
+</BaseLayout>

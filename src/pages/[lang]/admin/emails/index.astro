@@ -1,0 +1,41 @@
+---
+import { requirePermission } from "@/lib/auth-guards";
+import { hasVoyagePermission } from "@/actions/voyage/_helpers";
+import { loadAdminDeliveries } from "@/modules/email-voyage/loaders/admin-email.loader";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
+import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
+import AdminEmailList from "@/modules/email-voyage/components/AdminEmailList.astro";
+
+export const prerender = false;
+
+const result = await requirePermission(Astro, { email: ["read"] });
+if ("redirect" in result) return result.redirect;
+const { locale, authT } = result;
+
+const p = Astro.url.searchParams;
+const { rows, meta } = await loadAdminDeliveries({
+  page: p.get("page") ?? undefined,
+  pageSize: p.get("pageSize") ?? undefined,
+  status: p.get("status") ?? undefined,
+  templateKey: p.get("templateKey") ?? undefined,
+  sortOrder: p.get("sortOrder") ?? undefined,
+});
+const canRetry = await hasVoyagePermission(Astro, { email: ["retry"] });
+const baseUrl = `/${locale}/admin/emails`;
+const title = authT.admin.tabs.emails;
+---
+
+<BaseLayout title={title} description={title} canonicalPath={baseUrl}>
+  <AuthLayout title={title}>
+    <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="emails" />
+    <AdminEmailList
+      rows={rows}
+      meta={meta}
+      locale={locale}
+      baseUrl={baseUrl}
+      status={p.get("status") ?? undefined}
+      canRetry={canRetry}
+    />
+  </AuthLayout>
+</BaseLayout>

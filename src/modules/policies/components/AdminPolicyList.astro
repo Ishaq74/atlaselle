@@ -1,0 +1,73 @@
+---
+import type { Locale } from "@i18n/config";
+import type { loadAdminPolicies } from "@/modules/policies/loaders/admin-policies.loader";
+
+type Doc = Awaited<ReturnType<typeof loadAdminPolicies>>[number];
+
+interface Props {
+  docs: Doc[];
+  locale: Locale;
+  canPublish: boolean;
+}
+
+const { docs, locale, canPublish } = Astro.props;
+const t = locale === "fr"
+  ? { title: "Politiques", published: "publiée", draft: "brouillon", publish: "Publier", reviewNote: "Publication = révision juridique qualifiée.", newVersion: "Nouvelle version", save: "Enregistrer" }
+  : { title: "Policies", published: "published", draft: "draft", publish: "Publish", reviewNote: "Publishing = qualified legal review.", newVersion: "New version", save: "Save" };
+---
+<section class="mx-auto max-w-6xl space-y-8 px-6 py-10">
+  <h1 class="text-3xl font-bold">{t.title}</h1>
+  <p class="text-sm text-muted-foreground">{t.reviewNote}</p>
+  {docs.map(({ document: doc, versions, published }) => (
+    <div class="rounded-xl border p-6" data-document-id={doc.id} data-doc-type={doc.type} data-doc-locale={doc.locale}>
+      <h2 class="font-bold">{doc.type} · {doc.locale} {published ? <span class="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">v{published.version} {t.published}</span> : <span class="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">{t.draft}</span>}</h2>
+      <ul class="mt-3 space-y-2 text-sm">
+        {versions.map((v) => (
+          <li class="flex items-center justify-between gap-4 border-b py-1" data-version-id={v.id}>
+            <span>v{v.version} — {v.title}{v.published ? "" : ` (${t.draft})`}</span>
+            {canPublish && !v.published ? <button type="button" class="text-primary underline" data-publish>{t.publish}</button> : null}
+          </li>
+        ))}
+      </ul>
+      {canPublish ? (
+        <form data-version-form class="mt-4 grid gap-3 text-sm">
+          <h3 class="font-semibold">{t.newVersion}</h3>
+          <input name="title" required maxlength="300" placeholder="Title" class="rounded-md border bg-background p-2" />
+          <textarea name="content" required rows="4" class="rounded-md border bg-background p-2"></textarea>
+          <div><button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save}</button></div>
+        </form>
+      ) : null}
+    </div>
+  ))}
+</section>
+
+<script>
+  import { actions } from "astro:actions";
+  document.querySelectorAll("[data-publish]")?.forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const li = (btn as HTMLElement).closest("[data-version-id]");
+      const id = li?.getAttribute("data-version-id") ?? "";
+      if (!id) return;
+      const { error } = await actions.publishPolicyVersion({ id });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+  document.querySelectorAll("[data-version-form]")?.forEach((form) => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const target = e.currentTarget as HTMLFormElement | null;
+      if (!target) return;
+      const doc = target.closest("[data-document-id]");
+      const data = new FormData(target);
+      const { error } = await actions.createPolicyVersion({
+        type: (doc?.getAttribute("data-doc-type") ?? "booking_terms") as "booking_terms" | "cancellation" | "privacy" | "terms" | "accessibility" | "photo_consent",
+        locale: (doc?.getAttribute("data-doc-locale") ?? "en") as "fr" | "en" | "es" | "ar",
+        title: String(data.get("title") ?? ""),
+        content: String(data.get("content") ?? ""),
+      });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+</script>

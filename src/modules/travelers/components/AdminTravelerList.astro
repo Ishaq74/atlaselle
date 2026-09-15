@@ -1,0 +1,87 @@
+---
+import type { Locale } from "@i18n/config";
+import type { loadAdminTravelers } from "@/modules/travelers/loaders/admin-travelers.loader";
+
+type Row = Awaited<ReturnType<typeof loadAdminTravelers>>["rows"][number];
+
+interface Props {
+  rows: Row[];
+  meta: { total: number; page: number; pageSize: number };
+  locale: Locale;
+  baseUrl: string;
+  search?: string;
+}
+
+const { rows, meta, locale, baseUrl, search } = Astro.props;
+const totalPages = Math.max(1, Math.ceil(meta.total / meta.pageSize));
+const t = locale === "fr"
+  ? { title: "Voyageuses", search: "Rechercher (email, nom)", applications: "Candidatures", reservations: "Réservations", verified: "Vérifié", export: "Export", anonymize: "Anonymiser", confirmAnonymize: "Anonymiser définitivement ce dossier (transactions conservées sans PII) ?", prev: "←", next: "→", of: "sur" }
+  : { title: "Travelers", search: "Search (email, name)", applications: "Applications", reservations: "Bookings", verified: "Verified", export: "Export", anonymize: "Anonymize", confirmAnonymize: "Permanently anonymize this file (transactions kept without PII)?", prev: "←", next: "→", of: "of" };
+---
+<section class="mx-auto max-w-6xl px-6 py-10">
+  <h1 class="text-3xl font-bold">{t.title} ({meta.total})</h1>
+  <form method="get" class="mt-6 flex flex-wrap gap-3 text-sm">
+    <input type="search" name="search" value={search ?? ""} placeholder={t.search} class="rounded-md border bg-background px-3 py-1.5" />
+    <button type="submit" class="rounded-md bg-primary px-4 py-1.5 font-semibold text-primary-foreground">OK</button>
+  </form>
+  <div class="mt-6 overflow-x-auto rounded-xl border">
+    <table class="w-full text-left text-sm">
+      <thead class="bg-muted/60">
+        <tr><th class="px-4 py-2">Email</th><th class="px-4 py-2">Nom</th><th class="px-4 py-2">{t.verified}</th><th class="px-4 py-2">{t.applications}</th><th class="px-4 py-2">{t.reservations}</th><th class="px-4 py-2"></th></tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr class="border-t" data-traveler-id={row.id}>
+            <td class="px-4 py-2 font-medium">{row.email}</td>
+            <td class="px-4 py-2">{row.legalName ?? "—"}</td>
+            <td class="px-4 py-2">{row.emailVerifiedAt ? "✓" : "—"}</td>
+            <td class="px-4 py-2">{row.applicationsCount}</td>
+            <td class="px-4 py-2">{row.reservationsCount}</td>
+            <td class="px-4 py-2 text-right">
+              <button type="button" class="text-primary underline" data-export>{t.export}</button>
+              {" · "}
+              <button type="button" class="text-red-600 underline" data-anonymize data-confirm={t.confirmAnonymize}>{t.anonymize}</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <nav class="mt-4 flex items-center gap-3 text-sm" aria-label="Pagination">
+    {meta.page > 1 ? <a class="rounded-md border px-3 py-1" href={`${baseUrl}?page=${meta.page - 1}${search ? `&search=${encodeURIComponent(search)}` : ""}`}>{t.prev}</a> : null}
+    <span>{meta.page} {t.of} {totalPages}</span>
+    {meta.page < totalPages ? <a class="rounded-md border px-3 py-1" href={`${baseUrl}?page=${meta.page + 1}${search ? `&search=${encodeURIComponent(search)}` : ""}`}>{t.next}</a> : null}
+  </nav>
+</section>
+
+<script>
+  import { actions } from "astro:actions";
+  document.querySelectorAll("[data-export]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const row = (btn as HTMLElement).closest("[data-traveler-id]");
+      const id = row?.getAttribute("data-traveler-id") ?? "";
+      if (!id) return;
+      const { data, error } = await actions.exportTravelerData({ id });
+      if (error || !data) {
+        alert(error?.message ?? "Error");
+        return;
+      }
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `traveler-${id}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+  });
+  document.querySelectorAll("[data-anonymize]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const row = (btn as HTMLElement).closest("[data-traveler-id]");
+      const id = row?.getAttribute("data-traveler-id") ?? "";
+      if (!id || !window.confirm((btn as HTMLElement).dataset.confirm ?? "OK")) return;
+      const { error } = await actions.anonymizeTraveler({ id });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+</script>
