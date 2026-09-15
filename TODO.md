@@ -5,7 +5,7 @@
 > loaders + pages publiques DB, admin Trips/Departures, travelers/applications, pricing/availability
 > (holds 30 min, concurrence prouvée), checkout + payments (mock/Stripe) + réservations,
 > emails 12×4 + outbox + jobs + analytics + policies provisoires.
-> Build VERT, 139 fichiers / 1456 tests verts. Reste : E2E navigateurs en CI, pa11y/lhci,
+> Build VERT, 140 fichiers / 1462 tests verts. Reste : E2E navigateurs en CI, pa11y/lhci,
 > allowlist CSP Stripe, relectures natifs ES/AR, validation juridique, checklist §34, merge.
 > README*.md non édités ici (générés par `pnpm readme:generate` — voir `readme-builder/`).
 
@@ -1152,7 +1152,7 @@ text
 23. audit                             ✅ (+ actions voyage auditées)
 24. analytics                         ✅ (allowlist 10 events + endpoint)
 25. légal/versioning                  🟡 (page_versions + policies provisoires non publiées — validation juridique requise)
-26. tests                             ✅ (139 fichiers / 1456 verts ; E2E voyage écrit, CI navigateurs à valider)
+26. tests                             ✅ (140 fichiers / 1462 verts ; E2E voyage écrit, CI navigateurs à valider)
 27. performance                       🟡 (Lighthouse CI en place, run à relancer)
 28. accessibilité (incl. RTL)         🟡 (Pa11y en place, run à relancer)
 29. sécurité                          ✅ (+ CSP Stripe allowlist restante)
