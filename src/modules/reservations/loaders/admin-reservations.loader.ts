@@ -9,7 +9,7 @@ export const adminReservationFiltersSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
   status: z.enum(["pending", "awaiting_payment", "confirmed", "balance_due", "completed", "cancelled", "refunded"]).optional(),
-  tripId: z.string().uuid().optional(),
+  tripId: z.string().min(1).max(160).optional(),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 

@@ -9,8 +9,8 @@ export const adminApplicationFiltersSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
   status: z.enum(["draft", "submitted", "under_review", "contact_required", "approved", "declined", "withdrawn", "expired"]).optional(),
-  tripId: z.string().uuid().optional(),
-  departureId: z.string().uuid().optional(),
+  tripId: z.string().min(1).max(160).optional(),
+  departureId: z.string().min(1).max(160).optional(),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 

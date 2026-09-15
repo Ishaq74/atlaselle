@@ -11,7 +11,9 @@ import { emailDeliveries, emailEvents } from '@database/schemas/email-voyage.sch
 import { outboxEvents } from '@database/schemas/outbox.schema';
 import { emitOutboxEvent } from '@/modules/outbox/domain/outbox';
 import { processEmailOutboxBatch } from '@/modules/email-voyage/domain/voyage-email-worker';
-import { sendBalanceReminders } from '@/modules/email-voyage/domain/reminders';
+import { sendBalanceReminders, sendTripReminders } from '@/modules/email-voyage/domain/reminders';
+import { sendVoyageEmail } from '@/modules/email-voyage/domain/voyage-email';
+import { claimOutboxBatch, completeOutbox, failOutbox, pendingOutboxCount } from '@/modules/outbox/domain/outbox-worker';
 
 const db = getDrizzle();
 const stamp = Date.now().toString(36);
@@ -120,5 +122,71 @@ describe('Email worker — outbox → deliveries (real DB, stubbed SMTP)', () =>
     expect(first).toBeGreaterThanOrEqual(1);
     const second = await sendBalanceReminders(new Date(), stubSender);
     expect(second).toBe(0);
+  });
+
+  it('sends pre-trip and post-trip reminders once', async () => {
+    const [traveler] = await db.insert(travelers).values({ email: `rem-${stamp}@test.com`, locale: 'en' }).returning({ id: travelers.id });
+    const [preDep] = await db.insert(departures).values({
+      tripId: TRIP_ID,
+      startDate: new Date(Date.now() + 10 * 86_400_000), endDate: new Date(Date.now() + 13 * 86_400_000),
+      status: 'open', capacityMin: 1, capacityMax: 5, priceAmount: 1000, currency: 'EUR', pricingRules: {},
+    }).returning({ id: departures.id });
+    const [postDep] = await db.insert(departures).values({
+      tripId: TRIP_ID,
+      startDate: new Date(Date.now() - 8 * 86_400_000), endDate: new Date(Date.now() - 5 * 86_400_000),
+      status: 'completed', capacityMin: 1, capacityMax: 5, priceAmount: 1000, currency: 'EUR', pricingRules: {},
+    }).returning({ id: departures.id });
+    const mkRes = async (depId: string) => {
+      const [r] = await db.insert(reservations).values({
+        reservationNumber: `ATL-2027-RM${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+        travelerId: traveler.id, tripId: TRIP_ID, departureId: depId,
+        status: 'confirmed', currency: 'EUR', baseAmount: 1000, totalAmount: 1000,
+        amountPaid: 1000, amountDue: 0, confirmedAt: new Date(),
+      }).returning({ id: reservations.id });
+      return r.id;
+    };
+    const preResId = await mkRes(preDep.id);
+    const postResId = await mkRes(postDep.id);
+    const first = await sendTripReminders(new Date(), stubSender);
+    expect(first.pre).toBeGreaterThanOrEqual(1);
+    expect(first.post).toBeGreaterThanOrEqual(1);
+    const second = await sendTripReminders(new Date(), stubSender);
+    expect(second).toEqual({ pre: 0, post: 0 });
+    await db.delete(reservations).where(eq(reservations.id, preResId));
+    await db.delete(reservations).where(eq(reservations.id, postResId));
+    await db.delete(departures).where(eq(departures.id, preDep.id));
+    await db.delete(departures).where(eq(departures.id, postDep.id));
+    await db.delete(travelers).where(eq(travelers.id, traveler.id));
+  });
+
+  it('records failed deliveries with events', async () => {
+    const boom = async () => {
+      throw new Error('smtp down');
+    };
+    const res = await sendVoyageEmail(
+      { template: 'application_received', locale: 'en', toEmail: `fail-${stamp}@test.com`, vars: { name: 'X', trip: 'Y' } },
+      boom,
+    );
+    expect(res.sent).toBe(false);
+    const [row] = await db.select().from(emailDeliveries).where(eq(emailDeliveries.id, res.deliveryId));
+    expect(row.status).toBe('failed');
+    expect(row.lastError).toContain('smtp down');
+    const events = await db.select().from(emailEvents).where(eq(emailEvents.deliveryId, res.deliveryId));
+    expect(events.map((e) => e.event)).toContain('failed');
+    await db.delete(emailEvents).where(eq(emailEvents.deliveryId, res.deliveryId));
+    await db.delete(emailDeliveries).where(eq(emailDeliveries.id, res.deliveryId));
+  });
+
+  it('dead-letters outbox events after max attempts', async () => {
+    const id = await emitOutboxEvent({ eventType: 'application.submitted', aggregateType: 'test', aggregateId: `dl-${stamp}`, payload: {} });
+    const claimed = await claimOutboxBatch(25);
+    expect(claimed.some((r) => r.id === id)).toBe(true);
+    await failOutbox(id, 4, 'boom');
+    const [row] = await db.select().from(outboxEvents).where(eq(outboxEvents.id, id));
+    expect(row.status).toBe('dead_letter');
+    await completeOutbox(id);
+    const pending = await pendingOutboxCount(new Date());
+    expect(pending).toBeGreaterThanOrEqual(0);
+    await db.delete(outboxEvents).where(eq(outboxEvents.id, id));
   });
 });
