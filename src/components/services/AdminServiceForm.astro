@@ -62,7 +62,7 @@ const actionLabels = JSON.stringify({ confirmDelete: t.admin.confirmDelete, conf
 
       {service && <section class="space-y-4 rounded-xl border p-5"><div class="flex items-center justify-between"><h2 class="text-xl font-semibold">{ft.sections.revisions}</h2><Button type="button" variant="outline" data-load-revisions>{ft.actions.refresh}</Button></div><div data-revisions class="space-y-2" aria-live="polite"><p class="text-sm text-muted-foreground">{ft.states.noRevisions}</p></div></section>}
       {service && <section class="space-y-4 rounded-xl border p-5"><h2 class="text-xl font-semibold">{ft.sections.lock}</h2><p data-lock-status class="text-sm text-muted-foreground">{ft.states.unlocked}</p>{canUpdate && <div class="flex gap-2"><Button type="button" variant="outline" data-lock="lock">{ft.actions.lock}</Button><Button type="button" variant="outline" data-lock="unlock">{ft.actions.unlock}</Button></div>}</section>}
-      <div class="flex flex-wrap justify-end gap-3 border-t pt-5"><Button type="button" variant="outline" href={baseAdminUrl}>{t.admin.cancel}</Button>{canUpdate && <Button type="submit">{t.admin.save}</Button>}</div><p data-status class="text-sm" aria-live="polite" aria-atlaselle="true"></p>
+      <div class="flex flex-wrap justify-end gap-3 border-t pt-5"><Button type="button" variant="outline" href={baseAdminUrl}>{t.admin.cancel}</Button>{canUpdate && <Button type="submit">{t.admin.save}</Button>}</div><p data-status class="text-sm" aria-live="polite" aria-atomic="true"></p>
     </form>
   </div>
 </AdminFormShell>

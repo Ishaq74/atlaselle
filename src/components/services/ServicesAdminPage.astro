@@ -43,7 +43,7 @@ const et = getServiceEngagementTranslations(props.locale);
 <div data-services-admin-workspace data-organization-id={props.organizationId ?? ""} data-locale={props.locale} data-confirm-taxonomy-delete={t.admin.confirmDelete}>
   <AdminResourceShell title={props.title} description={t.admin.title}>
     <div class="p-4 sm:p-6">
-      <p data-service-admin-status class="mb-4 text-sm" aria-live="polite" aria-atlaselle="true"></p>
+      <p data-service-admin-status class="mb-4 text-sm" aria-live="polite" aria-atomic="true"></p>
       <Tabs defaultValue="services">
         <TabsList class="flex-wrap">
           <TabsTrigger value="services" defaultActive>{t.labels.services}</TabsTrigger>
