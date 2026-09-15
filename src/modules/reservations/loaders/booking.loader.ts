@@ -11,6 +11,7 @@ import { quoteForDeparture } from "@/modules/pricing/domain/pricing-service";
 import type { PricingBreakdown, RoomType } from "@/modules/pricing/domain/pricing";
 
 export interface BookingConfirmationDTO {
+  reservationId: string;
   reservationNumber: string;
   status: string;
   totalAmount: number;
@@ -39,6 +40,7 @@ export async function loadBookingByProviderSession(
     .from(tripTranslations)
     .where(eq(tripTranslations.tripId, reservation.tripId));
   return {
+    reservationId: reservation.id,
     reservationNumber: reservation.reservationNumber,
     status: reservation.status,
     totalAmount: reservation.totalAmount,

@@ -51,14 +51,32 @@ export async function createReservation(input: CreateReservationInput) {
   return created;
 }
 
-export async function confirmReservation(reservationId: string, amountPaid: number) {
+export async function confirmReservation(reservationId: string, paidAmount: number) {
+  return applyPaymentToReservation(reservationId, paidAmount);
+}
+
+// Paiements cumulatifs (acompte puis solde, TODO §12.1) :
+// awaiting_payment → confirmed (solde restant) → completed (soldée).
+export async function applyPaymentToReservation(reservationId: string, paidAmount: number) {
   const db = getDrizzle();
   const [current] = await db.select().from(reservations).where(eq(reservations.id, reservationId)).limit(1);
   if (!current) throw new Error("Reservation introuvable.");
-  assertTransitionReservation(current.status as ReservationStatus, "confirmed");
+  const from = current.status as ReservationStatus;
+  const amountPaid = current.amountPaid + paidAmount;
+  const amountDue = Math.max(0, current.totalAmount - amountPaid);
+  let status: ReservationStatus;
+  if (from === "awaiting_payment") {
+    assertTransitionReservation(from, "confirmed");
+    status = amountDue > 0 ? "confirmed" : "completed";
+  } else if (from === "confirmed" || from === "balance_due") {
+    status = amountDue > 0 ? from : "completed";
+    if (status !== from) assertTransitionReservation(from, status);
+  } else {
+    throw new Error(`Paiement impossible sur réservation ${from}.`);
+  }
   const [updated] = await db
     .update(reservations)
-    .set({ status: "confirmed", amountPaid, amountDue: Math.max(0, current.totalAmount - amountPaid), confirmedAt: new Date() })
+    .set({ status, amountPaid, amountDue, confirmedAt: current.confirmedAt ?? new Date() })
     .where(eq(reservations.id, reservationId))
     .returning();
   return updated;

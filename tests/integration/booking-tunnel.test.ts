@@ -25,6 +25,7 @@ import { outboxEvents } from '@database/schemas/outbox.schema';
 import { user } from '@database/schemas';
 import { submitApplication, reviewApplication } from '@/actions/voyage/applications';
 import { initiateCheckout } from '@/actions/voyage/checkout';
+import { payBalance } from '@/actions/voyage/payments';
 import { refundPayment } from '@/actions/voyage/payments';
 import { processProviderSuccess } from '@/modules/payments/domain/payment-service';
 import { mockPaymentIdForSession } from '@/modules/payments/domain/providers';
@@ -34,6 +35,7 @@ import { getTestHelpers } from '../helpers/auth';
 const submit = (submitApplication as any).handler as (i: any, c: any) => Promise<any>;
 const review = (reviewApplication as any).handler as (i: any, c: any) => Promise<any>;
 const initiate = (initiateCheckout as any).handler as (i: any, c: any) => Promise<any>;
+const payBalanceHandler = (payBalance as any).handler as (i: any, c: any) => Promise<any>;
 const refund = (refundPayment as any).handler as (i: any, c: any) => Promise<any>;
 
 const db = getDrizzle();
@@ -159,7 +161,7 @@ describe('Booking tunnel — mock provider (real DB)', () => {
     expect(done.duplicate).toBe(false);
 
     const [reservation] = await db.select().from(reservations).where(eq(reservations.id, init.reservationId));
-    expect(reservation.status).toBe('confirmed');
+    expect(reservation.status).toBe('completed');
     expect(reservation.amountPaid).toBe(reservation.totalAmount);
     expect(reservation.reservationNumber).toMatch(/^ATL-\d{4}-[A-Z0-9]{6}$/);
 
@@ -238,5 +240,66 @@ describe('Booking tunnel — mock provider (real DB)', () => {
     expect(res.providerRefundId).toContain('mock_re_');
     const [reservation] = await db.select().from(reservations).where(eq(reservations.id, init.reservationId));
     expect(reservation.status).toBe('refunded');
+  });
+
+  it('charges deposit first, then balance to completion', async () => {
+    const depId = `test-tunnel-depdep-${stamp}`;
+    await db.insert(departures).values({
+      id: depId, tripId: TRIP_ID,
+      startDate: new Date('2027-11-01T08:00:00.000Z'), endDate: new Date('2027-11-04T18:00:00.000Z'),
+      status: 'open', capacityMin: 1, capacityMax: 5, priceAmount: 100000, currency: 'EUR',
+      depositType: 'fixed', depositAmount: 20000, pricingRules: {},
+      bookingDeadline: new Date('2027-12-31T23:59:00.000Z'),
+    });
+    const email = `tunneldep-${stamp}@test.com`;
+    const sub = await submit(
+      {
+        tripId: TRIP_ID, departureId: depId, legalName: 'Tunnel User', email, phone: null,
+        roomPreference: 'shared', dietaryRequirements: null, accessibilityNeeds: null,
+        activityAcknowledgement: true, motivation: null, expectations: null, consent: true, locale: 'en',
+      },
+      publicCtx(),
+    );
+    await review({ id: sub.id, decision: 'approved' }, (globalThis as any).__adminCtx);
+    const [checkout] = await db.select().from(checkoutSessions).where(eq(checkoutSessions.applicationId, sub.id));
+    const init = await initiate(
+      { checkoutSessionId: checkout.id, travelerEmail: email, roomType: 'shared', locale: 'en' },
+      publicCtx(),
+    );
+    const [checkoutRow] = await db.select().from(checkoutSessions).where(eq(checkoutSessions.id, checkout.id));
+    const [deposit] = await db.select().from(payments).where(eq(payments.reservationId, init.reservationId));
+    expect(deposit.type).toBe('deposit');
+    expect(deposit.amount).toBe(20000);
+    await processProviderSuccess({
+      outcome: 'checkout.completed',
+      providerPaymentId: mockPaymentIdForSession(checkoutRow.providerSessionId!),
+      amount: deposit.amount,
+      currency: deposit.currency,
+      idempotencyKey: deposit.idempotencyKey,
+      raw: { mock: true },
+    });
+    const [confirmed] = await db.select().from(reservations).where(eq(reservations.id, init.reservationId));
+    expect(confirmed.status).toBe('confirmed');
+    expect(confirmed.amountDue).toBe(80000);
+
+    const bal = await payBalanceHandler(
+      { reservationId: init.reservationId, travelerEmail: email, locale: 'en' },
+      publicCtx(),
+    );
+    expect(bal.checkoutUrl).toContain('/api/payments/mock-callback?session=');
+    const balanceRows = await db.select().from(payments).where(eq(payments.reservationId, init.reservationId));
+    const balancePayment = balanceRows.find((p: { type: string }) => p.type === 'balance')!;
+    expect(balancePayment.amount).toBe(80000);
+    await processProviderSuccess({
+      outcome: 'checkout.completed',
+      providerPaymentId: mockPaymentIdForSession(`bal-${stamp}`),
+      amount: balancePayment.amount,
+      currency: balancePayment.currency,
+      idempotencyKey: balancePayment.idempotencyKey,
+      raw: { mock: true },
+    });
+    const [done] = await db.select().from(reservations).where(eq(reservations.id, init.reservationId));
+    expect(done.status).toBe('completed');
+    expect(done.amountDue).toBe(0);
   });
 });

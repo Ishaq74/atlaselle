@@ -47,6 +47,9 @@ export async function initiateCheckout(input: {
 
   const quote = await quoteForDeparture(checkout.departureId, input.roomType ?? "shared");
   if (!quote) throw codedError("CHECKOUT_EXPIRED", "Départ introuvable.");
+  // Acompte d'abord si paramétré, sinon totalité (TODO §12.2).
+  const chargeNow = quote.depositAmount > 0 && quote.depositAmount < quote.totalAmount ? quote.depositAmount : quote.totalAmount;
+  const paymentType = chargeNow < quote.totalAmount ? "deposit" : "full_payment";
   const hold = await holdSeats(checkout.departureId, { applicationId: application.id, quantity: 1 });
 
   try {
@@ -64,8 +67,8 @@ export async function initiateCheckout(input: {
       .values({
         reservationId: reservation.id,
         provider: selectPaymentProvider().name,
-        type: "full_payment",
-        amount: quote.totalAmount,
+        type: paymentType,
+        amount: chargeNow,
         currency: quote.currency,
         idempotencyKey,
       })
@@ -83,7 +86,7 @@ export async function initiateCheckout(input: {
 
     const provider = selectPaymentProvider();
     const session = await provider.createCheckoutSession({
-      amount: quote.totalAmount,
+      amount: chargeNow,
       currency: quote.currency,
       idempotencyKey,
       reservationId: reservation.id,
@@ -170,4 +173,48 @@ export async function failPaymentByProviderId(providerPaymentId: string): Promis
     .update(payments)
     .set({ status: "failed", failedAt: new Date() })
     .where(eq(payments.providerPaymentId, providerPaymentId));
+}
+
+// Solde : pas de hold (places déjà converties), session provider directe (TODO §13.6).
+export async function initiateBalancePayment(input: {
+  reservationId: string;
+  travelerEmail: string;
+  successUrl: string;
+  cancelUrl: string;
+}): Promise<{ paymentId: string; checkoutUrl: string }> {
+  const db = getDrizzle();
+  const [reservation] = await db.select().from(reservations).where(eq(reservations.id, input.reservationId)).limit(1);
+  if (!reservation || (reservation.status !== "confirmed" && reservation.status !== "balance_due")) {
+    throw codedError("CHECKOUT_EXPIRED", "Aucun solde à régler sur cette réservation.");
+  }
+  if (reservation.amountDue <= 0) {
+    throw codedError("RESERVATION_ALREADY_CONFIRMED", "Réservation déjà soldée.");
+  }
+  const [traveler] = await db.select().from(travelers).where(eq(travelers.id, reservation.travelerId)).limit(1);
+  if (!traveler || traveler.email.toLowerCase() !== input.travelerEmail.trim().toLowerCase()) {
+    throw codedError("CHECKOUT_EXPIRED", "Email ne correspondant pas au dossier.");
+  }
+  const idempotencyKey = newIdempotencyKey();
+  const [payment] = await db
+    .insert(payments)
+    .values({
+      reservationId: reservation.id,
+      provider: selectPaymentProvider().name,
+      type: "balance",
+      amount: reservation.amountDue,
+      currency: reservation.currency,
+      idempotencyKey,
+    })
+    .returning();
+  if (!payment) throw new Error("Payment creation failed");
+  const session = await selectPaymentProvider().createCheckoutSession({
+    amount: reservation.amountDue,
+    currency: reservation.currency,
+    idempotencyKey,
+    reservationId: reservation.id,
+    customerEmail: traveler.email,
+    successUrl: input.successUrl,
+    cancelUrl: input.cancelUrl,
+  });
+  return { paymentId: payment.id, checkoutUrl: session.checkoutUrl };
 }

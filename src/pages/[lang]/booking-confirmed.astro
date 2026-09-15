@@ -17,8 +17,9 @@ if (!booking) {
 const fmt = (cents: number) => `${booking.currency === "EUR" ? "€" : booking.currency + " "}${(cents / 100).toLocaleString("en")}`;
 const l =
   locale === "fr"
-    ? { title: "Réservation confirmée", number: "Numéro", trip: "Voyage", paid: "Payé", confirmed: "Votre place est réservée. Détails envoyés par e-mail.", pending: "Paiement en cours de confirmation — actualisez dans un instant." }
-    : { title: "Booking confirmed", number: "Number", trip: "Trip", paid: "Paid", confirmed: "Your seat is booked. Details sent by email.", pending: "Payment confirming — refresh in a moment." };
+    ? { title: "Réservation confirmée", number: "Numéro", trip: "Voyage", paid: "Payé", confirmed: "Votre place est réservée. Détails envoyés par e-mail.", pending: "Paiement en cours de confirmation — actualisez dans un instant.", balance: "Régler le solde restant", email: "E-mail de la réservation", payBalance: "Payer le solde" }
+    : { title: "Booking confirmed", number: "Number", trip: "Trip", paid: "Paid", confirmed: "Your seat is booked. Details sent by email.", pending: "Payment confirming — refresh in a moment.", balance: "Pay the remaining balance", email: "Booking email", payBalance: "Pay balance" };
+const showBalanceForm = (booking.status === "confirmed" || booking.status === "balance_due") && booking.totalAmount - booking.amountPaid > 0;
 ---
 <BaseLayout title={`${l.title} — ${booking.tripTitle}`} description={booking.tripTitle} canonicalPath={`/${locale}/booking-confirmed`}>
   <section class="mx-auto max-w-xl px-6 py-20 text-center">
@@ -29,6 +30,38 @@ const l =
       <div class="flex justify-between"><dt class="text-muted-foreground">{l.trip}</dt><dd class="font-semibold">{booking.tripTitle}</dd></div>
       <div class="flex justify-between"><dt class="text-muted-foreground">{l.paid}</dt><dd class="font-semibold">{fmt(booking.amountPaid)} / {fmt(booking.totalAmount)}</dd></div>
     </dl>
-    <p class="mt-6 text-muted-foreground">{booking.status === "confirmed" ? l.confirmed : l.pending}</p>
+    <p class="mt-6 text-muted-foreground">{booking.status === "confirmed" || booking.status === "completed" ? l.confirmed : l.pending}</p>
+    {showBalanceForm ? (
+      <form data-balance-form class="mx-auto mt-6 max-w-md space-y-3 rounded-xl border p-6 text-left" data-reservation={booking.reservationId} data-locale={locale}>
+        <p class="font-semibold">{l.balance} : {fmt(booking.totalAmount - booking.amountPaid)}</p>
+        <label class="block text-sm">{l.email}<input required name="travelerEmail" type="email" maxlength="320" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
+        <button class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.payBalance}</button>
+        <output class="block text-sm" data-form-message></output>
+      </form>
+    ) : null}
   </section>
 </BaseLayout>
+
+<script>
+  import { actions } from "astro:actions";
+  import type { Locale } from "@i18n/config";
+  document.querySelector("[data-balance-form]")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement | null;
+    if (!form) return;
+    const data = new FormData(form);
+    const locale = (form.dataset.locale ?? "en") as Locale;
+    const reservationId = form.dataset.reservation ?? "";
+    const el = form.querySelector("[data-form-message]");
+    const { data: result, error } = await actions.payBalance({
+      reservationId,
+      travelerEmail: String(data.get("travelerEmail") ?? ""),
+      locale,
+    });
+    if (error || !result) {
+      if (el) el.textContent = error?.message ?? "Error";
+    } else {
+      window.location.href = result.checkoutUrl;
+    }
+  });
+</script>

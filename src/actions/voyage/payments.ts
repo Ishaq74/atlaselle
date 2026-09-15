@@ -3,10 +3,32 @@ import { eq } from "drizzle-orm";
 import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
 import { payments, reservations } from "@database/schemas";
+import { LOCALES } from "@i18n/config";
 import { newIdempotencyKey } from "@/modules/payments/domain/payment-transitions";
 import { selectPaymentProvider } from "@/modules/payments/domain/providers";
+import { initiateBalancePayment } from "@/modules/payments/domain/payment-service";
 import { emitOutboxEvent } from "@/modules/outbox/domain/outbox";
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
+
+const payBalanceSchema = z.object({
+  reservationId: z.string().uuid(),
+  travelerEmail: z.string().trim().email().max(320),
+  locale: z.enum(LOCALES).default("en"),
+});
+
+// Règlement du solde (TODO §13.6).
+export const payBalance = defineAction({
+  input: payBalanceSchema,
+  handler: async (input, context) => {
+    const origin = new URL(context.request.url).origin;
+    return initiateBalancePayment({
+      reservationId: input.reservationId,
+      travelerEmail: input.travelerEmail,
+      successUrl: `${origin}/${input.locale}/booking-confirmed?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${origin}/${input.locale}/booking-confirmed`,
+    });
+  },
+});
 
 const refundSchema = z.object({
   reservationId: z.string().uuid(),
