@@ -4,11 +4,12 @@ import { LOCALES } from "@i18n/config";
 import { initiateCheckout as runCheckoutTunnel } from "@/modules/payments/domain/payment-service";
 import { getValidCheckoutSession } from "@/modules/payments/domain/checkout-service";
 import { normalizeEmail } from "@/modules/travelers/domain/traveler-email";
+import { toActionError } from "@/lib/voyage-errors";
 import { cancelReservation as cancelReservationService } from "@/modules/reservations/domain/reservation-service";
 import { refundReservationPayments } from "@/modules/payments/domain/refund-service";
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
 
-const initiateSchema = z.object({
+export const checkoutInitiateInput = z.object({
   checkoutSessionId: z.string().uuid(),
   travelerEmail: z.string().trim().email().max(320),
   roomType: z.enum(["shared", "single"]).default("shared"),
@@ -18,22 +19,26 @@ const initiateSchema = z.object({
 
 // Initialise le tunnel : hold → snapshot → session provider (TODO §13.4).
 export const initiateCheckout = defineAction({
-  input: initiateSchema,
+  input: checkoutInitiateInput,
   handler: async (input, context) => {
     const origin = new URL(context.request.url).origin;
     const valid = await getValidCheckoutSession(input.checkoutSessionId);
     if (!valid) {
       throw new ActionError({ code: "GONE", message: "[CHECKOUT_EXPIRED] Lien de paiement expiré ou invalide." });
     }
-    const result = await runCheckoutTunnel({
-      checkoutSessionId: input.checkoutSessionId,
-      travelerEmail: normalizeEmail(input.travelerEmail),
-      roomType: input.roomType,
-      agreementVersionId: input.agreementVersionId ?? null,
-      successUrl: `${origin}/${input.locale}/booking-confirmed?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${origin}/${input.locale}/checkout/${input.checkoutSessionId}`,
-    });
-    return result;
+    try {
+      const result = await runCheckoutTunnel({
+        checkoutSessionId: input.checkoutSessionId,
+        travelerEmail: normalizeEmail(input.travelerEmail),
+        roomType: input.roomType,
+        agreementVersionId: input.agreementVersionId ?? null,
+        successUrl: `${origin}/${input.locale}/booking-confirmed?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${origin}/${input.locale}/checkout/${input.checkoutSessionId}`,
+      });
+      return result;
+    } catch (err) {
+      throw toActionError(err);
+    }
   },
 });
 
@@ -45,7 +50,16 @@ export const cancelReservation = defineAction({
   input: cancelSchema,
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { reservation: ["cancel"] });
-    const { reservation, refundAmount } = await cancelReservationService(input.reservationId);
+    let cancelled: { reservation: { id: string } | null; refundAmount: number };
+    try {
+      cancelled = await cancelReservationService(input.reservationId);
+    } catch (err) {
+      if (err instanceof Error && err.message.includes("introuvable")) {
+        throw new ActionError({ code: "NOT_FOUND", message: "Réservation introuvable." });
+      }
+      throw toActionError(err);
+    }
+    const { reservation, refundAmount } = cancelled;
     if (!reservation) throw new ActionError({ code: "NOT_FOUND", message: "Réservation introuvable." });
     let providerRefundId: string | null = null;
     if (refundAmount > 0) {

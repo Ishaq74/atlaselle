@@ -14,4 +14,13 @@ describe('Sitemap CMS — voyages', () => {
     expect(xml).toContain('/fr/voyages');
     expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
   });
+
+  it('lists CMS legal pages with ASCII slugs in all locales', async () => {
+    const response = await GET({ site: new URL('https://atlaselle.test') } as any);
+    const xml = await response.text();
+    expect(xml).toContain('/fr/mentions-legales');
+    expect(xml).toContain('/en/legal-notice');
+    expect(xml).toContain('/ar/legal-notice');
+    expect(xml).toContain('/es/aviso-legal');
+  });
 });
