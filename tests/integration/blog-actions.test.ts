@@ -54,7 +54,7 @@ describe('blog actions — integration (real DB)', () => {
   let globalPostId: string;
   let globalPostSlug: string;
   let realUserId: string;
-  let originalUserRole: string | null;
+  let helpers: Awaited<ReturnType<typeof import('../helpers/auth').getTestHelpers>>;
 
   beforeAll(async () => {
     const [post] = await db
@@ -67,15 +67,21 @@ describe('blog actions — integration (real DB)', () => {
     globalPostId = post.id;
     globalPostSlug = post.slug;
 
-    const [realUser] = await db.select({ id: user.id, role: user.role }).from(user).limit(1);
-    if (!realUser) throw new Error('No user seeded — run db:seed');
-    realUserId = realUser.id;
-    originalUserRole = realUser.role;
+    // Dedicated admin user (never hijack another row — parallel suites share the DB).
+    const { getTestHelpers } = await import('../helpers/auth');
+    helpers = await getTestHelpers();
+    const created = helpers.createUser({
+      email: `blog-actions-admin-${Date.now()}@test.com`,
+      name: 'Blog Actions Admin',
+      emailVerified: true,
+    });
+    const saved = await helpers.saveUser(created);
+    realUserId = saved.id;
     await db.update(user).set({ role: "admin" }).where(eq(user.id, realUserId));
   });
 
   afterAll(async () => {
-    await db.update(user).set({ role: originalUserRole }).where(eq(user.id, realUserId));
+    await helpers.deleteUser(realUserId).catch(() => {});
   });
 
   it('listBlogPostRevisions returns revisions for a seeded post', async () => {

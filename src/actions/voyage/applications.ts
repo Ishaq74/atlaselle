@@ -21,9 +21,9 @@ import { domainError } from "@/lib/voyage-errors";
 
 const CLOSED_DEPARTURE_STATUSES = ["draft", "closed", "cancelled", "completed"] as const;
 
-const submitSchema = z.object({
-  tripId: z.string().uuid(),
-  departureId: z.string().uuid(),
+export const applicationSubmitInput = z.object({
+  tripId: z.string().min(1).max(160),
+  departureId: z.string().min(1).max(160),
   legalName: z.string().trim().min(1).max(200).transform(sanitizeHtml),
   email: z.string().trim().email().max(320),
   phone: z.string().trim().max(40).transform(sanitizeHtml).nullable().optional(),
@@ -39,7 +39,7 @@ const submitSchema = z.object({
 
 // Candidature publique : aucune donnée sensible en log/URL, rate-limitée (TODO §11).
 export const submitApplication = defineAction({
-  input: submitSchema,
+  input: applicationSubmitInput,
   handler: async (input, context) => {
     const ip = extractIp(context.request.headers, context.clientAddress ?? null);
     const rl = checkRateLimit(ip ? `application:${ip}` : "application:__global__", ip ? { window: 900, max: 5 } : { window: 900, max: 20 });
@@ -128,7 +128,7 @@ export const submitApplication = defineAction({
   },
 });
 
-const reviewSchema = z.object({
+export const applicationReviewInput = z.object({
   id: z.string().uuid(),
   decision: z.enum(["approved", "declined", "contact_required"]),
   internalNote: z.string().trim().max(5000).transform(sanitizeHtml).nullable().optional(),
@@ -136,7 +136,7 @@ const reviewSchema = z.object({
 
 // Décision reviewer : enregistrement horodaté, jamais d'écrasement (TODO §11.4).
 export const reviewApplication = defineAction({
-  input: reviewSchema,
+  input: applicationReviewInput,
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { application: ["approve"] });
     const db = getDrizzle();
@@ -192,10 +192,10 @@ export const reviewApplication = defineAction({
   },
 });
 
-const withdrawSchema = z.object({ id: z.string().uuid(), email: z.string().trim().email().max(320) });
+export const applicationWithdrawInput = z.object({ id: z.string().uuid(), email: z.string().trim().email().max(320) });
 
 export const withdrawApplication = defineAction({
-  input: withdrawSchema,
+  input: applicationWithdrawInput,
   handler: async (input, context) => {
     const db = getDrizzle();
     const [current] = await db.select().from(applications).where(eq(applications.id, input.id)).limit(1);

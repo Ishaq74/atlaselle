@@ -1,11 +1,12 @@
 import type { APIRoute } from "astro";
-import { selectPaymentProvider } from "@/modules/payments/domain/providers";
+import { selectPaymentProvider, UnhandledWebhookError } from "@/modules/payments/domain/providers";
 import { processProviderSuccess, failPaymentByProviderId } from "@/modules/payments/domain/payment-service";
 
 export const prerender = false;
 
 // Webhook provider (Stripe) : signature → idempotence → montants → transaction (TODO §13.3).
-// Toujours 200 après traitement (sinon le provider réessaie) ; 400 = signature invalide.
+// 200 après traitement (sinon retries) ; 400 = signature invalide ;
+// événements valides non gérés = 200 sans effet (pas de retry inutile).
 export const POST: APIRoute = async ({ request }) => {
   const provider = selectPaymentProvider();
   if (provider.name !== "stripe") {
@@ -16,7 +17,11 @@ export const POST: APIRoute = async ({ request }) => {
   let event;
   try {
     event = await provider.verifyWebhook(rawBody, signature);
-  } catch {
+  } catch (err) {
+    if (err instanceof UnhandledWebhookError) {
+      console.info(`[payments] ${err.message}`);
+      return new Response("OK", { status: 200 });
+    }
     return new Response("Bad Request", { status: 400 });
   }
   try {

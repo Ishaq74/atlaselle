@@ -8,7 +8,7 @@ import { assertVoyagePermission, assertTripExists, assertFresh, auditVoyage, inv
 import { assertTransitionTrip } from "@/modules/trips/domain/trip-transitions";
 import type { TripStatus } from "@database/schemas/trips.schema";
 
-const idInput = z.object({ id: z.string().uuid() });
+const idInput = z.object({ id: z.string().min(1).max(160) });
 
 type TripTransition = "review" | "approved" | "published" | "unpublished" | "archived" | "restored";
 const TRANSITION_TARGET: Record<TripTransition, TripStatus> = {
@@ -64,7 +64,7 @@ export const archiveTrip = defineAction({ input: idInput, handler: (input, conte
 export const restoreTrip = defineAction({ input: idInput, handler: (input, context) => transitionTrip(input.id, "restored", context) });
 
 export const restoreTripRevision = defineAction({
-  input: z.object({ id: z.string().uuid() }),
+  input: z.object({ id: z.string().min(1).max(160) }),
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { trip: ["update"] });
     const db = getDrizzle();
@@ -89,8 +89,8 @@ export const restoreTripRevision = defineAction({
   },
 });
 
-const tripFactsSchema = z.object({
-  id: z.string().uuid(),
+export const tripFactsInput = z.object({
+  id: z.string().min(1).max(160),
   expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional(),
   countryCode: z.string().length(2).optional(),
   defaultCurrency: z.string().length(3).optional(),
@@ -107,7 +107,7 @@ const tripFactsSchema = z.object({
 });
 
 export const updateTrip = defineAction({
-  input: tripFactsSchema,
+  input: tripFactsInput,
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { trip: ["update"] });
     const current = await assertTripExists(input.id);
@@ -127,8 +127,8 @@ export const updateTrip = defineAction({
   },
 });
 
-const tripTranslationSchema = z.object({
-  tripId: z.string().uuid(),
+export const tripTranslationInput = z.object({
+  tripId: z.string().min(1).max(160),
   expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional(),
   locale: z.enum(LOCALES),
   slug: z.string().min(1).max(160).regex(/^[a-z0-9-]+$/, "Slug ASCII uniquement (a-z, 0-9, tirets)."),
@@ -149,7 +149,7 @@ const tripTranslationSchema = z.object({
 });
 
 export const upsertTripTranslation = defineAction({
-  input: tripTranslationSchema,
+  input: tripTranslationInput,
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { trip: ["update"] });
     await assertTripExists(input.tripId);

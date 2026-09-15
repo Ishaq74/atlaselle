@@ -37,6 +37,13 @@ export interface PaymentProvider {
   createRefund(input: { providerPaymentId: string; amount?: number; idempotencyKey: string }): Promise<{ providerRefundId: string }>;
 }
 
+// Événement valide mais non géré : à ignorer en 200 (pas de retry inutile).
+export class UnhandledWebhookError extends Error {
+  constructor(type: string) {
+    super(`Unhandled Stripe event (ignored): ${type || "unknown"}`);
+  }
+}
+
 export function selectPaymentProvider(): PaymentProvider {
   const name = (process.env.PAYMENT_PROVIDER ?? "mock").toLowerCase();
   if (name === "stripe") return stripeProvider;
@@ -181,7 +188,7 @@ export const stripeProvider: PaymentProvider = {
         raw: event,
       };
     }
-    throw new Error(`Événement Stripe non géré : ${event.type ?? "inconnu"}.`);
+    throw new UnhandledWebhookError(event.type ?? "unknown");
   },
   async createRefund(input) {
     const { secretKey } = stripeEnv();

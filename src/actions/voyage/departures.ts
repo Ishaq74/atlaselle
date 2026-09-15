@@ -11,8 +11,8 @@ import { assertVoyagePermission, assertTripExists, assertFresh, auditVoyage, inv
 const amountField = z.number().int().min(0).optional();
 const amountTypeField = z.enum(["fixed", "percent", "none"]).optional();
 
-const departureSchema = z.object({
-  tripId: z.string().uuid(),
+export const departureInput = z.object({
+  tripId: z.string().min(1).max(160),
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
   capacityMin: z.number().int().positive(),
@@ -42,7 +42,7 @@ function checkDepartureDates(start: Date, end: Date): void {
 }
 
 export const createDeparture = defineAction({
-  input: departureSchema,
+  input: departureInput,
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { departure: ["create"] });
     await assertTripExists(input.tripId);
@@ -59,7 +59,7 @@ export const createDeparture = defineAction({
 });
 
 export const updateDeparture = defineAction({
-  input: departureSchema.partial().extend({ id: z.string().uuid(), expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional() }),
+  input: departureInput.partial().extend({ id: z.string().uuid(), expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional() }),
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { departure: ["update"] });
     const { id, expectedUpdatedAt, ...patch } = input;

@@ -83,6 +83,15 @@ test.describe('Voyage public — liste et fiche', () => {
     await expect(page.locator('h1')).toContainText(/Voyages|Trips|journeys/i);
   });
 
+  test('list loads in ES and AR with ASCII slugs', async ({ page }) => {
+    for (const url of ['/es/viajes', '/ar/trips']) {
+      const response = await page.goto(url, { waitUntil: 'networkidle' });
+      expect(response?.status()).toBe(200);
+    }
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
+    expect(canonical).toContain('/ar/trips');
+  });
+
   test('detail loads via canonical localized URLs with SEO tags', async ({ page }) => {
     const response = await page.goto(`/fr/voyages/${SLUG_FR}`, { waitUntil: 'networkidle' });
     expect(response?.status()).toBe(200);

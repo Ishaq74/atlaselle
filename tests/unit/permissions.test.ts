@@ -93,7 +93,7 @@ describe('RBAC Permissions', () => {
   describe('voyage resources (single-tenant, no org roles)', () => {
     it('declares trip, departure, application, reservation, payment and policy resources', () => {
       const resources = Object.keys(statement);
-      for (const r of ['trip', 'departure', 'application', 'reservation', 'payment', 'policy']) {
+      for (const r of ['trip', 'departure', 'application', 'reservation', 'payment', 'policy', 'traveler', 'email']) {
         expect(resources).toContain(r);
       }
     });
@@ -108,7 +108,7 @@ describe('RBAC Permissions', () => {
   describe('statement completeness', () => {
     it('declares voyage resources instead of org resources', () => {
       const resources = Object.keys(statement);
-      for (const r of ['trip', 'departure', 'application', 'reservation', 'payment', 'policy']) {
+      for (const r of ['trip', 'departure', 'application', 'reservation', 'payment', 'policy', 'traveler', 'email']) {
         expect(resources).toContain(r);
       }
     });
@@ -208,6 +208,12 @@ describe('RBAC Permissions', () => {
     it('user role cannot authorize trip:read (no voyage access)', () => {
       const result = userRole.authorize({ trip: ["read"] });
       expect(result.success).toBe(false);
+    });
+
+    it('admin role can export and anonymize travelers, editor cannot', () => {
+      expect(adminRole.authorize({ traveler: ["export"] }).success).toBe(true);
+      expect(adminRole.authorize({ traveler: ["anonymize"] }).success).toBe(true);
+      expect(editorRole.authorize({ traveler: ["export"] }).success).toBe(false);
     });
   });
 });

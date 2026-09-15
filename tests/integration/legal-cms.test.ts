@@ -16,7 +16,7 @@ const expectedSlugs: Record<string, string> = {
   fr: 'mentions-legales',
   en: 'legal-notice',
   es: 'aviso-legal',
-  ar: '\u0627\u0644\u0634\u0631\u0648\u0637-\u0627\u0644\u0642\u0627\u0646\u0648\u0646\u064a\u0629',
+  ar: 'legal-notice',
 };
 
 // ─── Seed data presence ──────────────────────────────────────────────
