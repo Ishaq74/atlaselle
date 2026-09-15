@@ -10,10 +10,10 @@ interface Props {
 }
 
 const { detail, locale, baseUrl, canReview } = Astro.props;
-const { application, traveler, decisions, events } = detail;
+const { application, traveler, decisions, events, checkouts } = detail;
 const t = locale === "fr"
-  ? { traveler: "Voyageuse", answers: "Réponses", history: "Décisions", events: "Journal", note: "Note interne (optionnelle)", approve: "Approuver", decline: "Refuser", contact: "Demander un échange", room: "Chambre", diet: "Régime", access: "Accessibilité", motivation: "Motivation", expectations: "Attentes" }
-  : { traveler: "Traveler", answers: "Answers", history: "Decisions", events: "Timeline", note: "Internal note (optional)", approve: "Approve", decline: "Decline", contact: "Request a chat", room: "Room", diet: "Diet", access: "Accessibility", motivation: "Motivation", expectations: "Expectations" };
+  ? { traveler: "Voyageuse", answers: "Réponses", history: "Décisions", events: "Journal", checkouts: "Liens checkout", note: "Note interne (optionnelle)", approve: "Approuver", decline: "Refuser", contact: "Demander un échange", room: "Chambre", diet: "Régime", access: "Accessibilité", motivation: "Motivation", expectations: "Attentes" }
+  : { traveler: "Traveler", answers: "Answers", history: "Decisions", events: "Timeline", checkouts: "Checkout links", note: "Internal note (optional)", approve: "Approve", decline: "Decline", contact: "Request a chat", room: "Room", diet: "Diet", access: "Accessibility", motivation: "Motivation", expectations: "Expectations" };
 const reviewable = ["submitted", "under_review", "contact_required"].includes(application.status);
 ---
 <section class="mx-auto max-w-4xl space-y-8 px-6 py-10" data-application-id={application.id}>
@@ -52,6 +52,19 @@ const reviewable = ["submitted", "under_review", "contact_required"].includes(ap
       <div><dt class="text-muted-foreground">{t.motivation}</dt><dd class="whitespace-pre-wrap">{application.motivation ?? "—"}</dd></div>
       <div><dt class="text-muted-foreground">{t.expectations}</dt><dd class="whitespace-pre-wrap">{application.expectations ?? "—"}</dd></div>
     </dl>
+  </div>
+
+  <div class="rounded-xl border p-6">
+    <h2 class="text-xl font-bold">{t.checkouts}</h2>
+    <ul class="mt-3 space-y-2 text-sm">
+      {checkouts.length === 0 ? <li>—</li> : null}
+      {checkouts.map((c) => (
+        <li class="flex justify-between gap-4 border-b py-1">
+          <a class="text-primary underline" href={`/${locale}/checkout/${c.id}`}>/{locale}/checkout/{c.id.slice(0, 8)}…</a>
+          <span class="rounded-full bg-muted px-2 py-0.5 text-xs">{c.status}</span>
+        </li>
+      ))}
+    </ul>
   </div>
 
   <div class="rounded-xl border p-6">

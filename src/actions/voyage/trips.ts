@@ -56,6 +56,32 @@ async function transitionTrip(id: string, to: TripTransition, context: ActionAPI
   return { success: true };
 }
 
+const createTripSchema = z.object({
+  countryCode: z.string().length(2),
+  defaultCurrency: z.string().length(3).default("EUR"),
+  durationDays: z.number().int().positive(),
+  durationNights: z.number().int().min(0),
+  groupMin: z.number().int().positive(),
+  groupMax: z.number().int().positive(),
+  difficulty: z.string().max(32).default("moderate"),
+  difficultyLevel: z.number().int().min(1).max(5).default(3),
+});
+
+export const createTrip = defineAction({
+  input: createTripSchema,
+  handler: async (input, context) => {
+    const user = await assertVoyagePermission(context, { trip: ["create"] });
+    if (input.groupMax < input.groupMin) {
+      throw new ActionError({ code: "BAD_REQUEST", message: "groupMax doit être ≥ groupMin." });
+    }
+    const [created] = await getDrizzle().insert(trips).values({ ...input }).returning({ id: trips.id });
+    if (!created) throw new ActionError({ code: "INTERNAL_SERVER_ERROR", message: "Création du voyage impossible." });
+    auditVoyage(context, user.id, "TRIP_CREATE", { resource: "trips", resourceId: created.id });
+    invalidateVoyageCache();
+    return { id: created.id };
+  },
+});
+
 export const submitTripForReview = defineAction({ input: idInput, handler: (input, context) => transitionTrip(input.id, "review", context) });
 export const approveTrip = defineAction({ input: idInput, handler: (input, context) => transitionTrip(input.id, "approved", context) });
 export const publishTrip = defineAction({ input: idInput, handler: (input, context) => transitionTrip(input.id, "published", context) });

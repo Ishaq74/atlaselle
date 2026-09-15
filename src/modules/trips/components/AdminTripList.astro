@@ -12,9 +12,10 @@ interface Props {
   status?: string;
   countryCode?: string;
   statuses: TripStatus[];
+  canCreate: boolean;
 }
 
-const { rows, meta, locale, baseUrl, search, status, countryCode, statuses } = Astro.props;
+const { rows, meta, locale, baseUrl, search, status, countryCode, statuses, canCreate } = Astro.props;
 const totalPages = Math.max(1, Math.ceil(meta.total / meta.pageSize));
 const qs = (over: Record<string, string>) => {
   const p = new URLSearchParams();
@@ -29,8 +30,8 @@ const qs = (over: Record<string, string>) => {
   return s ? `${baseUrl}?${s}` : baseUrl;
 };
 const t = locale === "fr"
-  ? { title: "Voyages", search: "Rechercher", status: "Statut", country: "Pays", all: "Tous", updated: "Modifié", departures: "Départs", open: "Ouvrir", prev: "←", next: "→", of: "sur" }
-  : { title: "Trips", search: "Search", status: "Status", country: "Country", all: "All", updated: "Updated", departures: "Departures", open: "Open", prev: "←", next: "→", of: "of" };
+  ? { title: "Voyages", search: "Rechercher", status: "Statut", country: "Pays", all: "Tous", updated: "Modifié", departures: "Départs", open: "Ouvrir", create: "Nouveau voyage", createButton: "Créer (brouillon)", prev: "←", next: "→", of: "sur" }
+  : { title: "Trips", search: "Search", status: "Status", country: "Country", all: "All", updated: "Updated", departures: "Departures", open: "Open", create: "New trip", createButton: "Create (draft)", prev: "←", next: "→", of: "of" };
 ---
 <section class="mx-auto max-w-6xl px-6 py-10">
   <h1 class="text-3xl font-bold">{t.title} ({meta.total})</h1>
@@ -69,4 +70,38 @@ const t = locale === "fr"
     <span>{meta.page} {t.of} {totalPages}</span>
     {meta.page < totalPages ? <a class="rounded-md border px-3 py-1" href={qs({ page: String(meta.page + 1) })}>{t.next}</a> : null}
   </nav>
+  {canCreate ? (
+    <form data-trip-create class="mt-8 grid gap-4 rounded-xl border p-6 text-sm sm:grid-cols-4">
+      <h2 class="font-bold sm:col-span-4">{t.create}</h2>
+      <label class="block">countryCode<input name="countryCode" value="FR" maxlength="2" required class="mt-1 w-full rounded-md border bg-background p-2 uppercase" /></label>
+      <label class="block">durationDays<input name="durationDays" type="number" min="1" value="7" required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+      <label class="block">durationNights<input name="durationNights" type="number" min="0" value="6" required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+      <label class="block">groupMin<input name="groupMin" type="number" min="1" value="6" required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+      <label class="block">groupMax<input name="groupMax" type="number" min="1" value="12" required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+      <div class="sm:col-span-4"><button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.createButton}</button> <output class="ml-3 text-sm" data-form-message></output></div>
+    </form>
+  ) : null}
 </section>
+
+<script>
+  import { actions } from "astro:actions";
+  document.querySelector("[data-trip-create]")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget as HTMLFormElement | null;
+    if (!form) return;
+    const data = new FormData(form);
+    const el = form.querySelector("[data-form-message]");
+    const { data: result, error } = await actions.createTrip({
+      countryCode: String(data.get("countryCode") ?? "FR").toUpperCase(),
+      durationDays: Number(data.get("durationDays")),
+      durationNights: Number(data.get("durationNights")),
+      groupMin: Number(data.get("groupMin")),
+      groupMax: Number(data.get("groupMax")),
+    });
+    if (error || !result) {
+      if (el) el.textContent = error?.message ?? "Error";
+    } else {
+      window.location.href = `${window.location.pathname}/${result.id}`;
+    }
+  });
+</script>

@@ -1,0 +1,122 @@
+---
+import type { Locale } from "@i18n/config";
+import { LOCALES } from "@i18n/config";
+import type { loadAdminContents } from "@/modules/trips/loaders/admin-contents.loader";
+
+type Contents = Awaited<ReturnType<typeof loadAdminContents>>;
+
+interface Props {
+  tripId: string;
+  contents: Contents;
+  locale: Locale;
+  canUpdate: boolean;
+}
+
+const { tripId, contents, locale, canUpdate } = Astro.props;
+const t = locale === "fr"
+  ? { highlights: "Points forts", inclusions: "Inclus", exclusions: "Exclus", add: "Ajouter", save: "Enregistrer", remove: "Supprimer", confirm: "Supprimer ?" }
+  : { highlights: "Highlights", inclusions: "Included", exclusions: "Excluded", add: "Add", save: "Save", remove: "Delete", confirm: "Delete?" };
+
+const blocks = [
+  { kind: "highlight", title: t.highlights, items: contents.highlights.map((h) => ({ id: h.highlight.id, title: h.translations.find((x) => x.locale === locale)?.title ?? h.highlight.id.slice(0, 8), translations: h.translations })) },
+  { kind: "inclusion", title: t.inclusions, items: contents.inclusions.map((i) => ({ id: i.inclusion.id, title: i.translations.find((x) => x.locale === locale)?.text ?? i.inclusion.id.slice(0, 8), translations: i.translations })) },
+  { kind: "exclusion", title: t.exclusions, items: contents.exclusions.map((e) => ({ id: e.exclusion.id, title: e.translations.find((x) => x.locale === locale)?.text ?? e.exclusion.id.slice(0, 8), translations: e.translations })) },
+] as const;
+---
+<section class="space-y-8" data-trip-id={tripId}>
+  {blocks.map((block) => (
+    <div>
+      <h2 class="text-xl font-bold">{block.title} ({block.items.length})</h2>
+      <div class="mt-3 space-y-3">
+        {block.items.map((item) => (
+          <details class="rounded-xl border p-4" data-content-id={item.id} data-kind={block.kind}>
+            <summary class="cursor-pointer font-medium">{item.title}</summary>
+            {canUpdate ? (
+              <div class="mt-3 space-y-3">
+                {LOCALES.map((loc: Locale) => {
+                  const tr = (item.translations as { locale: string; title?: string | null; description?: string | null; text?: string | null; updatedAt?: Date }[]).find((x) => x.locale === loc);
+                  const isHighlight = block.kind === "highlight";
+                  return (
+                    <form data-content-tr data-kind={block.kind} data-id={item.id} data-locale={loc} class="grid gap-2 rounded-lg bg-muted/40 p-3 text-sm">
+                      <h4 class="font-bold uppercase">{loc}</h4>
+                      <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt instanceof Date ? tr.updatedAt.toISOString() : ""} />
+                      {isHighlight ? (
+                        <>
+                          <input name="title" value={tr?.title ?? ""} required maxlength="300" placeholder="title" class="rounded-md border bg-background p-2" />
+                          <textarea name="description" rows="2" placeholder="description" class="rounded-md border bg-background p-2">{tr?.description ?? ""}</textarea>
+                        </>
+                      ) : (
+                        <textarea name="text" rows="2" required placeholder="text" class="rounded-md border bg-background p-2">{tr?.text ?? ""}</textarea>
+                      )}
+                      <div><button type="submit" class="rounded-md bg-primary px-3 py-1.5 font-semibold text-primary-foreground">{t.save} ({loc})</button></div>
+                    </form>
+                  );
+                })}
+                <button type="button" class="text-sm text-red-600 underline" data-content-delete>{t.remove}</button>
+              </div>
+            ) : null}
+          </details>
+        ))}
+      </div>
+      {canUpdate ? (
+        <form data-content-add={block.kind} class="mt-3 flex gap-2 text-sm">
+          <button type="submit" class="rounded-md border px-3 py-1.5">+ {t.add}</button>
+        </form>
+      ) : null}
+    </div>
+  ))}
+</section>
+
+<script>
+  import { actions } from "astro:actions";
+  import type { Locale } from "@i18n/config";
+  const root = document.querySelector("section[data-trip-id]");
+  const tripId = root?.getAttribute("data-trip-id") ?? "";
+  const opt = (v: FormDataEntryValue | null): string | null => {
+    const s = String(v ?? "");
+    return s === "" ? null : s;
+  };
+
+  document.querySelectorAll("[data-content-add]").forEach((form) => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const kind = (form as HTMLElement).getAttribute("data-content-add") as "highlight" | "inclusion" | "exclusion";
+      const { error } = await actions.createTripContent({ tripId, kind, sortOrder: 0 });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+
+  document.querySelectorAll("[data-content-delete]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const box = (btn as HTMLElement).closest("[data-content-id]");
+      const id = box?.getAttribute("data-content-id") ?? "";
+      const kind = (box?.getAttribute("data-kind") ?? "highlight") as "highlight" | "inclusion" | "exclusion";
+      if (!id || !window.confirm("OK?")) return;
+      const { error } = await actions.deleteTripContent({ kind, id });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+
+  document.querySelectorAll("[data-content-tr]").forEach((form) => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const target = e.currentTarget as HTMLFormElement | null;
+      if (!target) return;
+      const data = new FormData(target);
+      const kind = (target.getAttribute("data-kind") ?? "highlight") as "highlight" | "inclusion" | "exclusion";
+      const { error } = await actions.upsertTripContentTranslation({
+        kind,
+        id: target.getAttribute("data-id") ?? "",
+        expectedUpdatedAt: String(data.get("expectedUpdatedAt") ?? "") || null,
+        locale: (target.getAttribute("data-locale") ?? "en") as Locale,
+        title: opt(data.get("title")) ?? undefined,
+        description: opt(data.get("description")) ?? undefined,
+        text: opt(data.get("text")) ?? undefined,
+      });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+</script>

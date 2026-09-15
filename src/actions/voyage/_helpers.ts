@@ -50,18 +50,19 @@ export function assertFresh(currentUpdatedAt: Date, expected: string | null | un
 }
 
 export function auditVoyage(
-  context: Pick<ActionAPIContext, "request">,
+  context: Pick<ActionAPIContext, "request" | "locals">,
   userId: string,
   action: AuditAction,
   extra: { resource?: string | null; resourceId?: string | null; metadata?: Record<string, unknown> | null } = {},
 ): void {
   const headers = context.request.headers;
+  const requestId = (context.locals as { requestId?: string | null } | undefined)?.requestId ?? null;
   void logAuditEvent({
     userId,
     action,
     resource: extra.resource ?? null,
     resourceId: extra.resourceId ?? null,
-    metadata: extra.metadata ?? null,
+    metadata: { ...(extra.metadata ?? {}), ...(requestId ? { requestId } : {}) },
     ipAddress: extractIp(headers),
     userAgent: headers.get("user-agent"),
   });

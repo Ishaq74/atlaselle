@@ -3,6 +3,8 @@ import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
 import { reservations } from "@database/schemas/reservations.schema";
 import { travelers } from "@database/schemas/travelers.schema";
+import { payments } from "@database/schemas/payments.schema";
+import { tripTranslations } from "@database/schemas/trips.schema";
 import type { ReservationStatus } from "@database/schemas/reservations.schema";
 
 export const adminReservationFiltersSchema = z.object({
@@ -48,4 +50,18 @@ export async function loadAdminReservations(raw: Record<string, string | undefin
     })),
     meta: { total: count, page: filters.page, pageSize: filters.pageSize },
   };
+}
+
+export async function loadAdminReservation(id: string) {
+  const db = getDrizzle();
+  const [reservation] = await db.select().from(reservations).where(eq(reservations.id, id)).limit(1);
+  if (!reservation) return null;
+  const [traveler] = await db.select().from(travelers).where(eq(travelers.id, reservation.travelerId)).limit(1);
+  const paymentRows = await db.select().from(payments).where(eq(payments.reservationId, id)).orderBy(desc(payments.createdAt));
+  const [tr] = await db
+    .select({ title: tripTranslations.title })
+    .from(tripTranslations)
+    .where(eq(tripTranslations.tripId, reservation.tripId))
+    .limit(1);
+  return { reservation, traveler, payments: paymentRows, tripTitle: tr?.title ?? reservation.tripId };
 }

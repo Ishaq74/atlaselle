@@ -51,6 +51,7 @@ export const itineraryDayTranslations = pgTable(
     accommodation: text("accommodation"),
     transfer: text("transfer"),
     notes: text("notes"),
+    updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
   },
   (table) => [
     uniqueIndex("itinerary_day_tr_day_locale_uidx").on(table.dayId, table.locale),

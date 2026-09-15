@@ -79,9 +79,10 @@ export async function sendBalanceReminders(now = new Date(), sender?: SendFn): P
   return sent;
 }
 
-// Pré/post voyage : J-14 rappel, J+3 suivi (TODO §14.2).
-export async function sendTripReminders(now = new Date(), sender?: SendFn): Promise<{ pre: number; post: number }> {
+// Pré/post voyage : préparation J-30, rappel J-14, suivi J+3 (TODO §14.2).
+export async function sendTripReminders(now = new Date(), sender?: SendFn): Promise<{ preparation: number; pre: number; post: number }> {
   const db = getDrizzle();
+  let preparation = 0;
   let pre = 0;
   let post = 0;
   const upcoming = await db
@@ -97,6 +98,14 @@ export async function sendTripReminders(now = new Date(), sender?: SendFn): Prom
     const name = traveler.preferredName ?? traveler.legalName ?? traveler.email;
     const dates = `${fmtDate(locale, departure.startDate)} – ${fmtDate(locale, departure.endDate)}`;
     const daysToStart = Math.ceil((departure.startDate.getTime() - now.getTime()) / 86_400_000);
+    if (daysToStart <= 30 && daysToStart > 14 && !(await alreadySent("pre_trip_preparation", traveler.id, reservation.id))) {
+      const res = await sendVoyageEmail({
+        template: "pre_trip_preparation", locale, toEmail: traveler.email,
+        travelerId: traveler.id, reservationId: reservation.id,
+        vars: { name, trip: tr?.title ?? reservation.tripId, dates },
+      }, sender);
+      if (res.sent) preparation += 1;
+    }
     if (daysToStart <= 14 && daysToStart >= 0 && !(await alreadySent("pre_trip_reminder", traveler.id, reservation.id))) {
       const res = await sendVoyageEmail({
         template: "pre_trip_reminder", locale, toEmail: traveler.email,
@@ -115,5 +124,5 @@ export async function sendTripReminders(now = new Date(), sender?: SendFn): Prom
       if (res.sent) post += 1;
     }
   }
-  return { pre, post };
+  return { preparation, pre, post };
 }

@@ -120,30 +120,54 @@ const t = locale === "fr"
 
   <div class="space-y-4">
     <h2 class="text-xl font-bold">{t.departures} ({departures.length})</h2>
-    <div class="overflow-x-auto rounded-xl border">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-muted/60"><tr><th class="px-4 py-2">{t.start}</th><th class="px-4 py-2">{t.end}</th><th class="px-4 py-2">{t.price}</th><th class="px-4 py-2">{t.status}</th><th class="px-4 py-2"></th></tr></thead>
-        <tbody>
-          {departures.map((d) => (
-            <tr class="border-t" data-departure-id={d.id}>
-              <td class="px-4 py-2">{d.startDate.toISOString().slice(0, 10)}</td>
-              <td class="px-4 py-2">{d.endDate.toISOString().slice(0, 10)}</td>
-              <td class="px-4 py-2">{d.priceAmount} {d.currency}</td>
-              <td class="px-4 py-2">
-                {canUpdate ? (
-                  <select data-departure-status class="rounded-md border bg-background px-2 py-1">
-                    {departureStatuses.map((s) => (
-                      <option value={s} selected={d.status === s}>{s}</option>
-                    ))}
-                  </select>
-                ) : d.status}
-              </td>
-              <td class="px-4 py-2 text-right">{canUpdate ? <button type="button" class="text-primary underline" data-departure-save>OK</button> : null}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    {departures.map((d) => (
+      <details class="rounded-xl border p-4" data-departure-id={d.id}>
+        <summary class="cursor-pointer text-sm font-semibold">
+          {d.startDate.toISOString().slice(0, 10)} → {d.endDate.toISOString().slice(0, 10)} · {d.priceAmount} {d.currency} · {d.status}
+        </summary>
+        <div class="mt-3 flex flex-wrap items-center gap-3 text-sm">
+          <span>{t.status} :</span>
+          {canUpdate ? (
+            <>
+              <select data-departure-status class="rounded-md border bg-background px-2 py-1">
+                {departureStatuses.map((s) => (
+                  <option value={s} selected={d.status === s}>{s}</option>
+                ))}
+              </select>
+              <button type="button" class="text-primary underline" data-departure-save>OK</button>
+            </>
+          ) : d.status}
+        </div>
+        {canUpdate ? (
+          <form data-departure-edit class="mt-4 grid gap-3 text-sm sm:grid-cols-3">
+            <input type="hidden" name="expectedUpdatedAt" value={d.updatedAt.toISOString()} />
+            <label class="block">{t.start}<input name="startDate" type="date" value={d.startDate.toISOString().slice(0, 10)} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">{t.end}<input name="endDate" type="date" value={d.endDate.toISOString().slice(0, 10)} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">{t.price}<input name="priceAmount" type="number" min="0" value={d.priceAmount} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">currency<input name="currency" value={d.currency} maxlength="3" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">capacityMin<input name="capacityMin" type="number" min="1" value={d.capacityMin} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">capacityMax<input name="capacityMax" type="number" min="1" value={d.capacityMax} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">deposit<input name="depositAmount" type="number" min="0" value={d.depositAmount} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">depositType
+              <select name="depositType" class="mt-1 w-full rounded-md border bg-background p-2">
+                {(["fixed", "percent", "none"] as const).map((o) => (
+                  <option value={o} selected={d.depositType === o}>{o}</option>
+                ))}
+              </select>
+            </label>
+            <label class="block">depositPercent<input name="depositPercent" type="number" min="0" max="100" value={d.depositPercent} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">singleSupplement<input name="singleSupplementAmount" type="number" min="0" value={d.singleSupplementAmount} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">tax<input name="taxAmount" type="number" min="0" value={d.taxAmount} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">fee<input name="feeAmount" type="number" min="0" value={d.feeAmount} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">discount<input name="discountAmount" type="number" min="0" value={d.discountAmount} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">balanceDueDate<input name="balanceDueDate" type="date" value={d.balanceDueDate?.toISOString().slice(0, 10) ?? ""} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block">bookingDeadline<input name="bookingDeadline" type="date" value={d.bookingDeadline?.toISOString().slice(0, 10) ?? ""} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+            <label class="block sm:col-span-3">pricingRules (JSON)<textarea name="pricingRules" rows="2" class="mt-1 w-full rounded-md border bg-background p-2 font-mono text-xs">{JSON.stringify(d.pricingRules ?? {})}</textarea></label>
+            <div class="sm:col-span-3"><button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save}</button> <output class="ml-3 text-sm" data-form-message></output></div>
+          </form>
+        ) : null}
+      </details>
+    ))}
     {canUpdate ? (
       <form data-departure-form class="grid gap-4 rounded-xl border p-6 sm:grid-cols-3">
         <h3 class="font-bold sm:col-span-3">{t.newDeparture}</h3>
@@ -267,6 +291,53 @@ const t = locale === "fr"
       const { error } = await actions.restoreTripRevision({ id });
       if (error) alert(error.message);
       else window.location.reload();
+    });
+  });
+
+  document.querySelectorAll("[data-departure-edit]").forEach((form) => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const target = asForm(e);
+      if (!target) return;
+      const box = target.closest("[data-departure-id]");
+      const id = box?.getAttribute("data-departure-id") ?? "";
+      const data = new FormData(target);
+      const el = target.querySelector("[data-form-message]");
+      const dateOrNull = (v: FormDataEntryValue | null): Date | null => {
+        const s = String(v ?? "");
+        return s ? new Date(`${s}T00:00:00.000Z`) : null;
+      };
+      let pricingRules: Record<string, unknown> | undefined;
+      try {
+        const raw = String(data.get("pricingRules") ?? "{}").trim() || "{}";
+        pricingRules = JSON.parse(raw) as Record<string, unknown>;
+      } catch {
+        if (el) el.textContent = "pricingRules : JSON invalide";
+        return;
+      }
+      const { error } = await actions.updateDeparture({
+        id,
+        expectedUpdatedAt: String(data.get("expectedUpdatedAt") ?? "") || null,
+        startDate: dateOrNull(data.get("startDate")) ?? undefined,
+        endDate: dateOrNull(data.get("endDate")) ?? undefined,
+        capacityMin: num(data.get("capacityMin")),
+        capacityMax: num(data.get("capacityMax")),
+        priceAmount: num(data.get("priceAmount")),
+        currency: str(data.get("currency")),
+        depositAmount: num(data.get("depositAmount")),
+        depositType: (String(data.get("depositType") ?? "none") || "none") as "fixed" | "percent" | "none",
+        depositPercent: num(data.get("depositPercent")),
+        singleSupplementAmount: num(data.get("singleSupplementAmount")),
+        taxAmount: num(data.get("taxAmount")),
+        feeAmount: num(data.get("feeAmount")),
+        discountAmount: num(data.get("discountAmount")),
+        balanceDueDate: dateOrNull(data.get("balanceDueDate")),
+        bookingDeadline: dateOrNull(data.get("bookingDeadline")),
+        pricingRules,
+      });
+      if (error) {
+        if (el) el.textContent = error.message;
+      } else window.location.reload();
     });
   });
 

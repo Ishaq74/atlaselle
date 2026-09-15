@@ -16,12 +16,13 @@ interface Props {
   description?: string;
   alternateUrls?: Record<string, string>;
   canonicalPath?: string;
+  robots?: string;
   ogImage?: string;
   ogType?: string;
   jsonLd?: string;
 }
 
-const { title: titleOverride, description: descriptionOverride, alternateUrls, canonicalPath, ogImage: ogImageOverride, ogType, jsonLd } = Astro.props;
+const { title: titleOverride, description: descriptionOverride, alternateUrls, canonicalPath, robots, ogImage: ogImageOverride, ogType, jsonLd } = Astro.props;
 const locale = toLocale(Astro.currentLocale) as Locale;
 const direction = getDirection(locale);
 const t = await getCommonTranslations(locale);
@@ -114,6 +115,7 @@ const toAbsUrl = (u: string) => new URL(u, Astro.url.origin).href;
     <title>{metaTitle}</title>
     <meta name="description" content={metaDesc} />
     <link rel="canonical" href={canonicalUrl} />
+    {robots ? <meta name="robots" content={robots} /> : null}
     {alternateUrls && Object.entries(alternateUrls).map(([lang, url]) => (
       <link rel="alternate" hreflang={lang} href={toAbsUrl(url)} />
     ))}

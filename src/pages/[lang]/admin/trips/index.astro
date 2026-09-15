@@ -1,5 +1,6 @@
 ---
 import { requirePermission } from "@/lib/auth-guards";
+import { hasVoyagePermission } from "@/actions/voyage/_helpers";
 import { loadAdminTrips } from "@/modules/trips/loaders/admin-trips.loader";
 import { TRIP_STATUSES } from "@database/schemas/trips.schema";
 import BaseLayout from "@layouts/BaseLayout.astro";
@@ -25,6 +26,7 @@ const { rows, meta } = await loadAdminTrips({
 });
 const baseUrl = `/${locale}/admin/trips`;
 const title = authT.admin.tabs.trips;
+const canCreate = await hasVoyagePermission(Astro, { trip: ["create"] });
 ---
 
 <BaseLayout title={title} description={title} canonicalPath={baseUrl}>
@@ -39,6 +41,7 @@ const title = authT.admin.tabs.trips;
       status={p.get("status") ?? undefined}
       countryCode={p.get("countryCode") ?? undefined}
       statuses={[...TRIP_STATUSES]}
+      canCreate={canCreate}
     />
   </AuthLayout>
 </BaseLayout>

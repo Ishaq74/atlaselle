@@ -23,14 +23,18 @@ import { createServiceCategory, updateServiceCategory, deleteServiceCategory, cr
 import { moderateServiceComment, moderateServiceReview, resolveServiceReport } from "./services/moderation";
 import { addServiceMedia, updateServiceMedia, removeServiceMedia } from "./services/media";
 import { resolveServiceInternalLink } from "./services/internal-link";
-import { submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, restoreTripRevision, updateTrip, upsertTripTranslation } from "./voyage/trips";
+import { createTrip, submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, restoreTripRevision, updateTrip, upsertTripTranslation } from "./voyage/trips";
 import { createDeparture, updateDeparture, setDepartureStatus } from "./voyage/departures";
 import { submitApplication, reviewApplication, withdrawApplication } from "./voyage/applications";
 import { initiateCheckout, cancelReservation } from "./voyage/checkout";
 import { refundPayment, payBalance } from "./voyage/payments";
 import { retryEmailDelivery } from "./voyage/email";
+import { requeueOutboxEvent } from "./voyage/outbox";
 import { createPolicyVersion, publishPolicyVersion } from "./voyage/policies";
 import { exportTravelerData, anonymizeTraveler } from "./voyage/travelers";
+import { createItineraryDay, updateItineraryDay, deleteItineraryDay, upsertItineraryDayTranslation } from "./voyage/itinerary";
+import { createTripContent, deleteTripContent, upsertTripContentTranslation } from "./voyage/contents";
+import { createFaq, upsertFaqTranslation, deleteFaq, linkFaqToTrip, unlinkFaqFromTrip } from "./voyage/faq";
 
 export const server = {
   updateSiteSettings, upsertSiteSettings, createSocialLink, updateSocialLink, deleteSocialLink, reorderSocialLinks, updateContactInfo, updateOpeningHours,
@@ -44,10 +48,14 @@ export const server = {
   toggleServiceFavorite, createServiceReview, createServiceComment, createServiceReport, voteServiceReviewHelpful, createServiceAvailability, updateServiceAvailability, deleteServiceAvailability,
   toggleServiceReaction, listServiceNotifications, markServiceNotificationRead, markAllServiceNotificationsRead, recordServiceView, createServiceAttributeDefinition, setServiceAttributeValue,
   createServiceCategory, updateServiceCategory, deleteServiceCategory, createServiceTag, updateServiceTag, deleteServiceTag, moderateServiceComment, moderateServiceReview, resolveServiceReport, addServiceMedia, updateServiceMedia, removeServiceMedia, resolveServiceInternalLink,
-  submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, restoreTripRevision, updateTrip, upsertTripTranslation,
+  createTrip, submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, restoreTripRevision, updateTrip, upsertTripTranslation,
   createDeparture, updateDeparture, setDepartureStatus,
   submitApplication, reviewApplication, withdrawApplication,
   initiateCheckout, cancelReservation, refundPayment, payBalance,
   retryEmailDelivery, createPolicyVersion, publishPolicyVersion,
   exportTravelerData, anonymizeTraveler,
+  requeueOutboxEvent,
+  createItineraryDay, updateItineraryDay, deleteItineraryDay, upsertItineraryDayTranslation,
+  createTripContent, deleteTripContent, upsertTripContentTranslation,
+  createFaq, upsertFaqTranslation, deleteFaq, linkFaqToTrip, unlinkFaqFromTrip,
 };

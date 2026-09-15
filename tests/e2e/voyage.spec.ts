@@ -145,4 +145,13 @@ test.describe('Voyage — admin trips', () => {
     expect(response?.status()).toBe(200);
     await expect(page.locator('h1')).toContainText(/Trips/i);
   });
+
+  test('admin applications, reservations, payments and emails load', async ({ page }) => {
+    await signInAsAdmin(page);
+    for (const url of ['/en/admin/applications', '/en/admin/reservations', '/en/admin/payments', '/en/admin/travelers', '/en/admin/emails', '/en/admin/policies']) {
+      const response = await page.goto(url, { waitUntil: 'networkidle' });
+      expect(response?.status()).toBe(200);
+    }
+    await expect(page.locator('h1')).toContainText(/Policies|Emails/i);
+  });
 });

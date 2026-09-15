@@ -25,7 +25,7 @@ const l =
         : { title: "Booking confirmed", number: "Number", trip: "Trip", paid: "Paid", confirmed: "Your seat is booked. Details sent by email.", pending: "Payment confirming — refresh in a moment.", balance: "Pay the remaining balance", email: "Booking email", payBalance: "Pay balance" };
 const showBalanceForm = (booking.status === "confirmed" || booking.status === "balance_due") && booking.totalAmount - booking.amountPaid > 0;
 ---
-<BaseLayout title={`${l.title} — ${booking.tripTitle}`} description={booking.tripTitle} canonicalPath={`/${locale}/booking-confirmed`}>
+<BaseLayout title={`${l.title} — ${booking.tripTitle}`} description={booking.tripTitle} canonicalPath={`/${locale}/booking-confirmed`} robots="noindex, nofollow">
   <section class="mx-auto max-w-xl px-6 py-20 text-center">
     <p class="text-5xl" aria-hidden="true">✓</p>
     <h1 class="mt-4 text-4xl font-bold">{l.title}</h1>

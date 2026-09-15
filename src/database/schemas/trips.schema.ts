@@ -106,6 +106,7 @@ export const tripHighlightTranslations = pgTable(
     locale: localeEnum,
     title: text("title").notNull(),
     description: text("description"),
+    updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
   },
   (table) => [
     uniqueIndex("trip_highlight_tr_hl_locale_uidx").on(table.highlightId, table.locale),
@@ -130,6 +131,7 @@ export const tripInclusionTranslations = pgTable(
     inclusionId: text("inclusion_id").notNull().references(() => tripInclusions.id, { onDelete: "cascade" }),
     locale: localeEnum,
     text: text("text").notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
   },
   (table) => [
     uniqueIndex("trip_inclusion_tr_inc_locale_uidx").on(table.inclusionId, table.locale),
@@ -154,6 +156,7 @@ export const tripExclusionTranslations = pgTable(
     exclusionId: text("exclusion_id").notNull().references(() => tripExclusions.id, { onDelete: "cascade" }),
     locale: localeEnum,
     text: text("text").notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
   },
   (table) => [
     uniqueIndex("trip_exclusion_tr_exc_locale_uidx").on(table.exclusionId, table.locale),
@@ -181,6 +184,7 @@ export const faqTranslations = pgTable(
     locale: localeEnum,
     question: text("question").notNull(),
     answer: text("answer").notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
   },
   (table) => [
     uniqueIndex("faq_tr_faq_locale_uidx").on(table.faqId, table.locale),

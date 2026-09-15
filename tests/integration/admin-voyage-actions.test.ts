@@ -21,13 +21,17 @@ import { applications } from '@database/schemas/applications.schema';
 import { emailDeliveries } from '@database/schemas/email-voyage.schema';
 import { policyVersions } from '@database/schemas/policies.schema';
 import { user } from '@database/schemas';
-import { updateTrip, restoreTripRevision } from '@/actions/voyage/trips';
+import { updateTrip, restoreTripRevision, createTrip } from '@/actions/voyage/trips';
+import { createDeparture, updateDeparture } from '@/actions/voyage/departures';
 import { publishPolicyVersion } from '@/actions/voyage/policies';
 import { retryEmailDelivery } from '@/actions/voyage/email';
 import { exportTravelerData, anonymizeTraveler } from '@/actions/voyage/travelers';
 import { getTestHelpers } from '../helpers/auth';
 
 const update = (updateTrip as any).handler as (i: any, c: any) => Promise<any>;
+const createT = (createTrip as any).handler as (i: any, c: any) => Promise<any>;
+const createDep = (createDeparture as any).handler as (i: any, c: any) => Promise<any>;
+const updateDep = (updateDeparture as any).handler as (i: any, c: any) => Promise<any>;
 const restore = (restoreTripRevision as any).handler as (i: any, c: any) => Promise<any>;
 const publishPolicy = (publishPolicyVersion as any).handler as (i: any, c: any) => Promise<any>;
 const retryEmail = (retryEmailDelivery as any).handler as (i: any, c: any) => Promise<any>;
@@ -152,5 +156,42 @@ describe('Admin voyage actions (real DB)', () => {
     await expect(anonymize({ id: traveler.id }, adminCtx(adminId))).rejects.toMatchObject({ code: 'CONFLICT' });
     await db.delete(applications).where(eq(applications.id, `rgpd-app-${stamp}`));
     await db.delete(travelers).where(eq(travelers.id, traveler.id));
+  });
+
+  it('creates trips and edits full departure pricing', async () => {
+    const created = await createT(
+      { countryCode: 'IT', durationDays: 5, durationNights: 4, groupMin: 4, groupMax: 10 },
+      adminCtx(adminId),
+    );
+    expect(created.id).toBeTypeOf('string');
+    await expect(
+      createT({ countryCode: 'IT', durationDays: 5, durationNights: 4, groupMin: 10, groupMax: 4 }, adminCtx(adminId)),
+    ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+
+    const { departures } = await import('@database/schemas/departures.schema');
+    const dep = await createDep(
+      {
+        tripId: created.id, startDate: new Date('2027-09-01T08:00:00.000Z'), endDate: new Date('2027-09-05T18:00:00.000Z'),
+        capacityMin: 4, capacityMax: 10, priceAmount: 200000, currency: 'EUR',
+        depositType: 'percent', depositPercent: 20, pricingRules: { earlyBirdPercent: 5 },
+      },
+      adminCtx(adminId),
+    );
+    expect(dep.id).toBeTypeOf('string');
+    const [row] = await db.select().from(departures).where(eq(departures.id, dep.id));
+    await updateDep(
+      { id: dep.id, expectedUpdatedAt: row.updatedAt.toISOString(), taxAmount: 1000, discountType: 'fixed', discountAmount: 5000 },
+      adminCtx(adminId),
+    );
+    const [updated] = await db.select().from(departures).where(eq(departures.id, dep.id));
+    expect(updated.taxAmount).toBe(1000);
+    expect(updated.discountAmount).toBe(5000);
+    await expect(
+      updateDep({ id: dep.id, expectedUpdatedAt: new Date('2020-01-01T00:00:00.000Z').toISOString(), priceAmount: 1 }, adminCtx(adminId)),
+    ).rejects.toMatchObject({ code: 'CONFLICT' });
+
+    await db.delete(departures).where(eq(departures.id, dep.id));
+    const { trips: tripTable } = await import('@database/schemas/trips.schema');
+    await db.delete(tripTable).where(eq(tripTable.id, created.id));
   });
 });

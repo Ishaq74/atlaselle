@@ -1,4 +1,16 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+
+// `astro:actions` is a virtual module resolved only by the Astro build pipeline.
+vi.mock('astro:actions', () => {
+  class ActionError extends Error {
+    code: string;
+    constructor({ code, message }: { code: string; message: string }) {
+      super(message);
+      this.code = code;
+    }
+  }
+  return { ActionError, defineAction: (def: any) => def };
+});
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '@database/drizzle';
 import { invalidateCache } from '@database/cache';
@@ -14,6 +26,7 @@ import { processEmailOutboxBatch } from '@/modules/email-voyage/domain/voyage-em
 import { sendBalanceReminders, sendTripReminders } from '@/modules/email-voyage/domain/reminders';
 import { sendVoyageEmail } from '@/modules/email-voyage/domain/voyage-email';
 import { claimOutboxBatch, completeOutbox, failOutbox, pendingOutboxCount } from '@/modules/outbox/domain/outbox-worker';
+import { requeueOutboxEvent } from '@/actions/voyage/outbox';
 
 const db = getDrizzle();
 const stamp = Date.now().toString(36);
@@ -151,7 +164,7 @@ describe('Email worker — outbox → deliveries (real DB, stubbed SMTP)', () =>
     expect(first.pre).toBeGreaterThanOrEqual(1);
     expect(first.post).toBeGreaterThanOrEqual(1);
     const second = await sendTripReminders(new Date(), stubSender);
-    expect(second).toEqual({ pre: 0, post: 0 });
+    expect(second).toEqual({ preparation: 0, pre: 0, post: 0 });
     await db.delete(reservations).where(eq(reservations.id, preResId));
     await db.delete(reservations).where(eq(reservations.id, postResId));
     await db.delete(departures).where(eq(departures.id, preDep.id));
@@ -188,5 +201,24 @@ describe('Email worker — outbox → deliveries (real DB, stubbed SMTP)', () =>
     const pending = await pendingOutboxCount(new Date());
     expect(pending).toBeGreaterThanOrEqual(0);
     await db.delete(outboxEvents).where(eq(outboxEvents.id, id));
+  });
+
+  it('requeues dead-letter events via action', async () => {
+    const { user } = await import('@database/schemas');
+    const { getTestHelpers } = await import('../helpers/auth');
+    const helpers = await getTestHelpers();
+    const u = helpers.createUser({ email: `requeue-${stamp}@test.com`, name: 'Requeue', emailVerified: true });
+    const saved = await helpers.saveUser(u);
+    await db.update(user).set({ role: 'admin' }).where(eq(user.id, saved.id));
+    const requeue = (requeueOutboxEvent as any).handler as (i: any, c: any) => Promise<any>;
+    const id = await emitOutboxEvent({ eventType: 'x', aggregateType: 'test', aggregateId: `rq-${stamp}`, payload: {} });
+    await failOutbox(id, 9, 'boom');
+    const ctx = { locals: { user: { id: saved.id, role: 'admin', email: `requeue-${stamp}@test.com`, banned: false } }, request: { headers: new Headers() }, clientAddress: '127.0.0.1' } as any;
+    const res = await requeue({ id }, ctx);
+    expect(res.success).toBe(true);
+    const [row] = await db.select().from(outboxEvents).where(eq(outboxEvents.id, id));
+    expect(row.status).toBe('pending');
+    await db.delete(outboxEvents).where(eq(outboxEvents.id, id));
+    await helpers.deleteUser(saved.id).catch(() => {});
   });
 });

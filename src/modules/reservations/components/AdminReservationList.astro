@@ -14,7 +14,6 @@ interface Props {
   statuses: ReservationStatus[];
   canCancel: boolean;
 }
-
 const { rows, meta, locale, baseUrl, status, statuses, canCancel } = Astro.props;
 const totalPages = Math.max(1, Math.ceil(meta.total / meta.pageSize));
 const fmt = (cents: number, currency: string) => `${currency === "EUR" ? "€" : currency + " "}${(cents / 100).toLocaleString("en")}`;
@@ -41,7 +40,7 @@ const cancellable = ["pending", "awaiting_payment", "confirmed", "balance_due"];
       <tbody>
         {rows.map((row) => (
           <tr class="border-t" data-reservation-id={row.id}>
-            <td class="px-4 py-2 font-mono text-xs">{row.reservationNumber}</td>
+            <td class="px-4 py-2 font-mono text-xs"><a class="text-primary underline" href={`${baseUrl}/${row.id}`}>{row.reservationNumber}</a></td>
             <td class="px-4 py-2">{row.travelerEmail}</td>
             <td class="px-4 py-2"><span class="rounded-full bg-muted px-2 py-0.5 text-xs">{row.status}</span></td>
             <td class="px-4 py-2">{fmt(row.totalAmount, row.currency)}</td>

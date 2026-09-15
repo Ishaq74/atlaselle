@@ -2,10 +2,15 @@
 import { requirePermission } from "@/lib/auth-guards";
 import { hasVoyagePermission } from "@/actions/voyage/_helpers";
 import { loadAdminTrip, listTripRevisions } from "@/modules/trips/loaders/admin-trips.loader";
+import { loadAdminItinerary } from "@/modules/itinerary/loaders/admin-itinerary.loader";
+import { loadAdminContents, loadAdminTripFaqs } from "@/modules/trips/loaders/admin-contents.loader";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
 import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
 import AdminTripForm from "@/modules/trips/components/AdminTripForm.astro";
+import AdminItinerarySection from "@/modules/itinerary/components/AdminItinerarySection.astro";
+import AdminContentsSection from "@/modules/trips/components/AdminContentsSection.astro";
+import AdminFaqSection from "@/modules/trips/components/AdminFaqSection.astro";
 
 export const prerender = false;
 
@@ -17,6 +22,9 @@ const id = Astro.params.id ?? "";
 const detail = await loadAdminTrip(id);
 if (!detail) return Astro.rewrite("/404");
 const revisions = await listTripRevisions(id);
+const itinerary = await loadAdminItinerary(id);
+const contents = await loadAdminContents(id);
+const tripFaqs = await loadAdminTripFaqs(id);
 
 const [canUpdate, canPublish] = await Promise.all([
   hasVoyagePermission(Astro, { trip: ["update"] }),
@@ -30,5 +38,10 @@ const title = `${detail.translations.find((t) => t.locale === locale)?.title ?? 
   <AuthLayout title={title}>
     <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="trips" />
     <AdminTripForm detail={detail} revisions={revisions} locale={locale} baseUrl={baseUrl} canUpdate={canUpdate} canPublish={canPublish} />
+    <div class="mx-auto max-w-6xl space-y-10 px-6 pb-10">
+      <AdminItinerarySection tripId={detail.trip.id} days={itinerary} locale={locale} canUpdate={canUpdate} />
+      <AdminContentsSection tripId={detail.trip.id} contents={contents} locale={locale} canUpdate={canUpdate} />
+      <AdminFaqSection tripId={detail.trip.id} faqs={tripFaqs} locale={locale} canUpdate={canUpdate} />
+    </div>
   </AuthLayout>
 </BaseLayout>

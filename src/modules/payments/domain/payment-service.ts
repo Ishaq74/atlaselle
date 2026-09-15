@@ -98,6 +98,12 @@ export async function initiateCheckout(input: {
       .update(checkoutSessions)
       .set({ providerSessionId: session.providerSessionId })
       .where(eq(checkoutSessions.id, checkout.id));
+    await emitOutboxEvent({
+      eventType: "checkout.started",
+      aggregateType: "checkout",
+      aggregateId: checkout.id,
+      payload: { checkoutSessionId: checkout.id, applicationId: application.id, reservationId: reservation.id },
+    });
     return { reservationId: reservation.id, checkoutUrl: session.checkoutUrl };
   } catch (err) {
     await releaseHold(hold.id).catch(() => {});

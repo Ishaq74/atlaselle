@@ -25,7 +25,7 @@ const l =
         : { title: "Checkout", room: "Room", shared: "Shared twin", single: "Single", base: "Base", supplement: "Supplement", discount: "Discount", tax: "Tax", fee: "Fee", total: "Total", deposit: "Deposit charged today", balance: "Balance later", terms: "I have read and accept the travel terms.", pay: "Pay", dates: "Departure" };
 const base = `/${locale}/checkout/${data.sessionId}`;
 ---
-<BaseLayout title={`${l.title} — ${data.tripTitle}`} description={data.tripTitle} canonicalPath={base}>
+<BaseLayout title={`${l.title} — ${data.tripTitle}`} description={data.tripTitle} canonicalPath={base} robots="noindex, nofollow">
   <section class="mx-auto max-w-xl px-6 py-14" data-checkout-page data-session={data.sessionId} data-locale={locale}>
     <h1 class="text-4xl font-bold">{l.title}</h1>
     <p class="mt-2 text-muted-foreground">{data.tripTitle}</p>

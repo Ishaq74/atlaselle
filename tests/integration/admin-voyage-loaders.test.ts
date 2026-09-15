@@ -10,7 +10,7 @@ import { reservations } from '@database/schemas/reservations.schema';
 import { payments } from '@database/schemas/payments.schema';
 import { emailDeliveries } from '@database/schemas/email-voyage.schema';
 import { loadAdminApplications } from '@/modules/applications/loaders/admin-applications.loader';
-import { loadAdminReservations } from '@/modules/reservations/loaders/admin-reservations.loader';
+import { loadAdminReservations, loadAdminReservation } from '@/modules/reservations/loaders/admin-reservations.loader';
 import { loadAdminPayments } from '@/modules/payments/loaders/admin-payments.loader';
 import { loadAdminTravelers } from '@/modules/travelers/loaders/admin-travelers.loader';
 import { loadAdminDeliveries } from '@/modules/email-voyage/loaders/admin-email.loader';
@@ -139,5 +139,16 @@ describe('Admin voyage loaders (real DB)', () => {
       expect(Number.isInteger(v)).toBe(true);
       expect(v).toBeGreaterThanOrEqual(0);
     }
+  });
+
+  it('loads reservation detail with payments and trip title', async () => {
+    const { rows } = await loadAdminReservations({ tripId: TRIP_ID });
+    expect(rows.length).toBeGreaterThanOrEqual(1);
+    const detail = await loadAdminReservation(rows[0].id);
+    expect(detail).not.toBeNull();
+    expect(detail!.payments.length).toBeGreaterThanOrEqual(1);
+    expect(detail!.tripTitle.length).toBeGreaterThan(0);
+    expect(detail!.traveler).toBeDefined();
+    expect(await loadAdminReservation('00000000-0000-0000-0000-000000000000')).toBeNull();
   });
 });

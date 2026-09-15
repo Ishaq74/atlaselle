@@ -94,6 +94,7 @@ export async function routeOutboxToEmail(
     "application.approved": "application_approved",
     "application.contact_required": "application_contact_required",
     "application.declined": "application_declined",
+    "checkout.started": "checkout_started",
     "payment.received": "payment_received",
     "booking.confirmed": "booking_confirmed",
   };

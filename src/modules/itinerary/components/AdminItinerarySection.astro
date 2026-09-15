@@ -1,0 +1,142 @@
+---
+import type { Locale } from "@i18n/config";
+import { LOCALES } from "@i18n/config";
+import type { loadAdminItinerary } from "@/modules/itinerary/loaders/admin-itinerary.loader";
+
+type Days = Awaited<ReturnType<typeof loadAdminItinerary>>;
+
+interface Props {
+  tripId: string;
+  days: Days;
+  locale: Locale;
+  canUpdate: boolean;
+}
+
+const { tripId, days, locale, canUpdate } = Astro.props;
+const t = locale === "fr"
+  ? { title: "Itinéraire", day: "Jour", location: "Lieu", route: "Trajet", add: "Ajouter un jour", save: "Enregistrer", remove: "Supprimer", confirm: "Supprimer ce jour ?" }
+  : { title: "Itinerary", day: "Day", location: "Location", route: "Route", add: "Add a day", save: "Save", remove: "Delete", confirm: "Delete this day?" };
+---
+<section class="space-y-4" data-trip-id={tripId}>
+  <h2 class="text-xl font-bold">{t.title} ({days.length})</h2>
+  {days.map(({ day, translations }) => {
+    const byLocale = new Map(translations.map((x) => [x.locale, x]));
+    return (
+      <details class="rounded-xl border p-4">
+        <summary class="cursor-pointer font-semibold">{t.day} {day.dayNumber} — {byLocale.get(locale)?.title ?? day.location ?? `#${day.dayNumber}`}</summary>
+        {canUpdate ? (
+          <div class="mt-4 space-y-4">
+            <form data-day-form={day.id} class="grid gap-3 text-sm sm:grid-cols-3">
+              <input type="hidden" name="expectedUpdatedAt" value={day.updatedAt.toISOString()} />
+              <label class="block">{t.location}<input name="location" value={day.location ?? ""} maxlength="200" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+              <label class="block">{t.route}<input name="route" value={day.route ?? ""} maxlength="300" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+              <div class="flex items-end gap-2">
+                <button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save}</button>
+                <button type="button" class="rounded-md border px-4 py-2" data-day-delete>{t.remove}</button>
+              </div>
+            </form>
+            {LOCALES.map((loc: Locale) => {
+              const tr = byLocale.get(loc);
+              return (
+                <form data-day-tr-form={day.id} data-locale={loc} class="grid gap-3 rounded-lg bg-muted/40 p-4 text-sm">
+                  <h4 class="font-bold uppercase">{loc}</h4>
+                  <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt.toISOString() ?? ""} />
+                  <label class="block">title<input name="title" value={tr?.title ?? ""} required maxlength="300" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+                  <label class="block">morning<textarea name="morning" rows="2" class="mt-1 w-full rounded-md border bg-background p-2">{tr?.morning ?? ""}</textarea></label>
+                  <label class="block">afternoon<textarea name="afternoon" rows="2" class="mt-1 w-full rounded-md border bg-background p-2">{tr?.afternoon ?? ""}</textarea></label>
+                  <label class="block">evening<textarea name="evening" rows="2" class="mt-1 w-full rounded-md border bg-background p-2">{tr?.evening ?? ""}</textarea></label>
+                  <div><button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save} ({loc})</button></div>
+                </form>
+              );
+            })}
+          </div>
+        ) : null}
+      </details>
+    );
+  })}
+  {canUpdate ? (
+    <form data-day-add class="grid gap-3 rounded-xl border p-4 text-sm sm:grid-cols-4">
+      <label class="block">{t.day}<input name="dayNumber" type="number" min="1" required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+      <label class="block">{t.location}<input name="location" maxlength="200" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+      <label class="block">{t.route}<input name="route" maxlength="300" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+      <div class="flex items-end"><button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.add}</button></div>
+    </form>
+  ) : null}
+</section>
+
+<script>
+  import { actions } from "astro:actions";
+  import type { Locale } from "@i18n/config";
+  const root = document.querySelector("section[data-trip-id]");
+  const tripId = root?.getAttribute("data-trip-id") ?? "";
+  const opt = (v: FormDataEntryValue | null): string | null => {
+    const s = String(v ?? "");
+    return s === "" ? null : s;
+  };
+
+  document.querySelectorAll("[data-day-form]").forEach((form) => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const target = e.currentTarget as HTMLFormElement | null;
+      if (!target) return;
+      const data = new FormData(target);
+      const id = target.getAttribute("data-day-form") ?? "";
+      const level = Number(data.get("activityLevel") ?? "");
+      const { error } = await actions.updateItineraryDay({
+        id,
+        expectedUpdatedAt: String(data.get("expectedUpdatedAt") ?? "") || null,
+        location: opt(data.get("location")),
+        route: opt(data.get("route")),
+        activityLevel: Number.isFinite(level) && level >= 1 && level <= 5 ? level : null,
+      });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+
+  document.querySelectorAll("[data-day-delete]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const form = (btn as HTMLElement).closest("[data-day-form]");
+      const id = form?.getAttribute("data-day-form") ?? "";
+      if (!id || !window.confirm("OK?")) return;
+      const { error } = await actions.deleteItineraryDay({ id });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+
+  document.querySelectorAll("[data-day-tr-form]").forEach((form) => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const target = e.currentTarget as HTMLFormElement | null;
+      if (!target) return;
+      const data = new FormData(target);
+      const { error } = await actions.upsertItineraryDayTranslation({
+        dayId: target.getAttribute("data-day-tr-form") ?? "",
+        expectedUpdatedAt: String(data.get("expectedUpdatedAt") ?? "") || null,
+        locale: (target.getAttribute("data-locale") ?? "en") as Locale,
+        title: String(data.get("title") ?? ""),
+        morning: opt(data.get("morning")),
+        afternoon: opt(data.get("afternoon")),
+        evening: opt(data.get("evening")),
+      });
+      if (error) alert(error.message);
+      else window.location.reload();
+    });
+  });
+
+  document.querySelector("[data-day-add]")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const target = e.currentTarget as HTMLFormElement | null;
+    if (!target) return;
+    const data = new FormData(target);
+    const { error } = await actions.createItineraryDay({
+      tripId,
+      dayNumber: Number(data.get("dayNumber")),
+      location: opt(data.get("location")),
+      route: opt(data.get("route")),
+    });
+    if (error) alert(error.message);
+    else window.location.reload();
+  });
+</script>

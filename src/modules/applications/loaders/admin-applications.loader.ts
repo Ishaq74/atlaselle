@@ -3,6 +3,7 @@ import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
 import { applications, applicationDecisions, applicationEvents } from "@database/schemas/applications.schema";
 import { travelers } from "@database/schemas/travelers.schema";
+import { checkoutSessions } from "@database/schemas/payments.schema";
 import type { ApplicationStatus } from "@database/schemas/applications.schema";
 
 export const adminApplicationFiltersSchema = z.object({
@@ -79,5 +80,11 @@ export async function loadAdminApplication(id: string) {
     .from(applicationEvents)
     .where(eq(applicationEvents.applicationId, id))
     .orderBy(asc(applicationEvents.createdAt));
-  return { application, traveler, decisions, events };
+  const checkouts = await db
+    .select()
+    .from(checkoutSessions)
+    .where(eq(checkoutSessions.applicationId, id))
+    .orderBy(desc(checkoutSessions.createdAt))
+    .limit(5);
+  return { application, traveler, decisions, events, checkouts };
 }

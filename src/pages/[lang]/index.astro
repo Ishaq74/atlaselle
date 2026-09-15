@@ -2,10 +2,14 @@
 import { toLocale } from '@i18n/utils';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import AtlaselleHome from '@pages/AtlaselleHome.astro';
+import { loadTripsList } from '@/modules/trips/loaders/trip.loader';
+
+export const prerender = false;
 
 const locale = toLocale(Astro.params.lang);
+const trips = await loadTripsList(locale);
 ---
 
-<BaseLayout title="ATLASELLE — Small-group cultural journeys" description="Thoughtfully shaped small-group journeys across Africa and the Mediterranean.">
-  <AtlaselleHome locale={locale} />
+<BaseLayout title="ATLASELLE - Small-group cultural journeys" description="Thoughtfully shaped small-group journeys across Africa and the Mediterranean.">
+  <AtlaselleHome locale={locale} trips={trips} />
 </BaseLayout>

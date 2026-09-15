@@ -1,0 +1,36 @@
+---
+import { requirePermission } from "@/lib/auth-guards";
+import { hasVoyagePermission } from "@/actions/voyage/_helpers";
+import { loadAdminReservation } from "@/modules/reservations/loaders/admin-reservations.loader";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
+import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
+import AdminReservationDetail from "@/modules/reservations/components/AdminReservationDetail.astro";
+
+export const prerender = false;
+
+const result = await requirePermission(Astro, { reservation: ["read"] });
+if ("redirect" in result) return result.redirect;
+const { locale, authT } = result;
+
+const id = Astro.params.id ?? "";
+const detail = await loadAdminReservation(id);
+if (!detail) return Astro.rewrite("/404");
+
+const [canCancel, canRefund] = await Promise.all([
+  hasVoyagePermission(Astro, { reservation: ["cancel"] }),
+  hasVoyagePermission(Astro, { payment: ["refund"] }),
+]);
+const baseUrl = `/${locale}/admin/reservations`;
+const title = `${detail.reservation.reservationNumber} — ${authT.admin.tabs.reservations}`;
+---
+
+<BaseLayout title={title} description={title} canonicalPath={`${baseUrl}/${detail.reservation.id}`}>
+  <AuthLayout title={title}>
+    <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="reservations" />
+    <div>
+      <a class="mx-auto block max-w-4xl px-6 pt-6 text-sm text-primary underline" href={baseUrl}>← {authT.admin.tabs.reservations}</a>
+      <AdminReservationDetail detail={detail} locale={locale} canCancel={canCancel} canRefund={canRefund} />
+    </div>
+  </AuthLayout>
+</BaseLayout>
