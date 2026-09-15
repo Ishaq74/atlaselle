@@ -2,6 +2,8 @@ import type { APIRoute } from "astro";
 import { timingSafeEqual } from "node:crypto";
 import { expireHolds } from "@/modules/availability/domain/availability-service";
 import { expireCheckoutSessions } from "@/modules/payments/domain/checkout-service";
+import { expireApplications } from "@/modules/applications/domain/application-service";
+import { markBalanceDue } from "@/modules/reservations/domain/reservation-service";
 import { processEmailOutboxBatch } from "@/modules/email-voyage/domain/voyage-email-worker";
 import { sendBalanceReminders, sendTripReminders } from "@/modules/email-voyage/domain/reminders";
 
@@ -28,8 +30,10 @@ export const POST: APIRoute = async ({ request }) => {
   }
   const expiredHolds = await expireHolds();
   const expiredCheckouts = await expireCheckoutSessions();
+  const expiredApplications = await expireApplications();
+  const balanceDueMarked = await markBalanceDue();
   const outbox = await processEmailOutboxBatch();
   const balanceReminders = await sendBalanceReminders();
   const tripReminders = await sendTripReminders();
-  return Response.json({ expiredHolds, expiredCheckouts, outbox, balanceReminders, tripReminders });
+  return Response.json({ expiredHolds, expiredCheckouts, expiredApplications, balanceDueMarked, outbox, balanceReminders, tripReminders });
 };

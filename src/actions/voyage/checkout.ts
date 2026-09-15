@@ -4,6 +4,8 @@ import { LOCALES } from "@i18n/config";
 import { initiateCheckout as runCheckoutTunnel } from "@/modules/payments/domain/payment-service";
 import { getValidCheckoutSession } from "@/modules/payments/domain/checkout-service";
 import { normalizeEmail } from "@/modules/travelers/domain/traveler-email";
+import { cancelReservation as cancelReservationService } from "@/modules/reservations/domain/reservation-service";
+import { refundReservationPayments } from "@/modules/payments/domain/refund-service";
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
 
 const initiateSchema = z.object({
@@ -37,15 +39,33 @@ export const initiateCheckout = defineAction({
 
 const cancelSchema = z.object({ reservationId: z.string().uuid() });
 
-// Annulation manuelle (admin/support) : politique + inventaire + audit (TODO §13.6).
+// Annulation manuelle (admin/support) : politique + remboursement éligible
+// automatique via provider + audit (TODO §13.6).
 export const cancelReservation = defineAction({
   input: cancelSchema,
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { reservation: ["cancel"] });
-    const { cancelReservation } = await import("@/modules/reservations/domain/reservation-service");
-    const updated = await cancelReservation(input.reservationId);
-    if (!updated) throw new ActionError({ code: "NOT_FOUND", message: "Réservation introuvable." });
-    auditVoyage(context, user.id, "RESERVATION_CANCEL", { resource: "reservations", resourceId: input.reservationId });
-    return { success: true };
+    const { reservation, refundAmount } = await cancelReservationService(input.reservationId);
+    if (!reservation) throw new ActionError({ code: "NOT_FOUND", message: "Réservation introuvable." });
+    let providerRefundId: string | null = null;
+    if (refundAmount > 0) {
+      try {
+        const refunded = await refundReservationPayments(input.reservationId, refundAmount);
+        providerRefundId = refunded.providerRefundId;
+      } catch (err) {
+        // Remboursement à traiter manuellement (finance alertée via audit).
+        auditVoyage(context, user.id, "PAYMENT_REFUND", {
+          resource: "reservations",
+          resourceId: input.reservationId,
+          metadata: { manualRefundRequired: true, refundAmount, error: err instanceof Error ? err.message : "unknown" },
+        });
+      }
+    }
+    auditVoyage(context, user.id, "RESERVATION_CANCEL", {
+      resource: "reservations",
+      resourceId: input.reservationId,
+      metadata: { refundAmount, providerRefundId },
+    });
+    return { success: true, refundAmount, providerRefundId };
   },
 });

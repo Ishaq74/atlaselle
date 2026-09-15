@@ -1,9 +1,11 @@
-import { eq } from "drizzle-orm";
+import { and, eq, lte, sql } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { reservations, reservationPriceSnapshots } from "@database/schemas";
+import { departures } from "@database/schemas/departures.schema";
 import { assertTransitionReservation } from "./reservation-transitions";
 import type { ReservationStatus } from "@database/schemas/reservations.schema";
 import type { PricingBreakdown } from "@/modules/pricing/domain/pricing";
+import { quoteCancellation } from "./cancellation-policy";
 import { emitOutboxEvent } from "@/modules/outbox/domain/outbox";
 
 // Numéro lisible unique : ATL-2027-XXXXXX.
@@ -82,22 +84,45 @@ export async function applyPaymentToReservation(reservationId: string, paidAmoun
   return updated;
 }
 
-// Annulation : politique, inventaire et notifications gérés par l'appelant/l'outbox.
-export async function cancelReservation(reservationId: string) {
+// Annulation : politique (dates), inventaire et notifications gérés par
+// l'appelant/l'outbox. Retourne le remboursement éligible (à exécuter via
+// refund-service). Ne rembourse jamais silencieusement plus que le payé.
+export async function cancelReservation(reservationId: string, now = new Date()) {
   const db = getDrizzle();
   const [current] = await db.select().from(reservations).where(eq(reservations.id, reservationId)).limit(1);
   if (!current) throw new Error("Reservation introuvable.");
   assertTransitionReservation(current.status as ReservationStatus, "cancelled");
+  const [departure] = await db.select().from(departures).where(eq(departures.id, current.departureId)).limit(1);
+  const quote = departure ? quoteCancellation(departure.startDate, current.amountPaid, now) : null;
   const [updated] = await db
     .update(reservations)
-    .set({ status: "cancelled", cancelledAt: new Date() })
+    .set({ status: "cancelled", cancelledAt: now })
     .where(eq(reservations.id, reservationId))
     .returning();
   await emitOutboxEvent({
     eventType: "reservation.cancelled",
     aggregateType: "reservation",
     aggregateId: reservationId,
-    payload: { reservationId },
+    payload: { reservationId, refundAmount: quote?.refundAmount ?? 0, tier: quote?.tier ?? "none" },
   });
-  return updated;
+  return { reservation: updated, refundAmount: quote?.refundAmount ?? 0, tier: quote?.tier ?? "none" as const };
+}
+
+// Soldes échus : confirmed → balance_due quand balanceDueDate passée (job).
+export async function markBalanceDue(now = new Date()): Promise<number> {
+  const db = getDrizzle();
+  const due = await db
+    .select({ id: reservations.id })
+    .from(reservations)
+    .where(
+      and(
+        eq(reservations.status, "confirmed"),
+        lte(reservations.balanceDueDate, now),
+        sql`${reservations.amountDue} > 0`,
+      ),
+    );
+  for (const row of due) {
+    await db.update(reservations).set({ status: "balance_due" }).where(eq(reservations.id, row.id));
+  }
+  return due.length;
 }
