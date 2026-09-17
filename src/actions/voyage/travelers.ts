@@ -5,6 +5,7 @@ import { getDrizzle } from "@database/drizzle";
 import { travelers } from "@database/schemas";
 import { applications } from "@database/schemas";
 import { reservations } from "@database/schemas";
+import { ACTIVE_APPLICATION_STATUSES } from "@/modules/applications/domain/application-transitions";
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
 
 const idInput = z.object({ id: z.string().uuid() });
@@ -41,7 +42,6 @@ export const exportTravelerData = defineAction({
   },
 });
 
-const ACTIVE_APPLICATION_STATUSES = ["draft", "submitted", "under_review", "contact_required", "approved"] as const;
 const ACTIVE_RESERVATION_STATUSES = ["pending", "awaiting_payment", "confirmed", "balance_due"] as const;
 
 // RGPD suppression : anonymisation (transactions conservées sans PII, TODO §19).

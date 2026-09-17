@@ -12,6 +12,7 @@ export function domainError(transport: TransportCode, code: VoyageErrorCode, mes
 const TRANSPORT_BY_CODE: Record<VoyageErrorCode, TransportCode> = {
   APPLICATION_CLOSED: "BAD_REQUEST",
   APPLICATION_DEADLINE_PASSED: "BAD_REQUEST",
+  APPLICATION_DUPLICATE: "CONFLICT",
   APPLICATION_EMAIL_CONFLICT: "CONFLICT",
   DEPARTURE_SOLD_OUT: "CONFLICT",
   CHECKOUT_EXPIRED: "GONE",

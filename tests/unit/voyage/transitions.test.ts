@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { TRIP_TRANSITIONS, canTransitionTrip, assertTransitionTrip } from '@/modules/trips/domain/trip-transitions';
-import { DEPARTURE_TRANSITIONS, canTransitionDeparture } from '@/modules/departures/domain/departure-transitions';
+import { canTransitionDeparture } from '@/modules/departures/domain/departure-transitions';
 import { APPLICATION_TRANSITIONS, canTransitionApplication } from '@/modules/applications/domain/application-transitions';
-import { RESERVATION_TRANSITIONS, canTransitionReservation } from '@/modules/reservations/domain/reservation-transitions';
-import { PAYMENT_TRANSITIONS, canTransitionPayment, newIdempotencyKey } from '@/modules/payments/domain/payment-transitions';
+import { canTransitionReservation } from '@/modules/reservations/domain/reservation-transitions';
+import { canTransitionPayment, newIdempotencyKey } from '@/modules/payments/domain/payment-transitions';
 
 describe('trip transitions (TODO §8.3)', () => {
   it('allows the nominal editorial flow', () => {

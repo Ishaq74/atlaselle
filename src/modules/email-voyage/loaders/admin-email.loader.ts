@@ -1,5 +1,6 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { z } from "astro/zod";
+import { parseListFilters } from "@/lib/query-filters";
 import { getDrizzle } from "@database/drizzle";
 import { emailDeliveries, VOYAGE_EMAIL_TEMPLATES, EMAIL_DELIVERY_STATUSES } from "@database/schemas/email-voyage.schema";
 
@@ -12,7 +13,7 @@ export const adminEmailFiltersSchema = z.object({
 });
 
 export async function loadAdminDeliveries(raw: Record<string, string | undefined>) {
-  const filters = adminEmailFiltersSchema.parse({
+  const filters = parseListFilters(adminEmailFiltersSchema, {
     page: raw.page, pageSize: raw.pageSize, status: raw.status || undefined,
     templateKey: raw.templateKey || undefined, sortOrder: raw.sortOrder,
   });
@@ -27,7 +28,7 @@ export async function loadAdminDeliveries(raw: Record<string, string | undefined
     .select()
     .from(emailDeliveries)
     .where(where)
-    .orderBy(desc(emailDeliveries.createdAt))
+    .orderBy(filters.sortOrder === "asc" ? asc(emailDeliveries.createdAt) : desc(emailDeliveries.createdAt))
     .limit(filters.pageSize)
     .offset((filters.page - 1) * filters.pageSize);
 

@@ -78,7 +78,6 @@ export default defineConfig({
         "img-src 'self' data: blob:",
         "font-src 'self'",
         "connect-src 'self' https://api.iconify.design https://api.stripe.com",
-        "script-src 'self' https://js.stripe.com",
         "frame-src https://www.google.com https://www.youtube.com https://player.vimeo.com https://js.stripe.com https://hooks.stripe.com",
         "frame-ancestors 'none'",
         "base-uri 'self'",
@@ -86,6 +85,10 @@ export default defineConfig({
         "object-src 'none'",
         'upgrade-insecure-requests',
       ],
+      // Stripe.js autorisé pour le module payments (script tiers éditorial : néant).
+      scriptDirective: {
+        resources: ['https://js.stripe.com'],
+      },
     },
   },
 

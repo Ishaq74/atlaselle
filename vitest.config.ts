@@ -16,6 +16,7 @@ export default defineConfig({
   test: {
     include: ['tests/unit/**/*.test.ts', 'tests/integration/**/*.test.ts'],
     environment: 'node',
+    globalSetup: ['./tests/helpers/voyage-global-setup.ts'],
     env: {
       NODE_ENV: 'test',
     },

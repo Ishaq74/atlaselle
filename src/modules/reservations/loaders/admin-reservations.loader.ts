@@ -1,5 +1,6 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { z } from "astro/zod";
+import { parseListFilters } from "@/lib/query-filters";
 import { getDrizzle } from "@database/drizzle";
 import { reservations } from "@database/schemas/reservations.schema";
 import { travelers } from "@database/schemas/travelers.schema";
@@ -16,7 +17,7 @@ export const adminReservationFiltersSchema = z.object({
 });
 
 export async function loadAdminReservations(raw: Record<string, string | undefined>) {
-  const filters = adminReservationFiltersSchema.parse({
+  const filters = parseListFilters(adminReservationFiltersSchema, {
     page: raw.page, pageSize: raw.pageSize, status: raw.status || undefined,
     tripId: raw.tripId || undefined, sortOrder: raw.sortOrder,
   });
@@ -32,7 +33,7 @@ export async function loadAdminReservations(raw: Record<string, string | undefin
     .from(reservations)
     .innerJoin(travelers, eq(reservations.travelerId, travelers.id))
     .where(where)
-    .orderBy(desc(reservations.createdAt))
+    .orderBy(filters.sortOrder === "asc" ? asc(reservations.createdAt) : desc(reservations.createdAt))
     .limit(filters.pageSize)
     .offset((filters.page - 1) * filters.pageSize);
 

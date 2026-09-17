@@ -1,5 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
+import { invalidateCache } from "@database/cache";
 import { payments, checkoutSessions } from "@database/schemas";
 import { seatHolds } from "@database/schemas/departures.schema";
 import { reservations } from "@database/schemas";
@@ -85,15 +86,30 @@ export async function initiateCheckout(input: {
       .where(eq(checkoutSessions.id, checkout.id));
 
     const provider = selectPaymentProvider();
-    const session = await provider.createCheckoutSession({
-      amount: chargeNow,
-      currency: quote.currency,
-      idempotencyKey,
-      reservationId: reservation.id,
-      customerEmail: traveler.email,
-      successUrl: input.successUrl,
-      cancelUrl: input.cancelUrl,
-    });
+    let session;
+    try {
+      session = await provider.createCheckoutSession({
+        amount: chargeNow,
+        currency: quote.currency,
+        idempotencyKey,
+        reservationId: reservation.id,
+        customerEmail: traveler.email,
+        successUrl: input.successUrl,
+        cancelUrl: input.cancelUrl,
+      });
+    } catch (err) {
+      // Échec provider : on ne laisse ni réservation ni paiement orphelins
+      // (sinon un doublon à chaque nouvel essai). Snapshots en cascade.
+      // Le hold est libéré dans le catch externe.
+      await db
+        .update(checkoutSessions)
+        .set({ reservationId: null })
+        .where(eq(checkoutSessions.id, checkout.id))
+        .catch(() => {});
+      if (payment) await db.delete(payments).where(eq(payments.id, payment.id)).catch(() => {});
+      await db.delete(reservations).where(eq(reservations.id, reservation.id)).catch(() => {});
+      throw err;
+    }
     await db
       .update(checkoutSessions)
       .set({ providerSessionId: session.providerSessionId })
@@ -104,9 +120,14 @@ export async function initiateCheckout(input: {
       aggregateId: checkout.id,
       payload: { checkoutSessionId: checkout.id, applicationId: application.id, reservationId: reservation.id },
     });
+    // Les places affichées changent dès le hold.
+    invalidateCache("trip:");
+    invalidateCache("trips:list");
     return { reservationId: reservation.id, checkoutUrl: session.checkoutUrl };
   } catch (err) {
     await releaseHold(hold.id).catch(() => {});
+    invalidateCache("trip:");
+    invalidateCache("trips:list");
     throw err;
   }
 }
@@ -163,6 +184,9 @@ export async function processProviderSuccess(event: ProviderWebhookEvent): Promi
     aggregateId: reservation.id,
     payload: { reservationId: reservation.id },
   });
+  // Une place vient d'être confirmée : purger les fiches/listes cachées.
+  invalidateCache("trip:");
+  invalidateCache("trips:list");
   return { reservationId: reservation.id, duplicate: false };
 }
 
@@ -213,14 +237,21 @@ export async function initiateBalancePayment(input: {
     })
     .returning();
   if (!payment) throw new Error("Payment creation failed");
-  const session = await selectPaymentProvider().createCheckoutSession({
-    amount: reservation.amountDue,
-    currency: reservation.currency,
-    idempotencyKey,
-    reservationId: reservation.id,
-    customerEmail: traveler.email,
-    successUrl: input.successUrl,
-    cancelUrl: input.cancelUrl,
-  });
+  let session;
+  try {
+    session = await selectPaymentProvider().createCheckoutSession({
+      amount: reservation.amountDue,
+      currency: reservation.currency,
+      idempotencyKey,
+      reservationId: reservation.id,
+      customerEmail: traveler.email,
+      successUrl: input.successUrl,
+      cancelUrl: input.cancelUrl,
+    });
+  } catch (err) {
+    // Pas de paiement orphelin en `created` : marqué échoué (visible, non réutilisé).
+    await db.update(payments).set({ status: "failed", failedAt: new Date() }).where(eq(payments.id, payment.id)).catch(() => {});
+    throw err;
+  }
   return { paymentId: payment.id, checkoutUrl: session.checkoutUrl };
 }

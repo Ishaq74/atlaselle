@@ -142,6 +142,36 @@ describe('Itinerary, contents and FAQ admin (real DB)', () => {
     expect((await loadAdminContents(TRIP_ID)).highlights).toHaveLength(0);
   });
 
+  it('covers exclusion kind and optimistic lock on all content kinds', async () => {
+    // exclusion jamais exercé avant : couvrir create + upsert + validation
+    const exc = await createContent({ tripId: TRIP_ID, kind: 'exclusion', sortOrder: 0 }, adminCtx(adminId));
+    await upsertContentTr({ kind: 'exclusion', id: exc.id, locale: 'en', text: 'Not included' }, adminCtx(adminId));
+    await expect(upsertContentTr({ kind: 'exclusion', id: exc.id, locale: 'en' }, adminCtx(adminId))).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+
+    // verrou optimiste : le chemin expectedUpdatedAt n'était jamais testé (bug contents.ts:92 passé vert)
+    const hl2 = await createContent({ tripId: TRIP_ID, kind: 'highlight', sortOrder: 1 }, adminCtx(adminId));
+    await upsertContentTr({ kind: 'highlight', id: hl2.id, locale: 'fr', title: 'Titre', description: 'Desc' }, adminCtx(adminId));
+    await expect(
+      upsertContentTr({ kind: 'highlight', id: hl2.id, locale: 'fr', title: 'Titre', expectedUpdatedAt: new Date('2020-01-01T00:00:00.000Z').toISOString() }, adminCtx(adminId)),
+    ).rejects.toMatchObject({ code: 'CONFLICT' });
+    const [hlRow] = await db.select().from(tripHighlightTranslations).where(eq(tripHighlightTranslations.highlightId, hl2.id));
+    await upsertContentTr({ kind: 'highlight', id: hl2.id, locale: 'fr', title: 'Titre 2', expectedUpdatedAt: (hlRow.updatedAt as Date).toISOString() }, adminCtx(adminId));
+
+    const inc2 = await createContent({ tripId: TRIP_ID, kind: 'inclusion', sortOrder: 1 }, adminCtx(adminId));
+    await upsertContentTr({ kind: 'inclusion', id: inc2.id, locale: 'en', text: 'Included' }, adminCtx(adminId));
+    await expect(
+      upsertContentTr({ kind: 'inclusion', id: inc2.id, locale: 'en', text: 'x', expectedUpdatedAt: new Date('2020-01-01T00:00:00.000Z').toISOString() }, adminCtx(adminId)),
+    ).rejects.toMatchObject({ code: 'CONFLICT' });
+    const [incRow] = await db.select().from(tripInclusionTranslations).where(eq(tripInclusionTranslations.inclusionId, inc2.id));
+    await upsertContentTr({ kind: 'inclusion', id: inc2.id, locale: 'en', text: 'Included v2', expectedUpdatedAt: (incRow.updatedAt as Date).toISOString() }, adminCtx(adminId));
+
+    await expect(
+      upsertContentTr({ kind: 'exclusion', id: exc.id, locale: 'en', text: 'x', expectedUpdatedAt: new Date('2020-01-01T00:00:00.000Z').toISOString() }, adminCtx(adminId)),
+    ).rejects.toMatchObject({ code: 'CONFLICT' });
+    const [excRow] = await db.select().from(tripExclusionTranslations).where(eq(tripExclusionTranslations.exclusionId, exc.id));
+    await upsertContentTr({ kind: 'exclusion', id: exc.id, locale: 'en', text: 'Not included v2', expectedUpdatedAt: (excRow.updatedAt as Date).toISOString() }, adminCtx(adminId));
+  });
+
   it('creates, translates, links and unlinks FAQs', async () => {
     const created = await mkFaq({ tripId: TRIP_ID, locale: 'fr', question: 'Q ?', answer: 'R.' }, adminCtx(adminId));
     const faqs = await loadAdminTripFaqs(TRIP_ID);

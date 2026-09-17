@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { z } from "astro/zod";
+import { parseListFilters } from "@/lib/query-filters";
 import { getDrizzle } from "@database/drizzle";
 import { applications, applicationDecisions, applicationEvents } from "@database/schemas/applications.schema";
 import { travelers } from "@database/schemas/travelers.schema";
@@ -29,7 +30,7 @@ export async function loadAdminApplications(raw: Record<string, string | undefin
   rows: AdminApplicationRow[];
   meta: { total: number; page: number; pageSize: number };
 }> {
-  const filters = adminApplicationFiltersSchema.parse({
+  const filters = parseListFilters(adminApplicationFiltersSchema, {
     page: raw.page, pageSize: raw.pageSize, status: raw.status || undefined,
     tripId: raw.tripId || undefined, departureId: raw.departureId || undefined, sortOrder: raw.sortOrder,
   });

@@ -1,5 +1,6 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { z } from "astro/zod";
+import { parseListFilters } from "@/lib/query-filters";
 import { getDrizzle } from "@database/drizzle";
 import { payments } from "@database/schemas/payments.schema";
 import { reservations } from "@database/schemas/reservations.schema";
@@ -13,7 +14,7 @@ export const adminPaymentFiltersSchema = z.object({
 });
 
 export async function loadAdminPayments(raw: Record<string, string | undefined>) {
-  const filters = adminPaymentFiltersSchema.parse({
+  const filters = parseListFilters(adminPaymentFiltersSchema, {
     page: raw.page, pageSize: raw.pageSize, status: raw.status || undefined,
     type: raw.type || undefined, sortOrder: raw.sortOrder,
   });
@@ -29,7 +30,7 @@ export async function loadAdminPayments(raw: Record<string, string | undefined>)
     .from(payments)
     .innerJoin(reservations, eq(payments.reservationId, reservations.id))
     .where(where)
-    .orderBy(desc(payments.createdAt))
+    .orderBy(filters.sortOrder === "asc" ? asc(payments.createdAt) : desc(payments.createdAt))
     .limit(filters.pageSize)
     .offset((filters.page - 1) * filters.pageSize);
 

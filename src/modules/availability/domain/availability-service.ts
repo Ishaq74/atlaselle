@@ -1,5 +1,6 @@
 import { and, eq, inArray, lte } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
+import { invalidateCache } from "@database/cache";
 import { departures, seatHolds, SEAT_HOLD_TTL_MINUTES } from "@database/schemas/departures.schema";
 import { reservations } from "@database/schemas/reservations.schema";
 import { availableSeats, canHold } from "./availability";
@@ -118,5 +119,25 @@ export async function expireHolds(now = new Date()): Promise<number> {
     .set({ status: "expired", releasedAt: now })
     .where(and(eq(seatHolds.status, "active"), lte(seatHolds.expiresAt, now)))
     .returning({ id: seatHolds.id });
+  if (expired.length > 0) {
+    invalidateCache("trip:");
+    invalidateCache("trips:list");
+  }
   return expired.length;
+}
+
+// Rétention : supprime les holds terminés anciens (expired/released/converted).
+// Jamais les `active` (même dépassés : c'est expireHolds qui les traite).
+export async function purgeTerminalHolds(olderThanDays = 30, now = new Date()): Promise<number> {
+  const cutoff = new Date(now.getTime() - olderThanDays * 86_400_000);
+  const removed = await getDrizzle()
+    .delete(seatHolds)
+    .where(
+      and(
+        inArray(seatHolds.status, ["expired", "released", "converted"]),
+        lte(seatHolds.createdAt, cutoff),
+      ),
+    )
+    .returning({ id: seatHolds.id });
+  return removed.length;
 }

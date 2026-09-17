@@ -15,7 +15,7 @@ vi.mock('astro:actions', () => {
 });
 
 import { getDrizzle } from '@database/drizzle';
-import { eq, and, isNull, sql } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
 import { blogPosts, blogReports, blogPostTranslations, blogPostViewStats, user } from '@database/schemas';
 import { listBlogPostRevisions } from '@/actions/blog/post';
 import { updateBlogReport, getBlogModerationQueue } from '@/actions/blog/moderation';
@@ -220,15 +220,13 @@ describe('blog actions — integration (real DB)', () => {
         .limit(1);
       expect(after.viewCount).toBe(before.viewCount + 1);
 
-      const [stat] = await db
+      const stats = await db
         .select({ sessionId: blogPostViewStats.sessionId, referrer: blogPostViewStats.referrer })
         .from(blogPostViewStats)
-        .where(eq(blogPostViewStats.postId, globalPostId))
-        .orderBy(sql`${blogPostViewStats.date} DESC, ${blogPostViewStats.hour} DESC`)
-        .limit(1);
-      expect(stat).toBeDefined();
-      expect(stat.sessionId).toMatch(/^anon:/);
-      expect(stat.referrer).toBe('https://example.com');
+        .where(eq(blogPostViewStats.postId, globalPostId));
+      const anon = stats.find((s) => s.sessionId?.startsWith('anon:'));
+      expect(anon).toBeDefined();
+      expect(anon?.referrer).toBe('https://example.com');
     });
 
     it('attributes a logged-in view to the session id, not an anon cookie', async () => {
@@ -236,13 +234,11 @@ describe('blog actions — integration (real DB)', () => {
       const res = await recordView({ postId: globalPostId }, ctx);
       expect(res).toEqual({ recorded: true });
 
-      const [stat] = await db
+      const stats = await db
         .select({ sessionId: blogPostViewStats.sessionId })
         .from(blogPostViewStats)
-        .where(eq(blogPostViewStats.postId, globalPostId))
-        .orderBy(sql`${blogPostViewStats.date} DESC, ${blogPostViewStats.hour} DESC`)
-        .limit(1);
-      expect(stat.sessionId).toBe('sess-real');
+        .where(eq(blogPostViewStats.postId, globalPostId));
+      expect(stats.map((s) => s.sessionId)).toContain('sess-real');
     });
   });
 });

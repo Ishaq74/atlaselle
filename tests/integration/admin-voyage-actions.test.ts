@@ -111,7 +111,8 @@ describe('Admin voyage actions (real DB)', () => {
     expect(doc).toBeDefined();
     const versions = await db.select().from(policyVersions).where(eq(policyVersions.documentId, doc.id));
     expect(versions.length).toBeGreaterThanOrEqual(1);
-    const target = versions.find((v) => v.locale === 'fr') ?? versions[0];
+    const target = versions[0];
+    expect(target).toBeDefined();
     await publishPolicy({ id: target.id }, adminCtx(adminId));
     const after = await db.select().from(policyVersions).where(eq(policyVersions.documentId, doc.id));
     expect(after.filter((v) => v.published)).toHaveLength(1);

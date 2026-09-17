@@ -1,4 +1,4 @@
-# ETAT-REEL — Source de vérité temps réel (2026-09-15, branche feat/voyage-core)
+# ETAT-REEL — Source de vérité temps réel (2026-09-16, branche feat/voyage-core)
 
 > Règle : `package.json` + `src/` + configs racine font foi sur toute doc.
 > `README*.md` = générés par `pnpm readme:generate` (`readme-builder/`) — ne jamais les éditer à la main, corriger le générateur.
@@ -6,14 +6,15 @@
 > `docs/audits/*` = snapshots archivés, pas vérité.
 > Régénération : recompter via les commandes listées §6 et mettre à jour la date + les chiffres.
 
-## 0. Cœur voyage — livré (branche feat/voyage-core, 2026-09-15)
+## 0. Cœur voyage — livré (branche feat/voyage-core, 2026-09-16)
 
 - Schémas : `trips (+traductions, highlights, inclusions, exclusions, faq)`, `itinerary`, `departures (+seat_holds)`, `travelers`, `applications (+décisions, événements, notes)`, `reservations (+snapshots)`, `payments (+checkout_sessions)`, `policies`, `outbox`, `email-voyage`. Migrations `0010_voyage_core`, `0011_email_delivery_reservation`. Seeds `41 → 47` (3 voyages × 4 langues, 3 départs ouverts, 25 jours itinéraire, FAQ, contenus, policies provisoires non publiées).
 - Domaine pur + testé : transitions d'état, pricing (centimes), dispo (holds 30 min, `FOR UPDATE`, concurrence prouvée), email travelers, outbox worker (`SKIP LOCKED`), providers paiement (mock + Stripe fetch, sans SDK).
 - Tunnel complet prouvé en intégration (mock) : approbation → checkout (TTL 7 j) → hold → snapshot → paiement → webhook idempotent → confirmation → hold converti → refund.
 - Pages : `/[lang]/trips` (liste + filtres), `/[lang]/trips/[slug]`, `/[lang]/apply/[trip]` (vrai formulaire), `/[lang]/checkout/[session]`, `/[lang]/booking-confirmed`, `/api/payments/webhook|mock-callback`, `/api/cron/voyage`, `/api/analytics`. Admin : `/[lang]/admin/trips` (liste + fiche, transitions, départs).
 - Emails : 12 templates × 4 langues + worker + rappels (solde J-7, pré J-14, post J+3, dédupliqués).
-- Build `pnpm build` VERT. Tests : **140 fichiers, 1462 tests, 100 % verts** (baseline 2026-09-14 : 15 fichiers / 44 tests en échec — tous réparés ou requalifiés single-tenant). `pnpm check` : **0 erreur** (baseline : 178). Lint : **0 erreur** (21 warnings préexistants).
+- Build `pnpm build` VERT. Tests : **165 fichiers, 1754 tests, 100 % verts** (runs complets répétés, isolation parallèle : globalSetup purge, asserts idempotents, partition temporelle 2028). `pnpm check` : **0 erreur, 0 warning** (91 hints). Lint : **0 erreur** (21 warnings préexistants).
+- Correctifs session 2026-09-16 : 500 page apply (`TRIP_SLUGS` vs ids DB), patch vide → `BAD_REQUEST` (×3 actions), `sortOrder` ignoré (×4 loaders), `percent` non-acompte rejeté, `__idempotency` hors body Stripe, plafond anti-sur-remboursement, relances solde 0 € filtrées, retry collision numéro (unwrap `cause`), early-bird daté + remises groupe, FAQ orpheline, webhook 500-pour-retry, callback locale repli `en`, cron isolé par job, filtres admin indulgents (8 loaders), dead-letter avec message, contrôles bidi stripés, sitemap/hreflang conformes §7.5 (locales masquées exclues, acompte recalculé), déduplication candidatures (contrainte partielle + `APPLICATION_DUPLICATE`, migration 0014), orphelins tunnel nettoyés, verrou anti-double-remboursement, sessions expirées au cancel, rétention outbox/sessions/holds, flake blog-actions (tri indéfini) réparé.
 - Scope org coupé (TODO §30.3) : pas de plugin organization, pas de routes `/organizations/`, tests org supprimés/réécrits (`auth-org`, `admin-roles`, specs e2e blog/services).
 - Reste : runs navigateurs/E2E en CI (spec `voyage.spec.ts` écrit, non exécuté en local — Playwright mis en pause), pa11y/lhci à relancer, allowlist CSP Stripe, contenus ES/AR à relire par natifs, validation juridique des policies, checklist prod §34, merge de la branche.
 
@@ -39,7 +40,7 @@
 - `src/database/schemas/` : 11 fichiers (audit-log, auth, blog, consent, media, navigation, page, page-version, services, services-engagement, site). Migrations `0000 → 0009`.
 - `src/database/data/` : 63 fichiers seed.
 - `src/actions/` : 46 fichiers TS (admin/blog/services). Pas de `actions/org/`.
-- `tests/unit/` : 81 fichiers. `tests/integration/` : 15 fichiers. `tests/e2e/` : 6 specs (`app, auth, blog, cms-admin, services, services-lifecycle`) + `global-setup/teardown` × 3 navigateurs.
+- `tests/unit/` : 124 fichiers. `tests/integration/` : 41 fichiers. `tests/e2e/` : 7 specs (`app, auth, blog, cms-admin, services, services-lifecycle`, voyage) + `global-setup/teardown` × 3 navigateurs.
 - Seuils coverage `vitest.config.ts:59-64` : statements 80, branches 75, functions 75, lines 80.
 - `src/smtp/templates/` : 7 fichiers dont 5 templates (`verify-email, reset-password, delete-account, contact-form, blog-newsletter`) + `layout, i18n`. Pas de `organization-invitation.ts`.
 - Dead-letter : `logs/email-dead-letter-*.jsonl` racine (pas `src/smtp/logs/`).

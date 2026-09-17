@@ -59,7 +59,7 @@ export async function sendEmail(payload: EmailPayload): Promise<void> {
           to: payload.to,
           subject: payload.subject,
           provider,
-          error: (err as Error).name,
+          error: err instanceof Error ? err.message.slice(0, 500) : String(err).slice(0, 500),
           code: (err as NodeJS.ErrnoException).code ?? null,
           attempts: attempt,
         });

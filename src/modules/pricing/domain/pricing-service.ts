@@ -1,13 +1,14 @@
 import { eq } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { departures } from "@database/schemas";
-import { priceQuote, type PricingBreakdown, type RoomType } from "./pricing";
+import { priceQuote, type PriceQuoteOptions, type PricingBreakdown, type RoomType } from "./pricing";
 
 // Façade serveur : lit le Departure et délègue au moteur pur (TODO §12.2).
 // Prix toujours recalculé serveur (checkout + webhook), jamais depuis le client.
 export async function quoteForDeparture(
   departureId: string,
   roomType: RoomType = "shared",
+  opts?: PriceQuoteOptions,
 ): Promise<PricingBreakdown | null> {
   const [dep] = await getDrizzle().select().from(departures).where(eq(departures.id, departureId)).limit(1);
   if (!dep) return null;
@@ -27,5 +28,5 @@ export async function quoteForDeparture(
     discountAmount: dep.discountAmount,
     roomType,
     pricingRules: dep.pricingRules,
-  });
+  }, opts);
 }

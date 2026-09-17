@@ -1,6 +1,9 @@
 import { ActionError, defineAction } from "astro:actions";
 import { z } from "astro/zod";
+import { eq } from "drizzle-orm";
 import { LOCALES } from "@i18n/config";
+import { getDrizzle } from "@database/drizzle";
+import { policyVersions } from "@database/schemas";
 import { initiateCheckout as runCheckoutTunnel } from "@/modules/payments/domain/payment-service";
 import { getValidCheckoutSession } from "@/modules/payments/domain/checkout-service";
 import { normalizeEmail } from "@/modules/travelers/domain/traveler-email";
@@ -14,6 +17,9 @@ export const checkoutInitiateInput = z.object({
   travelerEmail: z.string().trim().email().max(320),
   roomType: z.enum(["shared", "single"]).default("shared"),
   agreementVersionId: z.string().max(160).nullable().optional(),
+  // Preuve de consentement CGV : le client envoie l'état réel de la case
+  // (le navigateur bloque l'envoi si décochée, le serveur l'exige).
+  termsAccepted: z.literal(true),
   locale: z.enum(LOCALES).default("en"),
 });
 
@@ -25,6 +31,16 @@ export const initiateCheckout = defineAction({
     const valid = await getValidCheckoutSession(input.checkoutSessionId);
     if (!valid) {
       throw new ActionError({ code: "GONE", message: "[CHECKOUT_EXPIRED] Lien de paiement expiré ou invalide." });
+    }
+    if (input.agreementVersionId != null) {
+      const [version] = await getDrizzle()
+        .select({ id: policyVersions.id })
+        .from(policyVersions)
+        .where(eq(policyVersions.id, input.agreementVersionId))
+        .limit(1);
+      if (!version) {
+        throw new ActionError({ code: "BAD_REQUEST", message: "Version des conditions introuvable." });
+      }
     }
     try {
       const result = await runCheckoutTunnel({

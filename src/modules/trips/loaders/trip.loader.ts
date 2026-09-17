@@ -13,9 +13,10 @@ import { departures } from "@database/schemas/departures.schema";
 import { reservations } from "@database/schemas/reservations.schema";
 import { seatHolds } from "@database/schemas/departures.schema";
 import { isValidLocale } from "@/i18n/utils";
-import { type Locale } from "@/i18n/config";
+import { type Locale, LOCALES } from "@/i18n/config";
 import { type TripId } from "@/i18n/routes";
 import { availableSeats } from "@/modules/availability/domain/availability";
+import { quoteForDeparture } from "@/modules/pricing/domain/pricing-service";
 
 export type TripPageStatus = "open" | "interest-list";
 
@@ -40,6 +41,8 @@ export interface TripPageDTO {
   finalPaymentDue: string;
   roomRule: string;
   translations: Record<Locale, TripCopy>;
+  /** Locales publiées (localeVisible) — seules indexables (hreflang/sitemap, TODO §7.5). */
+  visibleLocales: Locale[];
 }
 
 export interface TripSummaryDTO {
@@ -164,7 +167,10 @@ const loadTripPageInner = async (locale: Locale, slug: string): Promise<TripPage
   };
 
   const remaining = dep ? await departureAvailability(dep.id, dep.capacityMax) : 0;
-  const status: TripPageStatus = dep ? "open" : "interest-list";
+  // Complet (0 place restante) → liste d'intérêt, même avec un départ ouvert.
+  const status: TripPageStatus = dep && remaining > 0 ? "open" : "interest-list";
+  // Acompte recalculé serveur (gère le type percent — jamais le montant brut).
+  const quote = dep ? await quoteForDeparture(dep.id) : null;
   return {
     id: tripId,
     dates: dep ? formatRange(locale, dep.startDate, dep.endDate) : "",
@@ -173,10 +179,11 @@ const loadTripPageInner = async (locale: Locale, slug: string): Promise<TripPage
     capacity: dep?.capacityMax ?? trip.groupMax,
     remainingPlaces: remaining,
     status,
-    deposit: dep ? Math.round(dep.depositAmount / 100) : 0,
+    deposit: quote ? Math.round(quote.depositAmount / 100) : 0,
     finalPaymentDue: dep ? formatDate(locale, dep.balanceDueDate) : "",
     roomRule: main.lodging ?? "",
     translations,
+    visibleLocales: LOCALES.filter((loc) => byLocale.get(loc)?.localeVisible ?? false),
   };
 };
 
@@ -192,7 +199,9 @@ const loadTripsListInner = async (locale: Locale): Promise<TripSummaryDTO[]> => 
   const out: TripSummaryDTO[] = [];
   for (const trip of published) {
     const trs = await db.select().from(tripTranslations).where(eq(tripTranslations.tripId, trip.id));
-    const tr = trs.find((t) => t.locale === locale && t.localeVisible) ?? trs.find((t) => t.locale === "en");
+    // Spec §7.5 : une locale masquée n'est ni listée, ni alternée, ni indexée.
+    // Pas de repli EN ici (un repli produirait des URLs /locale/slug → 404).
+    const tr = trs.find((t) => t.locale === locale && t.localeVisible);
     if (!tr) continue;
     const deps = await db
       .select()
@@ -201,6 +210,7 @@ const loadTripsListInner = async (locale: Locale): Promise<TripSummaryDTO[]> => 
       .orderBy(asc(departures.startDate))
       .limit(1);
     const dep = deps[0] ?? null;
+    const remaining = dep ? await departureAvailability(dep.id, dep.capacityMax) : 0;
     out.push({
       id: trip.id as TripId,
       slug: tr.slug,
@@ -212,7 +222,7 @@ const loadTripsListInner = async (locale: Locale): Promise<TripSummaryDTO[]> => 
       difficultyLevel: trip.difficultyLevel,
       priceFrom: dep ? Math.round(dep.priceAmount / 100) : 0,
       currency: dep?.currency ?? trip.defaultCurrency,
-      status: dep ? "open" : "interest-list",
+      status: dep && remaining > 0 ? "open" : "interest-list",
     });
   }
   return out;

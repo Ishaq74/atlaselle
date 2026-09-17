@@ -10,11 +10,14 @@ import {
   TRIP_SLUGS,
   getApplyPath,
   getTripPath,
+  getTripSlug,
   getTripsBasePath,
+  isTripDetailPath,
   resolveLocalizedRoute,
   resolveTripSlug,
   type TripId,
 } from '@/i18n/routes';
+import { getTripBySlug, tripUrl, calculateTripTotal, TRIPS } from '@/data/trips';
 import type { Locale } from '@/i18n/config';
 
 const LOCALES: Locale[] = ['fr', 'en', 'es', 'ar'];
@@ -113,5 +116,37 @@ describe('resolveLocalizedRoute (middleware rewrite → routes physiques)', () =
     expect(resolveLocalizedRoute('/fr/voyages')).toBe('/fr/trips');
     expect(resolveLocalizedRoute('/es/viajes')).toBe('/es/trips');
     expect(resolveLocalizedRoute('/en/trips')).toBeNull();
+  });
+});
+
+describe('static trip data helpers', () => {
+  it('getTripSlug couvre les 3 voyages × 4 locales', () => {
+    for (const id of ['south-africa', 'sicily-malta', 'andalusia-morocco'] as TripId[]) {
+      for (const locale of LOCALES) {
+        expect(getTripSlug(id, locale)).toBe(TRIP_SLUGS[id][locale]);
+      }
+    }
+  });
+
+  it('isTripDetailPath reconnaît les fiches', () => {
+    expect(isTripDetailPath('/fr/voyages/afrique-du-sud')).toBe(true);
+    expect(isTripDetailPath('/en/trips/south-africa')).toBe(true);
+    expect(isTripDetailPath('/fr/voyages')).toBe(false);
+    expect(isTripDetailPath('/en/trips/unknown')).toBe(false);
+  });
+
+  it('getTripBySlug résout + compat ancien id-slug, tripUrl construit', () => {
+    expect(getTripBySlug('fr', 'afrique-du-sud')?.id).toBe('south-africa');
+    expect(getTripBySlug('en', 'nope')).toBeUndefined();
+    expect(getTripBySlug('es', 'sicily-malta')?.id).toBe('sicily-malta');
+    const trip = TRIPS[0];
+    expect(tripUrl('fr', trip)).toBe(getTripPath('fr', TRIP_SLUGS[trip.id].fr));
+  });
+
+  it('calculateTripTotal protège la quantité', () => {
+    expect(calculateTripTotal(TRIPS[0], 2)).toMatchObject({ travelers: 2, total: TRIPS[0].price * 2 });
+    expect(calculateTripTotal(TRIPS[0], 0).travelers).toBe(1);
+    expect(calculateTripTotal(TRIPS[0], 1.5).travelers).toBe(1);
+    expect(calculateTripTotal(TRIPS[0]).depositDue).toBe(TRIPS[0].deposit);
   });
 });

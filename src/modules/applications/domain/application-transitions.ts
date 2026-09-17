@@ -21,3 +21,13 @@ export function assertTransitionApplication(from: ApplicationStatus, to: Applica
     throw new Error(`Invalid application transition: ${from} → ${to}`);
   }
 }
+
+// Dossiers "en cours" : une seule candidature active par voyageuse et départ
+// (contrainte partielle applications_traveler_departure_active_uidx).
+export const ACTIVE_APPLICATION_STATUSES = [
+  "draft",
+  "submitted",
+  "under_review",
+  "contact_required",
+  "approved",
+] as const satisfies readonly ApplicationStatus[];

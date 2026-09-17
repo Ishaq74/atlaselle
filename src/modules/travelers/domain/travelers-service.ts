@@ -28,16 +28,37 @@ export async function findOrCreateTraveler(input: FindOrCreateTravelerInput) {
     if (resolution?.action === "reuse") return { traveler: existing, created: false as const };
     throw codedError("APPLICATION_EMAIL_CONFLICT", "Cet email est déjà utilisé par un autre dossier non vérifié.");
   }
-  const [created] = await db
-    .insert(travelers)
-    .values({
-      email,
-      legalName: input.legalName ?? null,
-      phone: input.phone ?? null,
-      locale: input.locale ?? null,
-      userId: input.userId ?? null,
-    })
-    .returning();
-  if (!created) throw new Error("Traveler creation failed");
-  return { traveler: created, created: true as const };
+  try {
+    const [created] = await db
+      .insert(travelers)
+      .values({
+        email,
+        legalName: input.legalName ?? null,
+        phone: input.phone ?? null,
+        locale: input.locale ?? null,
+        userId: input.userId ?? null,
+      })
+      .returning();
+    if (!created) throw new Error("Traveler creation failed");
+    return { traveler: created, created: true as const };
+  } catch (err) {
+    if (!isUniqueViolation(err)) throw err;
+    // Course : deux créations simultanées du même email — relire une fois.
+    const [retry] = await db
+      .select()
+      .from(travelers)
+      .where(sql`lower(${travelers.email}) = ${email}`)
+      .limit(1);
+    if (retry) {
+      const resolution = resolveEmailConflict({ id: retry.id, emailVerifiedAt: retry.emailVerifiedAt });
+      if (resolution?.action === "reuse") return { traveler: retry, created: false as const };
+      throw codedError("APPLICATION_EMAIL_CONFLICT", "Cet email est déjà utilisé par un autre dossier non vérifié.");
+    }
+    throw err;
+  }
+}
+
+function isUniqueViolation(err: unknown): boolean {
+  const e = err as { code?: string; cause?: { code?: string } | null } | null;
+  return e?.code === "23505" || e?.cause?.code === "23505";
 }

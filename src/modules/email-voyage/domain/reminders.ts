@@ -1,4 +1,4 @@
-import { and, eq, gte, inArray, lte } from "drizzle-orm";
+import { and, eq, gte, gt, inArray, lte } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { reservations } from "@database/schemas";
 import { departures } from "@database/schemas";
@@ -49,6 +49,8 @@ export async function sendBalanceReminders(now = new Date(), sender?: SendFn): P
         inArray(reservations.status, ["confirmed", "balance_due"]),
         gte(reservations.balanceDueDate, now),
         lte(reservations.balanceDueDate, horizon),
+        // Pas de relance pour un solde nul (réservation déjà soldée).
+        gt(reservations.amountDue, 0),
       ),
     );
   let sent = 0;

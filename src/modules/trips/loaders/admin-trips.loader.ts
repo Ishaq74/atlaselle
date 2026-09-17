@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { z } from "astro/zod";
+import { parseListFilters } from "@/lib/query-filters";
 import { getDrizzle } from "@database/drizzle";
 import { trips, tripTranslations, tripRevisions } from "@database/schemas/trips.schema";
 import { departures } from "@database/schemas/departures.schema";
@@ -30,7 +31,7 @@ export async function loadAdminTrips(raw: Record<string, string | undefined>): P
   rows: AdminTripRow[];
   meta: { total: number; page: number; pageSize: number };
 }> {
-  const filters = adminTripFiltersSchema.parse({
+  const filters = parseListFilters(adminTripFiltersSchema, {
     page: raw.page,
     pageSize: raw.pageSize,
     search: raw.search || undefined,

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { cached, invalidateCache, getCacheStats, shutdownCache } from '@database/cache';
+import { getCacheStore } from '@/lib/store';
 
 describe('Cache — cached() wrapper', () => {
   beforeEach(() => {
@@ -237,5 +238,21 @@ describe('shutdownCache', () => {
     const stats = getCacheStats();
     expect(stats.size).toBe(0);
     expect(stats.inflight).toBe(0);
+  });
+});
+
+describe('MAX_AGE absolu (30 min)', () => {
+  it('évince une entrée trop vieille malgré les hits (pas de sliding infini)', async () => {
+    invalidateCache();
+    let calls = 0;
+    const fn = cached(() => 'maxage-test', async () => ++calls, 60_000);
+    await fn();
+    expect(calls).toBe(1);
+    const store = getCacheStore();
+    const entry = store.get('maxage-test')!;
+    store.set('maxage-test', { ...entry, createdAt: Date.now() - 31 * 60_000 });
+    await fn();
+    expect(calls).toBe(2);
+    invalidateCache();
   });
 });

@@ -10,6 +10,9 @@ import { assertVoyagePermission, assertTripExists, assertFresh, auditVoyage, inv
 
 const amountField = z.number().int().min(0).optional();
 const amountTypeField = z.enum(["fixed", "percent", "none"]).optional();
+// Spec §12.2 : seul l'acompte a un pourcentage (depositPercent) — les autres
+// montants n'ont pas de colonne percent en DB, un "percent" y serait ignoré (0).
+const fixedAmountTypeField = z.enum(["fixed", "none"]).optional();
 
 export const departureInput = z.object({
   tripId: z.string().min(1).max(160),
@@ -22,13 +25,13 @@ export const departureInput = z.object({
   depositType: amountTypeField,
   depositAmount: amountField,
   depositPercent: z.number().int().min(0).max(100).optional(),
-  singleSupplementType: amountTypeField,
+  singleSupplementType: fixedAmountTypeField,
   singleSupplementAmount: amountField,
-  taxType: amountTypeField,
+  taxType: fixedAmountTypeField,
   taxAmount: amountField,
-  feeType: amountTypeField,
+  feeType: fixedAmountTypeField,
   feeAmount: amountField,
-  discountType: amountTypeField,
+  discountType: fixedAmountTypeField,
   discountAmount: amountField,
   pricingRules: pricingRulesSchema.optional(),
   balanceDueDate: z.coerce.date().nullable().optional(),
@@ -67,6 +70,9 @@ export const updateDeparture = defineAction({
     if (!current) throw new ActionError({ code: "NOT_FOUND", message: "Départ introuvable." });
     assertFresh(current.updatedAt, expectedUpdatedAt ?? null, "Départ");
     const clean = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined));
+    if (Object.keys(clean).length === 0) {
+      throw new ActionError({ code: "BAD_REQUEST", message: "Aucune modification." });
+    }
     const start = (clean.startDate as Date | undefined) ?? current.startDate;
     const end = (clean.endDate as Date | undefined) ?? current.endDate;
     checkDepartureDates(start, end);

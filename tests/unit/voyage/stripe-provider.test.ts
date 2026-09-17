@@ -52,11 +52,11 @@ describe('mock provider', () => {
   });
 
   it('parses success and failure payloads', async () => {
-    const ok = await mockProvider.verifyWebhook(JSON.stringify({ providerPaymentId: 'mock_pi_x', amount: 100, currency: 'EUR', idempotencyKey: 'k' }));
+    const ok = await mockProvider.verifyWebhook(JSON.stringify({ providerPaymentId: 'mock_pi_x', amount: 100, currency: 'EUR', idempotencyKey: 'k' }), null);
     expect(ok.outcome).toBe('checkout.completed');
-    const ko = await mockProvider.verifyWebhook(JSON.stringify({ providerPaymentId: 'mock_pi_x', amount: 100, currency: 'EUR', failed: true }));
+    const ko = await mockProvider.verifyWebhook(JSON.stringify({ providerPaymentId: 'mock_pi_x', amount: 100, currency: 'EUR', failed: true }), null);
     expect(ko.outcome).toBe('payment.failed');
-    await expect(mockProvider.verifyWebhook(JSON.stringify({ nope: 1 }))).rejects.toThrow();
+    await expect(mockProvider.verifyWebhook(JSON.stringify({ nope: 1 }), null)).rejects.toThrow();
   });
 
   it('builds deterministic refund ids', async () => {

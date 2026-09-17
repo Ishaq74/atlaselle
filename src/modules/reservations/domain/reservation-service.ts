@@ -1,7 +1,9 @@
 import { and, eq, lte, sql } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
+import { invalidateCache } from "@database/cache";
 import { reservations, reservationPriceSnapshots } from "@database/schemas";
 import { departures } from "@database/schemas/departures.schema";
+import { checkoutSessions } from "@database/schemas/payments.schema";
 import { assertTransitionReservation } from "./reservation-transitions";
 import type { ReservationStatus } from "@database/schemas/reservations.schema";
 import type { PricingBreakdown } from "@/modules/pricing/domain/pricing";
@@ -24,33 +26,52 @@ export interface CreateReservationInput {
 }
 
 // Crée la réservation + snapshot immuable du prix (TODO §12.3).
+// Rejoue le numéro en cas de collision d'unicité (aléatoire 6 chars).
 export async function createReservation(input: CreateReservationInput) {
   const db = getDrizzle();
-  const [created] = await db
-    .insert(reservations)
-    .values({
-      reservationNumber: newReservationNumber(),
-      travelerId: input.travelerId,
-      tripId: input.tripId,
-      departureId: input.departureId,
-      applicationId: input.applicationId ?? null,
-      status: "pending",
-      currency: input.quote.currency,
-      baseAmount: input.quote.baseAmount,
-      singleSupplementAmount: input.quote.supplementAmount,
-      discountAmount: input.quote.discountAmount,
-      taxAmount: input.quote.taxAmount,
-      feeAmount: input.quote.feeAmount,
-      totalAmount: input.quote.totalAmount,
-      amountPaid: 0,
-      amountDue: input.quote.totalAmount,
-      agreementVersionId: input.agreementVersionId ?? null,
-      acceptedAt: input.agreementVersionId ? new Date() : null,
-    })
-    .returning();
-  if (!created) throw new Error("Reservation creation failed");
-  await db.insert(reservationPriceSnapshots).values({ reservationId: created.id, snapshot: { ...input.quote } });
-  return created;
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const [created] = await db
+        .insert(reservations)
+        .values({
+          reservationNumber: newReservationNumber(),
+          travelerId: input.travelerId,
+          tripId: input.tripId,
+          departureId: input.departureId,
+          applicationId: input.applicationId ?? null,
+          status: "pending",
+          currency: input.quote.currency,
+          baseAmount: input.quote.baseAmount,
+          singleSupplementAmount: input.quote.supplementAmount,
+          discountAmount: input.quote.discountAmount,
+          taxAmount: input.quote.taxAmount,
+          feeAmount: input.quote.feeAmount,
+          totalAmount: input.quote.totalAmount,
+          amountPaid: 0,
+          amountDue: input.quote.totalAmount,
+          agreementVersionId: input.agreementVersionId ?? null,
+          acceptedAt: input.agreementVersionId ? new Date() : null,
+        })
+        .returning();
+      if (!created) throw new Error("Reservation creation failed");
+      await db.insert(reservationPriceSnapshots).values({ reservationId: created.id, snapshot: { ...input.quote } });
+      return created;
+    } catch (err) {
+      // Contrainte d'unicité du numéro : on rejoue, le reste remonte.
+      if (isUniqueViolation(err) && attempt < 2) {
+        lastError = err;
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("Reservation creation failed");
+}
+
+function isUniqueViolation(err: unknown): boolean {
+  const e = err as { code?: string; cause?: { code?: string } | null } | null;
+  return e?.code === "23505" || e?.cause?.code === "23505";
 }
 
 export async function confirmReservation(reservationId: string, paidAmount: number) {
@@ -99,6 +120,14 @@ export async function cancelReservation(reservationId: string, now = new Date())
     .set({ status: "cancelled", cancelledAt: now })
     .where(eq(reservations.id, reservationId))
     .returning();
+  // Les liens checkout ouverts ne doivent plus aboutir sur un dossier annulé.
+  await db
+    .update(checkoutSessions)
+    .set({ status: "cancelled" })
+    .where(and(eq(checkoutSessions.reservationId, reservationId), eq(checkoutSessions.status, "open")));
+  // L'annulation libère la place.
+  invalidateCache("trip:");
+  invalidateCache("trips:list");
   await emitOutboxEvent({
     eventType: "reservation.cancelled",
     aggregateType: "reservation",

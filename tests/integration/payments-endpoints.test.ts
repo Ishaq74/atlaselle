@@ -138,7 +138,7 @@ describe('Payments endpoints (mock provider by default)', () => {
   });
 
   it('returns 404 for unknown mock sessions and non-mock providers', async () => {
-    const redirect = vi.fn((url: string, status: number) => new Response(null, { status }));
+    const redirect = vi.fn((_url: string, status: number) => new Response(null, { status }));
     const missing = await mockCallbackGET({
       request: new Request('http://localhost/api/payments/mock-callback?session=nope'),
       redirect,

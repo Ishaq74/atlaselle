@@ -215,5 +215,24 @@ describe('RBAC Permissions', () => {
       expect(adminRole.authorize({ traveler: ["anonymize"] }).success).toBe(true);
       expect(editorRole.authorize({ traveler: ["export"] }).success).toBe(false);
     });
+
+    it('admin can close departures, decide applications, cancel, refund, publish policies, retry emails', () => {
+      expect(adminRole.authorize({ departure: ["close"] }).success).toBe(true);
+      expect(adminRole.authorize({ application: ["approve"] }).success).toBe(true);
+      expect(adminRole.authorize({ application: ["decline"] }).success).toBe(true);
+      expect(adminRole.authorize({ reservation: ["cancel"] }).success).toBe(true);
+      expect(adminRole.authorize({ payment: ["refund"] }).success).toBe(true);
+      expect(adminRole.authorize({ policy: ["publish"] }).success).toBe(true);
+      expect(adminRole.authorize({ email: ["retry"] }).success).toBe(true);
+    });
+
+    it('editor cannot approve, cancel, refund, publish policies or retry emails', () => {
+      expect(editorRole.authorize({ application: ["approve"] }).success).toBe(false);
+      expect(editorRole.authorize({ reservation: ["cancel"] }).success).toBe(false);
+      expect(editorRole.authorize({ payment: ["refund"] }).success).toBe(false);
+      expect(editorRole.authorize({ policy: ["publish"] }).success).toBe(false);
+      expect(editorRole.authorize({ email: ["retry"] }).success).toBe(false);
+      expect(editorRole.authorize({ departure: ["close"] }).success).toBe(false);
+    });
   });
 });

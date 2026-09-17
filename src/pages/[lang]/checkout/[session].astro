@@ -72,11 +72,16 @@ const base = `/${locale}/checkout/${data.sessionId}`;
     const btn = form.querySelector("button");
     btn?.setAttribute("disabled", "");
     try {
+      if (data.get("terms") !== "on") {
+        if (el) el.textContent = "Error";
+        return;
+      }
       const { data: result, error } = await actions.initiateCheckout({
         checkoutSessionId: sessionId,
         travelerEmail: String(data.get("travelerEmail") ?? ""),
         roomType: room,
         locale,
+        termsAccepted: true as const,
       });
       if (error || !result) {
         if (el) el.textContent = error?.message ?? "Error";

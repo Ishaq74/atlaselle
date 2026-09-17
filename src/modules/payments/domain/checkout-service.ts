@@ -1,4 +1,4 @@
-import { and, eq, lte } from "drizzle-orm";
+import { and, eq, inArray, lte } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { checkoutSessions } from "@database/schemas";
 import { applications } from "@database/schemas";
@@ -46,4 +46,20 @@ export async function expireCheckoutSessions(now = new Date()): Promise<number> 
     .where(and(eq(checkoutSessions.status, "open"), lte(checkoutSessions.expiresAt, now)))
     .returning({ id: checkoutSessions.id });
   return expired.length;
+}
+
+// Rétention : supprime les sessions expirées/annulées anciennes. Jamais les
+// `completed` (reçus consultables via booking-confirmed) ni les `open`.
+export async function purgeExpiredCheckoutSessions(olderThanDays = 30, now = new Date()): Promise<number> {
+  const cutoff = new Date(now.getTime() - olderThanDays * 86_400_000);
+  const removed = await getDrizzle()
+    .delete(checkoutSessions)
+    .where(
+      and(
+        inArray(checkoutSessions.status, ["expired", "cancelled"]),
+        lte(checkoutSessions.expiresAt, cutoff),
+      ),
+    )
+    .returning({ id: checkoutSessions.id });
+  return removed.length;
 }

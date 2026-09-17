@@ -55,6 +55,9 @@ export const updateItineraryDay = defineAction({
     if (!current) throw new ActionError({ code: "NOT_FOUND", message: "Jour introuvable." });
     assertFresh(current.updatedAt, expectedUpdatedAt ?? null, "Jour");
     const clean = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined));
+    if (Object.keys(clean).length === 0) {
+      throw new ActionError({ code: "BAD_REQUEST", message: "Aucune modification." });
+    }
     await getDrizzle().update(itineraryDays).set(clean).where(eq(itineraryDays.id, id));
     auditVoyage(context, user.id, "TRIP_UPDATE", { resource: "itinerary_days", resourceId: id, metadata: { fields: Object.keys(clean) } });
     invalidateVoyageCache();

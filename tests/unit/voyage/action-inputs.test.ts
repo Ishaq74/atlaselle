@@ -50,6 +50,14 @@ describe('departure input', () => {
     expect(departureInput.safeParse({ ...base, priceAmount: -1 }).success).toBe(false);
     expect(departureInput.safeParse({ ...base, depositPercent: 101 }).success).toBe(false);
   });
+
+  it('rejects percent outside deposit (no percent column in DB)', () => {
+    expect(departureInput.safeParse({ ...base, depositType: 'percent', depositPercent: 20 }).success).toBe(true);
+    for (const field of ['singleSupplementType', 'taxType', 'feeType', 'discountType'] as const) {
+      expect(departureInput.safeParse({ ...base, [field]: 'percent' }).success).toBe(false);
+      expect(departureInput.safeParse({ ...base, [field]: 'fixed' }).success).toBe(true);
+    }
+  });
 });
 
 describe('application inputs', () => {
@@ -75,15 +83,19 @@ describe('application inputs', () => {
 });
 
 describe('checkout and payment inputs', () => {
-  it('requires uuid session, email and room', () => {
-    expect(checkoutInitiateInput.safeParse({ checkoutSessionId: UUID, travelerEmail: 't@test.com' }).success).toBe(true);
-    expect(checkoutInitiateInput.safeParse({ checkoutSessionId: 'nope', travelerEmail: 't@test.com' }).success).toBe(false);
+  it('requires uuid session, email, room and terms proof', () => {
+    const base = { checkoutSessionId: UUID, travelerEmail: 't@test.com', termsAccepted: true as const };
+    expect(checkoutInitiateInput.safeParse(base).success).toBe(true);
+    expect(checkoutInitiateInput.safeParse({ checkoutSessionId: 'nope', travelerEmail: 't@test.com', termsAccepted: true }).success).toBe(false);
+    expect(checkoutInitiateInput.safeParse({ checkoutSessionId: UUID, travelerEmail: 't@test.com' }).success).toBe(false);
+    expect(checkoutInitiateInput.safeParse({ ...base, termsAccepted: false }).success).toBe(false);
   });
 
   it('validates refund and balance shapes', () => {
     expect(paymentRefundInput.safeParse({ reservationId: UUID }).success).toBe(true);
     expect(paymentRefundInput.safeParse({ reservationId: UUID, amount: -5 }).success).toBe(false);
     expect(payBalanceInput.safeParse({ reservationId: UUID, travelerEmail: 't@test.com', locale: 'xx' }).success).toBe(false);
-    expect(payBalanceInput.safeParse({ reservationId: UUID, travelerEmail: 't@test.com', locale: 'ar' }).success).toBe(true);
+    expect(payBalanceInput.safeParse({ reservationId: UUID, travelerEmail: 't@test.com', locale: 'ar', termsAccepted: true }).success).toBe(true);
+    expect(payBalanceInput.safeParse({ reservationId: UUID, travelerEmail: 't@test.com', locale: 'ar' }).success).toBe(false);
   });
 });

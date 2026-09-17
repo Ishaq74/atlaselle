@@ -42,6 +42,8 @@ export const refundPayment = defineAction({
 export const payBalanceInput = z.object({
   reservationId: z.string().uuid(),
   travelerEmail: z.string().trim().email().max(320),
+  // Preuve de consentement CGV (cf. checkoutInitiateInput).
+  termsAccepted: z.literal(true),
   locale: z.enum(LOCALES).default("en"),
 });
 

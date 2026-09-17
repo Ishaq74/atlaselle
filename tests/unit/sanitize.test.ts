@@ -261,3 +261,30 @@ describe('safeEmbedUrl', () => {
     expect(safeEmbedUrl('  https://player.vimeo.com/video/123  ')).toBe('https://player.vimeo.com/video/123');
   });
 });
+
+describe('sanitizeHtml — contrôles bidirectionnels invisibles', () => {
+  const RLO = String.fromCharCode(0x202e);
+  const LRI = String.fromCharCode(0x2066);
+  const PDI = String.fromCharCode(0x2069);
+  const RLM = String.fromCharCode(0x200f);
+
+  it('supprime RLO/bridges (spoofing Trojan Source)', () => {
+    const out = sanitizeHtml(`<p>admin${RLO}nimda</p>`);
+    expect(out.includes(RLO)).toBe(false);
+    expect(out).toContain('adminnimda');
+  });
+
+  it('supprime les isolates LRI/PDI', () => {
+    const out = sanitizeHtml(`hello${LRI}world${PDI}`);
+    expect(out.includes(LRI)).toBe(false);
+    expect(out.includes(PDI)).toBe(false);
+    expect(out).toContain('helloworld');
+  });
+
+  it('préserve le texte arabe légitime et RLM', () => {
+    const ar = 'جنوب أفريقيا: الساحل البري';
+    const out = sanitizeHtml(`<p>${ar}${RLM}</p>`);
+    expect(out).toContain(ar);
+    expect(out.includes(RLM)).toBe(true);
+  });
+});

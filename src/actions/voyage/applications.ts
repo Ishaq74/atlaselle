@@ -1,5 +1,5 @@
 import { ActionError, defineAction } from "astro:actions";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
 import { applications, applicationDecisions, applicationEvents } from "@database/schemas";
@@ -13,7 +13,7 @@ import { extractIp } from "@/lib/audit";
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
 import { findOrCreateTraveler } from "@/modules/travelers/domain/travelers-service";
 import { normalizeEmail } from "@/modules/travelers/domain/traveler-email";
-import { assertTransitionApplication } from "@/modules/applications/domain/application-transitions";
+import { assertTransitionApplication, ACTIVE_APPLICATION_STATUSES } from "@/modules/applications/domain/application-transitions";
 import type { ApplicationStatus } from "@database/schemas/applications.schema";
 import { emitOutboxEvent } from "@/modules/outbox/domain/outbox";
 import { createApplicationCheckout } from "@/modules/payments/domain/checkout-service";
@@ -90,23 +90,55 @@ export const submitApplication = defineAction({
       throw err;
     }
 
-    const [created] = await db
-      .insert(applications)
-      .values({
-        travelerId,
-        tripId: input.tripId,
-        departureId: input.departureId,
-        status: "submitted",
-        roomPreference: input.roomPreference,
-        dietaryRequirements: input.dietaryRequirements ?? null,
-        accessibilityNeeds: input.accessibilityNeeds ?? null,
-        activityAcknowledgement: true,
-        motivation: input.motivation ?? null,
-        expectations: input.expectations ?? null,
-        consent: true,
-        submittedAt: new Date(),
-      })
-      .returning({ id: applications.id });
+    // Un seul dossier actif par voyageuse et par départ (les dossiers terminés
+    // declined/withdrawn/expired autorisent une nouvelle candidature).
+    // Placé APRÈS la résolution voyageur : pour un email non vérifié, c'est la
+    // règle APPLICATION_EMAIL_CONFLICT qui répond d'abord (pas de déduplication
+    // sur un email dont on ne peut prouver la propriété).
+    const [duplicate] = await db
+      .select({ id: applications.id })
+      .from(applications)
+      .where(
+        and(
+          eq(applications.travelerId, travelerId),
+          eq(applications.departureId, input.departureId),
+          inArray(applications.status, [...ACTIVE_APPLICATION_STATUSES]),
+        ),
+      )
+      .limit(1);
+    if (duplicate) {
+      throw domainError("CONFLICT", "APPLICATION_DUPLICATE", "Vous avez déjà un dossier en cours pour ce départ.");
+    }
+
+    let created: { id: string } | undefined;
+    try {
+      [created] = await db
+        .insert(applications)
+        .values({
+          travelerId,
+          tripId: input.tripId,
+          departureId: input.departureId,
+          status: "submitted",
+          roomPreference: input.roomPreference,
+          dietaryRequirements: input.dietaryRequirements ?? null,
+          accessibilityNeeds: input.accessibilityNeeds ?? null,
+          activityAcknowledgement: true,
+          motivation: input.motivation ?? null,
+          expectations: input.expectations ?? null,
+          consent: true,
+          submittedAt: new Date(),
+        })
+        .returning({ id: applications.id });
+    } catch (err) {
+      // Garde anti-course : la contrainte partielle applications_traveler_departure_active_uidx
+      // a rejeté un doublon créé entre le pré-contrôle et l'insertion.
+      const code = (err as { code?: string; cause?: { code?: string } | null } | null)?.code
+        ?? (err as { cause?: { code?: string } | null } | null)?.cause?.code;
+      if (code === "23505") {
+        throw domainError("CONFLICT", "APPLICATION_DUPLICATE", "Vous avez déjà un dossier en cours pour ce départ.");
+      }
+      throw err;
+    }
     if (!created) throw new ActionError({ code: "INTERNAL_SERVER_ERROR", message: "Candidature impossible." });
 
     await db.insert(applicationEvents).values([

@@ -29,9 +29,7 @@ import { createDeparture, updateDeparture, setDepartureStatus } from '@/actions/
 import { submitApplication, reviewApplication } from '@/actions/voyage/applications';
 import { initiateCheckout } from '@/actions/voyage/checkout';
 import { refundPayment, payBalance } from '@/actions/voyage/payments';
-import { getValidCheckoutSession, expireCheckoutSessions, markCheckoutCompleted } from '@/modules/payments/domain/checkout-service';
-import { failPaymentByProviderId } from '@/modules/payments/domain/payment-service';
-import { getAvailability } from '@/modules/availability/domain/availability-service';
+import { getValidCheckoutSession } from '@/modules/payments/domain/checkout-service';
 import { resetRateLimiter } from '@/lib/rate-limit';
 import { getTestHelpers } from '../helpers/auth';
 

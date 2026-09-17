@@ -102,7 +102,7 @@ describe('Email worker — outbox → deliveries (real DB, stubbed SMTP)', () =>
       reservationNumber: `ATL-2027-${stamp.slice(-6).toUpperCase()}`,
       travelerId, tripId: TRIP_ID, departureId: DEP_ID, applicationId,
       status: 'confirmed', currency: 'EUR', baseAmount: 100000, totalAmount: 100000,
-      amountPaid: 100000, amountDue: 0,
+      amountPaid: 20000, amountDue: 80000,
       balanceDueDate: new Date(Date.now() + 3 * 86_400_000),
       confirmedAt: new Date(),
     }).returning({ id: reservations.id });
@@ -112,21 +112,33 @@ describe('Email worker — outbox → deliveries (real DB, stubbed SMTP)', () =>
   afterAll(cleanup);
 
   it('sends application emails from outbox events', async () => {
-    await emitOutboxEvent({ eventType: 'application.submitted', aggregateType: 'application', aggregateId: applicationId, payload: { applicationId } });
-    const res = await processEmailOutboxBatch(25, stubSender);
-    expect(res.done).toBeGreaterThanOrEqual(1);
-    expect(res.failed).toBe(0);
+    const id = await emitOutboxEvent({ eventType: 'application.submitted', aggregateType: 'application', aggregateId: applicationId, payload: { applicationId } });
+    // Workers parallèles partagent outbox : drainer jusqu'à NOTRE événement
+    // (limit 25 par batch, les pending voisins passent aussi — sans effet ici).
+    for (let i = 0; i < 20; i++) {
+      const res = await processEmailOutboxBatch(25, stubSender);
+      expect(res.failed).toBe(0);
+      const [row] = await db.select().from(outboxEvents).where(eq(outboxEvents.id, id)).limit(1);
+      if (row?.status === 'done') break;
+      if (i === 19) expect.unreachable('outbox event never processed');
+    }
     expect(sent.some((s) => s.to === `mail-${stamp}@test.com`)).toBe(true);
     const deliveries = await db.select().from(emailDeliveries).where(eq(emailDeliveries.travelerId, travelerId));
     expect(deliveries.some((d) => d.status === 'sent')).toBe(true);
   });
 
   it('skips unknown events (marked done, no email)', async () => {
-    const before = sent.length;
-    await emitOutboxEvent({ eventType: 'reservation.cancelled', aggregateType: 'reservation', aggregateId: reservationId, payload: { reservationId } });
-    const res = await processEmailOutboxBatch(25, stubSender);
-    expect(res.skipped).toBeGreaterThanOrEqual(1);
-    expect(sent.length).toBe(before);
+    const countFor = async () =>
+      (await db.select({ id: emailDeliveries.id }).from(emailDeliveries).where(eq(emailDeliveries.reservationId, reservationId))).length;
+    const before = await countFor();
+    const id = await emitOutboxEvent({ eventType: 'reservation.cancelled', aggregateType: 'reservation', aggregateId: reservationId, payload: { reservationId } });
+    for (let i = 0; i < 20; i++) {
+      await processEmailOutboxBatch(25, stubSender);
+      const [row] = await db.select().from(outboxEvents).where(eq(outboxEvents.id, id)).limit(1);
+      if (row?.status === 'done') break;
+      if (i === 19) expect.unreachable('outbox event never processed');
+    }
+    expect(await countFor()).toBe(before);
     await db.delete(outboxEvents).where(eq(outboxEvents.aggregateId, reservationId));
   });
 
@@ -160,11 +172,18 @@ describe('Email worker — outbox → deliveries (real DB, stubbed SMTP)', () =>
     };
     const preResId = await mkRes(preDep.id);
     const postResId = await mkRes(postDep.id);
-    const first = await sendTripReminders(new Date(), stubSender);
-    expect(first.pre).toBeGreaterThanOrEqual(1);
-    expect(first.post).toBeGreaterThanOrEqual(1);
-    const second = await sendTripReminders(new Date(), stubSender);
-    expect(second).toEqual({ preparation: 0, pre: 0, post: 0 });
+    const kinds = async (id: string) =>
+      (await db.select().from(emailDeliveries).where(eq(emailDeliveries.reservationId, id))).map((r) => r.templateKey);
+    await sendTripReminders(new Date(), stubSender);
+    // états lignes (idempotents) : un worker voisin peut envoyer en premier,
+    // la déduplication interdit tout doublon — les compteurs globaux, eux, fluctuent.
+    expect(await kinds(preResId)).toContain('pre_trip_reminder');
+    expect(await kinds(postResId)).toContain('post_trip_followup');
+    const beforePre = (await kinds(preResId)).length;
+    const beforePost = (await kinds(postResId)).length;
+    await sendTripReminders(new Date(), stubSender);
+    expect((await kinds(preResId)).length).toBe(beforePre);
+    expect((await kinds(postResId)).length).toBe(beforePost);
     await db.delete(reservations).where(eq(reservations.id, preResId));
     await db.delete(reservations).where(eq(reservations.id, postResId));
     await db.delete(departures).where(eq(departures.id, preDep.id));
@@ -192,8 +211,16 @@ describe('Email worker — outbox → deliveries (real DB, stubbed SMTP)', () =>
 
   it('dead-letters outbox events after max attempts', async () => {
     const id = await emitOutboxEvent({ eventType: 'application.submitted', aggregateType: 'test', aggregateId: `dl-${stamp}`, payload: {} });
-    const claimed = await claimOutboxBatch(25);
-    expect(claimed.some((r) => r.id === id)).toBe(true);
+    let found = false;
+    for (let i = 0; i < 20; i++) {
+      const claimed = await claimOutboxBatch(25);
+      if (claimed.some((r) => r.id === id)) {
+        found = true;
+        break;
+      }
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    expect(found).toBe(true);
     await failOutbox(id, 4, 'boom');
     const [row] = await db.select().from(outboxEvents).where(eq(outboxEvents.id, id));
     expect(row.status).toBe('dead_letter');

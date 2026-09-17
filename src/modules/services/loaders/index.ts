@@ -3,6 +3,7 @@ import type { Locale } from "@i18n/config";
 import { getDrizzle } from "@database/drizzle";
 import { serviceCategories, serviceCategoryTranslations, serviceTags, serviceTagTranslations, serviceTranslations, services, serviceCategoryLinks, serviceTagLinks, serviceMedia, serviceAvailability, serviceSeo, serviceRevisions, serviceLocks, mediaFiles, mediaFileAlts, user } from "@database/schemas";
 import { serviceListFiltersSchema } from "@/modules/services/validation";
+import { parseListFilters } from "@/lib/query-filters";
 import type { ServiceDetail, ServiceListItem } from "@/modules/services/domain";
 
 const serviceTenantScope = (organizationId: string | null) => organizationId === null ? isNull(services.organizationId) : eq(services.organizationId, organizationId);
@@ -54,7 +55,7 @@ async function loadServiceDetailById(serviceId: string, locale: Locale, organiza
 
 export async function getServices(input: unknown = {}, locale: Locale = "fr", publicOnly = true): Promise<{ items: ServiceListItem[]; page: number; limit: number; total: number; totalPages: number }> {
   const rawInput = typeof input === "object" && input !== null ? input : {};
-  const filters = serviceListFiltersSchema.parse({ ...rawInput, locale });
+  const filters = parseListFilters(serviceListFiltersSchema, { ...rawInput, locale }, { locale });
   const organizationId = filters.organizationId ?? null;
   const resolvedLocale = filters.locale ?? locale;
   const db = getDrizzle(); const conditions = [serviceTenantScope(organizationId), eq(serviceTranslations.locale, resolvedLocale), translationTenantScope(organizationId)];

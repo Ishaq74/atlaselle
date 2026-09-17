@@ -5,7 +5,8 @@ import { processProviderSuccess, failPaymentByProviderId } from "@/modules/payme
 export const prerender = false;
 
 // Webhook provider (Stripe) : signature → idempotence → montants → transaction (TODO §13.3).
-// 200 après traitement (sinon retries) ; 400 = signature invalide ;
+// 200 après traitement (sinon retries Stripe) ; 400 = signature invalide ;
+// 500 = échec de traitement (Stripe reessaie : les traitements sont idempotents) ;
 // événements valides non gérés = 200 sans effet (pas de retry inutile).
 export const POST: APIRoute = async ({ request }) => {
   const provider = selectPaymentProvider();
@@ -32,6 +33,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
   } catch (err) {
     console.error("[payments] Webhook processing failed:", err);
+    return new Response("Internal Server Error", { status: 500 });
   }
   return new Response("OK", { status: 200 });
 };

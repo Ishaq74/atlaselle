@@ -57,10 +57,15 @@ const showBalanceForm = (booking.status === "confirmed" || booking.status === "b
     const locale = (form.dataset.locale ?? "en") as Locale;
     const reservationId = form.dataset.reservation ?? "";
     const el = form.querySelector("[data-form-message]");
+    if (data.get("terms") !== "on") {
+      if (el) el.textContent = "Error";
+      return;
+    }
     const { data: result, error } = await actions.payBalance({
       reservationId,
       travelerEmail: String(data.get("travelerEmail") ?? ""),
       locale,
+      termsAccepted: true as const,
     });
     if (error || !result) {
       if (el) el.textContent = error?.message ?? "Error";

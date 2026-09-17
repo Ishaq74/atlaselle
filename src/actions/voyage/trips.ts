@@ -141,6 +141,9 @@ export const updateTrip = defineAction({
     const { id, expectedUpdatedAt, ...patch } = input;
     void expectedUpdatedAt;
     const clean = Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined));
+    if (Object.keys(clean).length === 0) {
+      throw new ActionError({ code: "BAD_REQUEST", message: "Aucune modification." });
+    }
     if (clean.groupMax !== undefined || clean.groupMin !== undefined) {
       const groupMin = (clean.groupMin as number | undefined) ?? current.groupMin;
       const groupMax = (clean.groupMax as number | undefined) ?? current.groupMax;

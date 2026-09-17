@@ -53,6 +53,14 @@ export function safeJsonLd(json: string): string {
 
 const MAX_SANITIZE_LENGTH = 500_000; // 500 KB
 
+// Contrôles bidirectionnels invisibles (U+202A–202E, U+2066–2069) : vecteur
+// de spoofing "Trojan Source" — un RLO/RLI glissé dans un texte (nom, titre,
+// commentaire) réordonne l'affichage sans changer les octets (ex. faux lien,
+// fausse identité). Supprimés après DOMPurify (qui conserve le texte).
+// LRM/RLM (U+200E/200F) et ZWJ sont conservés : nécessaires au rendu légitime
+// (texte mixte, emoji) et inoffensifs seuls.
+const BIDI_CONTROLS_RE = /[\u202A-\u202E\u2066-\u2069]/g;
+
 // Force rel="noopener noreferrer" on any anchor that opens a new tab, to
 // prevent reverse-tabnabbing (window.opener) from user-authored content.
 DOMPurify.addHook("afterSanitizeAttributes", (node) => {
@@ -86,5 +94,5 @@ export function sanitizeHtml(dirty: unknown): string {
     ALLOWED_TAGS,
     ALLOWED_ATTR,
     ALLOW_DATA_ATTR: false,
-  });
+  }).replace(BIDI_CONTROLS_RE, "");
 }

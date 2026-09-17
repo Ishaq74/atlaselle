@@ -1,5 +1,6 @@
-import { desc, eq, ilike, or, sql } from "drizzle-orm";
+import { asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { z } from "astro/zod";
+import { parseListFilters } from "@/lib/query-filters";
 import { getDrizzle } from "@database/drizzle";
 import { travelers } from "@database/schemas/travelers.schema";
 import { applications } from "@database/schemas/applications.schema";
@@ -14,7 +15,7 @@ export const adminTravelerFiltersSchema = z.object({
 
 // Liste RGPD-safe : jamais de données sensibles (régime, santé, notes).
 export async function loadAdminTravelers(raw: Record<string, string | undefined>) {
-  const filters = adminTravelerFiltersSchema.parse({
+  const filters = parseListFilters(adminTravelerFiltersSchema, {
     page: raw.page, pageSize: raw.pageSize, search: raw.search || undefined, sortOrder: raw.sortOrder,
   });
   const db = getDrizzle();
@@ -27,7 +28,7 @@ export async function loadAdminTravelers(raw: Record<string, string | undefined>
     .select()
     .from(travelers)
     .where(where)
-    .orderBy(desc(travelers.createdAt))
+    .orderBy(filters.sortOrder === "asc" ? asc(travelers.createdAt) : desc(travelers.createdAt))
     .limit(filters.pageSize)
     .offset((filters.page - 1) * filters.pageSize);
 

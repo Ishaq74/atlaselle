@@ -16,6 +16,8 @@ export const createFaq = defineAction({
   }),
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { trip: ["update"] });
+    // Vérifier d'abord : sinon un tripId invalide laisse une FAQ orpheline.
+    if (input.tripId) await assertTripExists(input.tripId);
     const db = getDrizzle();
     const [faq] = await db.insert(faqs).values({ sortOrder: input.sortOrder }).returning({ id: faqs.id });
     if (!faq) throw new ActionError({ code: "INTERNAL_SERVER_ERROR", message: "FAQ impossible." });

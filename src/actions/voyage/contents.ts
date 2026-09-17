@@ -22,12 +22,6 @@ const BASE = {
   exclusion: { table: tripExclusions, fk: "tripId" as const },
 } as const;
 
-const TRANSLATIONS = {
-  highlight: { table: tripHighlightTranslations, fk: "highlightId" as const },
-  inclusion: { table: tripInclusionTranslations, fk: "inclusionId" as const },
-  exclusion: { table: tripExclusionTranslations, fk: "exclusionId" as const },
-} as const;
-
 const kindSchema = z.enum(KIND);
 
 export const createTripContent = defineAction({
@@ -83,14 +77,44 @@ export const upsertTripContentTranslation = defineAction({
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { trip: ["update"] });
     const { kind, id, locale, expectedUpdatedAt, title, description, text } = input;
-    const T = TRANSLATIONS[kind];
     const db = getDrizzle();
     if (expectedUpdatedAt != null) {
-      const [existing] = await db
-        .select({ updatedAt: T.table.updatedAt })
-        .from(T.table)
-        .where(and(eq(T.table[T.fk], id), eq(T.table.locale, locale as Locale)))
-        .limit(1);
+      const existing =
+        kind === "highlight"
+          ? await db
+              .select({ updatedAt: tripHighlightTranslations.updatedAt })
+              .from(tripHighlightTranslations)
+              .where(
+                and(
+                  eq(tripHighlightTranslations.highlightId, id),
+                  eq(tripHighlightTranslations.locale, locale as Locale),
+                ),
+              )
+              .limit(1)
+              .then((rows) => rows[0])
+          : kind === "inclusion"
+            ? await db
+                .select({ updatedAt: tripInclusionTranslations.updatedAt })
+                .from(tripInclusionTranslations)
+                .where(
+                  and(
+                    eq(tripInclusionTranslations.inclusionId, id),
+                    eq(tripInclusionTranslations.locale, locale as Locale),
+                  ),
+                )
+                .limit(1)
+                .then((rows) => rows[0])
+            : await db
+                .select({ updatedAt: tripExclusionTranslations.updatedAt })
+                .from(tripExclusionTranslations)
+                .where(
+                  and(
+                    eq(tripExclusionTranslations.exclusionId, id),
+                    eq(tripExclusionTranslations.locale, locale as Locale),
+                  ),
+                )
+                .limit(1)
+                .then((rows) => rows[0]);
       if (existing) assertFresh(existing.updatedAt, expectedUpdatedAt, "Contenu");
     }
     const values =

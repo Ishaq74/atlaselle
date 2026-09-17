@@ -16,7 +16,6 @@ interface SeedState {
 let db: Awaited<ReturnType<typeof import('../../src/database/drizzle').getDrizzle>> | null = null;
 let schema: typeof import('../../src/database/drizzle').schema | null = null;
 let eqOp: typeof import('drizzle-orm').eq;
-let seedUserId = '';
 let adminStorageState: StorageState | null = null;
 let seeded: SeedState;
 
@@ -37,7 +36,7 @@ test.describe.serial('Services surfaces', () => {
     const globalServiceTitle = `E2E Global Service ${unique}`; const draftServiceTitle = `E2E Draft Service ${unique}`;
     const drizzleMod = await import('../../src/database/drizzle'); const orm = await import('drizzle-orm'); db = drizzleMod.getDrizzle(); schema = drizzleMod.schema; eqOp = orm.eq;
     const { getTestHelpers } = await import('../helpers/auth');
-    const helpers = await getTestHelpers(); const [seedUser] = await db.select({ id: schema.user.id }).from(schema.user).where(eqOp(schema.user.email, SEED_EMAIL)).limit(1); if (!seedUser) throw new Error(`Seed user not found for ${SEED_EMAIL}`); seedUserId = seedUser.id;
+    const helpers = await getTestHelpers(); const [seedUser] = await db.select({ id: schema.user.id }).from(schema.user).where(eqOp(schema.user.email, SEED_EMAIL)).limit(1); if (!seedUser) throw new Error(`Seed user not found for ${SEED_EMAIL}`);
     void helpers;
     const publishedAt = new Date();
     await db.insert(schema.services).values([

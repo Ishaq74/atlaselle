@@ -5,13 +5,18 @@ import { mediaFileAlts, mediaFiles, serviceAvailability, serviceCategories, serv
 import type { Locale } from "@i18n/config";
 import type { ServiceDetail, ServiceListItem } from "@/modules/services/domain";
 import { serviceAdminFiltersSchema, type ServiceAdminFilters } from "@/modules/services/validation";
+import { parseListFilters } from "@/lib/query-filters";
 export type { ServiceAdminFilters } from "@/modules/services/validation";
 
 function tenantScope(column: AnyPgColumn<{ data: string | null }>, organizationId: string | null) { return organizationId === null ? isNull(column) : eq(column, organizationId); }
 function tenantJoinScope(column: AnyPgColumn<{ data: string | null }>, organizationId: string | null) { return organizationId === null ? isNull(column) : eq(column, organizationId); }
 
 export async function getServiceAdminData(organizationId: string | null, locale: Locale, input: Partial<ServiceAdminFilters> = {}): Promise<{ items: ServiceListItem[]; page: number; limit: number; total: number; totalPages: number }> {
-  const filters = serviceAdminFiltersSchema.parse({ ...input, organizationId, locale: input.locale ?? locale });
+  const filters = parseListFilters(
+    serviceAdminFiltersSchema,
+    { ...input, organizationId, locale: input.locale ?? locale },
+    { organizationId, locale },
+  );
   const queryLocale = filters.locale ?? locale;
   const db = getDrizzle();
   const conditions = [tenantScope(services.organizationId, organizationId)];

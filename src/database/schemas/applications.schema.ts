@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -6,6 +6,7 @@ import {
   timestamp,
   boolean,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { travelers } from "./travelers.schema";
 import { trips } from "./trips.schema";
@@ -61,6 +62,11 @@ export const applications = pgTable(
     index("applications_trip_idx").on(table.tripId),
     index("applications_departure_idx").on(table.departureId),
     index("applications_status_idx").on(table.status),
+    // Un seul dossier ACTIF par voyageuse et par départ (les statuts terminaux
+    // declined/withdrawn/expired autorisent une nouvelle candidature).
+    uniqueIndex("applications_traveler_departure_active_uidx")
+      .on(table.travelerId, table.departureId)
+      .where(sql`${table.status} in ('draft', 'submitted', 'under_review', 'contact_required', 'approved')`),
   ],
 );
 

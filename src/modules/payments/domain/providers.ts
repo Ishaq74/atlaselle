@@ -104,13 +104,15 @@ function stripeEnv(): { secretKey: string; webhookSecret: string } {
 }
 
 async function stripeApi(path: string, secretKey: string, params: Record<string, string>): Promise<unknown> {
-  const body = new URLSearchParams(params);
+  const { __idempotency, ...form } = params;
+  const body = new URLSearchParams(form);
   const res = await fetch(`https://api.stripe.com${path}`, {
     method: "POST",
     headers: {
       Authorization: `Basic ${Buffer.from(`${secretKey}:`).toString("base64")}`,
       "Content-Type": "application/x-www-form-urlencoded",
-      "Idempotency-Key": params["__idempotency"] ?? crypto.randomUUID(),
+      // Clé interne : header uniquement, jamais dans le body (Stripe rejette les params inconnus).
+      "Idempotency-Key": __idempotency ?? crypto.randomUUID(),
     },
     body,
   });

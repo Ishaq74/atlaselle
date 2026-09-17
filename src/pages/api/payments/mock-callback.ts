@@ -5,6 +5,8 @@ import { checkoutSessions } from "@database/schemas";
 import { payments } from "@database/schemas";
 import { reservations } from "@database/schemas";
 import { travelers } from "@database/schemas";
+import { isValidLocale } from "@/i18n/utils";
+import type { Locale } from "@/i18n/config";
 import { selectPaymentProvider, mockPaymentIdForSession } from "@/modules/payments/domain/providers";
 import { processProviderSuccess } from "@/modules/payments/domain/payment-service";
 
@@ -41,6 +43,6 @@ export const GET: APIRoute = async ({ request, redirect }) => {
   const [traveler] = reservation
     ? await db.select().from(travelers).where(eq(travelers.id, reservation.travelerId)).limit(1)
     : [];
-  const locale = traveler?.locale ?? "en";
+  const locale: Locale = traveler && isValidLocale(traveler.locale) ? traveler.locale : "en";
   return redirect(`/${locale}/booking-confirmed?session_id=${encodeURIComponent(session)}`, 302);
 };

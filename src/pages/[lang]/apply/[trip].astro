@@ -1,7 +1,7 @@
 ---
 import { toLocale } from "@i18n/utils";
 import type { Locale } from "@i18n/config";
-import { getTripPath, getApplyPath, TRIP_SLUGS } from "@i18n/routes";
+import { getTripPath, getApplyPath } from "@i18n/routes";
 import { loadTripPage } from "@/modules/trips/loaders/trip.loader";
 import { loadOpenDepartures } from "@/modules/departures/loaders/departure.loader";
 import BaseLayout from "@layouts/BaseLayout.astro";
@@ -17,8 +17,10 @@ if (!dto) {
 const copy = dto.translations[locale];
 const departures = await loadOpenDepartures(dto.id);
 const canonicalPath = getApplyPath(locale, copy.slug);
+// Slugs lus depuis le DTO DB (jamais TRIP_SLUGS statique : les ids DB
+// "trip-*" ne sont pas les clés TripId et les voyages admin ont des ids libres).
 const alternateUrls = Object.fromEntries(
-  (["fr", "en", "es", "ar"] as Locale[]).map((loc) => [loc, getApplyPath(loc, TRIP_SLUGS[dto.id][loc])]),
+  (["fr", "en", "es", "ar"] as Locale[]).filter((loc) => dto.visibleLocales.includes(loc)).map((loc) => [loc, getApplyPath(loc, dto.translations[loc].slug)]),
 );
 const l =
   locale === "fr"
@@ -80,6 +82,11 @@ const l =
       const s = String(v ?? "").trim();
       return s ? s : null;
     };
+    const el = form.querySelector("[data-form-message]");
+    if (data.get("activityAcknowledgement") !== "on" || data.get("consent") !== "on") {
+      if (el) el.textContent = "Error";
+      return;
+    }
     const { data: result, error } = await actions.submitApplication({
       tripId,
       departureId: String(data.get("departureId") ?? ""),
@@ -89,12 +96,11 @@ const l =
       roomPreference: data.get("roomPreference") === "single" ? "single" : "shared",
       dietaryRequirements: opt(data.get("dietaryRequirements")),
       accessibilityNeeds: opt(data.get("accessibilityNeeds")),
-      activityAcknowledgement: true,
+      activityAcknowledgement: true as const,
       motivation: opt(data.get("motivation")),
       expectations: opt(data.get("expectations")),
-      consent: true,
+      consent: true as const,
     });
-    const el = form.querySelector("[data-form-message]");
     if (error) {
       if (el) el.textContent = error.message;
     } else if (result) {

@@ -21,15 +21,6 @@ vi.mock('@/lib/rate-limit', () => ({
 
 import { GET, buildTsQuery, getRegconfig } from '@/pages/api/search';
 
-function makeOrganizationQuery(rows: Array<{ id: string }>) {
-  const chain: any = {
-    from: vi.fn(() => chain),
-    where: vi.fn(() => chain),
-    limit: vi.fn(() => Promise.resolve(rows)),
-  };
-  return chain;
-}
-
 beforeEach(() => {
   mockExecute.mockReset().mockResolvedValue({ rows: [] });
   mockSelect.mockReset();
