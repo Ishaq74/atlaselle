@@ -13,11 +13,19 @@ export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.requestId = incomingId || newRequestId();
 
   // ─── Locale guard — reject invalid [lang] segments with 404 ─────
+  // URLs canoniques en minuscules : /EN/.. et /Fr/.. redirigent (301) vers la
+  // forme canonique au lieu de servir le même contenu en double.
   const url = new URL(context.request.url);
   const pathSegments = url.pathname.split('/').filter(Boolean);
   const maybeLang = pathSegments[0];
-  if (maybeLang && /^[a-z]{2}$/.test(maybeLang) && !(LOCALES as readonly string[]).includes(maybeLang)) {
-    return new Response('Not Found', { status: 404 });
+  if (maybeLang && /^[A-Za-z]{2}$/.test(maybeLang)) {
+    const lower = maybeLang.toLowerCase();
+    if (!(LOCALES as readonly string[]).includes(lower)) {
+      return new Response('Not Found', { status: 404 });
+    }
+    if (lower !== maybeLang) {
+      return Response.redirect(`${url.origin}/${lower}${url.pathname.slice(3)}${url.search}`, 301);
+    }
   }
 
   // ─── Localized segments rewrite (voyages/viajes → trips, candidature/postulacion → apply) ──

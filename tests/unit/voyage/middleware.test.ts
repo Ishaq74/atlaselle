@@ -50,6 +50,21 @@ describe('middleware onRequest', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
+  it('rejette les locales invalides majuscules en 404', async () => {
+    const { context, next } = ctx('/XX/trips');
+    const res = await handle(context, next);
+    expect(res.status).toBe(404);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('redirige 301 les locales majuscules vers le canonique minuscule', async () => {
+    const { context, next } = ctx('/EN/trips?foo=bar');
+    const res = await handle(context, next);
+    expect(res.status).toBe(301);
+    expect(res.headers.get('Location')).toBe('http://localhost:4321/en/trips?foo=bar');
+    expect(next).not.toHaveBeenCalled();
+  });
+
   it('réécrit les segments localisés (voyages -> trips)', async () => {
     const { context, next } = ctx('/fr/voyages/afrique-du-sud');
     const res = await handle(context, next);
