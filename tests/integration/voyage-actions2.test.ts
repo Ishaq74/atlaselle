@@ -254,6 +254,21 @@ describe('submitApplication — fermetures, délais, comptes, rate-limit', () =>
     expect(ko).toHaveLength(1);
     expect(String((ko[0] as PromiseRejectedResult).reason?.message ?? '')).toContain('APPLICATION_EMAIL_CONFLICT');
   });
+
+  it('deux candidatures simultanées voyageur vérifié -> une passe, une DUPLICATE (garde anti-course)', async () => {
+    const email = `racev-${stamp}@test.com`;
+    const [t] = await db.insert(travelers).values({ email, locale: 'en', emailVerifiedAt: new Date() }).returning({ id: travelers.id });
+    void t;
+    const [one, two] = await Promise.allSettled([
+      submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, publicCtx()),
+      submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, publicCtx()),
+    ]);
+    const ok = [one, two].filter((s) => s.status === 'fulfilled');
+    const ko = [one, two].filter((s) => s.status === 'rejected');
+    expect(ok).toHaveLength(1);
+    expect(ko).toHaveLength(1);
+    expect(String((ko[0] as PromiseRejectedResult).reason?.message ?? '')).toContain('APPLICATION_DUPLICATE');
+  });
 });
 
 describe('review/withdraw — décisions et retraits', () => {

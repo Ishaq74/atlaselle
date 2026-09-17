@@ -12,6 +12,11 @@ import {
   getTripPath,
   getTripSlug,
   getTripsBasePath,
+  getFaqPath,
+  getTermsPath,
+  getPrivacyPath,
+  getAboutPath,
+  getContactPath,
   isTripDetailPath,
   resolveLocalizedRoute,
   resolveTripSlug,
@@ -116,6 +121,30 @@ describe('resolveLocalizedRoute (middleware rewrite → routes physiques)', () =
     expect(resolveLocalizedRoute('/fr/voyages')).toBe('/fr/trips');
     expect(resolveLocalizedRoute('/es/viajes')).toBe('/es/trips');
     expect(resolveLocalizedRoute('/en/trips')).toBeNull();
+  });
+});
+
+describe('structural path getters', () => {
+  it('faq/terms/privacy/about/contact paths per locale', () => {
+    expect(getFaqPath('fr')).toBe('/fr/faq');
+    expect(getTermsPath('fr')).toBe('/fr/conditions');
+    expect(getTermsPath('es')).toBe('/es/terminos');
+    expect(getPrivacyPath('fr')).toBe('/fr/confidentialite');
+    expect(getPrivacyPath('es')).toBe('/es/privacidad');
+    expect(getAboutPath('fr')).toBe('/fr/a-propos');
+    expect(getAboutPath('es')).toBe('/es/acerca-de');
+    expect(getContactPath('es')).toBe('/es/contacto');
+    expect(getContactPath('ar')).toBe('/ar/contact');
+  });
+
+  it('blog URL builders', async () => {
+    const { getBlogUrl, getBlogCategoryUrl, getBlogTagUrl, getBlogPostUrl } = await import('@/i18n/utils');
+    const blogT = { routes: { blog: 'blog', categories: 'cat', tags: 'tags' } } as never;
+    expect(getBlogUrl('fr', blogT)).toBe('/fr/blog');
+    expect(getBlogCategoryUrl('fr', blogT, 'news')).toBe('/fr/blog/news');
+    expect(getBlogTagUrl('fr', blogT, 'tech')).toBe('/fr/blog/tags/tech');
+    expect(getBlogPostUrl('fr', blogT, 'hello')).toBe('/fr/blog/hello');
+    expect(getBlogPostUrl('fr', blogT, 'hello', 'news')).toBe('/fr/blog/news/hello');
   });
 });
 

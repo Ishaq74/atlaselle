@@ -116,8 +116,23 @@ describe('checkRateLimit', () => {
     for (let i = 0; i < 50; i++) {
       const result = checkRateLimit(key, opts);
       expect(result.allowed).toBe(false);
-      // resetAt must be ≥ baseline + 1s (allow 100ms clock drift in CI)
+      // resetAt must be = baseline + 1s (allow 100ms clock drift in CI)
       expect(result.resetAt).toBeGreaterThanOrEqual(baseline + 900);
+    }
+  });
+
+  it('purges expired entries to make room when full', async () => {
+    const { resetRateLimiter } = await import('@/lib/rate-limit');
+    resetRateLimiter();
+    try {
+      for (let i = 0; i < 10_000; i++) {
+        checkRateLimit(`${keyPrefix}:fill-${i}`, { window: 0, max: 1 });
+      }
+      // all immediately expired -> purged on next insert -> accepted
+      const res = checkRateLimit(`${keyPrefix}:after-purge`, { window: 60, max: 1 });
+      expect(res.allowed).toBe(true);
+    } finally {
+      resetRateLimiter();
     }
   });
 });

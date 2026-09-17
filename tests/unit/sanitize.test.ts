@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeHtml, safeUrl, safeEmbedUrl } from '@lib/sanitize';
+import { sanitizeHtml, safeUrl, safeEmbedUrl, safeJsonLd } from '@lib/sanitize';
 
 describe('sanitizeHtml', () => {
   it('removes <script> tags', () => {
@@ -262,8 +262,7 @@ describe('safeEmbedUrl', () => {
   });
 });
 
-describe('sanitizeHtml — contrôles bidirectionnels invisibles', () => {
-  const RLO = String.fromCharCode(0x202e);
+describe('sanitizeHtml — contrôles bidirectionnels invisibles', () => {  const RLO = String.fromCharCode(0x202e);
   const LRI = String.fromCharCode(0x2066);
   const PDI = String.fromCharCode(0x2069);
   const RLM = String.fromCharCode(0x200f);
@@ -286,5 +285,20 @@ describe('sanitizeHtml — contrôles bidirectionnels invisibles', () => {
     const out = sanitizeHtml(`<p>${ar}${RLM}</p>`);
     expect(out).toContain(ar);
     expect(out.includes(RLM)).toBe(true);
+  });
+});
+
+describe('safeJsonLd', () => {
+  it('neutralise </script> et <!-- sans altérer le JSON', () => {
+    const json = JSON.stringify({ name: 'X</script><script>alert(1)</script>', desc: 'a<!--b' });
+    const out = safeJsonLd(json);
+    expect(out).not.toContain('</script>');
+    expect(out).not.toContain('<!--');
+    expect(JSON.parse(out)).toEqual(JSON.parse(json));
+  });
+
+  it('laisse le JSON sain inchangé', () => {
+    const json = JSON.stringify({ a: 1, b: 'x' });
+    expect(safeJsonLd(json)).toBe(json);
   });
 });

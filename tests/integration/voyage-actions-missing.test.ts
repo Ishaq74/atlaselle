@@ -128,6 +128,15 @@ describe('actions manquantes — policies, travelers, outbox, email, itinerary, 
     const out = await exportData({ id: t.id }, adminCtx(adminId));
     expect(out.applications).toHaveLength(1);
     expect(out.traveler.email).toContain(stamp);
+    const [rExp] = await db.insert(reservations).values({
+      reservationNumber: `ATL-2027-E${stamp.slice(-4).toUpperCase()}`,
+      travelerId: t.id, tripId: TRIP_ID, departureId: DEP_ID, status: 'pending',
+      currency: 'EUR', baseAmount: 100, totalAmount: 100, amountPaid: 0, amountDue: 100,
+    }).returning({ id: reservations.id });
+    const out2 = await exportData({ id: t.id }, adminCtx(adminId));
+    expect(out2.reservations).toHaveLength(1);
+    expect(out2.reservations[0]).toMatchObject({ status: 'pending', totalAmount: 100, currency: 'EUR' });
+    await db.delete(reservations).where(eq(reservations.id, rExp.id));
 
     // dossier actif -> conflit
     const [t2] = await db.insert(travelers).values({ email: `active-${stamp}@test.com`, locale: 'en' }).returning({ id: travelers.id });

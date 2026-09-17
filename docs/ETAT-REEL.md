@@ -23,6 +23,7 @@
 - Astro `7.3.1`, `@astrojs/node` `11.1.5`, output `server`, adapter `standalone` (`astro.config.mjs:10,66`).
 - Node `>=22.12.0`, pnpm `>=10`, PostgreSQL `16`.
 - better-auth `^1.7.4`, Drizzle ORM `^0.45.2`, Tailwind `^4.3.3`, Vitest `^4.1.11`, Playwright `^1.63.0`.
+- Nodemailer `^9.1.1`, Sharp `^0.35.4` (audit prod : 8 vulnérabilités → 1 restante `esbuild` niché `drizzle-kit`, sans exposition réseau — pas d'override pour ne pas risquer la toolchain de migrations).
 - i18n Astro : locales `fr,en,es,ar`, `defaultLocale: en`, `prefixDefaultLocale: true` (`astro.config.mjs:36-43`).
 - Sécurité : `security.checkOrigin: true`, `security.csp` présent (`astro.config.mjs:73-89`). Headers complémentaires dans `src/middleware.ts:62-72`. Allowlist Stripe.js à ajouter avec le module payments. `requestId` manquant (TODO §18.1 restant vrai).
 

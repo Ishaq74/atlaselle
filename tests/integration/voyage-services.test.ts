@@ -368,6 +368,13 @@ describe('email routing + batch', () => {
     expect(await routeOutboxToEmail('application.submitted', { applicationId: '00000000-0000-0000-0000-000000000000' }, stub)).toBe(false);
   });
 
+  it('route via reservationId seul (contexte chargé depuis la réservation)', async () => {
+    const t = await mkTraveler(`risonly-${stamp}@test.com`);
+    const r = await createReservation({ travelerId: t, tripId: TRIP_ID, departureId: DEP_ID, quote: QUOTE });
+    expect(await routeOutboxToEmail('booking.confirmed', { reservationId: r.id }, stub)).toBe(true);
+    expect(await routeOutboxToEmail('booking.confirmed', { reservationId: '00000000-0000-0000-0000-000000000000' }, stub)).toBe(false);
+  });
+
   it('SITE_URL absent -> repli localhost dans les liens', async () => {
     const calls: { html: string }[] = [];
     const capture = async (p: { html: string }) => {
