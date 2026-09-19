@@ -1,4 +1,4 @@
-import { z } from "astro/zod";
+import { z } from "zod";
 import type { AmountType } from "@database/schemas/departures.schema";
 
 // TODO §12.2 — PricingService 100 % piloté admin, montants en centimes.

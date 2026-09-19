@@ -25,7 +25,7 @@ export const applicationSubmitInput = z.object({
   tripId: z.string().min(1).max(160),
   departureId: z.string().min(1).max(160),
   legalName: z.string().trim().min(1).max(200).transform(sanitizeHtml),
-  email: z.string().trim().email().max(320),
+  email: z.string().trim().check(z.email()).max(320),
   phone: z.string().trim().max(40).transform(sanitizeHtml).nullable().optional(),
   roomPreference: z.enum(["shared", "single"]).default("shared"),
   dietaryRequirements: z.string().trim().max(2000).transform(sanitizeHtml).nullable().optional(),
@@ -161,7 +161,7 @@ export const submitApplication = defineAction({
 });
 
 export const applicationReviewInput = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   decision: z.enum(["approved", "declined", "contact_required"]),
   internalNote: z.string().trim().max(5000).transform(sanitizeHtml).nullable().optional(),
 });
@@ -224,7 +224,7 @@ export const reviewApplication = defineAction({
   },
 });
 
-export const applicationWithdrawInput = z.object({ id: z.string().uuid(), email: z.string().trim().email().max(320) });
+export const applicationWithdrawInput = z.object({ id: z.uuid(), email: z.string().trim().check(z.email()).max(320) });
 
 export const withdrawApplication = defineAction({
   input: applicationWithdrawInput,

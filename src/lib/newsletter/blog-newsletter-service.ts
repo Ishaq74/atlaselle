@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, eq, gte, isNull, or, sql } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
-import { blogSubscribers, organization } from "@database/schemas";
+import { blogSubscribers } from "@database/schemas";
 import type { Locale } from "@i18n/config";
 import { logAuditEvent } from "@/lib/audit";
 import { sendEmail } from "@/smtp/send";
@@ -21,7 +21,6 @@ interface NewsletterAuditContext {
 interface SubscribeBlogNewsletterInput {
   email: string;
   locale: Locale;
-  organizationId: string | null;
   configuredSite?: URL | null;
   audit?: NewsletterAuditContext;
 }
@@ -33,13 +32,6 @@ interface ConsumeNewsletterTokenInput {
 
 export interface NewsletterTokenConsumption {
   consumed: boolean;
-}
-
-export class NewsletterOrganizationNotFoundError extends Error {
-  constructor() {
-    super("Newsletter organization does not exist");
-    this.name = "NewsletterOrganizationNotFoundError";
-  }
 }
 
 export class NewsletterConfigurationError extends Error {
@@ -124,30 +116,17 @@ async function subscribe(input: SubscribeBlogNewsletterInput): Promise<void> {
   const db = getDrizzle();
 
   const subscriberId = await db.transaction(async (tx) => {
-    // PostgreSQL treats NULL values as distinct in the current
-    // (organization_id, email) unique index. The advisory lock prevents two
-    // application instances from concurrently creating duplicate global rows.
-    const lockScope = `${input.organizationId ?? "global"}:${hashToken(email)}`;
+    // La newsletter est globale (single-admin). Le verrou consultatif empêche
+    // deux instances de créer des lignes dupliquées en concurrence.
+    const lockScope = `global:${hashToken(email)}`;
     await tx.execute(
       sql`select pg_advisory_xact_lock(hashtextextended(${lockScope}, 0))`,
     );
 
-    if (input.organizationId) {
-      const [targetOrganization] = await tx
-        .select({ id: organization.id })
-        .from(organization)
-        .where(eq(organization.id, input.organizationId))
-        .limit(1);
-      if (!targetOrganization) throw new NewsletterOrganizationNotFoundError();
-    }
-
-    const organizationCondition = input.organizationId
-      ? eq(blogSubscribers.organizationId, input.organizationId)
-      : isNull(blogSubscribers.organizationId);
     const [existing] = await tx
       .select({ id: blogSubscribers.id })
       .from(blogSubscribers)
-      .where(and(eq(blogSubscribers.email, email), organizationCondition))
+      .where(eq(blogSubscribers.email, email))
       .limit(1);
 
     if (existing) {
@@ -185,7 +164,6 @@ async function subscribe(input: SubscribeBlogNewsletterInput): Promise<void> {
         confirmationTokenUsedAt: null,
         unsubscribeTokenHash,
         unsubscribeTokenUsedAt: null,
-        organizationId: input.organizationId,
         status: "PENDING",
         confirmedAt: null,
         unsubscribedAt: null,
@@ -201,7 +179,6 @@ async function subscribe(input: SubscribeBlogNewsletterInput): Promise<void> {
     resource: "blogSubscriber",
     resourceId: subscriberId,
     metadata: {
-      organizationId: input.organizationId,
       tokenVersion: "v2",
       confirmationExpiresAt: confirmationExpiresAt.toISOString(),
     },
@@ -229,7 +206,6 @@ async function subscribe(input: SubscribeBlogNewsletterInput): Promise<void> {
   } catch (error) {
     console.error("[newsletter] Confirmation delivery failed", {
       subscriberId,
-      organizationId: input.organizationId,
       ...safeOperationalError(error),
     });
     await logAuditEvent({
@@ -237,10 +213,9 @@ async function subscribe(input: SubscribeBlogNewsletterInput): Promise<void> {
       action: "EMAIL_SEND_FAILED",
       resource: "blogSubscriber",
       resourceId: subscriberId,
-      metadata: {
-        organizationId: input.organizationId,
-        purpose: "newsletter-confirmation",
-      },
+    metadata: {
+      purpose: "newsletter-confirmation",
+    },
       ipAddress: input.audit?.ipAddress,
       userAgent: input.audit?.userAgent,
     });
@@ -296,7 +271,6 @@ async function confirm(
     )
     .returning({
       id: blogSubscribers.id,
-      organizationId: blogSubscribers.organizationId,
     });
 
   if (!updated) return { consumed: false };
@@ -307,7 +281,6 @@ async function confirm(
     resource: "blogSubscriber",
     resourceId: updated.id,
     metadata: {
-      organizationId: updated.organizationId,
       tokenVersion: parsed.kind,
     },
     ipAddress: input.audit?.ipAddress,
@@ -363,7 +336,6 @@ async function unsubscribe(
     )
     .returning({
       id: blogSubscribers.id,
-      organizationId: blogSubscribers.organizationId,
     });
 
   if (!updated) return { consumed: false };
@@ -374,7 +346,6 @@ async function unsubscribe(
     resource: "blogSubscriber",
     resourceId: updated.id,
     metadata: {
-      organizationId: updated.organizationId,
       tokenVersion: parsed.kind,
     },
     ipAddress: input.audit?.ipAddress,

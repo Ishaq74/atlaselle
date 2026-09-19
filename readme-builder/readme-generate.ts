@@ -11,6 +11,7 @@ import { generateI18n }      from './generateI18n';
 import { generateQuality }   from './generateQuality';
 import { generateEnv, generateTsconfigAliases } from './generateDeps';
 import { getLangLinks, githubSlug } from './helpers';
+import { getProjectStats } from './generateStats';
 import { LANGS, i18n } from './i18n';
 import type { Lang } from './i18n';
 
@@ -33,12 +34,20 @@ async function generateReadmeForLang(lang: Lang): Promise<void> {
 
   let body = '';
 
-  // 1 ─ Overview + Tech Stack
+  // 1 ─ Overview + Tech Stack (stats dynamiques : package.json + src + tests + i18n/config)
+  const stats = await getProjectStats();
+  const testSummary = `${stats.unitCount + stats.integrationCount} Vitest + ${stats.e2eCount} E2E`;
+  const withStats = (str: string) =>
+    str
+      .replaceAll('{ASTRO_VERSION}', stats.astroVersion)
+      .replaceAll('{ATOMS_COUNT}', String(stats.atomsCount))
+      .replaceAll('{TEST_SUMMARY}', testSummary);
   body += `## ${s.overview[lang]}\n\n`;
   body += t.overview[lang] + '\n\n';
-  body += t.features[lang].map(f => `- ${f}`).join('\n') + '\n\n';
+  body += t.features[lang].map((f) => `- ${withStats(f)}`).join('\n') + '\n\n';
   body += `### ${s.techStack[lang]}\n\n`;
-  body += t.techStackContent[lang] + '\n\n';
+  body += withStats(t.techStackContent[lang]) + '\n\n';
+  body += `> Default locale: \`${stats.defaultLocale}\` (source: \`src/i18n/config.ts\`).\n\n`;
 
   // 2 ─ Getting Started
   body += `## ${s.gettingStarted[lang]}\n\n`;

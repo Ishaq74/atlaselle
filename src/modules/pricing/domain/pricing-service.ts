@@ -1,16 +1,18 @@
-import { eq } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
-import { departures } from "@database/schemas";
+import { getDepartureById } from "@/modules/departures/repositories/departure.repository";
 import { priceQuote, type PriceQuoteOptions, type PricingBreakdown, type RoomType } from "./pricing";
 
 // Façade serveur : lit le Departure et délègue au moteur pur (TODO §12.2).
 // Prix toujours recalculé serveur (checkout + webhook), jamais depuis le client.
+// P1-4 : `dbOverride` optionnel pour injection Tx/tests.
 export async function quoteForDeparture(
   departureId: string,
   roomType: RoomType = "shared",
   opts?: PriceQuoteOptions,
+  dbOverride?: ReturnType<typeof getDrizzle>,
 ): Promise<PricingBreakdown | null> {
-  const [dep] = await getDrizzle().select().from(departures).where(eq(departures.id, departureId)).limit(1);
+  const db = dbOverride ?? getDrizzle();
+  const dep = await getDepartureById(departureId, db);
   if (!dep) return null;
   return priceQuote({
     priceAmount: dep.priceAmount,

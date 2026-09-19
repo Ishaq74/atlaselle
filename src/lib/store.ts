@@ -79,10 +79,19 @@ export class MemoryCacheStore implements CacheStore {
 let rateLimitStore: RateLimitStore | null = null;
 let cacheStore: CacheStore | null = null;
 
+let storeBackendWarned = false;
+function warnMemoryStoreInProd(): void {
+  if (storeBackendWarned || process.env.NODE_ENV !== 'production') return;
+  if ((process.env.STORE_BACKEND ?? 'memory').toLowerCase() === 'redis') return;
+  storeBackendWarned = true;
+  console.warn('[store] STORE_BACKEND=memory en production : rate-limit/cache non distribués (multi-instance divergente). Passez à redis/valkey.');
+}
+
 /** Get the rate-limit store (singleton). */
 export function getRateLimitStore(): RateLimitStore {
   if (!rateLimitStore) {
     // Future: check process.env.STORE_BACKEND === 'redis' → new RedisRateLimitStore()
+    warnMemoryStoreInProd();
     rateLimitStore = new MemoryRateLimitStore();
   }
   return rateLimitStore;
@@ -92,6 +101,7 @@ export function getRateLimitStore(): RateLimitStore {
 export function getCacheStore(): CacheStore {
   if (!cacheStore) {
     // Future: check process.env.STORE_BACKEND === 'redis' → new RedisCacheStore()
+    warnMemoryStoreInProd();
     cacheStore = new MemoryCacheStore();
   }
   return cacheStore;

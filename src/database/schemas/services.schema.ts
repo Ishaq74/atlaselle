@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -13,7 +13,7 @@ import {
   customType,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
-import { user, organization } from "./auth.schema";
+import { user } from "./auth.schema";
 import { mediaFiles } from "./media.schema";
 import { LOCALES } from "@i18n/config";
 
@@ -24,7 +24,6 @@ export const services = pgTable(
   "services",
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     providerId: text("provider_id").notNull().references(() => user.id, { onDelete: "cascade" }),
     slug: text("slug").notNull(),
     status: text("status", { enum: ["DRAFT", "PUBLISHED", "ARCHIVED", "DELETED"] }).default("DRAFT").notNull(),
@@ -47,12 +46,11 @@ export const services = pgTable(
     lockedAt: timestamp("locked_at"),
   },
   (table) => [
-    uniqueIndex("services_org_slug_uidx").on(table.organizationId, table.slug),
-    index("services_org_idx").on(table.organizationId),
+    uniqueIndex("services_slug_uidx").on(table.slug),
     index("services_provider_idx").on(table.providerId),
     index("services_status_idx").on(table.status),
     index("services_published_at_idx").on(table.publishedAt),
-    index("services_featured_idx").on(table.organizationId, table.isFeatured, table.status),
+    index("services_featured_idx").on(table.isFeatured, table.status),
     check("services_publish_consistency", sql`NOT ${table.status} = 'PUBLISHED' OR ${table.publishedAt} IS NOT NULL`),
     check("services_price_non_negative", sql`${table.priceMinor} IS NULL OR ${table.priceMinor} >= 0`),
     check("services_duration_positive", sql`${table.durationMinutes} IS NULL OR ${table.durationMinutes} > 0`),
@@ -66,7 +64,6 @@ export const serviceTranslations = pgTable(
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     serviceId: text("service_id").notNull().references(() => services.id, { onDelete: "cascade" }),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     locale: localeEnum,
     title: text("title").notNull(),
     slug: text("slug").notNull(),
@@ -87,9 +84,7 @@ export const serviceTranslations = pgTable(
   },
   (table) => [
     uniqueIndex("service_translations_service_locale_uidx").on(table.serviceId, table.locale),
-    uniqueIndex("service_translations_org_locale_slug_uidx").on(table.organizationId, table.locale, table.slug).where(sql`${table.organizationId} IS NOT NULL`),
-    uniqueIndex("service_translations_global_locale_slug_uidx").on(table.locale, table.slug).where(sql`${table.organizationId} IS NULL`),
-    index("service_translations_locale_slug_idx").on(table.locale, table.slug),
+    uniqueIndex("service_translations_locale_slug_uidx").on(table.locale, table.slug),
     index("service_translations_search_vector_gin_idx").using("gin", table.searchVector),
   ],
 );
@@ -98,7 +93,6 @@ export const serviceCategories = pgTable(
   "service_categories",
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     parentId: text("parent_id").references((): AnyPgColumn => serviceCategories.id, { onDelete: "set null" }),
     slug: text("slug").notNull(),
     icon: text("icon"),
@@ -108,8 +102,7 @@ export const serviceCategories = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
   },
   (table) => [
-    uniqueIndex("service_categories_org_slug_uidx").on(table.organizationId, table.slug),
-    index("service_categories_org_idx").on(table.organizationId),
+    uniqueIndex("service_categories_slug_uidx").on(table.slug),
     index("service_categories_parent_idx").on(table.parentId),
     check("service_categories_no_self_parent", sql`${table.parentId} IS NULL OR ${table.parentId} != ${table.id}`),
   ],
@@ -120,7 +113,6 @@ export const serviceCategoryTranslations = pgTable(
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     categoryId: text("category_id").notNull().references(() => serviceCategories.id, { onDelete: "cascade" }),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     locale: localeEnum,
     name: text("name").notNull(),
     slug: text("slug").notNull(),
@@ -132,9 +124,7 @@ export const serviceCategoryTranslations = pgTable(
   },
   (table) => [
     uniqueIndex("service_category_translations_category_locale_uidx").on(table.categoryId, table.locale),
-    uniqueIndex("service_category_translations_org_locale_slug_uidx").on(table.organizationId, table.locale, table.slug).where(sql`${table.organizationId} IS NOT NULL`),
-    uniqueIndex("service_category_translations_global_locale_slug_uidx").on(table.locale, table.slug).where(sql`${table.organizationId} IS NULL`),
-    index("service_category_translations_locale_slug_idx").on(table.locale, table.slug),
+    uniqueIndex("service_category_translations_locale_slug_uidx").on(table.locale, table.slug),
   ],
 );
 
@@ -142,13 +132,12 @@ export const serviceTags = pgTable(
   "service_tags",
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     slug: text("slug").notNull(),
     color: text("color"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
   },
-  (table) => [uniqueIndex("service_tags_org_slug_uidx").on(table.organizationId, table.slug), index("service_tags_org_idx").on(table.organizationId)],
+  (table) => [uniqueIndex("service_tags_slug_uidx").on(table.slug)],
 );
 
 export const serviceTagTranslations = pgTable(
@@ -156,7 +145,6 @@ export const serviceTagTranslations = pgTable(
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     tagId: text("tag_id").notNull().references(() => serviceTags.id, { onDelete: "cascade" }),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     locale: localeEnum,
     name: text("name").notNull(),
     slug: text("slug").notNull(),
@@ -165,9 +153,7 @@ export const serviceTagTranslations = pgTable(
   },
   (table) => [
     uniqueIndex("service_tag_translations_tag_locale_uidx").on(table.tagId, table.locale),
-    uniqueIndex("service_tag_translations_org_locale_slug_uidx").on(table.organizationId, table.locale, table.slug).where(sql`${table.organizationId} IS NOT NULL`),
-    uniqueIndex("service_tag_translations_global_locale_slug_uidx").on(table.locale, table.slug).where(sql`${table.organizationId} IS NULL`),
-    index("service_tag_translations_locale_slug_idx").on(table.locale, table.slug),
+    uniqueIndex("service_tag_translations_locale_slug_uidx").on(table.locale, table.slug),
   ],
 );
 

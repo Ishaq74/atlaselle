@@ -42,15 +42,6 @@ import { publicBlogPostScope } from "@/lib/blog/public-visibility";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-export function orgScope(
-  table: typeof blogPosts | typeof blogCategories | typeof blogTags,
-  organizationId: string | null,
-) {
-  return organizationId === null
-    ? isNull(table.organizationId)
-    : eq(table.organizationId, organizationId);
-}
-
 export function publishedScope(table: typeof blogPosts) {
   return publicBlogPostScope(table);
 }
@@ -204,10 +195,9 @@ async function hydrateBlogPostListItems(
 // ─── Posts ───────────────────────────────────────────────────────────────────
 
 export const getBlogPostBySlug = cached(
-  (organizationId: string | null, locale: Locale, slug: string) =>
-    `blog:post:${organizationId ?? "global"}:${locale}:${slug}`,
+  (locale: Locale, slug: string) =>
+    `blog:post:${locale}:${slug}`,
   async (
-    organizationId: string | null,
     locale: Locale,
     slug: string,
   ) => {
@@ -225,7 +215,6 @@ export const getBlogPostBySlug = cached(
         and(
           eq(blogPostTranslations.locale, locale),
           eq(blogPostTranslations.slug, slug),
-          orgScope(blogPosts, organizationId),
           publicBlogPostScope(blogPosts),
         ),
       )
@@ -327,10 +316,9 @@ export const getBlogPostBySlug = cached(
 );
 
 export const getBlogPosts = cached(
-  (organizationId: string | null, locale: Locale, filters: BlogPostFilters) =>
-    `blog:list:${organizationId ?? "global"}:${locale}:${JSON.stringify(filters)}`,
+  (locale: Locale, filters: BlogPostFilters) =>
+    `blog:list:${locale}:${JSON.stringify(filters)}`,
   async (
-    organizationId: string | null,
     locale: Locale,
     filters: BlogPostFilters,
   ): Promise<{ items: BlogPostListItem[]; meta: BlogPaginationMeta }> => {
@@ -345,7 +333,6 @@ export const getBlogPosts = cached(
     const offset = (page - 1) * limit;
 
     const conditions: (ReturnType<typeof eq> | ReturnType<typeof and> | ReturnType<typeof or> | ReturnType<typeof ilike> | ReturnType<typeof inArray>)[] = [
-      orgScope(blogPosts, organizationId),
       eq(blogPostTranslations.locale, locale),
       publicBlogPostScope(blogPosts) as ReturnType<typeof and>,
     ];
@@ -367,7 +354,7 @@ export const getBlogPosts = cached(
             )
             .where(
               and(
-                orgScope(blogCategories, organizationId),
+                
                 or(
                   eq(blogCategoryTranslations.slug, filters.categorySlug),
                   and(isNull(blogCategoryTranslations.id), eq(blogCategories.slug, filters.categorySlug)),
@@ -392,7 +379,7 @@ export const getBlogPosts = cached(
             )
             .where(
               and(
-                orgScope(blogTags, organizationId),
+                
                 or(
                   eq(blogTagTranslations.slug, filters.tagSlug),
                   and(isNull(blogTagTranslations.id), eq(blogTags.slug, filters.tagSlug)),
@@ -474,9 +461,9 @@ export const getBlogPosts = cached(
 // ─── Authors ─────────────────────────────────────────────────────────────────
 
 export const getBlogAuthorByUsername = cached(
-  (organizationId: string | null, username: string) =>
-    `blog:author:${organizationId ?? "global"}:${username}`,
-  async (organizationId: string | null, username: string) => {
+  (username: string) =>
+    `blog:author:${username}`,
+  async (username: string) => {
     const db = getDrizzle();
 
     const [author] = await db
@@ -501,7 +488,6 @@ export const getBlogAuthorByUsername = cached(
       .where(
         and(
           eq(blogPosts.authorId, author.id),
-          orgScope(blogPosts, organizationId),
           publishedScope(blogPosts),
         ),
       );
@@ -512,16 +498,14 @@ export const getBlogAuthorByUsername = cached(
 
 export const getRelatedBlogPosts = cached(
   (
-    organizationId: string | null,
     locale: Locale,
     postId: string,
     categoryIds: string[],
     tagIds: string[],
     limit: number,
   ) =>
-    `blog:related:${organizationId ?? "global"}:${locale}:${postId}:${categoryIds.join(",")}:${tagIds.join(",")}:${limit}`,
+    `blog:related:${locale}:${postId}:${categoryIds.join(",")}:${tagIds.join(",")}:${limit}`,
   async (
-    organizationId: string | null,
     locale: Locale,
     postId: string,
     categoryIds: string[],
@@ -544,7 +528,6 @@ export const getRelatedBlogPosts = cached(
         )
         .where(
           and(
-            orgScope(blogPosts, organizationId),
             publishedScope(blogPosts),
             inArray(blogPostCategories.categoryId, categoryIds),
           ),
@@ -567,7 +550,6 @@ export const getRelatedBlogPosts = cached(
         )
         .where(
           and(
-            orgScope(blogPosts, organizationId),
             publishedScope(blogPosts),
             inArray(blogPostTags.tagId, tagIds),
           ),
@@ -584,7 +566,7 @@ export const getRelatedBlogPosts = cached(
       .map(([id]) => id);
 
     if (rankedIds.length === 0) {
-      const { items } = await getBlogPosts(organizationId, locale, { limit: limit + 1 });
+      const { items } = await getBlogPosts(locale, { limit: limit + 1 });
       return items.filter((item) => item.post.id !== postId).slice(0, limit);
     }
 
@@ -601,7 +583,6 @@ export const getRelatedBlogPosts = cached(
       .leftJoin(mediaFiles, eq(mediaFiles.id, blogPosts.featuredImageId))
       .where(
         and(
-          orgScope(blogPosts, organizationId),
           publishedScope(blogPosts),
           eq(blogPostTranslations.locale, locale),
           inArray(blogPosts.id, rankedIds),
@@ -627,7 +608,7 @@ export const getRelatedBlogPosts = cached(
     const seen = new Set(items.map((item) => item.post.id));
     seen.add(postId);
 
-    const { items: recentItems } = await getBlogPosts(organizationId, locale, {
+    const { items: recentItems } = await getBlogPosts(locale, {
       limit: limit + seen.size,
     });
 
@@ -656,10 +637,9 @@ function emptyMeta(filters: BlogPostFilters): BlogPaginationMeta {
 // ─── Categories ──────────────────────────────────────────────────────────────
 
 export const getBlogCategories = cached(
-  (organizationId: string | null, locale: Locale) =>
-    `blog:categories:${organizationId ?? "global"}:${locale}`,
+  (locale: Locale) =>
+    `blog:categories:${locale}`,
   async (
-    organizationId: string | null,
     locale: Locale,
   ): Promise<Array<BlogCategory & { translation: BlogCategoryTranslation | null; postCount: number }>> => {
     if (!isValidLocale(locale)) return [];
@@ -681,7 +661,6 @@ export const getBlogCategories = cached(
           eq(blogCategoryTranslations.locale, locale),
         ),
       )
-      .where(orgScope(blogCategories, organizationId))
       .orderBy(asc(blogCategories.sortOrder), asc(blogCategoryTranslations.name));
 
     const categoryIds = categories.map((c) => c.category.id);
@@ -708,9 +687,9 @@ export const getBlogCategories = cached(
 );
 
 export const getBlogCategoryBySlug = cached(
-  (organizationId: string | null, locale: Locale, slug: string) =>
-    `blog:category:${organizationId ?? "global"}:${locale}:${slug}`,
-  async (organizationId: string | null, locale: Locale, slug: string) => {
+  (locale: Locale, slug: string) =>
+    `blog:category:${locale}:${slug}`,
+  async (locale: Locale, slug: string) => {
     if (!isValidLocale(locale)) return null;
     const db = getDrizzle();
 
@@ -725,12 +704,9 @@ export const getBlogCategoryBySlug = cached(
         ),
       )
       .where(
-        and(
-          orgScope(blogCategories, organizationId),
-          or(
-            eq(blogCategoryTranslations.slug, slug),
-            and(isNull(blogCategoryTranslations.id), eq(blogCategories.slug, slug)),
-          ),
+        or(
+          eq(blogCategoryTranslations.slug, slug),
+          and(isNull(blogCategoryTranslations.id), eq(blogCategories.slug, slug)),
         ),
       )
       .limit(1);
@@ -742,10 +718,9 @@ export const getBlogCategoryBySlug = cached(
 // ─── Tags ────────────────────────────────────────────────────────────────────
 
 export const getBlogTags = cached(
-  (organizationId: string | null, locale: Locale) =>
-    `blog:tags:${organizationId ?? "global"}:${locale}`,
+  (locale: Locale) =>
+    `blog:tags:${locale}`,
   async (
-    organizationId: string | null,
     locale: Locale,
   ): Promise<Array<BlogTag & { translation: BlogTagTranslation | null; postCount: number }>> => {
     if (!isValidLocale(locale)) return [];
@@ -760,7 +735,6 @@ export const getBlogTags = cached(
         blogTagTranslations,
         and(eq(blogTagTranslations.tagId, blogTags.id), eq(blogTagTranslations.locale, locale)),
       )
-      .where(orgScope(blogTags, organizationId))
       .orderBy(asc(blogTagTranslations.name));
 
     const tagIds = tags.map((t) => t.tag.id);
@@ -785,9 +759,9 @@ export const getBlogTags = cached(
 );
 
 export const getBlogTagBySlug = cached(
-  (organizationId: string | null, locale: Locale, slug: string) =>
-    `blog:tag:${organizationId ?? "global"}:${locale}:${slug}`,
-  async (organizationId: string | null, locale: Locale, slug: string) => {
+  (locale: Locale, slug: string) =>
+    `blog:tag:${locale}:${slug}`,
+  async (locale: Locale, slug: string) => {
     if (!isValidLocale(locale)) return null;
     const db = getDrizzle();
 
@@ -799,12 +773,9 @@ export const getBlogTagBySlug = cached(
         and(eq(blogTagTranslations.tagId, blogTags.id), eq(blogTagTranslations.locale, locale)),
       )
       .where(
-        and(
-          orgScope(blogTags, organizationId),
-          or(
-            eq(blogTagTranslations.slug, slug),
-            and(isNull(blogTagTranslations.id), eq(blogTags.slug, slug)),
-          ),
+        or(
+          eq(blogTagTranslations.slug, slug),
+          and(isNull(blogTagTranslations.id), eq(blogTags.slug, slug)),
         ),
       )
       .limit(1);
@@ -1155,7 +1126,6 @@ export async function getBlogPostForAdmin(postId: string) {
 }
 
 export async function getBlogPostsForAdmin(
-  organizationId: string | null,
   locale?: Locale,
   opts: { page?: number; limit?: number; status?: BlogPostStatus; search?: string } = {},
 ) {
@@ -1165,7 +1135,7 @@ export async function getBlogPostsForAdmin(
   const limit = Math.min(100, Math.max(1, opts.limit ?? 20));
   const offset = (page - 1) * limit;
 
-  const conditions = [orgScope(blogPosts, organizationId)];
+  const conditions = [];
   if (locale) conditions.push(eq(blogPostTranslations.locale, locale));
   if (opts.status) conditions.push(eq(blogPosts.status, opts.status));
   if (opts.search) {
@@ -1252,7 +1222,6 @@ export async function getBlogPostsForAdmin(
 }
 
 export async function getBlogModerationQueue(
-  organizationId: string | null,
   opts: { page?: number; limit?: number } = {},
 ) {
   const db = getDrizzle();
@@ -1269,7 +1238,7 @@ export async function getBlogModerationQueue(
     .from(blogComments)
     .innerJoin(blogPosts, eq(blogComments.postId, blogPosts.id))
     .leftJoin(user, eq(user.id, blogComments.authorId))
-    .where(and(orgScope(blogPosts, organizationId), eq(blogComments.status, "PENDING")))
+    .where(and( eq(blogComments.status, "PENDING")))
     .orderBy(desc(blogComments.createdAt))
     .limit(limit)
     .offset(offset);
@@ -1283,7 +1252,7 @@ export async function getBlogModerationQueue(
     .from(blogPostReviews)
     .innerJoin(blogPosts, eq(blogPostReviews.postId, blogPosts.id))
     .leftJoin(user, eq(user.id, blogPostReviews.authorId))
-    .where(and(orgScope(blogPosts, organizationId), eq(blogPostReviews.status, "PENDING")))
+    .where(and( eq(blogPostReviews.status, "PENDING")))
     .orderBy(desc(blogPostReviews.createdAt))
     .limit(limit)
     .offset(offset);
@@ -1306,7 +1275,7 @@ export async function getBlogModerationQueue(
       ),
     )
     .leftJoin(user, eq(user.id, blogReports.reporterId))
-    .where(and(orgScope(blogPosts, organizationId), eq(blogReports.status, "PENDING")))
+    .where(and( eq(blogReports.status, "PENDING")))
     .orderBy(desc(blogReports.createdAt))
     .limit(limit)
     .offset(offset);
@@ -1322,7 +1291,6 @@ export async function getBlogNotifications(
     page?: number;
     limit?: number;
     unreadOnly?: boolean;
-    organizationId?: string | null;
   } = {},
 ) {
   const db = getDrizzle();
@@ -1352,11 +1320,6 @@ export async function getBlogNotifications(
       and(
         eq(blogNotifications.userId, userId),
         opts.unreadOnly ? eq(blogNotifications.isRead, false) : undefined,
-        Object.hasOwn(opts, "organizationId")
-          ? opts.organizationId === null
-            ? isNull(blogNotifications.organizationId)
-            : eq(blogNotifications.organizationId, opts.organizationId!)
-          : undefined,
       ),
     )
     .orderBy(desc(blogNotifications.createdAt))
@@ -1368,7 +1331,6 @@ export async function getBlogNotifications(
 
 export async function getUnreadBlogNotificationCount(
   userId: string,
-  organizationId?: string | null,
 ): Promise<number> {
   const db = getDrizzle();
   const query = db
@@ -1389,25 +1351,20 @@ export async function getUnreadBlogNotificationCount(
     and(
       eq(blogNotifications.userId, userId),
       eq(blogNotifications.isRead, false),
-      organizationId === undefined
-        ? undefined
-        : organizationId === null
-          ? isNull(blogNotifications.organizationId)
-          : eq(blogNotifications.organizationId, organizationId),
     ),
   );
   return Number(value);
 }
 
 /**
- * Returns the set of published post slugs for a tenant + locale.
+ * Returns the set of published post slugs for a locale.
  * Used by the content layer to detect dead internal links without N+1 queries
  * (one query returns every valid target for the whole blog).
  */
 export const getBlogPostSlugs = cached(
-  (organizationId: string | null, locale: Locale) =>
-    `blog:slugs:${organizationId ?? "global"}:${locale}`,
-  async (organizationId: string | null, locale: Locale): Promise<Set<string>> => {
+  (locale: Locale) =>
+    `blog:slugs:${locale}`,
+  async (locale: Locale): Promise<Set<string>> => {
     if (!isValidLocale(locale)) return new Set();
     const db = getDrizzle();
     const rows = await db
@@ -1417,7 +1374,6 @@ export const getBlogPostSlugs = cached(
       .where(
         and(
           eq(blogPostTranslations.locale, locale),
-          orgScope(blogPosts, organizationId),
           publishedScope(blogPosts),
         ),
       );
@@ -1426,21 +1382,21 @@ export const getBlogPostSlugs = cached(
 );
 
 /**
- * Set of all valid internal-link targets for a tenant+locale: post slugs,
+ * Set of all valid internal-link targets for a locale: post slugs,
  * category slugs and tag slugs. Used by RichContent to flag dead links so a
  * broken internal link is shown as a warning instead of silently navigating
  * nowhere. Previously only post slugs were returned, causing valid category/tag
  * links to be falsely flagged as dead.
  */
 export const getBlogValidLinkTargets = cached(
-  (organizationId: string | null, locale: Locale) =>
-    `blog:link-targets:${organizationId ?? "global"}:${locale}`,
-  async (organizationId: string | null, locale: Locale): Promise<Set<string>> => {
+  (locale: Locale) =>
+    `blog:link-targets:${locale}`,
+  async (locale: Locale): Promise<Set<string>> => {
     if (!isValidLocale(locale)) return new Set();
     const [postSlugs, categories, tags] = await Promise.all([
-      getBlogPostSlugs(organizationId, locale),
-      getBlogCategories(organizationId, locale),
-      getBlogTags(organizationId, locale),
+      getBlogPostSlugs(locale),
+      getBlogCategories(locale),
+      getBlogTags(locale),
     ]);
     const targets = new Set<string>(postSlugs);
     for (const c of categories) targets.add(c.slug);

@@ -54,7 +54,6 @@ import {
   assertTagInTenant,
   hasBlogPermission,
   invalidateBlogCache,
-  resolveBlogTenant,
 } from '@/actions/blog/_helpers';
 import { invalidateCache } from '@database/cache';
 
@@ -82,19 +81,6 @@ beforeEach(() => {
   mockSelect.mockReset();
   mockUserHasPermission.mockReset();
   mockUserHasPermission.mockResolvedValue({ success: true });
-});
-
-describe('resolveBlogTenant (single-tenant)', () => {
-  it('always returns the global context', () => {
-    expect(resolveBlogTenant({})).toEqual({
-      organizationId: null,
-      isOrgContext: false,
-    });
-    expect(resolveBlogTenant({ organizationId: 'org-1' })).toEqual({
-      organizationId: null,
-      isOrgContext: false,
-    });
-  });
 });
 
 describe('assertBlogPermission', () => {

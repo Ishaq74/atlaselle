@@ -38,10 +38,9 @@ interface Props {
   blogT: BlogTranslations;
   kind: TaxonomyKind;
   items: TaxonomyItem[];
-  organizationId?: string | null;
 }
 
-const { locale, blogT, kind, items, organizationId } = Astro.props;
+const { locale, blogT, kind, items } = Astro.props;
 
 const isCategory = kind === "category";
 const taxonomyT = blogT.admin.taxonomy;
@@ -196,7 +195,6 @@ const labels = {
   class="hidden"
   data-kind={kind}
   data-locale={locale}
-  data-organization-id={organizationId ?? ""}
   data-create-label={labels.create}
   data-edit-label={labels.edit}
   data-t-saved={feedbackT.saved}
@@ -214,7 +212,6 @@ const labels = {
     dataEl.dataset.bound = '1';
 
     const locale = dataEl.dataset.locale as 'fr' | 'en' | 'es' | 'ar';
-    const organizationId = dataEl.dataset.organizationId || undefined;
     const dialogEl = document.getElementById(`${kind}-dialog`);
     const deleteDialogEl = document.getElementById(`${kind}-delete-dialog`);
     const titleEl = dialogEl?.querySelector('[data-slot="dialog-title"]') as HTMLElement | null;
@@ -287,7 +284,6 @@ const labels = {
       const id = editIdInput?.value || undefined;
       const formPayload: Record<string, unknown> = {
         locale,
-        organizationId,
         name: nameInput?.value.trim(),
         slug: slugInput?.value.trim(),
         color: colorInput?.value.trim() || undefined,

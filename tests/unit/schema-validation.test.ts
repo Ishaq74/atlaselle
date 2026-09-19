@@ -1,14 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import * as schema from '@database/schemas';
 
+// Single-admin : tables organization/member/invitation supprimées (migration 0015).
 const expectedTables = [
   'user',
   'session',
   'account',
   'verification',
-  'organization',
-  'member',
-  'invitation',
   'auditLog',
 ] as const;
 
@@ -44,10 +42,8 @@ describe('Schema — Table exports', () => {
     expect(cols.userId).toBeDefined();
   });
 
-  it('organization table has name and slug', () => {
-    const cols = schema.organization as unknown as Record<string, unknown>;
-    expect(cols.id).toBeDefined();
-    expect(cols.name).toBeDefined();
-    expect(cols.slug).toBeDefined();
+  it('session table has no organization column (single-admin)', () => {
+    const cols = schema.session as unknown as Record<string, unknown>;
+    expect(cols.activeOrganizationId).toBeUndefined();
   });
 });

@@ -23,27 +23,29 @@ _This README is auto-generated to provide comprehensive context for AI assistanc
 
 SSR multi-language web application with complete authentication, organisation management, CMS, media upload, and audit trail.
 
-- ⚡ **Astro 6** (SSR, `@astrojs/node`) — Server-side rendering, Tailwind CSS 4, TypeScript
+- ⚡ **Astro 7.3.1** (SSR, `@astrojs/node`) — Server-side rendering, Tailwind CSS 4, TypeScript
 - 🔐 **better-auth** — Email/password, email verification, organisations, roles, admin impersonation
 - 🗄️ **Drizzle ORM** + **PostgreSQL 16** — Type-safe migrations, loaders, full-text search
-- 🎨 **Starwind** — 47+ accessible Astro UI components
+- 🎨 **Starwind** — 48 accessible Astro UI components
 - 🌍 **i18n** — fr, en, es, ar (RTL) with localised routes
 - 📋 **CMS** — Pages, typed JSON sections, navigation, scheduling, versioning, import/export
 - 📁 **Media** — Upload, Sharp image processing, folder organisation
 - 📧 **SMTP** — Brevo / Resend / Nodemailer + dead-letter queue
 - 🛡️ **Security** — Audit trail, rate limiting, input sanitization
-- ✅ **Testing** — 741 Vitest + 34 E2E Playwright scenarios × 3 browsers
+- ✅ **Testing** — 167 Vitest + 9 E2E Playwright scenarios × 3 browsers
 
 ### Tech Stack
 
 | Technology | Role |
 |:--|:--|
-| **Astro 6** (`@astrojs/node`) | SSR framework |
+| **Astro 7.3.1** (`@astrojs/node`) | SSR framework |
 | **better-auth** | Auth, organisations, sessions |
 | **Drizzle ORM** + **PostgreSQL 16** | Database |
-| **Tailwind CSS 4** + **Starwind** | Design system (47+ components) |
+| **Tailwind CSS 4** + **Starwind** | Design system (48 components) |
 | **Vitest** + **Playwright** | Unit, integration & E2E tests |
 | **GitHub Actions** | CI/CD |
+
+> Default locale: `en` (source: `src/i18n/config.ts`).
 
 ## Getting Started
 
@@ -290,8 +292,6 @@ data/
   00b-media-files.data.ts
   01-users.data.ts
   01b-user-accounts.data.ts
-  02-organizations.data.ts
-  02b-organization-members.data.ts
   03-site-settings.data.ts
   04-social-links.data.ts
   05-contact-info.data.ts
@@ -348,6 +348,22 @@ data/
   39-service-notifications.data.ts
   40-service-attribute-definitions.data.ts
   40b-service-attribute-values.data.ts
+  41-trips.data.ts
+  42-trip-translations.data.ts
+  43-departures.data.ts
+  44-itinerary.data.ts
+  44b-itinerary-translations.data.ts
+  45-faq.data.ts
+  45b-faq-translations.data.ts
+  45c-trip-faqs.data.ts
+  46-trip-highlights.data.ts
+  46b-trip-highlight-translations.data.ts
+  46c-trip-inclusions.data.ts
+  46d-trip-inclusion-translations.data.ts
+  46e-trip-exclusions.data.ts
+  46f-trip-exclusion-translations.data.ts
+  47-policy-documents.data.ts
+  47b-policy-versions.data.ts
   manifest.ts
 drizzle.ts
 env.ts
@@ -365,55 +381,48 @@ loaders/
   media.loader.ts
   navigation.loader.ts
   page.loader.ts
+  search.loader.ts
   site.loader.ts
 migrations/
-  0000_plain_old_lace.sql
-  0001_numerous_ken_ellis.sql
-  0002_sticky_blazing_skull.sql
-  0003_brief_senator_kelly.sql
-  0004_flashy_ezekiel_stane.sql
-  0005_hard_joseph.sql
-  0006_services_module.sql
-  0007_services_search_vector.sql
-  0008_services_notification_targets.sql
-  0009_better_auth_account_issuer.sql
+  0000_tranquil_toad.sql
   meta/
     0000_snapshot.json
-    0001_snapshot.json
-    0002_snapshot.json
-    0003_snapshot.json
-    0004_snapshot.json
-    0005_snapshot.json
     _journal.json
 schemas/
+  applications.schema.ts
   audit-log.schema.ts
   auth.schema.ts
   blog.schema.ts
   consent.schema.ts
+  departures.schema.ts
+  email-voyage.schema.ts
+  itinerary.schema.ts
   media.schema.ts
   navigation.schema.ts
+  outbox.schema.ts
   page-version.schema.ts
   page.schema.ts
+  payments.schema.ts
+  policies.schema.ts
+  reservations.schema.ts
   services-engagement.schema.ts
   services.schema.ts
   site.schema.ts
+  travelers.schema.ts
+  trips.schema.ts
 schemas.ts
 ```
 
 ### Schemas & Tables
 
 **auth.schema.ts**
-- `user`: `id`, `name`, `email`, `emailVerified`, `image`, `createdAt`, `updatedAt`, `username`, `displayUsername`, `bio`, `website`, `twitter`, `linkedin`, `role`, `banned`, `banReason`, `banExpires` _(sessions: many, accounts: many, members: many, invitations: many)_
-- `session`: `id`, `expiresAt`, `token`, `createdAt`, `updatedAt`, `ipAddress`, `userAgent`, `userId`, `impersonatedBy`, `activeOrganizationId` _(user: one)_
+- `user`: `id`, `name`, `email`, `emailVerified`, `image`, `createdAt`, `updatedAt`, `username`, `displayUsername`, `bio`, `website`, `twitter`, `linkedin`, `role`, `banned`, `banReason`, `banExpires` _(sessions: many, accounts: many)_
+- `session`: `id`, `expiresAt`, `token`, `createdAt`, `updatedAt`, `ipAddress`, `userAgent`, `userId`, `impersonatedBy` _(user: one)_
 - `account`: `id`, `issuer`, `accountId`, `providerId`, `userId`, `accessToken`, `refreshToken`, `idToken`, `accessTokenExpiresAt`, `refreshTokenExpiresAt`, `scope`, `password`, `createdAt`, `updatedAt` _(user: one)_
 - `verification`: `id`, `identifier`, `value`, `expiresAt`, `createdAt`, `updatedAt`
-- `organization`: `id`, `name`, `slug`, `logo`, `createdAt`, `updatedAt`, `metadata` _(organizationRoles: many, members: many, invitations: many)_
-- `member`: `id`, `organizationId`, `userId`, `role`, `createdAt` _(organization: one, user: one)_
-- `invitation`: `id`, `organizationId`, `email`, `role`, `status`, `expiresAt`, `createdAt`, `inviterId` _(organization: one, user: one)_
-- `organization_role`: `id`, `organizationId`, `role`, `permission`, `createdAt`, `updatedAt` _(organization: one)_
 
 **audit-log.schema.ts**
-- `audit_log`: `id`, `userId`, `action`, `resource`, `resourceId`, `metadata`, `ipAddress`, `userAgent`, `createdAt` _(user: one)_
+- `audit_log`: `id`, `userId`, `action`, `resource`, `resourceId`, `metadata`, `ipAddress`, `userAgent`, `createdAt`
 
 **site.schema.ts**
 - `site_settings`: `id`, `locale`, `siteName`, `siteDescription`, `siteSlogan`, `metaTitle`, `metaDescription`, `logoLight`, `logoDark`, `favicon`, `ogImage`, `headerCtaText`, `headerCtaUrl`, `headerSecondaryText`, `headerSecondaryUrl`, `headerSticky`, `footerCopyrightText`, `footerCopyrightUrl`, `footerSocialHeading`, `footerNavPrimaryHeading`, `footerNavSecondaryHeading`, `footerLegalHeading`, `createdAt`, `updatedAt`
@@ -434,20 +443,20 @@ schemas.ts
 - `page_versions`: `id`, `pageId`, `versionNumber`, `snapshot`, `createdBy`, `note`, `createdAt` _(page: one, author: one)_
 
 **media.schema.ts**
-- `media_folders`: `id`, `organizationId`, `name`, `parentId`, `sortOrder`, `createdAt`, `updatedAt` _(organization: one, parent: one, children: many, files: many)_
-- `media_files`: `id`, `organizationId`, `folderId`, `filename`, `url`, `mimeType`, `size`, `width`, `height`, `createdAt`, `updatedAt` _(organization: one, folder: one, alts: many)_
+- `media_folders`: `id`, `name`, `parentId`, `sortOrder`, `createdAt`, `updatedAt` _(parent: one, children: many, files: many)_
+- `media_files`: `id`, `folderId`, `filename`, `url`, `mimeType`, `size`, `width`, `height`, `createdAt`, `updatedAt` _(folder: one, alts: many)_
 - `media_file_alts`: `id`, `fileId`, `locale`, `alt`, `title` _(file: one)_
 
 **consent.schema.ts**
 - `consent_settings`: `id`, `locale`, `title`, `description`, `acceptAll`, `rejectAll`, `customize`, `savePreferences`, `necessaryLabel`, `necessaryDescription`, `analyticsLabel`, `analyticsDescription`, `marketingLabel`, `marketingDescription`, `privacyPolicyLabel`, `privacyPolicyUrl`, `isActive`, `createdAt`, `updatedAt`
 
 **blog.schema.ts**
-- `blog_posts`: `id`, `organizationId`, `authorId`, `slug`, `status`, `featuredImageId`, `viewCount`, `isFeatured`, `isSticky`, `commentStatus`, `allowReviews`, `seoScore`, `publishedAt`, `createdAt`, `updatedAt`, `updatedBy`, `lockedBy`, `lockedAt` _(organization: one, author: one, updatedByUser: one, lockedByUser: one, featuredImage: one, translations: many, categories: many, tags: many, comments: many, revisions: many, galleries: many, reviews: many, favorites: many, reactions: many, seo: many, viewStats: many, links: many, linkedTo: many, locks: one)_
-- `blog_post_translations`: `id`, `postId`, `organizationId`, `locale`, `title`, `slug`, `content`, `excerpt`, `metaTitle`, `metaDescription`, `metaKeywords`, `canonicalUrl`, `ogTitle`, `ogDescription`, `ogImageId`, `createdAt`, `updatedAt` _(post: one, ogImage: one)_
-- `blog_categories`: `id`, `organizationId`, `parentId`, `slug`, `icon`, `color`, `sortOrder`, `createdAt`, `updatedAt` _(organization: one, parent: one, children: many, translations: many, posts: many)_
-- `blog_category_translations`: `id`, `categoryId`, `organizationId`, `locale`, `name`, `slug`, `description`, `metaTitle`, `metaDescription`, `createdAt`, `updatedAt` _(category: one)_
-- `blog_tags`: `id`, `organizationId`, `slug`, `color`, `createdAt`, `updatedAt` _(organization: one, translations: many, posts: many)_
-- `blog_tag_translations`: `id`, `tagId`, `organizationId`, `locale`, `name`, `slug`, `createdAt`, `updatedAt` _(tag: one)_
+- `blog_posts`: `id`, `authorId`, `slug`, `status`, `featuredImageId`, `viewCount`, `isFeatured`, `isSticky`, `commentStatus`, `allowReviews`, `seoScore`, `publishedAt`, `createdAt`, `updatedAt`, `updatedBy`, `lockedBy`, `lockedAt` _(author: one, updatedByUser: one, lockedByUser: one, featuredImage: one, translations: many, categories: many, tags: many, comments: many, revisions: many, galleries: many, reviews: many, favorites: many, reactions: many, seo: many, viewStats: many, links: many, linkedTo: many, locks: one)_
+- `blog_post_translations`: `id`, `postId`, `locale`, `title`, `slug`, `content`, `excerpt`, `metaTitle`, `metaDescription`, `metaKeywords`, `canonicalUrl`, `ogTitle`, `ogDescription`, `ogImageId`, `createdAt`, `updatedAt` _(post: one, ogImage: one)_
+- `blog_categories`: `id`, `parentId`, `slug`, `icon`, `color`, `sortOrder`, `createdAt`, `updatedAt` _(parent: one, children: many, translations: many, posts: many)_
+- `blog_category_translations`: `id`, `categoryId`, `locale`, `name`, `slug`, `description`, `metaTitle`, `metaDescription`, `createdAt`, `updatedAt` _(category: one)_
+- `blog_tags`: `id`, `slug`, `color`, `createdAt`, `updatedAt` _(translations: many, posts: many)_
+- `blog_tag_translations`: `id`, `tagId`, `locale`, `name`, `slug`, `createdAt`, `updatedAt` _(tag: one)_
 - `blog_post_categories`: `postId`, `categoryId` _(post: one, category: one)_
 - `blog_post_tags`: `postId`, `tagId` _(post: one, tag: one)_
 - `blog_comments`: `id`, `postId`, `authorId`, `parentId`, `guestName`, `guestEmail`, `content`, `status`, `karma`, `ipAddress`, `userAgent`, `isEdited`, `createdAt`, `updatedAt` _(post: one, author: one, parent: one, replies: many, moderations: many)_
@@ -462,18 +471,18 @@ schemas.ts
 - `blog_post_reactions`: `postId`, `userId`, `reactionType`, `createdAt`, `updatedAt` _(post: one, user: one)_
 - `blog_post_seo`: `id`, `postId`, `locale`, `focusKeyword`, `focusKeywordScore`, `readabilityScore`, `metaRobots`, `metaOgType`, `metaOgLocale`, `metaTwitterCard`, `schemaMarkup`, `createdAt`, `updatedAt` _(post: one)_
 - `blog_post_view_stats`: `id`, `postId`, `viewedAt`, `date`, `hour`, `referrer`, `country`, `deviceType`, `sessionId` _(post: one)_
-- `blog_notifications`: `id`, `userId`, `organizationId`, `type`, `postId`, `commentId`, `reviewId`, `fromUserId`, `isRead`, `metadata`, `createdAt` _(user: one, organization: one, post: one, comment: one, review: one, fromUser: one)_
+- `blog_notifications`: `id`, `userId`, `type`, `postId`, `commentId`, `reviewId`, `fromUserId`, `isRead`, `metadata`, `createdAt` _(user: one, post: one, comment: one, review: one, fromUser: one)_
 - `blog_post_locks`: `id`, `postId`, `userId`, `sessionId`, `lockedAt`, `expiresAt` _(post: one, user: one)_
 - `blog_post_links`: `id`, `sourcePostId`, `targetPostId`, `linkType`, `sortOrder`, `createdAt` _(sourcePost: one, targetPost: one)_
-- `blog_subscribers`: `id`, `organizationId`, `email`, `locale`, `token`, `tokenUsedAt`, `confirmationTokenHash`, `confirmationTokenExpiresAt`, `confirmationTokenUsedAt`, `unsubscribeTokenHash`, `unsubscribeTokenUsedAt`, `status`, `confirmedAt`, `unsubscribedAt`, `createdAt`, `updatedAt`
+- `blog_subscribers`: `id`, `email`, `locale`, `token`, `tokenUsedAt`, `confirmationTokenHash`, `confirmationTokenExpiresAt`, `confirmationTokenUsedAt`, `unsubscribeTokenHash`, `unsubscribeTokenUsedAt`, `status`, `confirmedAt`, `unsubscribedAt`, `createdAt`, `updatedAt`
 
 **services.schema.ts**
-- `services`: `id`, `organizationId`, `providerId`, `slug`, `status`, `coverImageId`, `priceMinor`, `currency`, `durationMinutes`, `maxParticipants`, `isMobile`, `isFeatured`, `viewCount`, `ratingAverage100`, `ratingCount`, `seoScore`, `publishedAt`, `createdAt`, `updatedAt`, `updatedBy`, `lockedBy`, `lockedAt`
-- `service_translations`: `id`, `serviceId`, `organizationId`, `locale`, `title`, `slug`, `excerpt`, `content`, `locationLabel`, `locationAddress`, `metaTitle`, `metaDescription`, `metaKeywords`, `canonicalUrl`, `ogTitle`, `ogDescription`, `ogImageId`, `searchVector`, `createdAt`, `updatedAt`
-- `service_categories`: `id`, `organizationId`, `parentId`, `slug`, `icon`, `color`, `sortOrder`, `createdAt`, `updatedAt`
-- `service_category_translations`: `id`, `categoryId`, `organizationId`, `locale`, `name`, `slug`, `description`, `metaTitle`, `metaDescription`, `createdAt`, `updatedAt`
-- `service_tags`: `id`, `organizationId`, `slug`, `color`, `createdAt`, `updatedAt`
-- `service_tag_translations`: `id`, `tagId`, `organizationId`, `locale`, `name`, `slug`, `createdAt`, `updatedAt`
+- `services`: `id`, `providerId`, `slug`, `status`, `coverImageId`, `priceMinor`, `currency`, `durationMinutes`, `maxParticipants`, `isMobile`, `isFeatured`, `viewCount`, `ratingAverage100`, `ratingCount`, `seoScore`, `publishedAt`, `createdAt`, `updatedAt`, `updatedBy`, `lockedBy`, `lockedAt`
+- `service_translations`: `id`, `serviceId`, `locale`, `title`, `slug`, `excerpt`, `content`, `locationLabel`, `locationAddress`, `metaTitle`, `metaDescription`, `metaKeywords`, `canonicalUrl`, `ogTitle`, `ogDescription`, `ogImageId`, `searchVector`, `createdAt`, `updatedAt`
+- `service_categories`: `id`, `parentId`, `slug`, `icon`, `color`, `sortOrder`, `createdAt`, `updatedAt`
+- `service_category_translations`: `id`, `categoryId`, `locale`, `name`, `slug`, `description`, `metaTitle`, `metaDescription`, `createdAt`, `updatedAt`
+- `service_tags`: `id`, `slug`, `color`, `createdAt`, `updatedAt`
+- `service_tag_translations`: `id`, `tagId`, `locale`, `name`, `slug`, `createdAt`, `updatedAt`
 - `service_category_links`: `serviceId`, `categoryId`
 - `service_tag_links`: `serviceId`, `tagId`
 - `service_media`: `serviceId`, `mediaId`, `kind`, `altText`, `caption`, `sortOrder`
@@ -494,18 +503,62 @@ schemas.ts
 - `service_attribute_values`: `serviceId`
 - `service_review_helpful`: `reviewId`, `userId`, `isHelpful`, `createdAt`
 
+**trips.schema.ts**
+- `trips`: `id`, `status`, `countryCode`, `defaultCurrency`, `heroMediaId`, `durationDays`, `durationNights`, `groupMin`, `groupMax`, `difficulty`, `difficultyLevel`, `arrivalAirport`, `departureAirport`, `accommodationStyle`, `requireAccount`, `publishedAt`, `archivedAt`, `createdAt`, `updatedAt` _(translations: many, highlights: many, inclusions: many, exclusions: many, tripFaqs: many, revisions: many)_
+- `trip_translations`: `id`, `tripId`, `locale`, `slug`, `title`, `shortTitle`, `summary`, `overview`, `highlights`, `experience`, `fitness`, `preparation`, `lodging`, `food`, `faithConsiderations`, `metaTitle`, `metaDescription`, `localeVisible`, `createdAt`, `updatedAt` _(trip: one)_
+- `trip_highlights`: `id`, `tripId`, `mediaId`, `iconKey`, `sortOrder`, `createdAt`
+- `trip_highlight_translations`: `id`, `highlightId`, `locale`, `title`, `description`, `updatedAt`
+- `trip_inclusions`: `id`, `tripId`, `sortOrder`
+- `trip_inclusion_translations`: `id`, `inclusionId`, `locale`, `text`, `updatedAt`
+- `trip_exclusions`: `id`, `tripId`, `sortOrder`
+- `trip_exclusion_translations`: `id`, `exclusionId`, `locale`, `text`, `updatedAt`
+- `faqs`: `id`, `sortOrder`, `createdAt`, `updatedAt`
+- `faq_translations`: `id`, `faqId`, `locale`, `question`, `answer`, `updatedAt`
+- `trip_faqs`: `tripId`, `faqId`, `sortOrder`
+- `trip_revisions`: `id`, `tripId`, `snapshot`, `createdBy`, `createdAt`
+
+**itinerary.schema.ts**
+- `itinerary_days`: `id`, `tripId`, `dayNumber`, `location`, `route`, `activityLevel`, `distanceKm`, `activityDurationMin`, `minAltitudeM`, `maxAltitudeM`, `createdAt`, `updatedAt` _(translations: many, trip: one)_
+- `itinerary_day_translations`: `id`, `dayId`, `locale`, `title`, `morning`, `afternoon`, `evening`, `meals`, `accommodation`, `transfer`, `notes`, `updatedAt`
+
+**departures.schema.ts**
+- `departures`: `id`, `tripId`, `startDate`, `endDate`, `status`, `capacityMin`, `capacityMax`, `priceAmount`, `currency`, `depositType`, `depositAmount`, `depositPercent`, `singleSupplementType`, `singleSupplementAmount`, `taxType`, `taxAmount`, `feeType`, `feeAmount`, `discountType`, `discountAmount`, `pricingRules`, `balanceDueDate`, `bookingDeadline`, `arrivalAirport`, `departureAirport`, `createdAt`, `updatedAt` _(holds: many, trip: one)_
+- `seat_holds`: `id`, `departureId`, `applicationId`, `quantity`, `status`, `expiresAt`, `createdAt`, `releasedAt`
+
+**travelers.schema.ts**
+- `travelers`: `id`, `userId`, `email`, `phone`, `legalName`, `preferredName`, `dateOfBirth`, `locale`, `timezone`, `emailVerifiedAt`, `createdAt`, `updatedAt`
+- `traveler_internal_notes`: `id`, `travelerId`, `adminUserId`, `note`, `createdAt`
+
+**applications.schema.ts**
+- `applications`: `id`, `travelerId`, `tripId`, `departureId`, `status`, `roomPreference`, `dietaryRequirements`, `accessibilityNeeds`, `activityAcknowledgement`, `motivation`, `expectations`, `consent`, `submittedAt`, `createdAt`, `updatedAt` _(decisions: many, events: many, traveler: one, trip: one, departure: one)_
+- `application_decisions`: `id`, `applicationId`, `decision`, `adminUserId`, `internalNote`, `createdAt`
+- `application_events`: `id`, `applicationId`, `event`, `actorId`, `createdAt`
+- `application_internal_notes`: `id`, `applicationId`, `adminUserId`, `note`, `createdAt`
+
+**reservations.schema.ts**
+- `reservations`: `id`, `reservationNumber`, `travelerId`, `tripId`, `departureId`, `applicationId`, `status`, `currency`, `baseAmount`, `singleSupplementAmount`, `discountAmount`, `taxAmount`, `feeAmount`, `totalAmount`, `amountPaid`, `amountDue`, `balanceDueDate`, `agreementVersionId`, `acceptedAt`, `confirmedAt`, `cancelledAt`, `completedAt`, `createdAt`, `updatedAt` _(snapshots: many, traveler: one, departure: one)_
+- `reservation_price_snapshots`: `id`, `reservationId`, `snapshot`, `createdAt`
+- `reservation_internal_notes`: `id`, `reservationId`, `adminUserId`, `note`, `createdAt`
+
+**payments.schema.ts**
+- `payments`: `id`, `reservationId`, `provider`, `providerPaymentId`, `type`, `status`, `amount`, `currency`, `idempotencyKey`, `metadata`, `createdAt`, `paidAt`, `failedAt` _(reservation: one)_
+- `checkout_sessions`: `id`, `applicationId`, `departureId`, `reservationId`, `providerSessionId`, `status`, `expiresAt`, `createdAt`, `updatedAt`
+
+**policies.schema.ts**
+- `policy_documents`: `id`, `type`, `locale`, `createdAt`, `updatedAt` _(versions: many)_
+- `policy_versions`: `id`, `documentId`, `version`, `title`, `content`, `published`, `reviewedBy`, `reviewedAt`, `publishedAt`, `createdAt`
+
+**outbox.schema.ts**
+- `outbox_events`: `id`, `eventType`, `aggregateType`, `aggregateId`, `payload`, `status`, `attempts`, `availableAt`, `processedAt`, `createdAt`
+
+**email-voyage.schema.ts**
+- `email_templates`: `id`, `key`, `locale`, `version`, `subject`, `html`, `textBody`, `active`, `createdAt`, `updatedAt`
+- `email_deliveries`: `id`, `templateKey`, `templateVersion`, `locale`, `toEmail`, `travelerId`, `reservationId`, `status`, `attempts`, `lastError`, `scheduledAt`, `sentAt`, `createdAt`, `updatedAt` _(events: many)_
+- `email_events`: `id`, `deliveryId`, `event`, `createdAt`
+
 ### Migrations
 
-- `0000_plain_old_lace.sql`
-- `0001_numerous_ken_ellis.sql`
-- `0002_sticky_blazing_skull.sql`
-- `0003_brief_senator_kelly.sql`
-- `0004_flashy_ezekiel_stane.sql`
-- `0005_hard_joseph.sql`
-- `0006_services_module.sql`
-- `0007_services_search_vector.sql`
-- `0008_services_notification_targets.sql`
-- `0009_better_auth_account_issuer.sql`
+- `0000_tranquil_toad.sql`
 
 ### Commands
 
@@ -524,7 +577,9 @@ schemas.ts
 
 ### Tests
 
+- `tests/integration/admin-voyage-loaders.test.ts`
 - `tests/integration/db-health.test.ts`
+- `tests/integration/voyage-loaders2.test.ts`
 - `tests/unit/cache.test.ts`
 - `tests/unit/cli-utils.test.ts`
 - `tests/unit/cms-schemas.test.ts`
@@ -535,6 +590,7 @@ schemas.ts
 - `tests/unit/schema-validation.test.ts`
 - `tests/unit/search-fts.test.ts`
 - `tests/unit/site-loader.test.ts`
+- `tests/unit/voyage/loaders-edge.test.ts`
 
 ## Authentication
 
@@ -555,6 +611,7 @@ src/actions/
   blog/
   index.ts
   services/
+  voyage/
 src/middleware.ts
 ```
 
@@ -587,7 +644,6 @@ src/middleware.ts
 - `tests/integration/audit.test.ts`
 - `tests/integration/auth-advanced.test.ts`
 - `tests/integration/auth-flow.test.ts`
-- `tests/integration/auth-org.test.ts`
 - `tests/integration/auth.test.ts`
 - `tests/integration/middleware.test.ts`
 - `tests/unit/audit-fallback.test.ts`
@@ -599,6 +655,8 @@ src/middleware.ts
 - `tests/unit/permissions.test.ts`
 - `tests/unit/production-hardening.test.ts`
 - `tests/unit/rate-limit.test.ts`
+- `tests/unit/voyage/auth-guards.test.ts`
+- `tests/unit/voyage/middleware.test.ts`
 
 ## Content & CMS
 
@@ -657,6 +715,24 @@ taxonomy/
 workflow/
   index.ts
 src/modules/
+applications/
+  admin/
+    resource.ts
+  components/
+    AdminApplicationDetail.astro
+    AdminApplicationList.astro
+  domain/
+    application-service.ts
+    application-transitions.ts
+  loaders/
+    admin-applications.loader.ts
+  module.ts
+  repositories/
+    application.repository.ts
+availability/
+  domain/
+    availability-service.ts
+    availability.ts
 blog/
   actions/
     index.ts
@@ -693,6 +769,82 @@ blog/
     index.ts
   validation/
     index.ts
+departures/
+  domain/
+    departure-transitions.ts
+  loaders/
+    departure.loader.ts
+  module.ts
+  repositories/
+    departure.repository.ts
+email-voyage/
+  admin/
+    resource.ts
+  components/
+    AdminEmailList.astro
+  domain/
+    reminders.ts
+    voyage-email-worker.ts
+    voyage-email.ts
+  loaders/
+    admin-email.loader.ts
+  module.ts
+itinerary/
+  components/
+    AdminItinerarySection.astro
+  loaders/
+    admin-itinerary.loader.ts
+outbox/
+  domain/
+    outbox-worker.ts
+    outbox.ts
+    retention.ts
+  loaders/
+    admin-outbox.loader.ts
+payments/
+  admin/
+    resource.ts
+  components/
+    AdminPaymentList.astro
+  domain/
+    checkout-service.ts
+    payment-service.ts
+    payment-transitions.ts
+    providers.ts
+    refund-service.ts
+  loaders/
+    admin-payments.loader.ts
+  module.ts
+  repositories/
+    payment.repository.ts
+policies/
+  admin/
+    resource.ts
+  components/
+    AdminPolicyList.astro
+  loaders/
+    admin-policies.loader.ts
+  module.ts
+pricing/
+  domain/
+    pricing-service.ts
+    pricing.ts
+reservations/
+  admin/
+    resource.ts
+  components/
+    AdminReservationDetail.astro
+    AdminReservationList.astro
+  domain/
+    cancellation-policy.ts
+    reservation-service.ts
+    reservation-transitions.ts
+  loaders/
+    admin-reservations.loader.ts
+    booking.loader.ts
+  module.ts
+  repositories/
+    reservation.repository.ts
 services/
   actions/
     index.ts
@@ -743,10 +895,43 @@ services/
   validation/
     index.ts
   workflow.ts
+travelers/
+  admin/
+    resource.ts
+  components/
+    AdminTravelerList.astro
+  domain/
+    traveler-email.ts
+    travelers-service.ts
+  loaders/
+    admin-travelers.loader.ts
+  module.ts
+  repositories/
+    traveler.repository.ts
+trips/
+  admin/
+    resource.ts
+  components/
+    AdminContentsSection.astro
+    AdminFaqSection.astro
+    AdminTripForm.astro
+    AdminTripList.astro
+    TripCard.astro
+  domain/
+    trip-transitions.ts
+  loaders/
+    admin-contents.loader.ts
+    admin-health.loader.ts
+    admin-trips.loader.ts
+    trip.loader.ts
+  module.ts
+  repositories/
+    trip.repository.ts
 src/pages/
 404.astro
 500.astro
 api/
+  analytics.ts
   audit-export.ts
   auth/
     [...all].ts
@@ -757,9 +942,13 @@ api/
   content-import.ts
   cron/
     publish.ts
+    voyage.ts
   export-data.ts
   health.ts
   media.ts
+  payments/
+    mock-callback.ts
+    webhook.ts
   preview.ts
   search.ts
   upload.ts
@@ -770,17 +959,24 @@ sitemap-cms.xml.ts
 [lang]/
   a-propos.astro
   admin/
+    applications/
     audit.astro
     blog/
+    emails/
     index.astro
     media.astro
     navigation.astro
     pages.astro
+    payments/
+    policies/
+    reservations/
     roles.astro
     services/
     site.astro
     stats.astro
     theme.astro
+    travelers/
+    trips/
     users.astro
   apply/
     [trip].astro
@@ -789,6 +985,9 @@ sitemap-cms.xml.ts
   blog/
     index.astro
     [...slug].astro
+  booking-confirmed.astro
+  checkout/
+    [session].astro
   contact.astro
   faq.astro
   index.astro
@@ -796,10 +995,10 @@ sitemap-cms.xml.ts
     index.astro
     tags/
     [categorySlug]/
-    [categorySlug].astro
     [slug].astro
   terms.astro
   trips/
+    index.astro
     [slug].astro
   [slug].astro
 src/layouts/
@@ -810,6 +1009,7 @@ Atlaselle CMS is organized around shared CMS/platform capabilities and first-cla
 
 ### Tests
 
+- `tests/e2e/admin-pages.spec.ts`
 - `tests/e2e/blog.spec.ts`
 - `tests/e2e/cms-admin.spec.ts`
 - `tests/e2e/services-lifecycle.spec.ts`
@@ -821,6 +1021,7 @@ Atlaselle CMS is organized around shared CMS/platform capabilities and first-cla
 - `tests/integration/contact-api.test.ts`
 - `tests/integration/legal-cms.test.ts`
 - `tests/integration/navigation-cycle.test.ts`
+- `tests/integration/voyage-services.test.ts`
 - `tests/unit/admin-consent.test.ts`
 - `tests/unit/admin-contact.test.ts`
 - `tests/unit/admin-helpers.test.ts`
@@ -829,7 +1030,6 @@ Atlaselle CMS is organized around shared CMS/platform capabilities and first-cla
 - `tests/unit/admin-navigation-items.test.ts`
 - `tests/unit/admin-pages-theme.test.ts`
 - `tests/unit/admin-pages.test.ts`
-- `tests/unit/admin-roles.test.ts`
 - `tests/unit/admin-sections.test.ts`
 - `tests/unit/admin-site-social-contact-hours.test.ts`
 - `tests/unit/admin-site.test.ts`
@@ -877,6 +1077,7 @@ public/
 favicon.ico
 favicon.svg
 uploads/
+  images/
 ```
 
 ### Upload & Processing
@@ -923,6 +1124,7 @@ templates/
   layout.ts
   reset-password.ts
   verify-email.ts
+  voyage.ts
 types.ts
 logs/ ← email dead-letter queue (JSONL, one file per day)
 ```
@@ -952,6 +1154,7 @@ i18n email templates for: email verification, password reset, organisation invit
 - `tests/unit/send-email.test.ts`
 - `tests/unit/smtp-env.test.ts`
 - `tests/unit/smtp-providers.test.ts`
+- `tests/unit/voyage/smtp-dead-letter.test.ts`
 
 ## Internationalisation
 

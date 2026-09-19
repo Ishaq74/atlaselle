@@ -10,7 +10,7 @@ import { assertServiceExists } from "./_helpers";
 export const recordServiceView = defineAction({
   input: z.object({
     serviceId: z.uuid(),
-    referrer: z.string().url().optional().nullable(),
+    referrer: z.url().optional().nullable(),
     country: z.string().length(2).optional().nullable(),
   }),
   handler: async (input, context) => {

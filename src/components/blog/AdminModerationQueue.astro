@@ -27,10 +27,9 @@ interface Props {
     reviews: PendingReview[];
     reports: PendingReport[];
   };
-  organizationId?: string | null;
 }
 
-const { blogT, moderation, organizationId } = Astro.props;
+const { blogT, moderation } = Astro.props;
 const actionT = blogT.admin.actionLabels;
 const feedbackT = blogT.admin.feedback;
 const moderationT = blogT.admin.moderationQueue;
@@ -153,8 +152,6 @@ const reportReasonT = blogT.admin.reportReasons;
   <input
     type="hidden"
     id="moderation-data"
-    value={organizationId ?? ""}
-    data-organization-id={organizationId ?? ""}
     data-t-error={feedbackT.genericError}
     data-t-saved={feedbackT.saved}
   />
@@ -166,7 +163,6 @@ const reportReasonT = blogT.admin.reportReasons;
 
   function init() {
     const dataEl = document.getElementById('moderation-data') as HTMLInputElement | null;
-    const organizationId = dataEl?.dataset.organizationId || undefined;
     const errorText = dataEl?.dataset.tError ?? '';
     const savedText = dataEl?.dataset.tSaved ?? '';
 
@@ -175,7 +171,7 @@ const reportReasonT = blogT.admin.reportReasons;
         const commentId = button.dataset.commentId;
         const moderationAction = button.dataset.action as 'APPROVE' | 'REJECT' | 'DELETE' | 'RESTORE' | 'EDIT' | undefined;
         if (!commentId || !moderationAction) return;
-        const { error } = await actions.moderateBlogComment({ commentId, moderationAction, organizationId } as never);
+        const { error } = await actions.moderateBlogComment({ commentId, moderationAction });
         if (error) toast.error(error.message ?? errorText);
         else { toast.success(savedText); window.location.reload(); }
       });
@@ -186,7 +182,7 @@ const reportReasonT = blogT.admin.reportReasons;
         const reviewId = button.dataset.reviewId;
         const status = button.dataset.status as 'APPROVED' | 'REJECTED' | 'SPAM' | undefined;
         if (!reviewId || !status) return;
-        const { error } = await actions.moderateBlogReview({ reviewId, status, organizationId } as never);
+        const { error } = await actions.moderateBlogReview({ reviewId, status });
         if (error) toast.error(error.message ?? errorText);
         else { toast.success(savedText); window.location.reload(); }
       });
@@ -197,7 +193,7 @@ const reportReasonT = blogT.admin.reportReasons;
         const reportId = button.dataset.reportId;
         const status = button.dataset.status as 'PENDING' | 'REJECTED' | 'REVIEWED' | 'RESOLVED' | undefined;
         if (!reportId || !status) return;
-        const { error } = await actions.updateBlogReport({ reportId, status, organizationId } as never);
+        const { error } = await actions.updateBlogReport({ reportId, status });
         if (error) toast.error(error.message ?? errorText);
         else { toast.success(savedText); window.location.reload(); }
       });

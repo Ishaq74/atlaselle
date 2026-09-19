@@ -1,4 +1,4 @@
-import { z } from "astro/zod";
+import { z } from "zod";
 import { LOCALES } from "@i18n/config";
 import {
   BLOG_POST_STATUSES, BLOG_COMMENT_STATUSES, BLOG_REVIEW_STATUSES, BLOG_REPORT_REASONS,
@@ -58,8 +58,8 @@ export const blogPostFormSchema = z.object({
 // implementation code remains type-safe, but the schema rejects them for the
 // ordinary update path. Lifecycle mutations are explicit Actions.
 export const blogPostUpdateSchema = blogPostFormSchema.partial().extend({ id: z.uuid(), locale: localeEnum.optional() }).superRefine((data, ctx) => {
-  if (data.status !== undefined) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["status"], message: "Le statut doit être modifié via une action de lifecycle explicite." });
-  if (data.publishedAt !== undefined) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["publishedAt"], message: "La date de publication doit être modifiée via une action de lifecycle explicite." });
+  if (data.status !== undefined) ctx.addIssue({ code: "custom", path: ["status"], message: "Le statut doit être modifié via une action de lifecycle explicite." });
+  if (data.publishedAt !== undefined) ctx.addIssue({ code: "custom", path: ["publishedAt"], message: "La date de publication doit être modifiée via une action de lifecycle explicite." });
 });
 
 export const blogCategoryFormSchema = z.object({ locale: localeEnum, name: z.string().trim().min(1).max(100), slug: blogSlugSchema, description: z.string().trim().max(500).optional(), parentId: z.uuid().optional(), icon: z.string().trim().max(50).optional(), color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(), sortOrder: z.number().int().min(0).optional(), metaTitle: z.string().trim().max(70).optional(), metaDescription: z.string().trim().max(160).optional() });

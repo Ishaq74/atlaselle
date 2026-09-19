@@ -86,10 +86,18 @@ describe('middleware onRequest', () => {
     expect(res.headers.get('Strict-Transport-Security')).toContain('max-age=');
   });
 
-  it('propage un incoming x-request-id', async () => {
+  it('propage un incoming x-request-id au format UUID', async () => {
+    const incoming = '123e4567-e89b-42d3-a456-426614174000';
+    const { context, next } = ctx('/en/trips', { 'x-request-id': incoming });
+    await handle(context, next);
+    expect(context.locals.requestId).toBe(incoming);
+  });
+
+  it('regénère un requestId quand le x-request-id entrant n’est pas un UUID (anti log-injection)', async () => {
     const { context, next } = ctx('/en/trips', { 'x-request-id': 'abc-123' });
     await handle(context, next);
-    expect(context.locals.requestId).toBe('abc-123');
+    expect(context.locals.requestId).not.toBe('abc-123');
+    expect(typeof context.locals.requestId).toBe('string');
   });
 
   it('remplit locals.user quand la session existe', async () => {

@@ -13,8 +13,8 @@ import { refundReservationPayments } from "@/modules/payments/domain/refund-serv
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
 
 export const checkoutInitiateInput = z.object({
-  checkoutSessionId: z.string().uuid(),
-  travelerEmail: z.string().trim().email().max(320),
+  checkoutSessionId: z.uuid(),
+  travelerEmail: z.string().trim().check(z.email()).max(320),
   roomType: z.enum(["shared", "single"]).default("shared"),
   agreementVersionId: z.string().max(160).nullable().optional(),
   // Preuve de consentement CGV : le client envoie l'état réel de la case
@@ -58,7 +58,7 @@ export const initiateCheckout = defineAction({
   },
 });
 
-const cancelSchema = z.object({ reservationId: z.string().uuid() });
+const cancelSchema = z.object({ reservationId: z.uuid() });
 
 // Annulation manuelle (admin/support) : politique + remboursement éligible
 // automatique via provider + audit (TODO §13.6).

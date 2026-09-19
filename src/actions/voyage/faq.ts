@@ -37,7 +37,7 @@ export const createFaq = defineAction({
 export const upsertFaqTranslation = defineAction({
   input: z.object({
     faqId: z.string().min(1).max(160),
-    expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional(),
+    expectedUpdatedAt: z.iso.datetime({ offset: true }).nullable().optional(),
     locale: z.enum(LOCALES),
     question: z.string().min(1).max(500),
     answer: z.string().min(1).max(8000),

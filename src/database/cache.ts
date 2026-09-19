@@ -107,8 +107,13 @@ export function cached<Args extends unknown[], R>(
  *
  * - No argument → clears everything
  * - With `prefix` → removes keys starting with that prefix
+ *
+ * Async-ready (P1-4) : retourne une Promise pour préparer le swap Redis/Valkey
+ * multi-instance. Les appelants sync existants restent compatibles (promise
+ * ignorée, invalidation mémoire effectuée avant le premier await) ; le nouveau
+ * code DOIT `await invalidateCache(...)`.
  */
-export function invalidateCache(prefix?: string): void {
+export async function invalidateCache(prefix?: string): Promise<void> {
   const store = getCacheStore();
   if (!prefix) {
     store.clear();

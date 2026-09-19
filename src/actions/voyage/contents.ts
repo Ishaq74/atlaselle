@@ -68,7 +68,7 @@ export const upsertTripContentTranslation = defineAction({
   input: z.object({
     kind: kindSchema,
     id: z.string().min(1).max(160),
-    expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional(),
+    expectedUpdatedAt: z.iso.datetime({ offset: true }).nullable().optional(),
     locale: z.enum(LOCALES),
     title: z.string().max(300).nullable().optional(),
     description: z.string().max(4000).nullable().optional(),

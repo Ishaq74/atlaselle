@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth';
 import { getDrizzle } from '@database/drizzle';
-import { auditLog, user as userTable, organization as orgTable, member } from '@database/schemas';
-import { desc, count, gte, eq, and, lte, sql, type SQL } from 'drizzle-orm';
+import { auditLog, user as userTable } from '@database/schemas';
+import { desc, count, gte, eq, and, lte, type SQL } from 'drizzle-orm';
 import { cached, invalidateCache } from '@database/cache';
 
 export interface AdminUser {
@@ -13,16 +13,6 @@ export interface AdminUser {
   role: string | null;
   banned: boolean | null;
   createdAt: Date;
-}
-
-export interface Organization {
-  id: string;
-  name: string;
-  slug: string;
-  logo: string | null;
-  createdAt: Date;
-  memberCount: number;
-  ownerName: string | null;
 }
 
 /** Audit log row as returned by fetchAdminAuditLogs. */
@@ -73,54 +63,6 @@ export async function fetchAdminUsers(
     users,
     total: total ?? users.length,
   };
-}
-
-/** Fetch organizations via admin API with pagination. */
-export async function fetchAdminOrgs(
-  headers: Headers,
-  opts: { limit?: number; offset?: number } = {},
-): Promise<Organization[]> {
-  const session = await auth.api.getSession({ headers });
-  if (!session || session.user.role !== 'admin') {
-    throw new Error('Unauthorized: admin access required');
-  }
-  const db = getDrizzle();
-  const limit = Math.max(1, Math.min(opts.limit ?? 25, 100));
-  const offset = Math.max(0, opts.offset ?? 0);
-
-  const ownerNameSq = sql<string | null>`(
-    SELECT u.name FROM "member" m
-    JOIN "user" u ON u.id = m.user_id
-    WHERE m.organization_id = ${orgTable.id} AND m.role = 'owner'
-    LIMIT 1
-  )`;
-
-  const rows = await db
-    .select({
-      id: orgTable.id,
-      name: orgTable.name,
-      slug: orgTable.slug,
-      logo: orgTable.logo,
-      createdAt: orgTable.createdAt,
-      memberCount: count(member.id),
-      ownerName: ownerNameSq,
-    })
-    .from(orgTable)
-    .leftJoin(member, eq(orgTable.id, member.organizationId))
-    .groupBy(orgTable.id)
-    .orderBy(desc(orgTable.createdAt))
-    .limit(limit)
-    .offset(offset);
-
-  return rows.map((r) => ({
-    id: r.id,
-    name: r.name,
-    slug: r.slug,
-    logo: r.logo,
-    createdAt: r.createdAt,
-    memberCount: r.memberCount ?? 0,
-    ownerName: r.ownerName ?? null,
-  }));
 }
 
 export interface AuditFilters {
@@ -186,9 +128,8 @@ const getStatsCounts = cached(
   () => 'admin:stats:counts',
   async () => {
     const db = getDrizzle();
-    const [[userCount], [orgCount], [recentCount]] = await Promise.all([
+    const [[userCount], [recentCount]] = await Promise.all([
       db.select({ value: count() }).from(userTable),
-      db.select({ value: count() }).from(orgTable),
       db
         .select({ value: count() })
         .from(userTable)
@@ -196,33 +137,28 @@ const getStatsCounts = cached(
     ]);
     return {
       totalUsers: userCount?.value ?? 0,
-      totalOrganizations: orgCount?.value ?? 0,
       recentSignups: recentCount?.value ?? 0,
     };
   },
   5 * 60 * 1000, // 5-minute TTL
 );
 
-/** Invalidate stats cache when users/orgs change (call from hooks if needed). */
+/** Invalidate stats cache when users change (call from hooks if needed). */
 export function invalidateStatsCache(): void {
   invalidateCache('admin:stats:');
 }
 
-/** Fetch admin stats: total users, total orgs, recent signups. */
+/** Fetch admin stats: total users, recent signups (single-admin, sans org). */
 export async function fetchAdminStats(headers: Headers) {
   const session = await auth.api.getSession({ headers });
   if (!session || session.user.role !== 'admin') {
     throw new Error('Unauthorized: admin access required');
   }
 
-  const [stats, usersResult, orgs] = await Promise.all([
+  const [stats, usersResult] = await Promise.all([
     getStatsCounts(),
     fetchAdminUsers(headers, { limit: 25 }),
-    fetchAdminOrgs(headers, { limit: 25 }),
   ]);
 
-  return { stats, users: usersResult.users, orgs };
+  return { stats, users: usersResult.users };
 }
-
-/** Fetch full org data by slug. Returns null if not found.
- *  Verifies that the caller is a member of the organization. */

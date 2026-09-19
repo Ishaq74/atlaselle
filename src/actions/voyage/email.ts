@@ -8,7 +8,7 @@ import { assertVoyagePermission, auditVoyage } from "./_helpers";
 
 // Remet un email échoué en file (TODO §14.1 — retry manuel).
 export const retryEmailDelivery = defineAction({
-  input: z.object({ id: z.string().uuid() }),
+  input: z.object({ id: z.uuid() }),
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { email: ["retry"] });
     const db = getDrizzle();

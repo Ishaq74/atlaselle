@@ -41,7 +41,7 @@ export const createPolicyVersion = defineAction({
 
 // Publication : une seule version publiée par document (reviewedBy = qualifié).
 export const publishPolicyVersion = defineAction({
-  input: z.object({ id: z.string().uuid() }),
+  input: z.object({ id: z.uuid() }),
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { policy: ["publish"] });
     const db = getDrizzle();

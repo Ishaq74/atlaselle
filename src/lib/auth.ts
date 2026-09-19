@@ -121,8 +121,12 @@ export const auth = betterAuth({
         "/admin/remove-user": { action: "USER_DELETE", resource: "user" },
       };
 
-      const mapping = pathActionMap[ctx.path];
+      // P0-M7 : normalise les callbacks (`/reset-password/callback?token=…`,
+      // `/delete-user/callback`) vers la clé exacte pour ne rien perdre.
+      const normalizedPath = ctx.path.replace(/\/callback\/?$/, '');
+      const mapping = pathActionMap[normalizedPath] ?? pathActionMap[ctx.path];
       if (!mapping) return;
+      const auditPath = normalizedPath;
 
       // Log both successful and failed attempts for security visibility
       const returned = ctx.context.returned;
@@ -131,8 +135,11 @@ export const auth = betterAuth({
 
       // For failed auth attempts, log with limited info
       if (isFailed) {
-        const failPaths = new Set(['/sign-in/email', '/sign-up/email', '/change-password', '/reset-password']);
-        if (failPaths.has(ctx.path)) {
+        const failPaths = new Set([
+          '/sign-in/email', '/sign-up/email', '/change-password', '/reset-password',
+          '/admin/ban-user', '/admin/set-role', '/admin/impersonate-user', '/admin/remove-user',
+        ]);
+        if (failPaths.has(auditPath)) {
           const ip = ctx.headers ? extractIp(ctx.headers) : null;
           const ua = ctx.headers?.get('user-agent') ?? null;
           ctx.context.runInBackground(
@@ -141,7 +148,7 @@ export const auth = betterAuth({
               action: (mapping.action + '_FAILED') as AuditAction,
               resource: mapping.resource,
               resourceId: null,
-              metadata: { path: ctx.path },
+              metadata: { path: auditPath },
               ipAddress: ip,
               userAgent: ua,
             }),
@@ -182,7 +189,7 @@ export const auth = betterAuth({
 
       // Revoke all sessions for the target user after ban or role change
       const SESSION_REVOKE_PATHS = new Set(['/admin/ban-user', '/admin/set-role']);
-      if (SESSION_REVOKE_PATHS.has(ctx.path) && body.userId) {
+      if (SESSION_REVOKE_PATHS.has(auditPath) && body.userId) {
         ctx.context.runInBackground(
           getDrizzle()
             .delete(sessionTable)

@@ -28,7 +28,6 @@ interface Props {
   moderation: Awaited<ReturnType<typeof getBlogModerationQueue>>;
   baseAdminUrl: string;
   basePublicUrl: string;
-  organizationId?: string | null;
   userId: string;
   canCreate: boolean;
   canUpdate: boolean;
@@ -36,7 +35,7 @@ interface Props {
   canDelete: boolean;
   filterOptions: FilterOptions;
 }
-const { title, locale, blogT, posts, postsMeta, stats, moderationCount, categories, tags, moderation, baseAdminUrl, basePublicUrl, organizationId, userId, canCreate, canUpdate, canPublish, canDelete, filterOptions } = Astro.props;
+const { title, locale, blogT, posts, postsMeta, stats, moderationCount, categories, tags, moderation, baseAdminUrl, basePublicUrl, userId, canCreate, canUpdate, canPublish, canDelete, filterOptions } = Astro.props;
 const localeSwitcherT = blogT.admin.localeSwitcher;
 const currentPath = Astro.url.pathname;
 const pathWithoutLocale = currentPath.replace(new RegExp(`^/${locale}(?=/|$)`), "") || "/";
@@ -46,7 +45,7 @@ function buildLocaleHref(targetLocale: Locale): string { return `${getRelativeLo
 <div data-admin-resource={blogPostAdminResource.id} data-admin-entity={blogPostAdminResource.entity}>
   <AdminResourceShell title={title} description={blogT.admin.title}>
     <Fragment slot="actions">
-      <NotificationBell blogT={blogT} userId={userId} baseAdminUrl={baseAdminUrl} organizationId={organizationId ?? null} />
+      <NotificationBell blogT={blogT} userId={userId} baseAdminUrl={baseAdminUrl} />
     </Fragment>
 
     <div class="space-y-6 p-4 sm:p-6">
@@ -70,11 +69,11 @@ function buildLocaleHref(targetLocale: Locale): string { return `${getRelativeLo
           <TabsTrigger value="stats">{blogT.admin.stats}</TabsTrigger>
         </TabsList>
         <TabsContent value="posts" defaultActive class="pt-4">
-          <AdminPostList locale={locale} blogT={blogT} rows={posts} meta={postsMeta} baseAdminUrl={baseAdminUrl} basePublicUrl={basePublicUrl} canCreate={canCreate} canUpdate={canUpdate} canPublish={canPublish} canDelete={canDelete} organizationId={organizationId} filterOptions={filterOptions} />
+          <AdminPostList locale={locale} blogT={blogT} rows={posts} meta={postsMeta} baseAdminUrl={baseAdminUrl} basePublicUrl={basePublicUrl} canCreate={canCreate} canUpdate={canUpdate} canPublish={canPublish} canDelete={canDelete} filterOptions={filterOptions} />
         </TabsContent>
-        <TabsContent value="categories" class="pt-4"><AdminTaxonomyManager locale={locale} blogT={blogT} kind="category" items={categories} organizationId={organizationId} /></TabsContent>
-        <TabsContent value="tags" class="pt-4"><AdminTaxonomyManager locale={locale} blogT={blogT} kind="tag" items={tags} organizationId={organizationId} /></TabsContent>
-        <TabsContent value="moderation" class="pt-4"><AdminModerationQueue blogT={blogT} moderation={moderation} organizationId={organizationId} /></TabsContent>
+        <TabsContent value="categories" class="pt-4"><AdminTaxonomyManager locale={locale} blogT={blogT} kind="category" items={categories} /></TabsContent>
+        <TabsContent value="tags" class="pt-4"><AdminTaxonomyManager locale={locale} blogT={blogT} kind="tag" items={tags} /></TabsContent>
+        <TabsContent value="moderation" class="pt-4"><AdminModerationQueue blogT={blogT} moderation={moderation} /></TabsContent>
         <TabsContent value="stats" class="pt-4">
           <AdminResourceStats stats={[
             { label: blogT.admin.posts, value: stats.total },

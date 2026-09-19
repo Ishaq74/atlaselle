@@ -40,12 +40,12 @@ export const GET: APIRoute = async (context) => {
     }
   }
 
-  // Global blog posts (org-scoped blogs are excluded — this is the sitewide feed)
+  // Global blog posts (single-tenant sitewide feed)
   for (const locale of LOCALES) {
     try {
       let page = 1;
       for (;;) {
-        const { items, meta } = await getBlogPosts(null, locale as Locale, {
+        const { items, meta } = await getBlogPosts(locale as Locale, {
           page,
           limit: 100,
           sortBy: "publishedAt",

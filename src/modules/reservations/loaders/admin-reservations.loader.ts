@@ -1,5 +1,5 @@
 import { and, asc, desc, eq, sql } from "drizzle-orm";
-import { z } from "astro/zod";
+import { z } from "zod";
 import { parseListFilters } from "@/lib/query-filters";
 import { getDrizzle } from "@database/drizzle";
 import { reservations } from "@database/schemas/reservations.schema";

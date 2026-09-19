@@ -1,4 +1,4 @@
-import { eq, asc, isNull, and, desc, inArray, count, sql } from "drizzle-orm";
+import { eq, asc, isNull, desc, inArray, count, sql } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { cached } from "@database/cache";
 import { mediaFolders, mediaFiles, mediaFileAlts } from "@database/schemas";
@@ -28,26 +28,13 @@ export interface MediaFileWithAlts {
 
 // ─── Folders ─────────────────────────────────────────────────────────────────
 
-function mediaFolderScope(organizationId: string | null) {
-  return organizationId === null
-    ? isNull(mediaFolders.organizationId)
-    : eq(mediaFolders.organizationId, organizationId);
-}
-
-function mediaFileScope(organizationId: string | null) {
-  return organizationId === null
-    ? isNull(mediaFiles.organizationId)
-    : eq(mediaFiles.organizationId, organizationId);
-}
-
 export const getMediaFolders = cached(
-  (organizationId: string | null = null) => `media:folders:${organizationId ?? "global"}`,
-  async (organizationId: string | null = null): Promise<MediaFolderNode[]> => {
+  () => "media:folders",
+  async (): Promise<MediaFolderNode[]> => {
     const db = getDrizzle();
     const rows = await db
       .select()
       .from(mediaFolders)
-      .where(mediaFolderScope(organizationId))
       .orderBy(asc(mediaFolders.sortOrder), asc(mediaFolders.name));
 
     return buildFolderTree(rows);
@@ -95,8 +82,8 @@ function buildFolderTree(
 
 /** Flat list of all folders (for dropdown selectors). */
 export const getMediaFoldersList = cached(
-  (organizationId: string | null = null) => `media:folders:list:${organizationId ?? "global"}`,
-  async (organizationId: string | null = null) => {
+  () => "media:folders:list",
+  async () => {
     const db = getDrizzle();
     return db
       .select({
@@ -105,7 +92,6 @@ export const getMediaFoldersList = cached(
         parentId: mediaFolders.parentId,
       })
       .from(mediaFolders)
-      .where(mediaFolderScope(organizationId))
       .orderBy(asc(mediaFolders.name));
   },
 );
@@ -114,13 +100,13 @@ export const getMediaFoldersList = cached(
 
 /** List files in a given folder (null = root). Includes all alt texts. */
 export const getMediaFilesByFolder = cached(
-  (folderId: string | null, organizationId: string | null = null) => `media:files:folder:${organizationId ?? "global"}:${folderId ?? "root"}`,
-  async (folderId: string | null, organizationId: string | null = null): Promise<MediaFileWithAlts[]> => {
+  (folderId: string | null) => `media:files:folder:${folderId ?? "root"}`,
+  async (folderId: string | null): Promise<MediaFileWithAlts[]> => {
     const db = getDrizzle();
 
     const whereClause = folderId
-      ? and(eq(mediaFiles.folderId, folderId), mediaFileScope(organizationId))
-      : and(isNull(mediaFiles.folderId), mediaFileScope(organizationId));
+      ? eq(mediaFiles.folderId, folderId)
+      : isNull(mediaFiles.folderId);
 
     const files = await db
       .select()
@@ -159,13 +145,13 @@ export const getMediaFilesByFolder = cached(
 );
 
 /** Get a single file with its alt texts. Not cached (for admin detail views). */
-export async function getMediaFile(fileId: string, organizationId: string | null = null): Promise<MediaFileWithAlts | null> {
+export async function getMediaFile(fileId: string): Promise<MediaFileWithAlts | null> {
   const db = getDrizzle();
 
   const [file] = await db
     .select()
     .from(mediaFiles)
-    .where(and(eq(mediaFiles.id, fileId), mediaFileScope(organizationId)))
+    .where(eq(mediaFiles.id, fileId))
     .limit(1);
 
   if (!file) return null;
@@ -191,14 +177,13 @@ export async function getMediaFile(fileId: string, organizationId: string | null
 
 /** Get all media files (for media picker). Includes alts. */
 export const getAllMediaFiles = cached(
-  (organizationId: string | null = null) => `media:files:all:${organizationId ?? "global"}`,
-  async (organizationId: string | null = null): Promise<MediaFileWithAlts[]> => {
+  () => "media:files:all",
+  async (): Promise<MediaFileWithAlts[]> => {
     const db = getDrizzle();
 
     const files = await db
       .select()
       .from(mediaFiles)
-      .where(mediaFileScope(organizationId))
       .orderBy(desc(mediaFiles.createdAt))
       .limit(5000);
 
@@ -235,8 +220,8 @@ export const getAllMediaFiles = cached(
 
 /** File count per folderId (null key = root). */
 export const getMediaFileCountsByFolder = cached(
-  (organizationId: string | null = null) => `media:counts:${organizationId ?? "global"}`,
-  async (organizationId: string | null = null): Promise<Map<string | null, number>> => {
+  () => "media:counts",
+  async (): Promise<Map<string | null, number>> => {
     const db = getDrizzle();
     const rows = await db
       .select({
@@ -244,7 +229,6 @@ export const getMediaFileCountsByFolder = cached(
         count: count(),
       })
       .from(mediaFiles)
-      .where(mediaFileScope(organizationId))
       .groupBy(mediaFiles.folderId);
 
     const map = new Map<string | null, number>();
@@ -257,20 +241,18 @@ export const getMediaFileCountsByFolder = cached(
 
 /** Global media stats for the library header. */
 export const getMediaStats = cached(
-  (organizationId: string | null = null) => `media:stats:${organizationId ?? "global"}`,
-  async (organizationId: string | null = null): Promise<{ totalFiles: number; totalSize: number; totalFolders: number }> => {
+  () => "media:stats",
+  async (): Promise<{ totalFiles: number; totalSize: number; totalFolders: number }> => {
     const db = getDrizzle();
     const [fileStats] = await db
       .select({
         totalFiles: count(),
         totalSize: sql<number>`coalesce(sum(${mediaFiles.size}), 0)`,
       })
-      .from(mediaFiles)
-      .where(mediaFileScope(organizationId));
+      .from(mediaFiles);
     const [folderStats] = await db
       .select({ totalFolders: count() })
-      .from(mediaFolders)
-      .where(mediaFolderScope(organizationId));
+      .from(mediaFolders);
     return {
       totalFiles: fileStats.totalFiles,
       totalSize: Number(fileStats.totalSize),

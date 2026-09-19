@@ -132,15 +132,28 @@ export function buildNavTree(
 }
 
 /**
- * List all navigation menus (for admin UI).
+ * List all navigation menus (for admin UI) — lignes complètes (type inféré Drizzle).
  */
 export const getMenusList = cached(
   () => "nav:menus",
-  async (): Promise<NavMenu[]> => {
+  async (): Promise<(typeof navigationMenus.$inferSelect)[]> => {
     const db = getDrizzle();
     return db.select().from(navigationMenus).orderBy(asc(navigationMenus.name)).limit(100);
   },
 );
+
+/**
+ * List items of a menu for a locale (admin, frais — inclut inactifs).
+ */
+export async function getAdminMenuItems(menuId: string, locale: string) {
+  const db = getDrizzle();
+  return db
+    .select()
+    .from(navigationItems)
+    .where(and(eq(navigationItems.menuId, menuId), eq(navigationItems.locale, locale)))
+    .orderBy(asc(navigationItems.sortOrder))
+    .limit(500);
+}
 
 /**
  * Get a single menu's metadata by name (for BaseLayout heading logic).

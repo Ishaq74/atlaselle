@@ -33,7 +33,6 @@ interface Props {
     reviewCount?: number | null;
   };
   baseUrl: string;
-  organizationSlug?: string | null;
   priority?: "eager" | "lazy";
   showCategory?: boolean;
   showAuthor?: boolean;
@@ -56,7 +55,6 @@ const {
   showViews = true,
   showComments = true,
   showRating = true,
-  organizationSlug = null,
 } = Astro.props;
 
 const translation = post.translation;

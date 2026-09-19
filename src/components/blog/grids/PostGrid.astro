@@ -8,7 +8,6 @@ interface Props {
   blogT: BlogTranslations;
   posts: BlogPostListItem[];
   baseUrl: string;
-  organizationSlug?: string | null;
   variant?: "grid" | "horizontal";
   columns?: 2 | 3 | 4;
   showCategory?: boolean;
@@ -25,7 +24,6 @@ const {
   blogT,
   posts,
   baseUrl,
-  organizationSlug = null,
   variant = "grid",
   columns = 3,
   showCategory = true,
@@ -53,7 +51,6 @@ const gridClasses = {
           blogT={blogT}
           post={post}
           baseUrl={baseUrl}
-          organizationSlug={organizationSlug}
           priority={index < 4 ? "eager" : "lazy"}
           showCategory={showCategory}
           showAuthor={showAuthor}
@@ -73,7 +70,6 @@ const gridClasses = {
           blogT={blogT}
           post={post}
           baseUrl={baseUrl}
-          organizationSlug={organizationSlug}
           priority={index < 4 ? "eager" : "lazy"}
           showCategory={showCategory}
           showAuthor={showAuthor}

@@ -43,13 +43,13 @@ const [canCreate, canUpdate, canPublish, canDelete] = await Promise.all([
   hasBlogPermission(Astro, { blog: ["delete"] }),
 ]);
 const [{ rows, meta, stats }, categoryRows, tagRows, moderation, authors, adminTags, moderationCount] = await Promise.all([
-  getBlogAdminPostData(null, locale, filters),
-  getBlogCategories(null, locale),
-  getBlogTags(null, locale),
-  getBlogModerationQueue(null, { limit: 10 }),
-  getBlogAdminAuthors(null),
-  getBlogAdminTags(null, locale),
-  getBlogAdminModerationCount(null),
+  getBlogAdminPostData(locale, filters),
+  getBlogCategories(locale),
+  getBlogTags(locale),
+  getBlogModerationQueue({ limit: 10 }),
+  getBlogAdminAuthors(),
+  getBlogAdminTags(locale),
+  getBlogAdminModerationCount(),
 ]);
 const categories = categoryRows.map((item) => ({ id: item.id, slug: item.slug, name: item.translation?.name ?? item.slug, description: item.translation?.description ?? null, color: item.color, icon: item.icon, parentId: item.parentId, sortOrder: item.sortOrder, postCount: item.postCount }));
 const tags = tagRows.map((item) => ({ id: item.id, slug: item.slug, name: item.translation?.name ?? item.slug, color: item.color, postCount: item.postCount }));

@@ -2,7 +2,6 @@ import { relations } from "drizzle-orm";
 import {
   pgTable,
   text,
-  varchar,
   timestamp,
   boolean,
   integer,

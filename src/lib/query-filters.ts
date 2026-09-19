@@ -1,4 +1,4 @@
-import { z } from "astro/zod";
+import { z } from "zod";
 
 /**
  * Filtres de liste lus depuis l'URL (query params) : une valeur invalide
@@ -11,7 +11,7 @@ import { z } from "astro/zod";
  * Les actions de mutation gardent `.parse` strict (erreurs typées) ; seuls
  * les loaders de LISTES (lecture, filtres URL) utilisent ce parse indulgent.
  */
-export function parseListFilters<T extends z.ZodTypeAny>(schema: T, raw: unknown, fallbackRaw: unknown = {}): z.infer<T> {
+export function parseListFilters<T extends z.ZodType>(schema: T, raw: unknown, fallbackRaw: unknown = {}): z.infer<T> {
   const parsed = schema.safeParse(raw);
   if (parsed.success) return parsed.data;
   const fallback = schema.safeParse(fallbackRaw);

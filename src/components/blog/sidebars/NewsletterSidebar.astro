@@ -9,7 +9,6 @@ import { Button } from "@atoms/button";
 interface Props {
   locale: Locale;
   blogT: BlogTranslations;
-  organizationId?: string | null;
   showTitle?: boolean;
   showDescription?: boolean;
 }
@@ -17,7 +16,6 @@ interface Props {
 const {
   locale,
   blogT,
-  organizationId = null,
   showTitle = true,
   showDescription = true,
 } = Astro.props;
@@ -58,7 +56,7 @@ const {
         <Button type="submit" variant="outline" size="sm">
           {blogT.labels.newsletterSubscribe}
         </Button>
-        <input type="hidden" class="newsletter-i18n" data-locale={locale} data-org={organizationId ?? ""} data-t-error={blogT.labels.newsletterError} data-t-success={blogT.labels.newsletterSuccess} />
+        <input type="hidden" class="newsletter-i18n" data-locale={locale} data-t-error={blogT.labels.newsletterError} data-t-success={blogT.labels.newsletterSuccess} />
       </form>
     </div>
   </CardContent>
@@ -76,7 +74,6 @@ const {
     const errorText = i18nEl?.dataset.tError ?? 'Error';
     const successText = i18nEl?.dataset.tSuccess ?? 'Subscribed';
     const locale = i18nEl?.dataset.locale ?? 'fr';
-    const organizationId = i18nEl?.dataset.org ? String(i18nEl.dataset.org) : null;
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();

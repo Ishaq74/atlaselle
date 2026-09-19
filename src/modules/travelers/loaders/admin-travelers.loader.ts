@@ -1,5 +1,5 @@
 import { asc, desc, eq, ilike, or, sql } from "drizzle-orm";
-import { z } from "astro/zod";
+import { z } from "zod";
 import { parseListFilters } from "@/lib/query-filters";
 import { getDrizzle } from "@database/drizzle";
 import { travelers } from "@database/schemas/travelers.schema";

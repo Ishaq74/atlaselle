@@ -1,10 +1,9 @@
-// Blog categories (global + org-scoped). IDs are stable so translations and
-// post junctions can reference them. organizationId null = global admin blog.
+// Blog categories (single-tenant). IDs are stable so translations and
+// post junctions can reference them.
 export default [
-  // ── Global categories ──
+  // ── Categories ──
   {
     id: "a1000000-0000-0000-0000-000000000001",
-    organizationId: null,
     parentId: null,
     slug: "annecy-experiences",
     icon: "mdi:map-marker-path",
@@ -14,7 +13,6 @@ export default [
   },
   {
     id: "a1000000-0000-0000-0000-000000000002",
-    organizationId: null,
     parentId: "a1000000-0000-0000-0000-000000000001",
     slug: "annecy-food-drink",
     icon: "mdi:food-fork-drink",
@@ -24,7 +22,6 @@ export default [
   },
   {
     id: "a1000000-0000-0000-0000-000000000003",
-    organizationId: null,
     parentId: "a1000000-0000-0000-0000-000000000001",
     slug: "annecy-outdoor-routes",
     icon: "mdi:bike",
@@ -32,10 +29,9 @@ export default [
     sortOrder: 3,
     createdAt: new Date("2026-01-04T08:02:00.000Z"),
   },
-  // ── Org: Annecy Tourisme categories ──
+  // ── Editorial categories ──
   {
     id: "c3000000-0000-0000-0000-000000000001",
-    organizationId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     parentId: null,
     slug: "guides",
     icon: "mdi:compass",
@@ -45,7 +41,6 @@ export default [
   },
   {
     id: "c3000000-0000-0000-0000-000000000002",
-    organizationId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     parentId: null,
     slug: "events",
     icon: "mdi:calendar",
@@ -53,10 +48,9 @@ export default [
     sortOrder: 2,
     createdAt: new Date("2026-01-04T08:11:00.000Z"),
   },
-  // ── Org: Alpine Outdoor categories ──
+  // ── Outdoor categories ──
   {
     id: "c5000000-0000-0000-0000-000000000001",
-    organizationId: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
     parentId: null,
     slug: "trails",
     icon: "mdi:hiking",

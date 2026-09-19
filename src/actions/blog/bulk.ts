@@ -1,5 +1,5 @@
 import { ActionError, defineAction } from "astro:actions";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
 import { blogPostLocks, blogPostRevisions, blogPostTranslations, blogPosts } from "@database/schemas";

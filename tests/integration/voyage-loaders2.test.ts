@@ -408,7 +408,7 @@ describe('filtres URL malformés — jamais de 500 (repli défauts)', () => {
     const { getServiceAdminData } = await import('@/modules/services/admin/loader');
     const pub = await getServices({ status: 'bogus', page: 'abc', sortOrder: 'sideways' }, 'fr', true);
     expect(pub.page).toBe(1);
-    const adm = await getServiceAdminData(null, 'fr', { status: 'bogus', page: 'abc' } as never);
+    const adm = await getServiceAdminData('fr', { status: 'bogus', page: 'abc' } as never);
     expect(adm.page).toBe(1);
   });
 });

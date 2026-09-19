@@ -15,8 +15,8 @@ vi.mock('astro:actions', () => {
 });
 
 import { getDrizzle } from '@database/drizzle';
-import { eq, and, isNull } from 'drizzle-orm';
-import { blogPosts, blogReports, blogPostTranslations, blogPostViewStats, user } from '@database/schemas';
+import { eq } from 'drizzle-orm';
+import { blogPosts, blogReports, blogPostRevisions, blogPostTranslations, blogPostViewStats, user } from '@database/schemas';
 import { listBlogPostRevisions } from '@/actions/blog/post';
 import { updateBlogReport, getBlogModerationQueue } from '@/actions/blog/moderation';
 import { resolveBlogInternalLink } from '@/actions/blog/internal-link';
@@ -54,19 +54,17 @@ describe('blog actions — integration (real DB)', () => {
   let globalPostId: string;
   let globalPostSlug: string;
   let realUserId: string;
+  let pendingReportId: string;
+  let seededPostId: string | null = null;
   let helpers: Awaited<ReturnType<typeof import('../helpers/auth').getTestHelpers>>;
 
-  beforeAll(async () => {
-    const [post] = await db
-      .select({ id: blogPosts.id, slug: blogPostTranslations.slug })
-      .from(blogPosts)
-      .innerJoin(blogPostTranslations, eq(blogPostTranslations.postId, blogPosts.id))
-      .where(and(isNull(blogPosts.organizationId), eq(blogPostTranslations.locale, 'fr')))
-      .limit(1);
-    if (!post) throw new Error('No global blog post seeded — run db:seed-blog-demo');
-    globalPostId = post.id;
-    globalPostSlug = post.slug;
+  // Fixed IDs so the seed is idempotent across reruns (no skipIf, no skips).
+  const SEED_POST_ID = 'c0ffee00-0000-4000-8000-000000000001';
+  const SEED_POST_SLUG = 'test-blog-actions-post';
+  const SEED_REVISION_ID = 'c0ffee00-0000-4000-8000-000000000002';
+  const SEED_REPORT_ID = 'c0ffee00-0000-4000-8000-000000000003';
 
+  beforeAll(async () => {
     // Dedicated admin user (never hijack another row — parallel suites share the DB).
     const { getTestHelpers } = await import('../helpers/auth');
     helpers = await getTestHelpers();
@@ -78,15 +76,75 @@ describe('blog actions — integration (real DB)', () => {
     const saved = await helpers.saveUser(created);
     realUserId = saved.id;
     await db.update(user).set({ role: "admin" }).where(eq(user.id, realUserId));
+
+    // Prefer a seeded FR post; otherwise create a deterministic one (always runs).
+    const [seeded] = await db
+      .select({ id: blogPosts.id, slug: blogPostTranslations.slug })
+      .from(blogPosts)
+      .innerJoin(blogPostTranslations, eq(blogPostTranslations.postId, blogPosts.id))
+      .where(eq(blogPostTranslations.locale, 'fr'))
+      .limit(1);
+    if (seeded) {
+      globalPostId = seeded.id;
+      globalPostSlug = seeded.slug;
+    } else {
+      const now = new Date();
+      await db.insert(blogPosts).values({
+        id: SEED_POST_ID,
+        authorId: realUserId,
+        slug: SEED_POST_SLUG,
+        status: 'PUBLISHED',
+        publishedAt: now,
+        updatedBy: realUserId,
+      }).onConflictDoNothing();
+      await db.insert(blogPostTranslations).values({
+        postId: SEED_POST_ID,
+        locale: 'fr',
+        title: 'Blog actions seed post',
+        slug: SEED_POST_SLUG,
+        content: '<p>Seed content for blog action tests.</p>',
+      }).onConflictDoNothing();
+      globalPostId = SEED_POST_ID;
+      globalPostSlug = SEED_POST_SLUG;
+      seededPostId = SEED_POST_ID;
+    }
+
+    // Deterministic revision + PENDING report so every test below runs (no skips).
+    await db.insert(blogPostRevisions).values({
+      id: SEED_REVISION_ID,
+      postId: globalPostId,
+      authorId: realUserId,
+      locale: 'fr',
+      title: 'Seed revision',
+      slug: globalPostSlug,
+      content: '<p>Seed revision.</p>',
+      status: 'PUBLISHED',
+    }).onConflictDoNothing();
+    await db.insert(blogReports).values({
+      id: SEED_REPORT_ID,
+      postId: globalPostId,
+      reason: 'SPAM',
+      description: 'Seed PENDING report for blog action tests.',
+      status: 'PENDING',
+    }).onConflictDoNothing();
+    // Reset to PENDING in case a previous run resolved it.
+    await db.update(blogReports).set({ status: 'PENDING', resolvedBy: null, resolvedAt: null }).where(eq(blogReports.id, SEED_REPORT_ID));
+    pendingReportId = SEED_REPORT_ID;
   });
 
   afterAll(async () => {
+    await db.delete(blogReports).where(eq(blogReports.id, SEED_REPORT_ID)).catch(() => {});
+    await db.delete(blogPostRevisions).where(eq(blogPostRevisions.id, SEED_REVISION_ID)).catch(() => {});
+    if (seededPostId) {
+      await db.delete(blogPostTranslations).where(eq(blogPostTranslations.postId, seededPostId)).catch(() => {});
+      await db.delete(blogPosts).where(eq(blogPosts.id, seededPostId)).catch(() => {});
+    }
     await helpers.deleteUser(realUserId).catch(() => {});
   });
 
   it('listBlogPostRevisions returns revisions for a seeded post', async () => {
     const revisions = await listRevisions(
-      { postId: globalPostId, organizationId: null },
+      { postId: globalPostId },
       adminCtx(realUserId),
     );
     expect(Array.isArray(revisions)).toBe(true);
@@ -101,7 +159,7 @@ describe('blog actions — integration (real DB)', () => {
 
   it('getBlogModerationQueue returns pending items', async () => {
     const queue = await getQueue(
-      { organizationId: null, page: 1, limit: 20 },
+      { page: 1, limit: 20 },
       adminCtx(realUserId),
     );
     expect(queue).toHaveProperty('comments');
@@ -113,20 +171,8 @@ describe('blog actions — integration (real DB)', () => {
   });
 
   it('updateBlogReport resolves a PENDING report and persists it', async () => {
-    const [pending] = await db
-      .select({ id: blogReports.id })
-      .from(blogReports)
-      .where(eq(blogReports.status, 'PENDING'))
-      .limit(1);
-
-    if (!pending) {
-      // No pending report seeded in this environment — skip gracefully.
-      console.warn('[test] no PENDING blog report seeded; skipping resolve assertion');
-      return;
-    }
-
     const res = await updateReport(
-      { reportId: pending.id, status: 'RESOLVED', organizationId: null },
+      { reportId: pendingReportId, status: 'RESOLVED' },
       adminCtx(realUserId),
     );
     expect(res.success).toBe(true);
@@ -134,7 +180,7 @@ describe('blog actions — integration (real DB)', () => {
     const [updated] = await db
       .select({ status: blogReports.status, resolvedBy: blogReports.resolvedBy })
       .from(blogReports)
-      .where(eq(blogReports.id, pending.id))
+      .where(eq(blogReports.id, pendingReportId))
       .limit(1);
     expect(updated.status).toBe('RESOLVED');
     expect(updated.resolvedBy).toBe(realUserId);
@@ -142,7 +188,7 @@ describe('blog actions — integration (real DB)', () => {
 
   it('resolveBlogInternalLink resolves a real slug', async () => {
     const res = await resolveLink(
-      { target: globalPostSlug, mode: 'resolve', locale: 'fr' as Locale, organizationId: null },
+      { target: globalPostSlug, mode: 'resolve', locale: 'fr' as Locale },
       adminCtx(realUserId),
     );
     expect(res.resolution.exists).toBe(true);
@@ -151,7 +197,7 @@ describe('blog actions — integration (real DB)', () => {
 
   it('resolveBlogInternalLink searches posts', async () => {
     const res = await resolveLink(
-      { target: '', mode: 'search', query: 'Annecy', locale: 'fr' as Locale, organizationId: null },
+      { target: '', mode: 'search', query: 'Annecy', locale: 'fr' as Locale },
       adminCtx(realUserId),
     );
     expect(Array.isArray(res.results)).toBe(true);
@@ -160,7 +206,7 @@ describe('blog actions — integration (real DB)', () => {
 
   it('checkBlogPostLinks returns a structured report for a real post', async () => {
     const res = await checkLinks(
-      { postId: globalPostId, locale: 'fr' as Locale, organizationId: null },
+      { postId: globalPostId, locale: 'fr' as Locale },
       adminCtx(realUserId),
     );
     expect(res).toHaveProperty('deadExplicit');

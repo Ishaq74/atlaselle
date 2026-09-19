@@ -13,8 +13,6 @@ export const seedManifest: SeedEntry[] = [
   { dataFile: '00b-media-files.data.ts', schemaExport: 'mediaFiles', label: 'media files' },
   { dataFile: '01-users.data.ts', schemaExport: 'user', label: 'users' },
   { dataFile: '01b-user-accounts.data.ts', schemaExport: 'account', label: 'user accounts' },
-  { dataFile: '02-organizations.data.ts', schemaExport: 'organization', label: 'organizations' },
-  { dataFile: '02b-organization-members.data.ts', schemaExport: 'member', label: 'organization members' },
   { dataFile: '03-site-settings.data.ts', schemaExport: 'siteSettings', label: 'site settings' },
   { dataFile: '04-social-links.data.ts', schemaExport: 'socialLinks', label: 'social links' },
   { dataFile: '05-contact-info.data.ts', schemaExport: 'contactInfo', label: 'contact info' },

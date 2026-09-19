@@ -22,7 +22,7 @@ export const blogInternalLinkResolver: InternalLinkResolver = {
 
   async resolve(target: string, ctx: Ctx): Promise<InternalLinkResolution> {
     const locale = ctx.locale as Locale;
-    const post = await getBlogPostBySlug(null, locale, target);
+    const post = await getBlogPostBySlug(locale, target);
     if (!post || !post.translation) {
       return { href: "#", title: null, exists: false };
     }
@@ -32,7 +32,7 @@ export const blogInternalLinkResolver: InternalLinkResolver = {
   },
 
   async listValidTargets(ctx: Ctx): Promise<Set<string>> {
-    return getBlogValidLinkTargets(null, ctx.locale as Locale);
+    return getBlogValidLinkTargets(ctx.locale as Locale);
   },
 
   async search(query: string, ctx: Ctx) {

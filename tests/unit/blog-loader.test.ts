@@ -12,11 +12,11 @@ vi.mock('@database/cache', () => ({
 }));
 
 vi.mock('@database/schemas', () => ({
-  blogPosts: { id: 'id', organizationId: 'organizationId', status: 'status', lockedBy: 'lockedBy', isFeatured: 'isFeatured', isSticky: 'isSticky', publishedAt: 'publishedAt', viewCount: 'viewCount', createdAt: 'createdAt', authorId: 'authorId', featuredImageId: 'featuredImageId' },
+  blogPosts: { id: 'id', status: 'status', lockedBy: 'lockedBy', isFeatured: 'isFeatured', isSticky: 'isSticky', publishedAt: 'publishedAt', viewCount: 'viewCount', createdAt: 'createdAt', authorId: 'authorId', featuredImageId: 'featuredImageId' },
   blogPostTranslations: { id: 'id', postId: 'postId', locale: 'locale', slug: 'slug', title: 'title', excerpt: 'excerpt', content: 'content' },
-  blogCategories: { id: 'id', organizationId: 'organizationId', slug: 'slug', sortOrder: 'sortOrder', parentId: 'parentId', color: 'color' },
+  blogCategories: { id: 'id', slug: 'slug', sortOrder: 'sortOrder', parentId: 'parentId', color: 'color' },
   blogCategoryTranslations: { id: 'id', categoryId: 'categoryId', locale: 'locale', slug: 'slug', name: 'name' },
-  blogTags: { id: 'id', organizationId: 'organizationId', slug: 'slug', color: 'color' },
+  blogTags: { id: 'id', slug: 'slug', color: 'color' },
   blogTagTranslations: { id: 'id', tagId: 'tagId', locale: 'locale', slug: 'slug', name: 'name' },
   blogPostCategories: { postId: 'postId', categoryId: 'categoryId' },
   blogPostTags: { postId: 'postId', tagId: 'tagId' },
@@ -80,7 +80,7 @@ describe('getBlogPosts', () => {
       .mockReturnValueOnce(makeChain([])) // main rows
       .mockReturnValueOnce(makeChain([{ value: 0 }])); // count
 
-    const { items, meta } = await getBlogPosts(null, 'fr', { page: 1, limit: 9 });
+    const { items, meta } = await getBlogPosts('fr', { page: 1, limit: 9 });
 
     expect(items).toEqual([]);
     expect(meta).toEqual({
@@ -95,7 +95,7 @@ describe('getBlogPosts', () => {
   });
 
   it('returns an empty result for an invalid locale without querying the DB', async () => {
-    const { items, meta } = await getBlogPosts(null, 'xx' as any, { page: 1 });
+    const { items, meta } = await getBlogPosts('xx' as any, { page: 1 });
 
     expect(items).toEqual([]);
     expect(meta.total).toBe(0);
@@ -103,7 +103,7 @@ describe('getBlogPosts', () => {
   });
 
   it('never exposes a non-published status through the public list loader', async () => {
-    const { items, meta } = await getBlogPosts(null, 'fr', { page: 1, status: 'DRAFT' });
+    const { items, meta } = await getBlogPosts('fr', { page: 1, status: 'DRAFT' });
 
     expect(items).toEqual([]);
     expect(meta.total).toBe(0);
@@ -127,7 +127,7 @@ describe('getBlogPosts', () => {
       .mockReturnValueOnce(makeChain([{ postId: 'post-1', avgRating: '4.5', reviewCount: 2 }])) // review agg (batched)
       .mockReturnValueOnce(makeChain([])); // reactions (batched)
 
-    const { items, meta } = await getBlogPosts(null, 'fr', { page: 2, limit: 9 });
+    const { items, meta } = await getBlogPosts('fr', { page: 2, limit: 9 });
 
     expect(items).toHaveLength(1);
     expect(items[0].commentCount).toBe(3);
@@ -145,11 +145,11 @@ describe('getBlogPosts', () => {
 });
 
 describe('getBlogPostBySlug', () => {
-  it('applies tenant and visibility in the initial joined query before LIMIT 1', async () => {
+  it('applies visibility in the initial joined query before LIMIT 1', async () => {
     const initialQuery = makeChain([]);
     mockSelect.mockReturnValueOnce(initialQuery);
 
-    const result = await getBlogPostBySlug('org-1', 'fr', 'shared-slug');
+    const result = await getBlogPostBySlug('fr', 'shared-slug');
 
     expect(result).toBeNull();
     expect(mockSelect).toHaveBeenCalledOnce();
@@ -166,13 +166,13 @@ describe('getBlogCategories', () => {
     mockSelect
       .mockReturnValueOnce(
         makeChain([
-          { category: { id: 'cat-1', slug: 'voyage', organizationId: null }, translation: null },
+          { category: { id: 'cat-1', slug: 'voyage' }, translation: null },
         ]),
       )
       // grouped post-count subquery: one row per categoryId with its count
       .mockReturnValueOnce(makeChain([{ categoryId: 'cat-1', value: 7 }]));
 
-    const result = await getBlogCategories(null, 'fr');
+    const result = await getBlogCategories('fr');
 
     expect(result).toEqual([
       expect.objectContaining({ id: 'cat-1', slug: 'voyage', translation: null, postCount: 7 }),
@@ -180,7 +180,7 @@ describe('getBlogCategories', () => {
   });
 
   it('returns an empty array for an invalid locale', async () => {
-    const result = await getBlogCategories(null, 'xx' as any);
+    const result = await getBlogCategories('xx' as any);
     expect(result).toEqual([]);
   });
 });
@@ -189,12 +189,12 @@ describe('getBlogTags', () => {
   it('maps translations and post counts', async () => {
     mockSelect
       .mockReturnValueOnce(
-        makeChain([{ tag: { id: 'tag-1', slug: 'lac', organizationId: null }, translation: { name: 'Lac', slug: 'lac' } }]),
+        makeChain([{ tag: { id: 'tag-1', slug: 'lac' }, translation: { name: 'Lac', slug: 'lac' } }]),
       )
       // grouped post-count subquery: one row per tagId with its count
       .mockReturnValueOnce(makeChain([{ tagId: 'tag-1', value: 4 }]));
 
-    const result = await getBlogTags(null, 'fr');
+    const result = await getBlogTags('fr');
 
     expect(result).toEqual([expect.objectContaining({ id: 'tag-1', slug: 'lac', postCount: 4 })]);
   });
@@ -236,11 +236,11 @@ describe('getBlogNotifications', () => {
     expect(result).toEqual(rows);
   });
 
-  it('can filter notifications by organization through their resolved post target', async () => {
+  it('scopes notifications to the requesting user in a single filtered query', async () => {
     const chain = makeChain([]);
     mockSelect.mockReturnValueOnce(chain);
 
-    await getBlogNotifications('user-1', { limit: 10, organizationId: 'org-1' });
+    await getBlogNotifications('user-1', { limit: 10 });
 
     expect(chain.leftJoin).toHaveBeenCalledTimes(4);
     expect(chain.where).toHaveBeenCalledOnce();
@@ -267,7 +267,7 @@ describe('getBlogModerationQueue', () => {
       .mockReturnValueOnce(reviewsChain)
       .mockReturnValueOnce(reportsChain);
 
-    const result = await getBlogModerationQueue(null);
+    const result = await getBlogModerationQueue();
 
     expect(result).toEqual({ comments: [], reviews: [], reports: [] });
     expect(reportsChain.leftJoin).toHaveBeenCalledTimes(4);

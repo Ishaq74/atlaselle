@@ -151,6 +151,3 @@ export interface BlogPostFormInput {
   seo?: BlogSeoInput;
 }
 
-export type BlogScope = {
-  organizationId: string | null;
-};

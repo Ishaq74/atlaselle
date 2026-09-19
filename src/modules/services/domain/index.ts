@@ -42,7 +42,6 @@ export interface ServiceLockState {
 export interface ServiceListItem {
   service: {
     id: string;
-    organizationId: string | null;
     providerId: string;
     slug: string;
     status: ServiceStatus;

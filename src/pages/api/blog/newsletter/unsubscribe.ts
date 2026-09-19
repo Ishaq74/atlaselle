@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { extractIp } from '@/lib/audit';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { blogNewsletterService } from '@/lib/newsletter/blog-newsletter-service';
 
 export const prerender = false;
@@ -10,6 +11,16 @@ export const GET: APIRoute = async ({ url, request, clientAddress, site }) => {
     return new Response(renderMessage(false, 'Lien de désinscription invalide.'), {
       status: 400,
       headers: responseHeaders,
+    });
+  }
+
+  // P0-M6 : rate-limit anti-énumération (GET conservé — liens email).
+  const ip = extractIp(request.headers, clientAddress) ?? 'unknown';
+  const rl = checkRateLimit(`newsletter-unsub:${ip}`, { window: 60, max: 20 });
+  if (!rl.allowed) {
+    return new Response(renderMessage(false, 'Trop de tentatives. Réessayez dans un instant.'), {
+      status: 429,
+      headers: { ...responseHeaders, 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) },
     });
   }
 

@@ -62,7 +62,7 @@ export const createDeparture = defineAction({
 });
 
 export const updateDeparture = defineAction({
-  input: departureInput.partial().extend({ id: z.string().uuid(), expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional() }),
+  input: departureInput.partial().extend({ id: z.uuid(), expectedUpdatedAt: z.iso.datetime({ offset: true }).nullable().optional() }),
   handler: async (input, context) => {
     const user = await assertVoyagePermission(context, { departure: ["update"] });
     const { id, expectedUpdatedAt, ...patch } = input;
@@ -83,7 +83,7 @@ export const updateDeparture = defineAction({
   },
 });
 
-const departureStatusInput = z.object({ id: z.string().uuid(), to: z.enum(["open", "limited", "waitlist", "closed", "cancelled"]) });
+const departureStatusInput = z.object({ id: z.uuid(), to: z.enum(["open", "limited", "waitlist", "closed", "cancelled"]) });
 
 export const setDepartureStatus = defineAction({
   input: departureStatusInput,

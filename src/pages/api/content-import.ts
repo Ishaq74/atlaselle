@@ -1,10 +1,7 @@
 import type { APIRoute } from 'astro';
 import { z } from 'astro/zod';
-import { eq, and } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
-import { getDrizzle } from '@database/drizzle';
-import { pages, pageSections } from '@database/schemas';
-import { invalidateCache } from '@database/cache';
+import { importCmsContent } from '@database/loaders/page.loader';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { logAuditEvent, extractIp } from '@/lib/audit';
 
@@ -68,90 +65,14 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     );
   }
 
-  const data = parsed.data;
-  const db = getDrizzle();
-
-  let created = 0;
-  let updated = 0;
-  let skipped = 0;
-
-  for (const pageData of data.pages) {
-    const { sections, publishedAt, ...pageFields } = pageData;
-
-    // Check if page already exists for this locale+slug
-    const [existing] = await db
-      .select({ id: pages.id })
-      .from(pages)
-      .where(and(eq(pages.locale, pageFields.locale), eq(pages.slug, pageFields.slug)))
-      .limit(1);
-
-    try {
-      if (existing) {
-        // Update existing page
-        await db
-          .update(pages)
-          .set({
-            ...pageFields,
-            publishedAt: publishedAt ? new Date(publishedAt) : null,
-            updatedBy: userId,
-          })
-          .where(eq(pages.id, existing.id));
-
-        // Replace sections: delete old, insert new
-        if (sections.length > 0) {
-          await db.delete(pageSections).where(eq(pageSections.pageId, existing.id));
-          await db.insert(pageSections).values(
-            sections.map((s) => ({
-              pageId: existing.id,
-              type: s.type,
-              content: s.content,
-              sortOrder: s.sortOrder,
-              isVisible: s.isVisible,
-              updatedBy: userId,
-            })),
-          );
-        }
-        updated++;
-      } else {
-        // Create new page
-        const [newPage] = await db
-          .insert(pages)
-          .values({
-            ...pageFields,
-            publishedAt: publishedAt ? new Date(publishedAt) : null,
-            updatedBy: userId,
-          })
-          .returning({ id: pages.id });
-
-        // Insert sections
-        if (sections.length > 0 && newPage) {
-          await db.insert(pageSections).values(
-            sections.map((s) => ({
-              pageId: newPage.id,
-              type: s.type,
-              content: s.content,
-              sortOrder: s.sortOrder,
-              isVisible: s.isVisible,
-              updatedBy: userId,
-            })),
-          );
-        }
-        created++;
-      }
-    } catch (err: unknown) {
-      console.error(`[content-import] Failed to import page ${pageFields.locale}/${pageFields.slug}:`, err);
-      skipped++;
-    }
-  }
-
-  invalidateCache('page:');
+  const { created, updated, skipped } = await importCmsContent({ pages: parsed.data.pages }, userId);
 
   void logAuditEvent({
     userId,
     action: 'CONTENT_IMPORT',
     resource: 'pages',
     resourceId: null,
-    metadata: { created, updated, skipped, total: data.pages.length },
+    metadata: { created, updated, skipped, total: parsed.data.pages.length },
     ipAddress: extractIp(request.headers, clientAddress),
     userAgent: request.headers.get('user-agent'),
   }).catch(() => {});

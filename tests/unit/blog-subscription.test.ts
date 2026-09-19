@@ -39,8 +39,8 @@ import {
   unsubscribeBlogNewsletter,
 } from "@/actions/blog/subscription";
 import {
+  NewsletterConfigurationError,
   NewsletterDeliveryError,
-  NewsletterOrganizationNotFoundError,
 } from "@/lib/newsletter/blog-newsletter-service";
 
 const subscribe = subscribeBlogNewsletter as unknown as {
@@ -90,9 +90,21 @@ describe("blog newsletter actions", () => {
     });
   });
 
-  it("lets unexpected service errors bubble up (no org mapping in single-tenant mode)", async () => {
+  it("lets unexpected service errors bubble up (single-tenant, no error mapping)", async () => {
+    const boom = new Error("unexpected provider crash");
+    serviceMocks.subscribe.mockRejectedValueOnce(boom);
+
+    await expect(
+      subscribe.handler(
+        { email: "reader@example.com", locale: "fr" },
+        guestContext(),
+      ),
+    ).rejects.toBe(boom);
+  });
+
+  it("maps configuration errors to a generic failure without leaking details", async () => {
     serviceMocks.subscribe.mockRejectedValueOnce(
-      new NewsletterOrganizationNotFoundError(),
+      new NewsletterConfigurationError(),
     );
 
     await expect(
@@ -100,7 +112,10 @@ describe("blog newsletter actions", () => {
         { email: "reader@example.com", locale: "fr" },
         guestContext(),
       ),
-    ).rejects.toBeInstanceOf(NewsletterOrganizationNotFoundError);
+    ).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "L'inscription n'a pas pu être finalisée. Veuillez réessayer.",
+    });
   });
 
   it("surfaces SMTP failure without exposing subscriber state", async () => {
@@ -110,7 +125,7 @@ describe("blog newsletter actions", () => {
 
     await expect(
       subscribe.handler(
-        { email: "reader@example.com", locale: "fr", organizationId: null },
+        { email: "reader@example.com", locale: "fr" },
         guestContext(),
       ),
     ).rejects.toMatchObject({

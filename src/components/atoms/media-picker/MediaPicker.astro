@@ -23,15 +23,14 @@ import Button from '@atoms/button/Button.astro';
 interface Props {
   id: string;
   locale: Locale;
-  organizationId?: string | null;
 }
 
-const { id, locale, organizationId } = Astro.props;
+const { id, locale } = Astro.props;
 const authT = await getAuthTranslations(locale);
 const mediaT = authT.admin.cms.media;
 const [allFiles, folderTree] = await Promise.all([
-  getAllMediaFiles(organizationId ?? null),
-  getMediaFolders(organizationId ?? null),
+  getAllMediaFiles(),
+  getMediaFolders(),
 ]);
 
 function pluralize(count: number, singular: string, plural: string): string {

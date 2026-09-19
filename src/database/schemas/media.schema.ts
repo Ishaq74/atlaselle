@@ -8,8 +8,6 @@ import {
   index,
   check,
 } from "drizzle-orm/pg-core";
-import { organization } from "./auth.schema";
-
 // ─── Media Folders ───────────────────────────────────────────────────────────
 // Hierarchical folder structure for organising uploaded media.
 export const mediaFolders = pgTable(
@@ -18,9 +16,6 @@ export const mediaFolders = pgTable(
     id: text("id")
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    organizationId: text("organization_id").references(() => organization.id, {
-      onDelete: "cascade",
-    }),
     name: text("name").notNull(),
     parentId: text("parent_id"),
     sortOrder: integer("sort_order").default(0).notNull(),
@@ -32,8 +27,7 @@ export const mediaFolders = pgTable(
   },
   (table) => [
     index("media_folders_parentId_idx").on(table.parentId),
-    uniqueIndex("media_folders_org_parent_name_uidx").on(table.organizationId, table.parentId, table.name),
-    index("media_folders_organizationId_idx").on(table.organizationId),
+    uniqueIndex("media_folders_parent_name_uidx").on(table.parentId, table.name),
   ],
 );
 
@@ -48,9 +42,6 @@ export const mediaFiles = pgTable(
     id: text("id")
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    organizationId: text("organization_id").references(() => organization.id, {
-      onDelete: "cascade",
-    }),
     folderId: text("folder_id").references(() => mediaFolders.id, {
       onDelete: "set null",
     }),
@@ -68,7 +59,6 @@ export const mediaFiles = pgTable(
   },
   (table) => [
     index("media_files_folderId_idx").on(table.folderId),
-    index("media_files_organizationId_idx").on(table.organizationId),
     uniqueIndex("media_files_url_uidx").on(table.url),
     check("media_files_size_positive", sql`${table.size} > 0`),
   ],
@@ -98,10 +88,6 @@ export const mediaFileAlts = pgTable(
 // ─── Relations ───────────────────────────────────────────────────────────────
 
 export const mediaFoldersRelations = relations(mediaFolders, ({ one, many }) => ({
-  organization: one(organization, {
-    fields: [mediaFolders.organizationId],
-    references: [organization.id],
-  }),
   parent: one(mediaFolders, {
     fields: [mediaFolders.parentId],
     references: [mediaFolders.id],
@@ -112,10 +98,6 @@ export const mediaFoldersRelations = relations(mediaFolders, ({ one, many }) => 
 }));
 
 export const mediaFilesRelations = relations(mediaFiles, ({ one, many }) => ({
-  organization: one(organization, {
-    fields: [mediaFiles.organizationId],
-    references: [organization.id],
-  }),
   folder: one(mediaFolders, {
     fields: [mediaFiles.folderId],
     references: [mediaFolders.id],

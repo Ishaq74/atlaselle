@@ -73,7 +73,6 @@ export interface BlogPostEditorData {
 
 export type BlogPostUpdateInput = {
   id: string;
-  organizationId?: string | null;
   locale?: Locale;
   title?: string;
   slug?: string;

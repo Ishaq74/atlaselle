@@ -2,8 +2,9 @@ import { and, eq, lte, sql } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { invalidateCache } from "@database/cache";
 import { reservations, reservationPriceSnapshots } from "@database/schemas";
-import { departures } from "@database/schemas/departures.schema";
-import { checkoutSessions } from "@database/schemas/payments.schema";
+import { getDepartureById } from "@/modules/departures/repositories/departure.repository";
+import { cancelOpenCheckoutsForReservation } from "@/modules/payments/repositories/payment.repository";
+import { getReservationById } from "@/modules/reservations/repositories/reservation.repository";
 import { assertTransitionReservation } from "./reservation-transitions";
 import type { ReservationStatus } from "@database/schemas/reservations.schema";
 import type { PricingBreakdown } from "@/modules/pricing/domain/pricing";
@@ -82,7 +83,7 @@ export async function confirmReservation(reservationId: string, paidAmount: numb
 // awaiting_payment → confirmed (solde restant) → completed (soldée).
 export async function applyPaymentToReservation(reservationId: string, paidAmount: number) {
   const db = getDrizzle();
-  const [current] = await db.select().from(reservations).where(eq(reservations.id, reservationId)).limit(1);
+  const current = await getReservationById(reservationId, db);
   if (!current) throw new Error("Reservation introuvable.");
   const from = current.status as ReservationStatus;
   const amountPaid = current.amountPaid + paidAmount;
@@ -110,10 +111,10 @@ export async function applyPaymentToReservation(reservationId: string, paidAmoun
 // refund-service). Ne rembourse jamais silencieusement plus que le payé.
 export async function cancelReservation(reservationId: string, now = new Date()) {
   const db = getDrizzle();
-  const [current] = await db.select().from(reservations).where(eq(reservations.id, reservationId)).limit(1);
+  const current = await getReservationById(reservationId, db);
   if (!current) throw new Error("Reservation introuvable.");
   assertTransitionReservation(current.status as ReservationStatus, "cancelled");
-  const [departure] = await db.select().from(departures).where(eq(departures.id, current.departureId)).limit(1);
+  const departure = await getDepartureById(current.departureId, db);
   const quote = departure ? quoteCancellation(departure.startDate, current.amountPaid, now) : null;
   const [updated] = await db
     .update(reservations)
@@ -121,13 +122,10 @@ export async function cancelReservation(reservationId: string, now = new Date())
     .where(eq(reservations.id, reservationId))
     .returning();
   // Les liens checkout ouverts ne doivent plus aboutir sur un dossier annulé.
-  await db
-    .update(checkoutSessions)
-    .set({ status: "cancelled" })
-    .where(and(eq(checkoutSessions.reservationId, reservationId), eq(checkoutSessions.status, "open")));
+  await cancelOpenCheckoutsForReservation(reservationId, db);
   // L'annulation libère la place.
-  invalidateCache("trip:");
-  invalidateCache("trips:list");
+  await invalidateCache("trip:");
+  await invalidateCache("trips:list");
   await emitOutboxEvent({
     eventType: "reservation.cancelled",
     aggregateType: "reservation",

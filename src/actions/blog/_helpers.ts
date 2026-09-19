@@ -56,29 +56,19 @@ export async function assertBlogMediaExists(mediaId: string) {
   return media;
 }
 
-// Contexte single-tenant (organisations hors périmètre, TODO §30.3).
-export interface BlogTenantContext {
-  organizationId: string | null;
-  isOrgContext: boolean;
-}
-
-export function resolveBlogTenant(_input: { organizationId?: string | null }): BlogTenantContext {
-  return { organizationId: null, isOrgContext: false };
-}
-
-export async function assertPostInTenant(postId: string, _tenant?: BlogTenantContext) {
+export async function assertPostInTenant(postId: string) {
   return assertBlogPostExists(postId);
 }
 
-export async function assertCategoryInTenant(categoryId: string, _tenant?: BlogTenantContext) {
+export async function assertCategoryInTenant(categoryId: string) {
   return assertBlogCategoryExists(categoryId);
 }
 
-export async function assertTagInTenant(tagId: string, _tenant?: BlogTenantContext) {
+export async function assertTagInTenant(tagId: string) {
   return assertBlogTagExists(tagId);
 }
 
-export async function assertMediaInTenant(mediaId: string, _tenant?: BlogTenantContext) {
+export async function assertMediaInTenant(mediaId: string) {
   return assertBlogMediaExists(mediaId);
 }
 

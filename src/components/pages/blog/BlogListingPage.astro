@@ -45,7 +45,6 @@ interface Props {
   categories: SidebarCategory[];
   tags: SidebarTag[];
   baseUrl: string;
-  organizationSlug?: string | null;
   searchQuery?: string;
   activeCategorySlug?: string;
   activeTagSlug?: string;
@@ -70,7 +69,6 @@ const {
   activeCategorySlug,
   activeTagSlug,
   organizationName,
-  organizationSlug = null,
   showNewsletter = true,
 } = Astro.props;
 
@@ -226,7 +224,6 @@ const currentView = (Astro.cookies.get("blog-view")?.value ?? "grid") as "grid" 
         blogT={blogT}
         posts={posts}
         baseUrl={baseUrl}
-        organizationSlug={organizationSlug}
         variant={currentView}
         columns={3}
         showCategory={true}

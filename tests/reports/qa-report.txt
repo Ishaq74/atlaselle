@@ -1,16 +1,16 @@
 ══════════════════════════════════════════════════════════════════════════════════
   ATOMIC — GLOBAL QA REPORT
-  Generated: 2026-09-06 18:06:11
+  Generated: 2026-09-19 10:09:52
 ══════════════════════════════════════════════════════════════════════════════════
 
   ✅ Type & Template Check (astro check)
-     0 errors, 0 warnings, 53 hints
+     0 errors, 0 warnings, 0 hints
 
   ✅ Lint (ESLint)
-     0 errors, 21 warnings
+     0 errors, 0 warnings
 
   ✅ Unit & Integration Tests (Vitest)
-     1309/1309 passed
+     1765/1765 passed
 
   ✅ End-to-End Tests (Playwright)
      0/0 passed
@@ -35,7 +35,7 @@
   ├─────────────────────────────────────────────┼──────────────┼─────────┤
   │ Astro check                                 │ GREEN        │ 0 error │
   │ ESLint                                      │ GREEN        │ 0 error │
-  │ Vitest (unit/integration)                   │ GREEN        │ 1309/13 │
+  │ Vitest (unit/integration)                   │ GREEN        │ 1765/17 │
   │ Playwright (e2e)                            │ GREEN        │ 0/0 pas │
   │ Pa11y (a11y)                                │ GREEN        │ 60/60 U │
   │ Lighthouse (perf)                           │ RED          │ 36 page │

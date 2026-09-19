@@ -60,4 +60,17 @@ export default [
       "astro/no-unused-css-selector": "off",
     },
   },
+
+  // ── Blog cards/sidebars — classes forwarded via class:list + component
+  // `class` props (Card, Badge, Image, Icon). ESLint can't trace them, so
+  // every selector here is a false positive (verified: all used in markup).
+  {
+    files: [
+      "src/components/blog/PostCard.astro",
+      "src/components/blog/sidebars/NewsletterSidebar.astro",
+    ],
+    rules: {
+      "astro/no-unused-css-selector": "off",
+    },
+  },
 ];

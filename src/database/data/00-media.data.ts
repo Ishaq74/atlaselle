@@ -3,7 +3,6 @@
 export default [
   {
     id: "aaaaaaaa-0000-0000-0000-0000000000f0",
-    organizationId: null,
     parentId: null,
     name: "Demo",
     sortOrder: 0,

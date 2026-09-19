@@ -28,10 +28,10 @@ if (!postId) return Astro.redirect(baseAdminUrl);
 
 const [postAdminData, categoryRows, tagRows] = await Promise.all([
   getBlogPostEditorData(postId, locale),
-  getBlogCategories(null, locale),
-  getBlogTags(null, locale),
+  getBlogCategories(locale),
+  getBlogTags(locale),
 ]);
-if (!postAdminData || postAdminData.post.organizationId !== null) {
+if (!postAdminData) {
   Astro.response.status = 404;
   return Astro.rewrite("/404");
 }

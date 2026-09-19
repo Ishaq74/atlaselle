@@ -1,5 +1,5 @@
 import { ActionError, defineAction } from "astro:actions";
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
 import { travelers } from "@database/schemas";
@@ -8,7 +8,7 @@ import { reservations } from "@database/schemas";
 import { ACTIVE_APPLICATION_STATUSES } from "@/modules/applications/domain/application-transitions";
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
 
-const idInput = z.object({ id: z.string().uuid() });
+const idInput = z.object({ id: z.uuid() });
 
 // RGPD droit d'accès : export JSON du dossier (sans notes internes, TODO §19).
 export const exportTravelerData = defineAction({

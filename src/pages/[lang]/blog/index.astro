@@ -15,9 +15,9 @@ const page = Math.max(1, Number(Astro.url.searchParams.get("page") ?? "1") || 1)
 const searchQuery = Astro.url.searchParams.get("q")?.trim() || undefined;
 
 const [{ items, meta }, categoryRows, tagRows] = await Promise.all([
-  getBlogPosts(null, locale, { page, searchQuery }),
-  getBlogCategories(null, locale),
-  getBlogTags(null, locale),
+  getBlogPosts(locale, { page, searchQuery }),
+  getBlogCategories(locale),
+  getBlogTags(locale),
 ]);
 
 const categories = categoryRows.map((item) => ({
@@ -73,7 +73,6 @@ const jsonLd = JSON.stringify(
     categories={categories}
     tags={tags}
     baseUrl={baseUrl}
-    organizationSlug={null}
     searchQuery={searchQuery}
   />
 </BaseLayout>

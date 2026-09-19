@@ -38,15 +38,6 @@ export interface DeleteAccountStrings {
   ignore: string;
 }
 
-export interface OrganizationInvitationStrings {
-  subject: string;
-  heading: string;
-  greeting: string;
-  body: string;
-  button: string;
-  ignore: string;
-}
-
 export interface BlogNewsletterStrings {
   subject: string;
   heading: string;
@@ -66,7 +57,6 @@ type EmailTranslations = {
   verifyEmail: VerifyEmailStrings;
   resetPassword: ResetPasswordStrings;
   deleteAccount: DeleteAccountStrings;
-  organizationInvitation: OrganizationInvitationStrings;
   blogNewsletter: BlogNewsletterStrings;
 };
 
@@ -101,14 +91,6 @@ const translations: Record<Locale, EmailTranslations> = {
       button: 'Confirmer la suppression',
       warning: 'Cette action est définitive. Toutes vos données seront supprimées de manière permanente.',
       ignore: 'Si vous n\'avez pas demandé la suppression de votre compte, ignorez cet email. Votre compte restera actif.',
-    },
-    organizationInvitation: {
-      subject: 'Invitation à rejoindre {orgName}',
-      heading: 'Vous êtes invité(e) à rejoindre une organisation',
-      greeting: 'Bonjour,',
-      body: '{inviterName} vous invite à rejoindre l\'organisation {orgName} en tant que {role}. Cliquez sur le bouton ci-dessous pour accepter l\'invitation.',
-      button: 'Accepter l\'invitation',
-      ignore: 'Si vous ne souhaitez pas rejoindre cette organisation, ignorez simplement cet email.',
     },
     blogNewsletter: {
       subject: 'Confirmez votre inscription à la newsletter',
@@ -155,14 +137,6 @@ const translations: Record<Locale, EmailTranslations> = {
       warning: 'This action is permanent. All your data will be permanently deleted.',
       ignore: 'If you didn\'t request to delete your account, please ignore this email. Your account will remain active.',
     },
-    organizationInvitation: {
-      subject: 'Invitation to join {orgName}',
-      heading: 'You\'ve been invited to join an organization',
-      greeting: 'Hello,',
-      body: '{inviterName} has invited you to join {orgName} as a {role}. Click the button below to accept the invitation.',
-      button: 'Accept invitation',
-      ignore: 'If you don\'t want to join this organization, simply ignore this email.',
-    },
     blogNewsletter: {
       subject: 'Confirm your newsletter subscription',
       heading: 'Blog newsletter',
@@ -208,14 +182,6 @@ const translations: Record<Locale, EmailTranslations> = {
       warning: 'Esta acción es definitiva. Todos sus datos serán eliminados permanentemente.',
       ignore: 'Si no solicitó la eliminación de su cuenta, ignore este correo. Su cuenta permanecerá activa.',
     },
-    organizationInvitation: {
-      subject: 'Invitación para unirse a {orgName}',
-      heading: 'Ha sido invitado a unirse a una organización',
-      greeting: 'Hola,',
-      body: '{inviterName} le invita a unirse a {orgName} como {role}. Haga clic en el botón de abajo para aceptar la invitación.',
-      button: 'Aceptar invitación',
-      ignore: 'Si no desea unirse a esta organización, simplemente ignore este correo.',
-    },
     blogNewsletter: {
       subject: 'Confirme su suscripción al boletín',
       heading: 'Boletín del blog',
@@ -260,14 +226,6 @@ const translations: Record<Locale, EmailTranslations> = {
       button: 'تأكيد الحذف',
       warning: 'هذا الإجراء نهائي. سيتم حذف جميع بياناتك بشكل دائم.',
       ignore: 'إذا لم تطلب حذف حسابك، تجاهل هذا البريد. سيبقى حسابك نشطًا.',
-    },
-    organizationInvitation: {
-      subject: 'دعوة للانضمام إلى {orgName}',
-      heading: 'لقد تمت دعوتك للانضمام إلى مؤسسة',
-      greeting: 'مرحبًا،',
-      body: '{inviterName} يدعوك للانضمام إلى {orgName} بصفة {role}. انقر على الزر أدناه لقبول الدعوة.',
-      button: 'قبول الدعوة',
-      ignore: 'إذا لم ترغب في الانضمام إلى هذه المؤسسة، تجاهل هذا البريد.',
     },
     blogNewsletter: {
       subject: 'أكّد اشتراكك في النشرة البريدية',

@@ -100,19 +100,10 @@ const {
     const observers: IntersectionObserver[] = [];
 
     elements.forEach((el) => {
-      const direction = el.dataset.revealDirection || "up";
       const delay = parseInt(el.dataset.revealDelay || "0", 10);
       const duration = parseInt(el.dataset.revealDuration || "600", 10);
-      const distance = parseInt(el.dataset.revealDistance || "30", 10);
       const once = el.dataset.revealOnce !== "false";
       const threshold = parseFloat(el.dataset.revealThreshold || "0.1");
-
-      const transforms: Record<string, string> = {
-        up: `translateY(${distance}px)`,
-        down: `translateY(-${distance}px)`,
-        left: `translateX(${distance}px)`,
-        right: `translateX(-${distance}px)`,
-      };
 
       // Apply per-instance duration/delay from CSS custom props so the
       // transition matches the author's configuration.

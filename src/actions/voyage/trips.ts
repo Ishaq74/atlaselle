@@ -117,7 +117,7 @@ export const restoreTripRevision = defineAction({
 
 export const tripFactsInput = z.object({
   id: z.string().min(1).max(160),
-  expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional(),
+  expectedUpdatedAt: z.iso.datetime({ offset: true }).nullable().optional(),
   countryCode: z.string().length(2).optional(),
   defaultCurrency: z.string().length(3).optional(),
   durationDays: z.number().int().positive().optional(),
@@ -158,7 +158,7 @@ export const updateTrip = defineAction({
 
 export const tripTranslationInput = z.object({
   tripId: z.string().min(1).max(160),
-  expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional(),
+  expectedUpdatedAt: z.iso.datetime({ offset: true }).nullable().optional(),
   locale: z.enum(LOCALES),
   slug: z.string().min(1).max(160).regex(/^[a-z0-9-]+$/, "Slug ASCII uniquement (a-z, 0-9, tirets)."),
   title: z.string().min(1),

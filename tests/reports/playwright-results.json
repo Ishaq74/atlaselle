@@ -2,10 +2,8 @@
   "config": {
     "argv": [
       "C:\\Users\\Utilisateur\\AppData\\Local\\Microsoft\\WinGet\\Packages\\OpenJS.NodeJS.22_Microsoft.Winget.Source_8wekyb3d8bbwe\\node-v22.22.0-win-x64\\node.exe",
-      "C:\\Users\\Utilisateur\\Documents\\t3code\\atlaselle\\node_modules\\@playwright\\test\\cli.js",
-      "test",
-      "tests/e2e/voyage.spec.ts",
-      "--project=chromium"
+      "C:\\Users\\Utilisateur\\Documents\\t3code\\atlaselle\\node_modules\\.pnpm\\@playwright+test@1.63.0\\node_modules\\@playwright\\test\\cli.js",
+      "test"
     ],
     "configFile": "C:\\Users\\Utilisateur\\Documents\\t3code\\atlaselle\\playwright.config.ts",
     "rootDir": "C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/e2e",
@@ -101,15 +99,10 @@
     }
   },
   "suites": [],
-  "errors": [
-    {
-      "message": "Error: Process from config.webServer exited early.",
-      "stack": "Error: Process from config.webServer exited early."
-    }
-  ],
+  "errors": [],
   "stats": {
-    "startTime": "2026-09-14T19:02:18.726Z",
-    "duration": 25377.302,
+    "startTime": "2026-09-19T03:22:12.950Z",
+    "duration": 19322420.981,
     "expected": 0,
     "skipped": 0,
     "unexpected": 0,

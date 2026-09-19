@@ -10,17 +10,16 @@ export const prerender = false;
 const locale = (Astro.params.lang ?? "fr") as Locale;
 const categorySlug = Astro.params.categorySlug!;
 const slug = Astro.params.slug!;
-const item = await getServiceBySlug(slug, locale, null, categorySlug);
+const item = await getServiceBySlug(slug, locale, categorySlug);
 if (!item) return Astro.redirect(`/${locale}/services`);
 const t = getServiceTranslations(locale);
 const title = item.translation?.title ?? t.labels.service;
 const description = item.translation?.excerpt ?? t.meta.description;
 const canonicalCategory = item.categories.find((category) => category.slug === categorySlug)?.slug ?? categorySlug;
 const canonicalUrl = buildServiceUrl(locale, item.translation?.slug ?? item.service.slug, canonicalCategory);
-const jsonLd = buildServiceJsonLd({ name: title, description, slug: new URL(canonicalUrl, Astro.url.origin).href, priceMinor: item.service.priceMinor, currency: item.service.currency, ratingAverage100: item.service.ratingAverage100, ratingCount: item.service.ratingCount });
+const jsonLdString = JSON.stringify(buildServiceJsonLd({ name: title, description, slug: new URL(canonicalUrl, Astro.url.origin).href, priceMinor: item.service.priceMinor, currency: item.service.currency, ratingAverage100: item.service.ratingAverage100, ratingCount: item.service.ratingCount }));
 ---
-<BaseLayout title={`${title} — ${t.meta.title}`} description={description}>
+<BaseLayout title={`${title} — ${t.meta.title}`} description={description} jsonLd={jsonLdString}>
   <link rel="canonical" href={new URL(canonicalUrl, Astro.url.origin).href} />
-  <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
   <main class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"><ServiceDetail item={item} locale={locale} /></main>
 </BaseLayout>

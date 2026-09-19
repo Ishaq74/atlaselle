@@ -2,7 +2,6 @@
 export default [
   {
     id: "aaaaaaaa-0000-0000-0000-000000000001",
-    organizationId: null,
     folderId: "aaaaaaaa-0000-0000-0000-0000000000f0",
     filename: "annecy-canaux.jpg",
     url: "/uploads/media/demo/annecy-canaux.jpg",
@@ -14,7 +13,6 @@ export default [
   },
   {
     id: "aaaaaaaa-0000-0000-0000-000000000002",
-    organizationId: null,
     folderId: "aaaaaaaa-0000-0000-0000-0000000000f0",
     filename: "annecy-lac.jpg",
     url: "/uploads/media/demo/annecy-lac.jpg",

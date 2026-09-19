@@ -12,10 +12,10 @@ describe('blog internal link resolver (integration)', () => {
   let slugs: Set<string>;
 
   beforeAll(async () => {
-    slugs = await getBlogValidLinkTargets(null, 'fr' as Locale);
+    slugs = await getBlogValidLinkTargets('fr' as Locale);
   });
 
-  it('lists published blog post slugs for the global tenant', () => {
+  it('lists published blog post slugs (single-tenant)', () => {
     expect(slugs.size).toBeGreaterThan(0);
     // The demo seed includes a French post "week-end-annecy".
     expect(slugs.has('week-end-annecy')).toBe(true);

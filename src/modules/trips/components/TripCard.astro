@@ -28,10 +28,10 @@ const labels =
   </div>
   <div class="p-6">
     <h2 class="text-xl font-bold">{trip.title}</h2>
-    <p class="mt-2 text-sm text-muted-foreground">{trip.dates} · {trip.durationDays} {labels.duration} · {trip.difficulty}</p>
+    <p class="mt-2 text-sm text-muted-foreground"><bdi>{trip.dates}</bdi> · <bdi>{trip.durationDays} {labels.duration}</bdi> · {trip.difficulty}</p>
     <p class="mt-3 line-clamp-3 text-sm">{trip.summary}</p>
     <div class="mt-5 flex items-center justify-between">
-      <p class="text-sm text-muted-foreground">{labels.from} <span class="text-lg font-bold text-foreground">{pricePrefix}{trip.priceFrom.toLocaleString("en")}</span></p>
+      <p class="text-sm text-muted-foreground">{labels.from} <span class="text-lg font-bold text-foreground"><bdi>{pricePrefix}{trip.priceFrom.toLocaleString("en")}</bdi></span></p>
       <a class="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground" href={href}>{labels.discover}</a>
     </div>
   </div>

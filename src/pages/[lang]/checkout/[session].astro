@@ -29,7 +29,7 @@ const base = `/${locale}/checkout/${data.sessionId}`;
   <section class="mx-auto max-w-xl px-6 py-14" data-checkout-page data-session={data.sessionId} data-locale={locale}>
     <h1 class="text-4xl font-bold">{l.title}</h1>
     <p class="mt-2 text-muted-foreground">{data.tripTitle}</p>
-    <p class="mt-1 text-sm">{l.dates} : {data.startDate.toISOString().slice(0, 10)} → {data.endDate.toISOString().slice(0, 10)}</p>
+    <p class="mt-1 text-sm">{l.dates} : <bdi>{data.startDate.toISOString().slice(0, 10)} → {data.endDate.toISOString().slice(0, 10)}</bdi></p>
 
     <div class="mt-6 flex gap-2 text-sm">
       <a class:list={["rounded-full border px-4 py-1.5", roomType === "shared" && "bg-primary text-primary-foreground"]} href={`${base}?room=shared`}>{l.shared}</a>
@@ -37,20 +37,20 @@ const base = `/${locale}/checkout/${data.sessionId}`;
     </div>
 
     <dl class="mt-6 space-y-2 rounded-xl border p-6 text-sm">
-      <div class="flex justify-between"><dt>{l.base}</dt><dd>{fmt(data.quote.baseAmount)}</dd></div>
-      {data.quote.supplementAmount > 0 ? <div class="flex justify-between"><dt>{l.supplement}</dt><dd>{fmt(data.quote.supplementAmount)}</dd></div> : null}
-      {data.quote.discountAmount > 0 ? <div class="flex justify-between"><dt>{l.discount}</dt><dd>−{fmt(data.quote.discountAmount)}</dd></div> : null}
-      {data.quote.taxAmount > 0 ? <div class="flex justify-between"><dt>{l.tax}</dt><dd>{fmt(data.quote.taxAmount)}</dd></div> : null}
-      {data.quote.feeAmount > 0 ? <div class="flex justify-between"><dt>{l.fee}</dt><dd>{fmt(data.quote.feeAmount)}</dd></div> : null}
-      <div class="flex justify-between border-t pt-2 text-base font-bold"><dt>{l.total}</dt><dd>{fmt(data.quote.totalAmount)}</dd></div>
-      <div class="flex justify-between text-muted-foreground"><dt>{l.deposit}</dt><dd>{fmt(data.quote.depositAmount)}</dd></div>
-      <div class="flex justify-between text-muted-foreground"><dt>{l.balance}</dt><dd>{fmt(data.quote.balanceAmount)}</dd></div>
+      <div class="flex justify-between"><dt>{l.base}</dt><dd><bdi>{fmt(data.quote.baseAmount)}</bdi></dd></div>
+      {data.quote.supplementAmount > 0 ? <div class="flex justify-between"><dt>{l.supplement}</dt><dd><bdi>{fmt(data.quote.supplementAmount)}</bdi></dd></div> : null}
+      {data.quote.discountAmount > 0 ? <div class="flex justify-between"><dt>{l.discount}</dt><dd><bdi>−{fmt(data.quote.discountAmount)}</bdi></dd></div> : null}
+      {data.quote.taxAmount > 0 ? <div class="flex justify-between"><dt>{l.tax}</dt><dd><bdi>{fmt(data.quote.taxAmount)}</bdi></dd></div> : null}
+      {data.quote.feeAmount > 0 ? <div class="flex justify-between"><dt>{l.fee}</dt><dd><bdi>{fmt(data.quote.feeAmount)}</bdi></dd></div> : null}
+      <div class="flex justify-between border-t pt-2 text-base font-bold"><dt>{l.total}</dt><dd><bdi>{fmt(data.quote.totalAmount)}</bdi></dd></div>
+      <div class="flex justify-between text-muted-foreground"><dt>{l.deposit}</dt><dd><bdi>{fmt(data.quote.depositAmount)}</bdi></dd></div>
+      <div class="flex justify-between text-muted-foreground"><dt>{l.balance}</dt><dd><bdi>{fmt(data.quote.balanceAmount)}</bdi></dd></div>
     </dl>
 
     <form data-checkout-form class="mt-6 space-y-4 rounded-xl border p-6">
       <label class="block font-medium">Email<input required name="travelerEmail" type="email" maxlength="320" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
       <label class="flex items-start gap-2 text-sm"><input required type="checkbox" name="terms" class="mt-1" />{l.terms}</label>
-      <button class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.pay} · {fmt(data.quote.totalAmount)}</button>
+      <button class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.pay} · <bdi>{fmt(data.quote.totalAmount)}</bdi></button>
       <output class="block text-sm" data-form-message></output>
     </form>
   </section>

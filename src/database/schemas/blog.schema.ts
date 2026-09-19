@@ -13,7 +13,7 @@ import {
   primaryKey,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
-import { user, organization } from "./auth.schema";
+import { user } from "./auth.schema";
 import { mediaFiles } from "./media.schema";
 import { LOCALES } from "@i18n/config";
 
@@ -21,12 +21,10 @@ const localeEnum = text("locale", { enum: LOCALES }).notNull();
 
 // ─── Blog Posts ─────────────────────────────────────────────────────────────
 // One row per post. Translations + SEO + content live in child tables.
-// organizationId scopes the post to an org; NULL means global admin blog.
 export const blogPosts = pgTable(
   "blog_posts",
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     authorId: text("author_id").notNull().references(() => user.id, { onDelete: "cascade" }),
     slug: text("slug").notNull(),
     status: text("status", { enum: ["DRAFT", "PUBLISHED", "ARCHIVED", "DELETED"] }).default("DRAFT").notNull(),
@@ -45,13 +43,12 @@ export const blogPosts = pgTable(
     lockedAt: timestamp("locked_at"),
   },
   (table) => [
-    uniqueIndex("blog_posts_org_slug_uidx").on(table.organizationId, table.slug),
-    index("blog_posts_org_idx").on(table.organizationId),
+    uniqueIndex("blog_posts_slug_uidx").on(table.slug),
     index("blog_posts_author_idx").on(table.authorId),
     index("blog_posts_status_idx").on(table.status),
     index("blog_posts_published_at_idx").on(table.publishedAt),
-    index("blog_posts_featured_idx").on(table.organizationId, table.isFeatured, table.status),
-    index("blog_posts_sticky_idx").on(table.organizationId, table.isSticky, table.status),
+    index("blog_posts_featured_idx").on(table.isFeatured, table.status),
+    index("blog_posts_sticky_idx").on(table.isSticky, table.status),
     check("blog_posts_publish_consistency", sql`NOT ${table.status} = 'PUBLISHED' OR ${table.publishedAt} IS NOT NULL`),
   ],
 );
@@ -62,7 +59,6 @@ export const blogPostTranslations = pgTable(
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     postId: text("post_id").notNull().references(() => blogPosts.id, { onDelete: "cascade" }),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     locale: localeEnum,
     title: text("title").notNull(),
     slug: text("slug").notNull(),
@@ -80,9 +76,7 @@ export const blogPostTranslations = pgTable(
   },
   (table) => [
     uniqueIndex("blog_post_translations_post_locale_uidx").on(table.postId, table.locale),
-    uniqueIndex("blog_post_translations_org_locale_slug_uidx").on(table.organizationId, table.locale, table.slug).where(sql`${table.organizationId} IS NOT NULL`),
-    uniqueIndex("blog_post_translations_global_locale_slug_uidx").on(table.locale, table.slug).where(sql`${table.organizationId} IS NULL`),
-    index("blog_post_translations_locale_slug_idx").on(table.locale, table.slug),
+    uniqueIndex("blog_post_translations_locale_slug_uidx").on(table.locale, table.slug),
   ],
 );
 
@@ -91,7 +85,6 @@ export const blogCategories = pgTable(
   "blog_categories",
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     parentId: text("parent_id").references((): AnyPgColumn => blogCategories.id, { onDelete: "set null" }),
     slug: text("slug").notNull(),
     icon: text("icon"),
@@ -101,8 +94,7 @@ export const blogCategories = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
   },
   (table) => [
-    uniqueIndex("blog_categories_org_slug_uidx").on(table.organizationId, table.slug),
-    index("blog_categories_org_idx").on(table.organizationId),
+    uniqueIndex("blog_categories_slug_uidx").on(table.slug),
     index("blog_categories_parent_idx").on(table.parentId),
     check("blog_categories_no_self_parent", sql`${table.parentId} IS NULL OR ${table.parentId} != ${table.id}`),
   ],
@@ -113,7 +105,6 @@ export const blogCategoryTranslations = pgTable(
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     categoryId: text("category_id").notNull().references(() => blogCategories.id, { onDelete: "cascade" }),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     locale: localeEnum,
     name: text("name").notNull(),
     slug: text("slug").notNull(),
@@ -125,9 +116,7 @@ export const blogCategoryTranslations = pgTable(
   },
   (table) => [
     uniqueIndex("blog_category_translations_category_locale_uidx").on(table.categoryId, table.locale),
-    uniqueIndex("blog_category_translations_org_locale_slug_uidx").on(table.organizationId, table.locale, table.slug).where(sql`${table.organizationId} IS NOT NULL`),
-    uniqueIndex("blog_category_translations_global_locale_slug_uidx").on(table.locale, table.slug).where(sql`${table.organizationId} IS NULL`),
-    index("blog_category_translations_locale_slug_idx").on(table.locale, table.slug),
+    uniqueIndex("blog_category_translations_locale_slug_uidx").on(table.locale, table.slug),
   ],
 );
 
@@ -136,15 +125,13 @@ export const blogTags = pgTable(
   "blog_tags",
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     slug: text("slug").notNull(),
     color: text("color"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
   },
   (table) => [
-    uniqueIndex("blog_tags_org_slug_uidx").on(table.organizationId, table.slug),
-    index("blog_tags_org_idx").on(table.organizationId),
+    uniqueIndex("blog_tags_slug_uidx").on(table.slug),
   ],
 );
 
@@ -153,7 +140,6 @@ export const blogTagTranslations = pgTable(
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     tagId: text("tag_id").notNull().references(() => blogTags.id, { onDelete: "cascade" }),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     locale: localeEnum,
     name: text("name").notNull(),
     slug: text("slug").notNull(),
@@ -162,9 +148,7 @@ export const blogTagTranslations = pgTable(
   },
   (table) => [
     uniqueIndex("blog_tag_translations_tag_locale_uidx").on(table.tagId, table.locale),
-    uniqueIndex("blog_tag_translations_org_locale_slug_uidx").on(table.organizationId, table.locale, table.slug).where(sql`${table.organizationId} IS NOT NULL`),
-    uniqueIndex("blog_tag_translations_global_locale_slug_uidx").on(table.locale, table.slug).where(sql`${table.organizationId} IS NULL`),
-    index("blog_tag_translations_locale_slug_idx").on(table.locale, table.slug),
+    uniqueIndex("blog_tag_translations_locale_slug_uidx").on(table.locale, table.slug),
   ],
 );
 
@@ -413,7 +397,6 @@ export const blogNotifications = pgTable(
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     type: text("type", { enum: ["NEW_COMMENT", "COMMENT_APPROVED", "COMMENT_REJECTED", "NEW_REVIEW", "REVIEW_APPROVED", "REVIEW_REJECTED", "POST_PUBLISHED", "POST_MENTION", "REPLY_TO_COMMENT"] }).notNull(),
     postId: text("post_id").references(() => blogPosts.id, { onDelete: "cascade" }),
     commentId: text("comment_id").references(() => blogComments.id, { onDelete: "cascade" }),
@@ -425,7 +408,6 @@ export const blogNotifications = pgTable(
   },
   (table) => [
     index("blog_notifications_user_idx").on(table.userId),
-    index("blog_notifications_org_user_idx").on(table.organizationId, table.userId),
     index("blog_notifications_read_idx").on(table.isRead),
     index("blog_notifications_type_idx").on(table.type),
     index("blog_notifications_created_idx").on(table.createdAt),
@@ -471,7 +453,6 @@ export const blogSubscribers = pgTable(
   "blog_subscribers",
   {
     id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
-    organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }),
     email: text("email").notNull(),
     locale: text("locale", { enum: LOCALES }).notNull(),
     token: text("token").unique(),
@@ -488,8 +469,7 @@ export const blogSubscribers = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
   },
   (table) => [
-    uniqueIndex("blog_subscribers_org_email_uidx").on(table.organizationId, table.email),
-    index("blog_subscribers_org_idx").on(table.organizationId),
+    uniqueIndex("blog_subscribers_email_uidx").on(table.email),
     index("blog_subscribers_status_idx").on(table.status),
     index("blog_subscribers_token_idx").on(table.token),
     uniqueIndex("blog_subscribers_confirmation_token_hash_uidx").on(table.confirmationTokenHash),
@@ -501,7 +481,6 @@ export const blogSubscribers = pgTable(
 
 // ─── Relations ──────────────────────────────────────────────────────────────
 export const blogPostsRelations = relations(blogPosts, ({ one, many }) => ({
-  organization: one(organization, { fields: [blogPosts.organizationId], references: [organization.id] }),
   author: one(user, { fields: [blogPosts.authorId], references: [user.id], relationName: "blogPostAuthor" }),
   updatedByUser: one(user, { fields: [blogPosts.updatedBy], references: [user.id], relationName: "blogPostUpdater" }),
   lockedByUser: one(user, { fields: [blogPosts.lockedBy], references: [user.id], relationName: "blogPostLocker" }),
@@ -528,7 +507,6 @@ export const blogPostTranslationsRelations = relations(blogPostTranslations, ({ 
 }));
 
 export const blogCategoriesRelations = relations(blogCategories, ({ one, many }) => ({
-  organization: one(organization, { fields: [blogCategories.organizationId], references: [organization.id] }),
   parent: one(blogCategories, { fields: [blogCategories.parentId], references: [blogCategories.id], relationName: "blogCategoryParent" }),
   children: many(blogCategories, { relationName: "blogCategoryParent" }),
   translations: many(blogCategoryTranslations),
@@ -539,8 +517,7 @@ export const blogCategoryTranslationsRelations = relations(blogCategoryTranslati
   category: one(blogCategories, { fields: [blogCategoryTranslations.categoryId], references: [blogCategories.id] }),
 }));
 
-export const blogTagsRelations = relations(blogTags, ({ one, many }) => ({
-  organization: one(organization, { fields: [blogTags.organizationId], references: [organization.id] }),
+export const blogTagsRelations = relations(blogTags, ({ many }) => ({
   translations: many(blogTagTranslations),
   posts: many(blogPostTags),
 }));
@@ -626,7 +603,6 @@ export const blogPostViewStatsRelations = relations(blogPostViewStats, ({ one })
 
 export const blogNotificationsRelations = relations(blogNotifications, ({ one }) => ({
   user: one(user, { fields: [blogNotifications.userId], references: [user.id] }),
-  organization: one(organization, { fields: [blogNotifications.organizationId], references: [organization.id] }),
   post: one(blogPosts, { fields: [blogNotifications.postId], references: [blogPosts.id] }),
   comment: one(blogComments, { fields: [blogNotifications.commentId], references: [blogComments.id] }),
   review: one(blogPostReviews, { fields: [blogNotifications.reviewId], references: [blogPostReviews.id] }),

@@ -9,10 +9,20 @@ import { checkRateLimit } from '@/lib/rate-limit';
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
-  // ─── Auth obligatoire ──────────────────────────────────────────────
+  // ─── Auth + permission media:upload (P0-M2 : plus de simple session) ──
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) {
     return Response.json({ error: 'Non authentifié' }, { status: 401 });
+  }
+  try {
+    const allowed = await auth.api.userHasPermission({
+      body: { userId: session.user.id, permissions: { media: ['upload'] } },
+    });
+    if (!allowed.success) {
+      return Response.json({ error: 'Permissions insuffisantes' }, { status: 403 });
+    }
+  } catch {
+    return Response.json({ error: 'Permissions insuffisantes' }, { status: 403 });
   }
 
   // ─── Rate limit (10 uploads / 60s par IP) ──────────────────────────

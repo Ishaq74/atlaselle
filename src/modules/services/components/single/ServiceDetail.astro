@@ -8,13 +8,13 @@ import RichContent from "@components/content/RichContent.astro";
 import { Prose } from "@atoms/prose";
 import ServiceEngagement from "./ServiceEngagement.astro";
 
-const { item, locale = "fr", organizationSlug = null } = Astro.props as { item: ServiceDetailData; locale?: Locale; organizationSlug?: string | null };
+const { item, locale = "fr" } = Astro.props as { item: ServiceDetailData; locale?: Locale };
 const t = getServiceTranslations(locale);
 const title = item.translation?.title ?? item.service.slug;
 const price = formatServicePrice(item.service.priceMinor, item.service.currency, locale);
 const duration = formatServiceDuration(item.service.durationMinutes);
 const rating = item.service.ratingCount ? formatServiceRating(item.service.ratingAverage100) : null;
-const base = organizationSlug ? `/${locale}/organizations/${organizationSlug}/services` : `/${locale}/services`;
+const base = `/${locale}/services`;
 const location = item.translation?.locationLabel ?? item.translation?.locationAddress;
 const facts = [
   duration && { icon: "mdi:clock-outline", label: t.labels.duration, value: duration },
@@ -28,7 +28,7 @@ function weekday(dayOfWeek: number): string {
   return new Intl.DateTimeFormat(locale, { weekday: "long", timeZone: "UTC" }).format(anchor);
 }
 ---
-<article class="mx-auto max-w-7xl" data-service-detail data-service-id={item.service.id} data-organization-id={item.service.organizationId ?? ""}>
+<article class="mx-auto max-w-7xl" data-service-detail data-service-id={item.service.id}>
   <header class="border-b bg-muted/30 px-4 py-10 sm:px-6 md:px-8 md:py-14">
     <div class="mx-auto max-w-6xl">
       <nav class="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground" aria-label="Breadcrumb"><a href={base} class="hover:text-foreground">{t.labels.services}</a>{item.categories.slice(0, 1).map((category) => <><Icon name="mdi:chevron-right" class="size-4" /><a href={`${base}/${category.slug}`} class="hover:text-foreground">{category.name ?? category.slug}</a></>)}</nav>
@@ -56,14 +56,13 @@ function weekday(dayOfWeek: number): string {
 
     <aside class="h-fit border-t-4 border-primary bg-muted/35 p-5 lg:sticky lg:top-6"><h2 class="font-heading text-lg font-bold">{t.labels.service}</h2><dl class="mt-5 space-y-4">{facts.map((fact) => <div class="flex gap-3"><Icon name={fact.icon} class="mt-0.5 size-5 shrink-0 text-primary" /><div><dt class="text-xs font-medium text-muted-foreground">{fact.label}</dt><dd class="mt-0.5 text-sm font-semibold">{fact.value}</dd></div></div>)}</dl>{item.translation?.locationAddress && item.translation.locationLabel && <p class="mt-5 border-t pt-4 text-sm leading-6 text-muted-foreground">{item.translation.locationAddress}</p>}</aside>
   </div>
-  <div class="border-t px-4 py-8 sm:px-6 md:px-8"><div class="mx-auto max-w-6xl"><ServiceEngagement serviceId={item.service.id} organizationId={item.service.organizationId} locale={locale} /></div></div>
+  <div class="border-t px-4 py-8 sm:px-6 md:px-8"><div class="mx-auto max-w-6xl"><ServiceEngagement serviceId={item.service.id} locale={locale} /></div></div>
 </article>
 <script>
   import { actions } from "astro:actions";
   for (const root of document.querySelectorAll<HTMLElement>("[data-service-detail]")) {
     const serviceId = root.dataset.serviceId;
     if (!serviceId) continue;
-    const organizationId = root.dataset.organizationId || null;
     let recorded = false;
     const recordView = async () => { if (recorded) return; recorded = true; try { await actions.recordServiceView({ serviceId, referrer: document.referrer || null }); } catch { recorded = false; } };
     if ("IntersectionObserver" in window) { const observer = new IntersectionObserver((entries) => { if (entries.some((entry) => entry.isIntersecting)) { void recordView(); observer.disconnect(); } }, { threshold: 0.01 }); observer.observe(root); } else { void recordView(); }

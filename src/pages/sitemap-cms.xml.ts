@@ -25,16 +25,16 @@ export const GET: APIRoute = async ({ site }) => {
     try {
       const blogT = await getBlogTranslations(locale as Locale);
       urls.push(urlEntry(baseUrl, `/${locale}/${blogT.routes.blog}`));
-      const categories = await getBlogCategories(null, locale as Locale); for (const category of categories) urls.push(urlEntry(baseUrl, buildBlogCategoryUrl(locale as Locale, category.slug)));
-      const tags = await getBlogTags(null, locale as Locale); for (const tag of tags) urls.push(urlEntry(baseUrl, buildBlogTagUrl(locale as Locale, blogT.routes.tags, tag.slug)));
-      let page = 1; for (;;) { const { items, meta } = await getBlogPosts(null, locale as Locale, { page, limit: 100, sortBy: "publishedAt", sortOrder: "desc" }); for (const item of items) { if (!item.translation) continue; urls.push(urlEntry(baseUrl, buildBlogPostUrl(locale as Locale, item.translation.slug, item.categories[0]?.slug ?? null), item.post.updatedAt ?? item.post.publishedAt ?? null)); } if (!meta.hasNextPage) break; page += 1; }
+      const categories = await getBlogCategories(locale as Locale); for (const category of categories) urls.push(urlEntry(baseUrl, buildBlogCategoryUrl(locale as Locale, category.slug)));
+      const tags = await getBlogTags(locale as Locale); for (const tag of tags) urls.push(urlEntry(baseUrl, buildBlogTagUrl(locale as Locale, blogT.routes.tags, tag.slug)));
+      let page = 1; for (;;) { const { items, meta } = await getBlogPosts(locale as Locale, { page, limit: 100, sortBy: "publishedAt", sortOrder: "desc" }); for (const item of items) { if (!item.translation) continue; urls.push(urlEntry(baseUrl, buildBlogPostUrl(locale as Locale, item.translation.slug, item.categories[0]?.slug ?? null), item.post.updatedAt ?? item.post.publishedAt ?? null)); } if (!meta.hasNextPage) break; page += 1; }
     } catch (err) { console.error(`[sitemap] Failed to load blog content for locale "${locale}":`, err); }
 
     try {
       urls.push(urlEntry(baseUrl, `/${locale}/services`));
-      const categories = await getServiceCategories(locale as Locale, null); for (const category of categories) urls.push(urlEntry(baseUrl, `/${locale}/services/${category.translation?.slug ?? category.category.slug}`));
-      const tags = await getServiceTags(locale as Locale, null); for (const tag of tags) urls.push(urlEntry(baseUrl, `/${locale}/services/tags/${tag.translation?.slug ?? tag.tag.slug}`));
-      let page = 1; for (;;) { const data = await getServices({ organizationId: null, page, limit: 100, sortBy: "publishedAt", sortOrder: "desc" }, locale as Locale, true); for (const item of data.items) urls.push(urlEntry(baseUrl, buildServiceUrl(locale as Locale, item.translation?.slug ?? item.service.slug, item.categories[0]?.slug ?? null), item.service.publishedAt)); if (page >= data.totalPages) break; page += 1; }
+      const categories = await getServiceCategories(locale as Locale); for (const category of categories) urls.push(urlEntry(baseUrl, `/${locale}/services/${category.translation?.slug ?? category.category.slug}`));
+      const tags = await getServiceTags(locale as Locale); for (const tag of tags) urls.push(urlEntry(baseUrl, `/${locale}/services/tags/${tag.translation?.slug ?? tag.tag.slug}`));
+      let page = 1; for (;;) { const data = await getServices({ page, limit: 100, sortBy: "publishedAt", sortOrder: "desc" }, locale as Locale, true); for (const item of data.items) urls.push(urlEntry(baseUrl, buildServiceUrl(locale as Locale, item.translation?.slug ?? item.service.slug, item.categories[0]?.slug ?? null), item.service.publishedAt)); if (page >= data.totalPages) break; page += 1; }
     } catch (err) { console.error(`[sitemap] Failed to load services for locale "${locale}":`, err); }
 
     try {

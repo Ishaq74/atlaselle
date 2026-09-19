@@ -1,8 +1,6 @@
 ---
 import { requirePermission } from '@/lib/auth-guards';
-import { getDrizzle } from '@database/drizzle';
-import { themeSettings } from '@database/schemas';
-import { asc } from 'drizzle-orm';
+import { getAllThemes } from '@database/loaders/site.loader';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import AuthLayout from '@organisms/AuthLayout/AuthLayout.astro';
 import AdminSidebar from '@organisms/AdminSidebar/AdminSidebar.astro';
@@ -14,8 +12,7 @@ const result = await requirePermission(Astro, { theme: ["read"] });
 if ('redirect' in result) return result.redirect;
 const { locale, authT } = result;
 
-const db = getDrizzle();
-const themes = await db.select().from(themeSettings).orderBy(asc(themeSettings.name));
+const themes = await getAllThemes();
 ---
 
 <BaseLayout title={authT.admin.cms.theme.title} description={authT.admin.cms.theme.description}>

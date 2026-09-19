@@ -1,5 +1,5 @@
 import type { Locale } from "@i18n/config";
-import { assertTransition, canTransition, type WorkflowDefinition } from "@/lib/cms/workflow";
+import { canTransition, type WorkflowDefinition } from "@/lib/cms/workflow";
 
 export const BLOG_POST_STATUSES = ["DRAFT", "PUBLISHED", "ARCHIVED", "DELETED"] as const;
 export type BlogPostStatus = (typeof BLOG_POST_STATUSES)[number];

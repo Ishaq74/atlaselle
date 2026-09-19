@@ -3,7 +3,6 @@ export default [
   {
     id: "n1000000-0000-0000-0000-000000000001",
     userId: "11111111-1111-1111-1111-111111111111",
-    organizationId: null,
     type: "NEW_COMMENT",
     postId: "e5000000-0000-0000-0000-000000000001",
     commentId: "c8000000-0000-0000-0000-000000000001",
@@ -16,7 +15,6 @@ export default [
   {
     id: "n1000000-0000-0000-0000-000000000002",
     userId: "11111111-1111-1111-1111-111111111111",
-    organizationId: null,
     type: "NEW_REVIEW",
     postId: "e5000000-0000-0000-0000-000000000001",
     commentId: null,
@@ -29,7 +27,6 @@ export default [
   {
     id: "n1000000-0000-0000-0000-000000000003",
     userId: "22222222-2222-2222-2222-222222222222",
-    organizationId: null,
     type: "COMMENT_APPROVED",
     postId: "e5000000-0000-0000-0000-000000000001",
     commentId: "c8000000-0000-0000-0000-000000000002",

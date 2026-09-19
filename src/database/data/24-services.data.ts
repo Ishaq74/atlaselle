@@ -1,9 +1,8 @@
-// Demo services: one global published service plus two organization-scoped services.
+// Demo services: three single-tenant services (single global scope, no organization).
 // IDs are stable so every dependent Services dataset can reference them safely.
 export default [
   {
     id: "90000000-0000-0000-0000-000000000001",
-    organizationId: null,
     providerId: "11111111-1111-1111-1111-111111111111",
     slug: "annecy-private-lake-tour",
     status: "PUBLISHED",
@@ -24,7 +23,6 @@ export default [
   },
   {
     id: "90000000-0000-0000-0000-000000000002",
-    organizationId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     providerId: "44444444-4444-4444-4444-444444444444",
     slug: "guided-old-town-walk",
     status: "DRAFT",
@@ -45,7 +43,6 @@ export default [
   },
   {
     id: "90000000-0000-0000-0000-000000000003",
-    organizationId: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
     providerId: "44444444-4444-4444-4444-444444444444",
     slug: "alpine-half-day-hike",
     status: "ARCHIVED",

@@ -35,7 +35,7 @@ test("services admin lifecycle follows the explicit state machine", async ({ bro
   const [seedUser] = await db.select({ id: schema.user.id }).from(schema.user).where(eq(schema.user.email, SEED_EMAIL)).limit(1);
   if (!seedUser) throw new Error("Seed user not found");
 
-  await db.insert(schema.services).values({ id: serviceId, organizationId: null, providerId: seedUser.id, slug, status: "DRAFT", publishedAt: null, updatedBy: seedUser.id });
+  await db.insert(schema.services).values({ id: serviceId, providerId: seedUser.id, slug, status: "DRAFT", publishedAt: null, updatedBy: seedUser.id });
   await db.insert(schema.serviceTranslations).values({ serviceId, locale: "fr", title, slug, content: `<p>${title}</p>`, excerpt: title, metaTitle: title, metaDescription: title });
 
   try {

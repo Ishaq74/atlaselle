@@ -1,8 +1,6 @@
 import type { APIRoute } from 'astro';
-import { asc, isNull } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
-import { getDrizzle } from '@database/drizzle';
-import { pages, pageSections } from '@database/schemas';
+import { exportCmsContent } from '@database/loaders/page.loader';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { logAuditEvent, extractIp } from '@/lib/audit';
 
@@ -23,59 +21,14 @@ export const GET: APIRoute = async ({ request, clientAddress }) => {
     );
   }
 
-  const db = getDrizzle();
-
-  const [allPages, allSections] = await Promise.all([
-    db
-      .select()
-      .from(pages)
-      .where(isNull(pages.deletedAt))
-      .orderBy(asc(pages.locale), asc(pages.sortOrder)),
-    db
-      .select()
-      .from(pageSections)
-      .orderBy(asc(pageSections.pageId), asc(pageSections.sortOrder)),
-  ]);
-
-  // Group sections by pageId
-  const sectionsByPage = new Map<string, typeof allSections>();
-  for (const section of allSections) {
-    const list = sectionsByPage.get(section.pageId) ?? [];
-    list.push(section);
-    sectionsByPage.set(section.pageId, list);
-  }
-
-  const exportData = {
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    pages: allPages.map((page) => ({
-      locale: page.locale,
-      slug: page.slug,
-      title: page.title,
-      metaTitle: page.metaTitle,
-      metaDescription: page.metaDescription,
-      ogImage: page.ogImage,
-      canonical: page.canonical,
-      robots: page.robots,
-      template: page.template,
-      isPublished: page.isPublished,
-      publishedAt: page.publishedAt?.toISOString() ?? null,
-      sortOrder: page.sortOrder,
-      sections: (sectionsByPage.get(page.id) ?? []).map((s) => ({
-        type: s.type,
-        content: s.content,
-        sortOrder: s.sortOrder,
-        isVisible: s.isVisible,
-      })),
-    })),
-  };
+  const exportData = await exportCmsContent();
 
   void logAuditEvent({
     userId,
     action: 'CONTENT_EXPORT',
     resource: 'pages',
     resourceId: null,
-    metadata: { pageCount: allPages.length },
+    metadata: { pageCount: exportData.pages.length },
     ipAddress: extractIp(request.headers, clientAddress),
     userAgent: request.headers.get('user-agent'),
   }).catch(() => {});

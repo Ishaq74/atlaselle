@@ -3,7 +3,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@atoms/tabs";
 import AdminResourceShell from "@organisms/AdminResourceShell.astro";
 import AdminResourceStats from "@molecules/AdminResourceStats.astro";
 import AdminServiceList from "@/components/services/AdminServiceList.astro";
-import { getServiceTranslations, getServiceErrorMessage } from "@/modules/services/i18n";
+import { getServiceTranslations } from "@/modules/services/i18n";
 import { getServiceEngagementTranslations } from "@/modules/services/i18n/engagement";
 import type { Locale } from "@i18n/config";
 import type { ServiceListItem } from "@/modules/services/domain";
@@ -17,7 +17,6 @@ interface Props {
   stats: { total: number; published: number; draft: number; archived: number; deleted: number; featured: number; views: number; reviews: number; comments: number; moderation: number };
   filters: ServiceAdminFilters;
   baseAdminUrl: string;
-  organizationId: string | null;
   canCreate: boolean;
   canUpdate: boolean;
   canPublish: boolean;
@@ -28,7 +27,7 @@ interface Props {
   tagOptions: { tag: { id: string; slug: string }; translation: { name: string } | null }[];
   providerOptions: { id: string; name: string | null }[];
   localeOptions: readonly string[];
-  taxonomy: { categories: { category: { id: string; organizationId: string | null; parentId: string | null; slug: string }; translation: { name: string; slug: string } | null }[]; tags: { tag: { id: string; organizationId: string | null; slug: string }; translation: { name: string; slug: string } | null }[] };
+  taxonomy: { categories: { category: { id: string; parentId: string | null; slug: string }; translation: { name: string; slug: string } | null }[]; tags: { tag: { id: string; slug: string }; translation: { name: string; slug: string } | null }[] };
   moderation: {
     reviews: { review: { id: string; serviceId: string; title: string | null; content: string; rating: number; createdAt: Date } }[];
     comments: { comment: { id: string; serviceId: string; content: string; createdAt: Date } }[];
@@ -40,7 +39,7 @@ const props = Astro.props as Props;
 const t = getServiceTranslations(props.locale);
 const et = getServiceEngagementTranslations(props.locale);
 ---
-<div data-services-admin-workspace data-organization-id={props.organizationId ?? ""} data-locale={props.locale} data-confirm-taxonomy-delete={t.admin.confirmDelete}>
+<div data-services-admin-workspace data-locale={props.locale} data-confirm-taxonomy-delete={t.admin.confirmDelete}>
   <AdminResourceShell title={props.title} description={t.admin.title}>
     <div class="p-4 sm:p-6">
       <p data-service-admin-status class="mb-4 text-sm" aria-live="polite" aria-atomic="true"></p>
@@ -54,7 +53,7 @@ const et = getServiceEngagementTranslations(props.locale);
         </TabsList>
 
         <TabsContent value="services" defaultActive class="pt-4">
-          <AdminServiceList locale={props.locale} items={props.items} total={props.stats.total} published={props.stats.published} draft={props.stats.draft} archived={props.stats.archived} deleted={props.stats.deleted} featured={props.stats.featured} views={props.stats.views} reviews={props.stats.reviews} comments={props.stats.comments} page={props.meta.page} totalPages={props.meta.totalPages} baseUrl={props.baseAdminUrl} organizationId={props.organizationId} canCreate={props.canCreate} canUpdate={props.canUpdate} canPublish={props.canPublish} canDelete={props.canDelete} categoryOptions={props.categoryOptions} tagOptions={props.tagOptions} providerOptions={props.providerOptions} localeOptions={props.localeOptions} />
+          <AdminServiceList locale={props.locale} items={props.items} total={props.stats.total} published={props.stats.published} draft={props.stats.draft} archived={props.stats.archived} deleted={props.stats.deleted} featured={props.stats.featured} views={props.stats.views} reviews={props.stats.reviews} comments={props.stats.comments} page={props.meta.page} totalPages={props.meta.totalPages} baseUrl={props.baseAdminUrl} canCreate={props.canCreate} canUpdate={props.canUpdate} canPublish={props.canPublish} canDelete={props.canDelete} categoryOptions={props.categoryOptions} tagOptions={props.tagOptions} providerOptions={props.providerOptions} localeOptions={props.localeOptions} />
         </TabsContent>
 
         <TabsContent value="categories" class="space-y-6 pt-4">
@@ -118,7 +117,6 @@ const et = getServiceEngagementTranslations(props.locale);
   import { getServiceErrorMessage } from "@/modules/services/i18n";
 
   for (const root of document.querySelectorAll<HTMLElement>("[data-services-admin-workspace]")) {
-    const organizationId = root.dataset.organizationId || null;
     const locale = (root.dataset.locale ?? "fr") as "fr" | "en" | "es" | "ar";
     const confirmTaxonomyDelete = root.dataset.confirmTaxonomyDelete ?? "";
     const refresh = () => window.location.reload();

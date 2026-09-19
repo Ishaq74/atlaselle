@@ -43,7 +43,7 @@ export const createItineraryDay = defineAction({
 export const updateItineraryDay = defineAction({
   input: z.object({
     id: z.string().min(1).max(160),
-    expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional(),
+    expectedUpdatedAt: z.iso.datetime({ offset: true }).nullable().optional(),
     location: z.string().max(200).nullable().optional(),
     route: z.string().max(300).nullable().optional(),
     activityLevel: z.number().int().min(1).max(5).nullable().optional(),
@@ -79,7 +79,7 @@ export const deleteItineraryDay = defineAction({
 export const upsertItineraryDayTranslation = defineAction({
   input: z.object({
     dayId: z.string().min(1).max(160),
-    expectedUpdatedAt: z.string().datetime({ offset: true }).nullable().optional(),
+    expectedUpdatedAt: z.iso.datetime({ offset: true }).nullable().optional(),
     locale: z.enum(LOCALES),
     title: z.string().min(1).max(300),
     morning: z.string().max(4000).nullable().optional(),

@@ -10,7 +10,7 @@ import { toActionError } from "@/lib/voyage-errors";
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
 
 export const paymentRefundInput = z.object({
-  reservationId: z.string().uuid(),
+  reservationId: z.uuid(),
   amount: z.number().int().positive().optional(),
 });
 
@@ -40,8 +40,8 @@ export const refundPayment = defineAction({
 });
 
 export const payBalanceInput = z.object({
-  reservationId: z.string().uuid(),
-  travelerEmail: z.string().trim().email().max(320),
+  reservationId: z.uuid(),
+  travelerEmail: z.string().trim().check(z.email()).max(320),
   // Preuve de consentement CGV (cf. checkoutInitiateInput).
   termsAccepted: z.literal(true),
   locale: z.enum(LOCALES).default("en"),

@@ -1,1 +1,0 @@
-CREATE UNIQUE INDEX "applications_traveler_departure_active_uidx" ON "applications" USING btree ("traveler_id","departure_id") WHERE "applications"."status" in ('draft', 'submitted', 'under_review', 'contact_required', 'approved');

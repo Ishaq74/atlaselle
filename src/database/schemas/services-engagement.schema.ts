@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { pgTable, text, timestamp, boolean, integer, uniqueIndex, index, primaryKey, check } from "drizzle-orm/pg-core";
-import { organization, user } from "./auth.schema";
+import { user } from "./auth.schema";
 import { services, serviceComments, serviceReviews } from "./services.schema";
 
 export const serviceReactions = pgTable(
@@ -22,8 +22,8 @@ export const serviceNotifications = pgTable(
 
 export const serviceAttributeDefinitions = pgTable(
   "service_attribute_definitions",
-  { id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()), organizationId: text("organization_id").references(() => organization.id, { onDelete: "cascade" }), key: text("key").notNull(), label: text("label").notNull(), type: text("type", { enum: ["STRING", "NUMBER", "BOOLEAN", "SELECT"] }).notNull(), options: text("options"), required: boolean("required").default(false).notNull(), sortOrder: integer("sort_order").default(0).notNull(), createdAt: timestamp("created_at").defaultNow().notNull(), updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull() },
-  (table) => [uniqueIndex("service_attribute_definitions_org_key_uidx").on(table.organizationId, table.key), uniqueIndex("service_attribute_definitions_global_key_uidx").on(table.key).where(sql`${table.organizationId} IS NULL`), index("service_attribute_definitions_org_idx").on(table.organizationId)],
+  { id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()), key: text("key").notNull(), label: text("label").notNull(), type: text("type", { enum: ["STRING", "NUMBER", "BOOLEAN", "SELECT"] }).notNull(), options: text("options"), required: boolean("required").default(false).notNull(), sortOrder: integer("sort_order").default(0).notNull(), createdAt: timestamp("created_at").defaultNow().notNull(), updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull() },
+  (table) => [uniqueIndex("service_attribute_definitions_key_uidx").on(table.key)],
 );
 
 export const serviceAttributeValues = pgTable(

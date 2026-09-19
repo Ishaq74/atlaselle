@@ -1,10 +1,9 @@
-// Blog posts (global + org-scoped). IDs stable for translations/SEO/revisions/
+// Blog posts (single-tenant). IDs stable for translations/SEO/revisions/
 // junctions/comments/reviews/reactions/links. authorId references demo users.
 export default [
-  // ── Global posts ──
+  // ── Posts ──
   {
     id: "e5000000-0000-0000-0000-000000000001",
-    organizationId: null,
     authorId: "11111111-1111-1111-1111-111111111111",
     slug: "annecy-weekend",
     status: "PUBLISHED",
@@ -21,7 +20,6 @@ export default [
   },
   {
     id: "e5000000-0000-0000-0000-000000000002",
-    organizationId: null,
     authorId: "11111111-1111-1111-1111-111111111111",
     slug: "annecy-food-guide",
     status: "PUBLISHED",
@@ -38,7 +36,6 @@ export default [
   },
   {
     id: "e5000000-0000-0000-0000-000000000003",
-    organizationId: null,
     authorId: "11111111-1111-1111-1111-111111111111",
     slug: "annecy-lake-cycle-route",
     status: "PUBLISHED",
@@ -54,10 +51,9 @@ export default [
     createdAt: new Date("2026-01-25T09:00:00.000Z"),
   },
 
-  // ── Org Annecy Tourisme posts ──
+  // ── Seasonal posts ──
   {
     id: "f6000000-0000-0000-0000-000000000001",
-    organizationId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     authorId: "11111111-1111-1111-1111-111111111111",
     slug: "winter-in-annecy",
     status: "PUBLISHED",
@@ -74,7 +70,6 @@ export default [
   },
   {
     id: "f6000000-0000-0000-0000-000000000002",
-    organizationId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     authorId: "11111111-1111-1111-1111-111111111111",
     slug: "annecy-markets-guide",
     status: "PUBLISHED",
@@ -90,10 +85,9 @@ export default [
     createdAt: new Date("2026-01-30T09:00:00.000Z"),
   },
 
-  // ── Org Alpine Outdoor post ──
+  // ── Outdoor post ──
   {
     id: "a7000000-0000-0000-0000-000000000001",
-    organizationId: "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
     authorId: "11111111-1111-1111-1111-111111111111",
     slug: "alpine-trail-safety",
     status: "PUBLISHED",

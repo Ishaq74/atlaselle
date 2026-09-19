@@ -40,8 +40,8 @@ test.describe.serial('Services surfaces', () => {
     void helpers;
     const publishedAt = new Date();
     await db.insert(schema.services).values([
-      { id: globalServiceId, organizationId: null, providerId: seedUser.id, slug: globalServiceSlug, status: 'PUBLISHED', publishedAt, updatedBy: seedUser.id, priceMinor: 2500, currency: 'EUR', durationMinutes: 60, maxParticipants: 4 },
-      { id: draftServiceId, organizationId: null, providerId: seedUser.id, slug: draftServiceSlug, status: 'DRAFT', publishedAt: null, updatedBy: seedUser.id, priceMinor: 3500, currency: 'EUR', durationMinutes: 75, maxParticipants: 3 },
+      { id: globalServiceId, providerId: seedUser.id, slug: globalServiceSlug, status: 'PUBLISHED', publishedAt, updatedBy: seedUser.id, priceMinor: 2500, currency: 'EUR', durationMinutes: 60, maxParticipants: 4 },
+      { id: draftServiceId, providerId: seedUser.id, slug: draftServiceSlug, status: 'DRAFT', publishedAt: null, updatedBy: seedUser.id, priceMinor: 3500, currency: 'EUR', durationMinutes: 75, maxParticipants: 3 },
     ]);
     const translationRows: Array<typeof import("../../src/database/schemas").serviceTranslations.$inferInsert> = [];
     for (const locale of LOCALES) {
@@ -49,7 +49,7 @@ test.describe.serial('Services surfaces', () => {
       translationRows.push({ serviceId: draftServiceId, locale, title: `${draftServiceTitle} ${locale}`, slug: `${draftServiceSlug}-${locale}`, content: `<p>${draftServiceTitle} ${locale} content.</p>`, excerpt: `${draftServiceTitle} excerpt.`, metaTitle: draftServiceTitle, metaDescription: `${draftServiceTitle} description.` });
     }
     await db.insert(schema.serviceTranslations).values(translationRows);
-    await db.insert(schema.serviceCategories).values([{ id: globalCategoryId, organizationId: null, slug: globalCategorySlug }]);
+    await db.insert(schema.serviceCategories).values([{ id: globalCategoryId, slug: globalCategorySlug }]);
     const categoryTranslations: Array<typeof import("../../src/database/schemas").serviceCategoryTranslations.$inferInsert> = [];
     for (const locale of LOCALES) { categoryTranslations.push({ categoryId: globalCategoryId, locale, name: `Global Services ${locale}`, slug: `${globalCategorySlug}-${locale}` }); }
     await db.insert(schema.serviceCategoryTranslations).values(categoryTranslations);

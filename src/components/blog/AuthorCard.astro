@@ -16,7 +16,7 @@ interface Props {
   baseUrl: string;
 }
 
-const { locale, blogT, author, publishedAt, categories, baseUrl } = Astro.props;
+const { locale, blogT, author, publishedAt, categories } = Astro.props;
 
 if (!author) return null;
 ---

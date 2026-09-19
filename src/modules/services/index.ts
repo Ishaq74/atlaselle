@@ -6,7 +6,6 @@ export * from "./actions";
 export * from "./loaders";
 export * from "./validation";
 export * from "./permissions";
-export { serviceOrganizationIdSchema } from "./validation";
 export * from "./search";
 export * from "./seo";
 export * from "./utils";

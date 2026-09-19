@@ -29,15 +29,15 @@ const showBalanceForm = (booking.status === "confirmed" || booking.status === "b
   <section class="mx-auto max-w-xl px-6 py-20 text-center">
     <p class="text-5xl" aria-hidden="true">✓</p>
     <h1 class="mt-4 text-4xl font-bold">{l.title}</h1>
-    <dl class="mx-auto mt-8 max-w-md space-y-3 rounded-xl border p-6 text-left text-sm">
-      <div class="flex justify-between"><dt class="text-muted-foreground">{l.number}</dt><dd class="font-mono font-semibold">{booking.reservationNumber}</dd></div>
+    <dl class="mx-auto mt-8 max-w-md space-y-3 rounded-xl border p-6 text-start text-sm">
+      <div class="flex justify-between"><dt class="text-muted-foreground">{l.number}</dt><dd class="font-mono font-semibold"><bdi>{booking.reservationNumber}</bdi></dd></div>
       <div class="flex justify-between"><dt class="text-muted-foreground">{l.trip}</dt><dd class="font-semibold">{booking.tripTitle}</dd></div>
-      <div class="flex justify-between"><dt class="text-muted-foreground">{l.paid}</dt><dd class="font-semibold">{fmt(booking.amountPaid)} / {fmt(booking.totalAmount)}</dd></div>
+      <div class="flex justify-between"><dt class="text-muted-foreground">{l.paid}</dt><dd class="font-semibold"><bdi>{fmt(booking.amountPaid)}</bdi> / <bdi>{fmt(booking.totalAmount)}</bdi></dd></div>
     </dl>
     <p class="mt-6 text-muted-foreground">{booking.status === "confirmed" || booking.status === "completed" ? l.confirmed : l.pending}</p>
     {showBalanceForm ? (
-      <form data-balance-form class="mx-auto mt-6 max-w-md space-y-3 rounded-xl border p-6 text-left" data-reservation={booking.reservationId} data-locale={locale}>
-        <p class="font-semibold">{l.balance} : {fmt(booking.totalAmount - booking.amountPaid)}</p>
+      <form data-balance-form class="mx-auto mt-6 max-w-md space-y-3 rounded-xl border p-6 text-start" data-reservation={booking.reservationId} data-locale={locale}>
+        <p class="font-semibold">{l.balance} : <bdi>{fmt(booking.totalAmount - booking.amountPaid)}</bdi></p>
         <label class="block text-sm">{l.email}<input required name="travelerEmail" type="email" maxlength="320" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
         <button class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.payBalance}</button>
         <output class="block text-sm" data-form-message></output>

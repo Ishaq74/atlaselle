@@ -17,7 +17,6 @@ function cleanupFallbacks() {
   }
 }
 
-// Mock drizzle to throw
 vi.mock('@database/drizzle', () => ({
   getDrizzle: vi.fn(() => ({
     insert: vi.fn(() => ({
@@ -30,7 +29,7 @@ vi.mock('@database/schemas', () => ({
   auditLog: {},
 }));
 
-import { logAuditEvent } from '@/lib/audit';
+const { logAuditEvent } = await import('@/lib/audit');
 
 describe('logAuditEvent — JSONL fallback', () => {
   beforeEach(() => {
@@ -52,7 +51,6 @@ describe('logAuditEvent — JSONL fallback', () => {
 
     const fallbackPath = getFallbackPath();
 
-    // Poll for file existence instead of fragile setTimeout
     await vi.waitFor(() => {
       if (!existsSync(fallbackPath)) throw new Error('File not yet created');
       const content = readFileSync(fallbackPath, 'utf-8');

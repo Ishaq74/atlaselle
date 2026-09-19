@@ -12,7 +12,7 @@ const page = Math.max(1, Number(Astro.url.searchParams.get("page") ?? "1") || 1)
 const search = Astro.url.searchParams.get("search") ?? "";
 const [data, categoryRows] = await Promise.all([
   getServices({ page, search: search || undefined }, locale, true),
-  getServiceCategories(locale, null),
+  getServiceCategories(locale),
 ]);
 const categories = categoryRows.map((row) => ({ slug: row.translation?.slug ?? row.category.slug, name: row.translation?.name ?? row.category.slug }));
 ---

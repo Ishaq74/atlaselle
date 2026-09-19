@@ -3,7 +3,6 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import { Icon } from 'astro-icon/components';
 import { LOCALES, LOCALE_LABELS, type Locale } from '@i18n/config';
 import { toLocale, mapStaticSlugPath, type StaticSlugMaps } from '@i18n/utils';
-import { getTripBySlug, tripUrl } from '@/data/trips';
 import frCommon from '@/i18n/fr/common';
 import enCommon from '@/i18n/en/common';
 import esCommon from '@/i18n/es/common';
@@ -15,8 +14,10 @@ import arAuth from '@/i18n/ar/auth';
 import {
   APPLY_SEGMENT,
   TRIP_LIST_SEGMENT,
-  TRIP_SLUGS,
   getApplyPath,
+  getTripPath,
+  getTripSlug,
+  resolveTripSlug,
 } from '@i18n/routes';
 import {
   Dropdown,
@@ -53,14 +54,14 @@ function localizedHref(loc: Locale): string {
   const tripSegments = [...new Set(Object.values(TRIP_LIST_SEGMENT))].join('|');
   const tripMatch = currentPath.match(new RegExp(`^/(?:en|fr|es|ar)/(?:${tripSegments})/([^/]+)$`));
   if (tripMatch) {
-    const trip = getTripBySlug(currentLocale, tripMatch[1]);
-    if (trip) return tripUrl(loc, trip);
+    const tripId = resolveTripSlug(currentLocale, tripMatch[1]);
+    if (tripId) return getTripPath(loc, getTripSlug(tripId, loc));
   }
   const applySegments = [...new Set(Object.values(APPLY_SEGMENT))].join('|');
   const isApply = currentPath.match(new RegExp(`^/(?:en|fr|es|ar)/(?:${applySegments})/([^/]+)$`));
   if (isApply) {
-    const trip = getTripBySlug(currentLocale, isApply[1]);
-    if (trip) return getApplyPath(loc, TRIP_SLUGS[trip.id][loc]);
+    const tripId = resolveTripSlug(currentLocale, isApply[1]);
+    if (tripId) return getApplyPath(loc, getTripSlug(tripId, loc));
   }
   // Slugs structurels (about/contact/legal, auth, universels terms/faq — TODO §7.6 : page équivalente ou repli, jamais de contenu d'une autre langue)
   const mapped = mapStaticSlugPath(currentLocale, loc, pathWithoutLocale, STATIC_MAPS);

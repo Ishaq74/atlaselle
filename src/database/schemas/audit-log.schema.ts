@@ -1,6 +1,4 @@
-import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, index, jsonb } from "drizzle-orm/pg-core";
-import { user } from "./auth.schema";
 
 export const auditLog = pgTable(
   "audit_log",
@@ -8,9 +6,7 @@ export const auditLog = pgTable(
     id: text("id")
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    userId: text("user_id").references(() => user.id, {
-      onDelete: "set null",
-    }),
+    userId: text("user_id"),
     action: text("action").notNull(),
     resource: text("resource"),
     resourceId: text("resource_id"),
@@ -26,10 +22,3 @@ export const auditLog = pgTable(
     index("audit_log_resource_idx").on(table.resource, table.resourceId),
   ],
 );
-
-export const auditLogRelations = relations(auditLog, ({ one }) => ({
-  user: one(user, {
-    fields: [auditLog.userId],
-    references: [user.id],
-  }),
-}));

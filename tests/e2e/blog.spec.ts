@@ -220,7 +220,6 @@ test.describe.serial('Blog surfaces', () => {
     await db.insert(schema.blogPosts).values([
       {
         id: globalPostId,
-        organizationId: null,
         authorId: seedUser.id,
         slug: globalPostSlug,
         status: 'PUBLISHED',
@@ -247,7 +246,6 @@ test.describe.serial('Blog surfaces', () => {
     await db.insert(schema.blogCategories).values([
       {
         id: globalCategoryId,
-        organizationId: null,
         slug: globalCategorySlug,
       },
     ]);

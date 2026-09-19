@@ -1,9 +1,5 @@
-import { eq } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
-import { reservations } from "@database/schemas";
-import { checkoutSessions } from "@database/schemas";
-import { departures } from "@database/schemas";
-import { tripTranslations } from "@database/schemas";
+import { getReservationById } from "@/modules/reservations/repositories/reservation.repository";
 import { isValidLocale } from "@/i18n/utils";
 import type { Locale } from "@/i18n/config";
 import { getValidCheckoutSession } from "@/modules/payments/domain/checkout-service";
@@ -27,18 +23,13 @@ export async function loadBookingByProviderSession(
 ): Promise<BookingConfirmationDTO | null> {
   if (!isValidLocale(locale) || !providerSessionId) return null;
   const db = getDrizzle();
-  const [checkout] = await db
-    .select()
-    .from(checkoutSessions)
-    .where(eq(checkoutSessions.providerSessionId, providerSessionId))
-    .limit(1);
+  const { getCheckoutByProviderSessionId } = await import("@/modules/payments/repositories/payment.repository");
+  const checkout = await getCheckoutByProviderSessionId(providerSessionId, db);
   if (!checkout?.reservationId) return null;
-  const [reservation] = await db.select().from(reservations).where(eq(reservations.id, checkout.reservationId)).limit(1);
+  const reservation = await getReservationById(checkout.reservationId, db);
   if (!reservation) return null;
-  const [tr] = await db
-    .select({ title: tripTranslations.title })
-    .from(tripTranslations)
-    .where(eq(tripTranslations.tripId, reservation.tripId));
+  const { getTripTitle } = await import("@/modules/trips/repositories/trip.repository");
+  const title = await getTripTitle(reservation.tripId, db);
   return {
     reservationId: reservation.id,
     reservationNumber: reservation.reservationNumber,
@@ -46,7 +37,7 @@ export async function loadBookingByProviderSession(
     totalAmount: reservation.totalAmount,
     amountPaid: reservation.amountPaid,
     currency: reservation.currency,
-    tripTitle: tr?.title ?? reservation.tripId,
+    tripTitle: title ?? reservation.tripId,
   };
 }
 
@@ -60,6 +51,29 @@ export interface CheckoutPageDTO {
   quote: PricingBreakdown;
 }
 
+/**
+ * Contexte du callback mock (dev/tests uniquement) : checkout + paiement + réservation + locale voyageur.
+ * Couche loader — l'endpoint ne fait que transport + garde provider.
+ */
+export async function loadMockCallbackContext(providerSessionId: string): Promise<{
+  reservationId: string;
+  payment: { amount: number; currency: string; idempotencyKey: string };
+  locale: Locale;
+} | null> {
+  if (!providerSessionId) return null;
+  const db = getDrizzle();
+  const { getCheckoutByProviderSessionId, getPaymentByReservationId } = await import("@/modules/payments/repositories/payment.repository");
+  const checkout = await getCheckoutByProviderSessionId(providerSessionId, db);
+  if (!checkout?.reservationId) return null;
+  const payment = await getPaymentByReservationId(checkout.reservationId, db);
+  if (!payment) return null;
+  const reservation = await getReservationById(checkout.reservationId, db);
+  const { getTravelerById } = await import("@/modules/travelers/repositories/traveler.repository");
+  const traveler = reservation ? await getTravelerById(reservation.travelerId, db) : null;
+  const locale: Locale = traveler && isValidLocale(traveler.locale) ? traveler.locale : "en";
+  return { reservationId: checkout.reservationId, payment: { amount: payment.amount, currency: payment.currency, idempotencyKey: payment.idempotencyKey }, locale };
+}
+
 // Données d'affichage du checkout : session valide + devis serveur.
 export async function loadCheckoutPage(
   locale: Locale,
@@ -70,19 +84,18 @@ export async function loadCheckoutPage(
   const valid = await getValidCheckoutSession(sessionId);
   if (!valid) return null;
   const db = getDrizzle();
-  const [dep] = await db.select().from(departures).where(eq(departures.id, valid.session.departureId)).limit(1);
+  const { getDepartureById } = await import("@/modules/departures/repositories/departure.repository");
+  const dep = await getDepartureById(valid.session.departureId, db);
   if (!dep) return null;
   const quote = await quoteForDeparture(dep.id, roomType);
   if (!quote) return null;
-  const [tr] = await db
-    .select({ title: tripTranslations.title })
-    .from(tripTranslations)
-    .where(eq(tripTranslations.tripId, valid.application.tripId));
+  const { getTripTitle } = await import("@/modules/trips/repositories/trip.repository");
+  const title = await getTripTitle(valid.application.tripId, db);
   return {
     sessionId: valid.session.id,
     applicationId: valid.application.id,
     departureId: dep.id,
-    tripTitle: tr?.title ?? valid.application.tripId,
+    tripTitle: title ?? valid.application.tripId,
     startDate: dep.startDate,
     endDate: dep.endDate,
     quote,

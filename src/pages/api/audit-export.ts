@@ -91,8 +91,10 @@ export const GET: APIRoute = async (context) => {
 };
 
 function escapeCsv(value: string): string {
-  if (value.includes(",") || value.includes('"') || value.includes("\n")) {
-    return `"${value.replace(/"/g, '""')}"`;
+  // Anti formula-injection (m2) : préfixe ' si commence par = + - @ (Excel/Sheets).
+  const safe = /^[=+\-@]/.test(value) ? `'${value}` : value;
+  if (safe.includes(",") || safe.includes('"') || safe.includes("\n")) {
+    return `"${safe.replace(/"/g, '""')}"`;
   }
-  return value;
+  return safe;
 }

@@ -115,10 +115,20 @@ describe("splitSqlStatements", () => {
     }
   });
 
-  it("never produces two 0007 services-search migration files (regression: duplicate migration)", () => {
+  it("never contains two migration files for the same version prefix (regression: duplicate migration)", () => {
+    // History was squashed into 0000_tranquil_toad.sql — the invariant is now:
+    // one file per version prefix, no 0007-style duplicates.
     const dir = resolve(process.cwd(), "src/database/migrations");
-    const files = readdirSync(dir).filter((f) => /^0007_/.test(f));
-    expect(files).toEqual(["0007_services_search_vector.sql"]);
+    const files = readdirSync(dir).filter((f) => f.endsWith(".sql"));
+    const prefixes = files.map((f) => f.split("_")[0]);
+    expect(new Set(prefixes).size).toBe(prefixes.length);
+  });
+
+  it("keeps the services search vector in the squashed migration (ex-0007 coverage)", () => {
+    const dir = resolve(process.cwd(), "src/database/migrations");
+    const files = readdirSync(dir).filter((f) => f.endsWith(".sql"));
+    const haystack = files.map((f) => readFileSync(resolve(dir, f), "utf8")).join("\n");
+    expect(haystack).toMatch(/search_vector/);
   });
 });
 

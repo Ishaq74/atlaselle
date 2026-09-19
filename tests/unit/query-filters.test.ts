@@ -38,7 +38,7 @@ describe('parseListFilters', () => {
   });
 
   it('jette quand même le repli est invalide (schéma strict)', () => {
-    const strict = z.object({ id: z.string().uuid() });
+    const strict = z.object({ id: z.uuid() });
     expect(() => parseListFilters(strict, { id: 'nope' }, { id: 'toujours-pas' })).toThrow();
   });
 });

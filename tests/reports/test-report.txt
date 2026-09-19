@@ -1,297 +1,902 @@
 
-> atlaselle@0.0.1 test C:\Users\Utilisateur\Documents\atlaselle
-> vitest run "--" "--coverage"
+> atlaselle@0.0.1 test C:\Users\Utilisateur\Documents\t3code\atlaselle
+> vitest run "--coverage"
 
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - `__dirname` (vitest.config.ts:7:20). Use `import.meta.dirname` instead
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
 
- RUN  v4.1.11 C:/Users/Utilisateur/Documents/atlaselle
+ RUN  v4.1.11 C:/Users/Utilisateur/Documents/t3code/atlaselle
+      Coverage enabled with v8
 
-stdout | tests/integration/blog-actions.test.ts
-◇ injected env (14) from .env // tip: ⌘ enable debugging { debug: true }
+Ôùç injected env (13) from .env // tip: Ôîÿ suppress logs { quiet: true }
+stdout | tests/unit/voyage/middleware.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
 
 stdout | tests/integration/audit.test.ts
-◇ injected env (14) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+Ôùç injected env (0) from .env // tip: Ôîü auth for agents [www.vestauth.com]
 
 stdout | tests/integration/auth-advanced.test.ts
-◇ injected env (14) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+Ôùç injected env (0) from .env // tip: Ôùê encrypted .env [www.dotenvx.com]
 
- ✓ tests/integration/auth-advanced.test.ts (10 tests) 3283ms
-     ✓ changePassword updates credentials  869ms
-     ✓ changePassword rejects wrong current password  385ms
- ✓ tests/integration/audit.test.ts (8 tests) 4790ms
-     ✓ logs SIGN_UP when a user signs up  914ms
-     ✓ logs USER_BAN when admin bans a user  567ms
-     ✓ logs USER_ROLE_CHANGE when admin changes role  544ms
-     ✓ does not log passwords in metadata  911ms
-     ✓ logs SIGN_IN_FAILED for bad credentials  699ms
-     ✓ filters metadata to SAFE_FIELDS only (no password in metadata)  725ms
- ✓ tests/integration/blog-actions.test.ts (8 tests) 2361ms
-     ✓ listBlogPostRevisions returns revisions for a seeded post  1942ms
+stderr | tests/integration/auth-advanced.test.ts > Auth ÔÇö Forget & Reset Password > requestPasswordReset for unknown email does not throw
+2026-09-19T10:06:03.341Z WARN [Better Auth]: Reset Password: User not found
+
+stderr | tests/integration/auth-advanced.test.ts > Auth ÔÇö Change Password > changePassword updates credentials
+2026-09-19T10:06:04.418Z WARN [Better Auth]: Invalid password
+
+stderr | tests/integration/audit.test.ts > Audit ÔÇö Hooks integration > logs SIGN_IN_FAILED for bad credentials
+2026-09-19T10:06:06.223Z WARN [Better Auth]: User not found
+
+ Ô£ô tests/integration/auth-advanced.test.ts (10 tests) 3566ms
+     Ô£ô changePassword updates credentials  970ms
+     Ô£ô changePassword rejects wrong current password  440ms
+stderr | tests/unit/voyage/smtp-dead-letter.test.ts > sendEmail ÔÇö dead-letter forensique > enregistre le MESSAGE (pas seulement le nom) + tentatives
+[SMTP] Attempt 1 failed, retrying in 1266ms... smtp 503 unavailable
+
+stderr | tests/unit/voyage/middleware.test.ts > middleware onRequest > 503 quand la session d├®passe 5s (et rejet orphelin absorb├®)
+[middleware] Session check timed out (5s) ÔÇö returning 503
+
+stderr | tests/unit/voyage/middleware.test.ts > middleware onRequest > erreur session -> anonyme, pas de 500
+[middleware] Session check failed: Error: db down
+    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/voyage/middleware.test.ts:121:42
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+ Ô£ô tests/unit/voyage/middleware.test.ts (11 tests) 5113ms
+     Ô£ô 503 quand la session d├®passe 5s (et rejet orphelin absorb├®)  5011ms
+ Ô£ô tests/integration/audit.test.ts (8 tests) 5130ms
+     Ô£ô logs SIGN_UP when a user signs up  1079ms
+     Ô£ô logs USER_BAN when admin bans a user  569ms
+     Ô£ô logs USER_ROLE_CHANGE when admin changes role  536ms
+     Ô£ô does not log passwords in metadata  1120ms
+     Ô£ô logs SIGN_IN_FAILED for bad credentials  780ms
+     Ô£ô filters metadata to SAFE_FIELDS only (no password in metadata)  798ms
+stderr | tests/unit/voyage/smtp-dead-letter.test.ts > sendEmail ÔÇö dead-letter forensique > enregistre le MESSAGE (pas seulement le nom) + tentatives
+[SMTP] Attempt 2 failed, retrying in 2165ms... smtp 503 unavailable
+
+stdout | tests/integration/blog-actions.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ custom filepath { path: '/custom/path/.env' }
+
+stdout | tests/integration/email-worker.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ override existing { override: true }
+
+ Ô£ô tests/unit/voyage/smtp-dead-letter.test.ts (1 test) 3462ms
+     Ô£ô enregistre le MESSAGE (pas seulement le nom) + tentatives  3458ms
+stdout | tests/integration/email-worker.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
+
+stdout | tests/unit/voyage/helpers.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
+
+ Ô£ô tests/integration/email-worker.test.ts (7 tests) 5003ms
+     Ô£ô requeues dead-letter events via action  3929ms
+ Ô£ô tests/unit/voyage/helpers.test.ts (11 tests) 3836ms
+     Ô£ô hasVoyagePermission false quand auth jette  3797ms
+ Ô£ô tests/unit/admin-media.test.ts (26 tests) 488ms
+     Ô£ô uploads a file to root folder  374ms
+ Ô£ô tests/integration/blog-actions.test.ts (8 tests) 3940ms
+     Ô£ô checkBlogPostLinks returns a structured report for a real post  336ms
+ Ô£ô tests/unit/database/seed-data-contract.test.ts (2 tests) 1665ms
+     Ô£ô maps every manifest entry to an existing non-empty dataset and schema table  1660ms
+stdout | tests/integration/voyage-services.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ override existing { override: true }
+
+stdout | tests/integration/voyage-services.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
+
 stdout | tests/integration/auth-flow.test.ts
-◇ injected env (14) from .env // tip: ⌘ enable debugging { debug: true }
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
 
- ✓ tests/unit/database/seed-data-contract.test.ts (2 tests) 2087ms
-     ✓ maps every manifest entry to an existing non-empty dataset and schema table  2083ms
- ✓ tests/integration/auth-flow.test.ts (5 tests) 1591ms
-     ✓ signUpEmail creates a new user (no session when emailVerification required)  655ms
+stdout | tests/integration/voyage-loaders2.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
+
+ Ô£ô tests/integration/voyage-services.test.ts (16 tests) 2267ms
+     Ô£ô collision persistante (3 essais) -> jette la derni├¿re erreur  345ms
+     Ô£ô applyPayment awaiting->confirmed->completed, stay, erreurs  331ms
+stderr | tests/integration/auth-flow.test.ts > Auth ÔÇö Sign-up & Sign-in flow > signInEmail rejects invalid password
+2026-09-19T10:06:27.465Z WARN [Better Auth]: Invalid password
+
+stderr | tests/integration/auth-flow.test.ts > Auth ÔÇö Sign-up & Sign-in flow > signInEmail rejects non-existent email
+2026-09-19T10:06:27.780Z WARN [Better Auth]: User not found
+
+ Ô£ô tests/integration/auth-flow.test.ts (5 tests) 2199ms
+     Ô£ô signUpEmail creates a new user (no session when emailVerification required)  1080ms
+     Ô£ô signInEmail returns a session for valid credentials  354ms
+     Ô£ô signInEmail rejects invalid password  302ms
+     Ô£ô signInEmail rejects non-existent email  306ms
+ Ô£ô tests/integration/voyage-loaders2.test.ts (13 tests) 2590ms
+     Ô£ô status, pagination, asc/desc, montants, payments desc, tripTitle fallback  324ms
+     Ô£ô contents : highlights tri├®s, FAQ orpheline exclue  337ms
+stdout | tests/integration/voyage-actions2.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
+
+stdout | tests/integration/voyage-completeness.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ enable debugging { debug: true }
+
+stdout | tests/integration/sitemap.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ custom filepath { path: '/custom/path/.env' }
+
+ Ô£ô tests/integration/voyage-completeness.test.ts (17 tests) 2057ms
+     Ô£ô compte under_review seul, open seul, unpublished = trads invisibles  592ms
+ Ô£ô tests/integration/sitemap.test.ts (2 tests) 1813ms
+     Ô£ô lists published trips with localized detail URLs  1740ms
+stdout | tests/integration/voyage-pages.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ enable debugging { debug: true }
+
+stdout | tests/integration/voyage-pages.test.ts
+Ôùç injected env (0) from .env // tip: Ôùê encrypted .env [www.dotenvx.com]
+
+stdout | tests/integration/voyage-actions3.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
+
+ Ô£ô tests/integration/voyage-pages.test.ts (9 tests) 1744ms
+     Ô£ô chaque compteur ├®gale sa requ├¬te directe (stable apr├¿s retries)  532ms
+ Ô£ô tests/integration/voyage-actions2.test.ts (15 tests) 1970ms
+     Ô£ô deux candidatures simultan├®es m├¬me email -> une passe, une EMAIL_CONFLICT  400ms
+stdout | tests/integration/voyage-actions-missing.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ enable debugging { debug: true }
+
+ Ô£ô tests/integration/voyage-actions3.test.ts (14 tests) 1473ms
+stdout | tests/integration/booking-tunnel.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
+
+stdout | tests/integration/itinerary-contents-faq.test.ts
+Ôùç injected env (0) from .env // tip: Ôùê secrets for agents [www.dotenvx.com]
+
+ Ô£ô tests/integration/voyage-actions-missing.test.ts (6 tests) 1713ms
+     Ô£ô policies : NOT_FOUND doc, version +1, publish NOT_FOUND + champs  353ms
+stdout | tests/integration/admin-voyage-loaders.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
+
+ Ô£ô tests/integration/itinerary-contents-faq.test.ts (4 tests) 1234ms
+     Ô£ô creates, translates, locks and deletes itinerary days  496ms
+ Ô£ô tests/integration/admin-voyage-loaders.test.ts (10 tests) 852ms
+     Ô£ô computes voyage health counters  405ms
+ Ô£ô tests/unit/i18n-translations.test.ts (12 tests) 658ms
+ Ô£ô tests/integration/booking-tunnel.test.ts (5 tests) 1550ms
+     Ô£ô runs approved ÔåÆ checkout ÔåÆ payment ÔåÆ confirmation with hold conversion  427ms
 stdout | tests/integration/auth.test.ts
-◇ injected env (14) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+Ôùç injected env (0) from .env // tip: Ôîÿ override existing { override: true }
 
- ✓ tests/integration/auth.test.ts (13 tests) 1688ms
-stdout | tests/integration/auth-org.test.ts
-◇ injected env (14) from .env // tip: ⌘ suppress logs { quiet: true }
+stdout | tests/integration/admin-voyage-actions.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ custom filepath { path: '/custom/path/.env' }
 
- ✓ tests/unit/export-data.test.ts (4 tests) 543ms
-     ✓ returns 401 when not authenticated  525ms
-stdout | tests/integration/export.test.ts
-◇ injected env (14) from .env // tip: ⌘ suppress logs { quiet: true }
+stdout | tests/integration/voyage-action-errors.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ override existing { override: true }
 
- ✓ tests/integration/export.test.ts (3 tests) 504ms
- ✓ tests/unit/i18n-translations.test.ts (12 tests) 599ms
-     ✓ loads fr and has required keys  317ms
- ✓ tests/integration/auth-org.test.ts (5 tests) 1114ms
- ✓ tests/unit/i18n-urls.test.ts (32 tests) 431ms
+ Ô£ô tests/integration/auth.test.ts (11 tests) 1352ms
+     Ô£ô admin can ban and unban a user  327ms
+     Ô£ô admin can change user role  314ms
+ Ô£ô tests/integration/admin-voyage-actions.test.ts (7 tests) 1311ms
+     Ô£ô rejects stale writes (optimistic locking)  419ms
+stdout | tests/integration/cancellation.test.ts
+Ôùç injected env (0) from .env // tip: Ôùê encrypted .env [www.dotenvx.com]
+
+stdout | tests/integration/applications.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
+
+ Ô£ô tests/integration/cancellation.test.ts (5 tests) 1177ms
+     Ô£ô auto-refunds 100% more than 45 days out  412ms
+ Ô£ô tests/integration/voyage-action-errors.test.ts (14 tests) 1228ms
+     Ô£ô review supports contact_required with event  348ms
+stdout | tests/integration/voyage-payments.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
+
+ Ô£ô tests/unit/export-data.test.ts (4 tests) 807ms
+     Ô£ô returns 401 when not authenticated  790ms
+ Ô£ô tests/integration/voyage-payments.test.ts (16 tests) 988ms
+stdout | tests/integration/availability.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
+
+stdout | tests/integration/voyage-refund-passthrough.test.ts
+Ôùç injected env (0) from .env // tip: Ôùê encrypted .env [www.dotenvx.com]
+
+ Ô£ô tests/integration/availability.test.ts (3 tests) 863ms
+ Ô£ô tests/integration/applications.test.ts (5 tests) 958ms
+stdout | tests/integration/voyage-finition.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
+
+stdout | tests/integration/voyage-finition.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ override existing { override: true }
+
+ Ô£ô tests/integration/voyage-refund-passthrough.test.ts (1 test) 739ms
+ Ô£ô tests/integration/voyage-finition.test.ts (10 tests) 561ms
+stdout | tests/integration/middleware.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ override existing { override: true }
+
+ Ô£ô tests/integration/middleware.test.ts (4 tests) 912ms
 stdout | tests/integration/contact-api.test.ts
-◇ injected env (14) from .env // tip: ⌘ override existing { override: true }
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
+
+stdout | tests/integration/cms-admin.test.ts
+Ôùç injected env (0) from .env // tip: Ôîü auth for agents [www.vestauth.com]
+
+stderr | tests/unit/upload.test.ts > processUpload > accepts a valid image upload
+[upload] WebP generation failed for a3b09d05-940c-4ebf-9956-30eafb644a50.jpg: Error: Input buffer has corrupt header: VipsJpeg: premature end of JPEG image
+VipsJpeg: JPEG datastream contains no image
+VipsJpeg: premature end of JPEG image
+VipsJpeg: JPEG datastream contains no image
+VipsJpeg: premature end of JPEG image
+    at Sharp.toFile (file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/sharp@0.35.4_@types+node@26.5.1/node_modules/sharp/dist/output.mjs:90:19)
+    at processUpload (C:/Users/Utilisateur/Documents/t3code/atlaselle/src/media/upload.ts:121:49)
+    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/upload.test.ts:54:20
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/unit/upload.test.ts > processUpload > generates UUID filename (not original name)
+[upload] WebP generation failed for e3b16515-95ec-4085-bbe7-a4bd5f3b77f0.png: Error: Input buffer has corrupt header:
+    at Sharp.toFile (file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/sharp@0.35.4_@types+node@26.5.1/node_modules/sharp/dist/output.mjs:90:19)
+    at processUpload (C:/Users/Utilisateur/Documents/t3code/atlaselle/src/media/upload.ts:121:49)
+    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/upload.test.ts:161:20
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/unit/upload.test.ts > deleteUpload > deletes companion WebP variant when deleting an image
+[upload] WebP generation failed for 045b191b-2f62-414b-a4a1-63085f326fbd.jpg: Error: Input buffer has corrupt header: VipsJpeg: premature end of JPEG image
+VipsJpeg: JPEG datastream contains no image
+VipsJpeg: premature end of JPEG image
+VipsJpeg: JPEG datastream contains no image
+VipsJpeg: premature end of JPEG image
+    at Sharp.toFile (file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/sharp@0.35.4_@types+node@26.5.1/node_modules/sharp/dist/output.mjs:90:19)
+    at processUpload (C:/Users/Utilisateur/Documents/t3code/atlaselle/src/media/upload.ts:121:49)
+    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/upload.test.ts:226:20
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+ Ô£ô tests/unit/upload.test.ts (19 tests) 215ms
+ Ô£ô tests/integration/cms-admin.test.ts (14 tests) 591ms
+     Ô£ô creates a page  303ms
+ Ô£ô tests/integration/contact-api.test.ts (13 tests) 861ms
+     Ô£ô writes CONTACT_FORM_SUBMIT audit event to database  742ms
+stdout | tests/integration/cms-content.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ enable debugging { debug: true }
+
+stderr | tests/integration/cms-content.test.ts > CMS content loaders (real DB) > searchContent r├®pond sur un terme g├®n├®rique sans jeter (infra FTS requise)
+[cms-content] FTS infra manquante localement (search_vector) ÔÇö skip, CI avec db:infra fait foi.
+
+ Ô£ô tests/integration/cms-content.test.ts (3 tests) 722ms
+     Ô£ô searchContent r├®pond sur un terme g├®n├®rique sans jeter (infra FTS requise)  476ms
+ Ô£ô tests/unit/i18n-urls.test.ts (34 tests) 217ms
+stdout | tests/integration/export.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
+
+ Ô£ô tests/integration/export.test.ts (3 tests) 537ms
+stdout | tests/integration/apply-page.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
+
+stdout | tests/integration/consent-cms.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
+
+ Ô£ô tests/integration/consent-cms.test.ts (25 tests) 428ms
+ Ô£ô tests/integration/apply-page.test.ts (2 tests) 491ms
+     Ô£ô chaque voyage publi├® expose un slug par locale pour getApplyPath  432ms
+stdout | tests/integration/blog-internal-link.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
+
+stdout | tests/integration/payments-endpoints.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
+
+stdout | tests/integration/voyage-endpoints.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ enable debugging { debug: true }
+
+stdout | tests/integration/payments-endpoints.test.ts > Payments endpoints (mock provider by default) > processes unknown Stripe events as 200 without side effects
+[payments] Unhandled Stripe event (ignored): customer.created
+
+ Ô£ô tests/integration/payments-endpoints.test.ts (5 tests) 628ms
+stderr | tests/integration/voyage-endpoints.test.ts > webhook Stripe ÔÇö ├®chec de traitement -> 500 (retry) > paiement introuvable -> 500 pour retry Stripe
+[payments] Webhook processing failed: Error: [PAYMENT_FAILED] Paiement introuvable pour cet ├®v├®nement.
+    at codedError (C:/Users/Utilisateur/Documents/t3code/atlaselle/src/lib/voyage-codes.ts:19:24)
+    at processProviderSuccess (C:/Users/Utilisateur/Documents/t3code/atlaselle/src/modules/payments/domain/payment-service.ts:142:22)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at POST (C:/Users/Utilisateur/Documents/t3code/atlaselle/src/pages/api/payments/webhook.ts:30:7)
+    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/integration/voyage-endpoints.test.ts:99:19
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20 {
+  code: 'PAYMENT_FAILED'
+}
+
+ Ô£ô tests/integration/voyage-endpoints.test.ts (3 tests) 553ms
+stdout | tests/integration/trip-loader.test.ts
+Ôùç injected env (0) from .env // tip: Ôîü auth for agents [www.vestauth.com]
+
+stdout | tests/integration/navigation-cycle.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
+
+ Ô£ô tests/integration/blog-internal-link.test.ts (8 tests) 578ms
+ Ô£ô tests/integration/trip-loader.test.ts (3 tests) 788ms
+ Ô£ô tests/integration/navigation-cycle.test.ts (6 tests) 291ms
+stdout | tests/integration/admin-trips.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ enable debugging { debug: true }
 
 stdout | tests/unit/production-hardening.test.ts
-◇ injected env (14) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
 
- ✓ tests/unit/production-hardening.test.ts (9 tests) 410ms
-     ✓ RESERVED_SLUGS rejects known route collisions  313ms
-stdout | tests/integration/middleware.test.ts
-◇ injected env (14) from .env // tip: ⌘ enable debugging { debug: true }
-
- ✓ tests/integration/middleware.test.ts (4 tests) 611ms
-stdout | tests/integration/consent-cms.test.ts
-◇ injected env (14) from .env // tip: ⌘ enable debugging { debug: true }
-
- ✓ tests/integration/consent-cms.test.ts (25 tests) 282ms
- ✓ tests/integration/contact-api.test.ts (13 tests) 262ms
-stdout | tests/integration/cms-admin.test.ts
-◇ injected env (14) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-
-stdout | tests/integration/blog-internal-link.test.ts
-◇ injected env (14) from .env // tip: ⌘ enable debugging { debug: true }
-
- ✓ tests/integration/cms-admin.test.ts (14 tests) 679ms
+ Ô£ô tests/integration/admin-trips.test.ts (4 tests) 503ms
 stdout | tests/integration/legal-cms.test.ts
-◇ injected env (14) from .env // tip: ⌘ override existing { override: true }
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
 
- ✓ tests/integration/legal-cms.test.ts (19 tests) 218ms
-stdout | tests/integration/navigation-cycle.test.ts
-◇ injected env (14) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+ Ô£ô tests/unit/production-hardening.test.ts (9 tests) 460ms
+     Ô£ô RESERVED_SLUGS rejects known route collisions  396ms
+ Ô£ô tests/integration/legal-cms.test.ts (19 tests) 379ms
+     Ô£ô has exactly 4 legal pages (one per locale)  304ms
+stdout | tests/unit/voyage/loaders-edge.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ enable debugging { debug: true }
 
- ✓ tests/integration/navigation-cycle.test.ts (6 tests) 236ms
- ✓ tests/integration/blog-internal-link.test.ts (8 tests) 269ms
- ✓ tests/unit/admin-media.test.ts (26 tests) 190ms
- ✓ tests/unit/cms-seeds.test.ts (12 tests) 69ms
- ✓ tests/unit/upload.test.ts (19 tests) 303ms
+stdout | tests/integration/repositories.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
+
+ Ô£ô tests/integration/repositories.test.ts (4 tests) 338ms
+ Ô£ô tests/unit/voyage/loaders-edge.test.ts (6 tests) 369ms
+     Ô£ô locale invalide, slug inconnu, liste locale invalide  312ms
+stderr | tests/unit/send-email.test.ts > sendEmail > retries on transient network error and eventually throws
+[SMTP] Attempt 1 failed, retrying in 1000ms... connect failed
+
+stderr | tests/unit/send-email.test.ts > sendEmail > retries on transient network error and eventually throws
+[SMTP] Attempt 2 failed, retrying in 2000ms... connect failed
+
+stderr | tests/unit/send-email.test.ts > sendEmail > retries on HTTP 429 (rate limit)
+[SMTP] Attempt 1 failed, retrying in 1000ms... HTTP 429 Too Many Requests
+
+stderr | tests/unit/send-email.test.ts > sendEmail > retries on HTTP 500/502/503/504 server errors
+[SMTP] Attempt 1 failed, retrying in 1000ms... HTTP 502 Bad Gateway
+
+stderr | tests/unit/send-email.test.ts > sendEmail > retries on HTTP 500/502/503/504 server errors
+[SMTP] Attempt 2 failed, retrying in 2000ms... HTTP 503 Service Unavailable
+
+stderr | tests/unit/send-email.test.ts > sendEmail > retries on ETIMEDOUT, ENOTFOUND, ECONNRESET, EPIPE
+[SMTP] Attempt 1 failed, retrying in 1000ms... network
+
+stderr | tests/unit/send-email.test.ts > sendEmail > retries on ETIMEDOUT, ENOTFOUND, ECONNRESET, EPIPE
+[SMTP] Attempt 1 failed, retrying in 1000ms... network
+
+stderr | tests/unit/send-email.test.ts > sendEmail > retries on ETIMEDOUT, ENOTFOUND, ECONNRESET, EPIPE
+[SMTP] Attempt 1 failed, retrying in 1000ms... network
+
+stderr | tests/unit/send-email.test.ts > sendEmail > retries on ETIMEDOUT, ENOTFOUND, ECONNRESET, EPIPE
+[SMTP] Attempt 1 failed, retrying in 1000ms... network
+
+stderr | tests/unit/send-email.test.ts > sendEmail > verifies exponential backoff delay formula: 1000 * 2^(attempt-1)
+[SMTP] Attempt 1 failed, retrying in 1000ms... fail
+
+stderr | tests/unit/send-email.test.ts > sendEmail > verifies exponential backoff delay formula: 1000 * 2^(attempt-1)
+[SMTP] Attempt 2 failed, retrying in 2000ms... fail
+
+ Ô£ô tests/unit/send-email.test.ts (17 tests) 215ms
 stdout | tests/integration/db-health.test.ts
-◇ injected env (14) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+Ôùç injected env (0) from .env // tip: Ôîÿ custom filepath { path: '/custom/path/.env' }
 
- ✓ tests/integration/db-health.test.ts (4 tests) 161ms
-stdout | tests/unit/smtp-env.test.ts > getSmtpFrom — header injection defense > rejects email with \n character
-◇ injected env (10) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+ Ô£ô tests/integration/db-health.test.ts (4 tests) 347ms
+     Ô£ô checkConnection returns ok with valid latency  336ms
+stdout | tests/unit/smtp-env.test.ts > getSmtpFrom ÔÇö header injection defense > rejects email with \n character
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
 
-stdout | tests/unit/smtp-env.test.ts > getSmtpFrom — header injection defense > rejects email with \r character
-◇ injected env (10) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+stdout | tests/unit/smtp-env.test.ts > getSmtpFrom ÔÇö header injection defense > rejects email with \r character
+Ôùç injected env (0) from .env // tip: Ôîÿ override existing { override: true }
 
-stdout | tests/unit/smtp-env.test.ts > getSmtpFrom — header injection defense > rejects invalid email format
-◇ injected env (10) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+stdout | tests/unit/smtp-env.test.ts > getSmtpFrom ÔÇö header injection defense > rejects invalid email format
+Ôùç injected env (0) from .env // tip: Ôùê encrypted .env [www.dotenvx.com]
 
-stdout | tests/unit/smtp-env.test.ts > getSmtpFrom — header injection defense > accepts valid email address
-◇ injected env (10) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+stdout | tests/unit/smtp-env.test.ts > getSmtpFrom ÔÇö header injection defense > accepts valid email address
+Ôùç injected env (0) from .env // tip: Ôîÿ override existing { override: true }
 
-stdout | tests/unit/smtp-env.test.ts > getSmtpFrom — header injection defense > uses custom SMTP_FROM_NAME when provided
-◇ injected env (9) from .env // tip: ⌘ enable debugging { debug: true }
+stdout | tests/unit/smtp-env.test.ts > getSmtpFrom ÔÇö header injection defense > uses custom SMTP_FROM_NAME when provided
+Ôùç injected env (0) from .env // tip: Ôùê secrets for agents [www.dotenvx.com]
 
-stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > defaults to port 587
-◇ injected env (11) from .env // tip: ⌘ override existing { override: true }
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig ÔÇö port validation > defaults to port 587
+Ôùç injected env (1) from .env // tip: Ôîü auth for agents [www.vestauth.com]
 
-stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > parses valid port
-◇ injected env (10) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig ÔÇö port validation > parses valid port
+Ôùç injected env (0) from .env // tip: Ôîÿ enable debugging { debug: true }
 
-stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > rejects port 0
-◇ injected env (10) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig ÔÇö port validation > rejects port 0
+Ôùç injected env (0) from .env // tip: Ôîü auth for agents [www.vestauth.com]
 
-stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > rejects port > 65535
-◇ injected env (10) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig ÔÇö port validation > rejects port > 65535
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
 
-stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > rejects non-numeric port
-◇ injected env (10) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig ÔÇö port validation > rejects non-numeric port
+Ôùç injected env (0) from .env // tip: Ôîü auth for agents [www.vestauth.com]
 
-stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > returns secure=true when SMTP_SECURE=true
-◇ injected env (9) from .env // tip: ⌘ suppress logs { quiet: true }
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig ÔÇö port validation > returns secure=true when SMTP_SECURE=true
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
 
-stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > returns secure=false when SMTP_SECURE is not "true"
-◇ injected env (9) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig ÔÇö port validation > returns secure=false when SMTP_SECURE is not "true"
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
 
-stdout | tests/unit/smtp-env.test.ts > getBrevoConfig / getResendConfig — missing API key > getBrevoConfig throws when BREVO_API_KEY is missing
-◇ injected env (10) from .env // tip: ⌘ override existing { override: true }
+stdout | tests/unit/smtp-env.test.ts > getBrevoConfig / getResendConfig ÔÇö missing API key > getBrevoConfig throws when BREVO_API_KEY is missing
+Ôùç injected env (0) from .env // tip: Ôîü auth for agents [www.vestauth.com]
 
-stdout | tests/unit/smtp-env.test.ts > getBrevoConfig / getResendConfig — missing API key > getBrevoConfig returns key when set
-◇ injected env (10) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+stdout | tests/unit/smtp-env.test.ts > getBrevoConfig / getResendConfig ÔÇö missing API key > getBrevoConfig returns key when set
+Ôùç injected env (0) from .env // tip: Ôîü auth for agents [www.vestauth.com]
 
-stdout | tests/unit/smtp-env.test.ts > getBrevoConfig / getResendConfig — missing API key > getResendConfig throws when RESEND_API_KEY is missing
-◇ injected env (10) from .env // tip: ⌘ suppress logs { quiet: true }
+stdout | tests/unit/smtp-env.test.ts > getBrevoConfig / getResendConfig ÔÇö missing API key > getResendConfig throws when RESEND_API_KEY is missing
+Ôùç injected env (0) from .env // tip: Ôùê secrets for agents [www.dotenvx.com]
 
-stdout | tests/unit/smtp-env.test.ts > getBrevoConfig / getResendConfig — missing API key > getResendConfig returns key when set
-◇ injected env (10) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+stdout | tests/unit/smtp-env.test.ts > getBrevoConfig / getResendConfig ÔÇö missing API key > getResendConfig returns key when set
+Ôùç injected env (0) from .env // tip: Ôùê secrets for agents [www.dotenvx.com]
 
 stdout | tests/unit/smtp-env.test.ts > SMTP_PROVIDER validation > accepts BREVO as provider
-◇ injected env (10) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
 
 stdout | tests/unit/smtp-env.test.ts > SMTP_PROVIDER validation > accepts RESEND as provider
-◇ injected env (10) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
 
 stdout | tests/unit/smtp-env.test.ts > SMTP_PROVIDER validation > normalizes lowercase provider name
-◇ injected env (10) from .env // tip: ⌘ suppress logs { quiet: true }
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
 
 stdout | tests/unit/smtp-env.test.ts > SMTP_PROVIDER validation > throws for invalid provider
-◇ injected env (10) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
 
- ✓ tests/unit/smtp-env.test.ts (20 tests) 188ms
- ✓ tests/unit/sanitize.test.ts (44 tests) 212ms
- ✓ tests/unit/admin-pages.test.ts (26 tests) 100ms
- ✓ tests/unit/admin-hours.test.ts (13 tests) 68ms
- ✓ tests/unit/admin-consent.test.ts (5 tests) 54ms
- ✓ tests/unit/blog-engagement-actions.test.ts (38 tests) 115ms
- ✓ tests/unit/i18n-key-completeness.test.ts (7 tests) 127ms
- ✓ tests/unit/admin-social.test.ts (9 tests) 78ms
- ✓ tests/unit/rate-limit.test.ts (9 tests) 79ms
- ✓ tests/unit/admin-menus.test.ts (13 tests) 67ms
+ Ô£ô tests/unit/smtp-env.test.ts (20 tests) 134ms
+ Ô£ô tests/unit/sanitize.test.ts (49 tests) 251ms
+ Ô£ô tests/unit/middleware-timeout.test.ts (6 tests) 126ms
+stderr | tests/unit/audit-fallback.test.ts > logAuditEvent ÔÇö JSONL fallback > writes to fallback file when DB insert fails
+[audit] Failed to log event: Error: DB connection lost
+    at Object.<anonymous> (C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/audit-fallback.test.ts:23:35)
+    at Object.Mock [as values] (file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+spy@4.1.11/node_modules/@vitest/spy/dist/index.js:332:34)
+    at logAuditEvent (C:/Users/Utilisateur/Documents/t3code/atlaselle/src/lib/audit.ts:38:31)
+    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/audit-fallback.test.ts:44:11
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+
+ Ô£ô tests/unit/audit-fallback.test.ts (1 test) 79ms
+stderr | tests/unit/smtp-providers.test.ts > Brevo provider > send() throws on non-OK response
+[SMTP] Brevo send error 401: unauthorized
+
+stderr | tests/unit/smtp-providers.test.ts > Resend provider > verify() throws on real 401
+[SMTP] Resend verify error 401: {"error":"invalid_key"}
+
+ Ô£ô tests/unit/smtp-providers.test.ts (11 tests) 54ms
+ Ô£ô tests/unit/project-stats.test.ts (2 tests) 113ms
+ Ô£ô tests/unit/admin-site.test.ts (7 tests) 105ms
 stdout | tests/unit/sections-sanitize.test.ts
-◇ injected env (14) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+Ôùç injected env (0) from .env // tip: Ôùê secrets for agents [www.dotenvx.com]
 
- ✓ tests/unit/database/services-data-shape.test.ts (1 test) 107ms
- ✓ tests/unit/blog-gallery.test.ts (7 tests) 63ms
- ✓ tests/unit/admin-navigation-items.test.ts (11 tests) 77ms
- ✓ tests/unit/admin-sections.test.ts (16 tests) 75ms
- ✓ tests/unit/middleware-timeout.test.ts (6 tests) 88ms
- ✓ tests/unit/admin-pages-theme.test.ts (9 tests) 69ms
- ✓ tests/unit/sections-sanitize.test.ts (10 tests) 97ms
- ✓ tests/unit/smtp-providers.test.ts (11 tests) 90ms
- ✓ tests/unit/admin-site-social-contact-hours.test.ts (10 tests) 66ms
- ✓ tests/unit/db-env.test.ts (16 tests) 83ms
- ✓ tests/unit/admin-theme.test.ts (10 tests) 94ms
- ✓ tests/unit/cms-i18n.test.ts (16 tests) 46ms
- ✓ tests/unit/admin-roles.test.ts (21 tests) 101ms
- ✓ tests/unit/search-fts.test.ts (20 tests) 68ms
- ✓ tests/unit/admin-contact.test.ts (10 tests) 82ms
- ✓ tests/unit/audit-fallback.test.ts (1 test) 87ms
- ✓ tests/unit/contact-api.test.ts (12 tests) 59ms
- ✓ tests/unit/blog-taxonomy-actions.test.ts (9 tests) 76ms
- ✓ tests/unit/admin-helpers.test.ts (7 tests) 63ms
-stdout | tests/unit/extract-ip.test.ts
-◇ injected env (14) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
- ✓ tests/unit/extract-ip.test.ts (19 tests) 59ms
- ✓ tests/unit/blog-helpers.test.ts (14 tests) 69ms
- ✓ tests/unit/blog-post-actions.test.ts (7 tests) 55ms
- ✓ tests/unit/content-locking.test.ts (6 tests) 64ms
- ✓ tests/unit/send-email.test.ts (17 tests) 64ms
- ✓ tests/unit/section-schemas.test.ts (48 tests) 35ms
- ✓ tests/unit/admin-versions.test.ts (11 tests) 73ms
+ Ô£ô tests/unit/rate-limit.test.ts (10 tests) 198ms
+ Ô£ô tests/unit/admin-sections.test.ts (16 tests) 155ms
+ Ô£ô tests/unit/voyage/stripe-provider.test.ts (8 tests) 93ms
+ Ô£ô tests/unit/navigation-menus.test.ts (10 tests) 82ms
+12:08:00 [vite] (ssr) warning: invalid import "../../src/i18n/${locale}/common". A file extension must be included in the static part of the import. For example: import(`./foo/${bar}.js`).
+  Plugin: vite:dynamic-import-vars
+  File: C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/i18n-key-completeness.test.ts
+12:08:00 [vite] (ssr) warning: invalid import "../../src/i18n/blog/${locale}". A file extension must be included in the static part of the import. For example: import(`./foo/${bar}.js`).
+  Plugin: vite:dynamic-import-vars
+  File: C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/i18n-key-completeness.test.ts
+ Ô£ô tests/unit/i18n-key-completeness.test.ts (7 tests) 117ms
+ Ô£ô tests/unit/sections-sanitize.test.ts (10 tests) 134ms
+ Ô£ô tests/unit/blog-helpers.test.ts (10 tests) 125ms
 stdout | tests/unit/services-contract.test.ts
-◇ injected env (14) from .env // tip: ⌘ override existing { override: true }
+Ôùç injected env (0) from .env // tip: Ôîÿ override existing { override: true }
 
- ✓ tests/unit/database/migration-sql.test.ts (12 tests) 52ms
- ✓ tests/unit/services-contract.test.ts (16 tests) 73ms
- ✓ tests/unit/blog-newsletter-routes.test.ts (5 tests) 66ms
- ✓ tests/unit/database/services-data-invariants.test.ts (5 tests) 61ms
- ✓ tests/unit/admin-site.test.ts (7 tests) 61ms
- ✓ tests/unit/content-editor-helpers.test.ts (14 tests) 32ms
+ Ô£ô tests/unit/services-contract.test.ts (16 tests) 115ms
+stderr | tests/unit/admin-pages.test.ts > publishPage > publishes a page
+[pages] Auto-snapshot on publish failed: TypeError: Cannot read properties of undefined (reading 'from')
+    at Object.handler (C:/Users/Utilisateur/Documents/t3code/atlaselle/src/actions/admin/pages.ts:244:20)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/admin-pages.test.ts:257:20
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | tests/unit/admin-pages.test.ts > bulkPublishPages > publishes multiple pages
+[pages] Bulk auto-snapshot failed for some pages: TypeError: Cannot read properties of undefined (reading 'from')
+    at Object.handler (C:/Users/Utilisateur/Documents/t3code/atlaselle/src/actions/admin/pages.ts:513:43)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/admin-pages.test.ts:380:20
+    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+ Ô£ô tests/unit/admin-pages.test.ts (26 tests) 121ms
+ Ô£ô tests/unit/blog-engagement-actions.test.ts (38 tests) 150ms
+stderr | tests/unit/db-env.test.ts > DB_ENV validation > defaults to LOCAL when DB_ENV is undefined
+ÔÜá´©Å  DB_ENV non d├®fini dans .env ÔÇö d├®faut : LOCAL
+   Ajoutez DB_ENV=LOCAL|PROD|TEST dans votre fichier .env
+
+stderr | tests/unit/db-env.test.ts > DB_ENV validation > defaults to LOCAL when DB_ENV is empty
+ÔÜá´©Å  DB_ENV est vide dans .env ÔÇö d├®faut : LOCAL
+   Valeurs accept├®es : PROD, TEST, LOCAL
+
+ Ô£ô tests/unit/db-env.test.ts (16 tests) 74ms
+stdout | tests/integration/analytics-endpoint.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
+
+ Ô£ô tests/integration/analytics-endpoint.test.ts (2 tests) 97ms
+ Ô£ô tests/unit/database/services-data-shape.test.ts (1 test) 111ms
 stdout | tests/unit/blog-subscription.test.ts
-◇ injected env (14) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+Ôùç injected env (0) from .env // tip: Ôîÿ enable debugging { debug: true }
 
 stdout | tests/unit/blog-subscription.test.ts
-◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+Ôùç injected env (0) from .env // tip: Ôùê secrets for agents [www.dotenvx.com]
 
- ✓ tests/unit/blog-subscription.test.ts (5 tests) 66ms
- ✓ tests/unit/navigation-menus.test.ts (10 tests) 129ms
- ✓ tests/unit/theme-tokens.test.ts (34 tests) 45ms
- ✓ tests/unit/blog-profile.test.ts (3 tests) 73ms
- ✓ tests/unit/blog-newsletter-service.test.ts (9 tests) 46ms
- ✓ tests/unit/media-loader.test.ts (12 tests) 38ms
- ✓ tests/unit/site-loader.test.ts (13 tests) 49ms
- ✓ tests/unit/section-content-xss.test.ts (18 tests) 41ms
- ✓ tests/unit/cache.test.ts (12 tests) 34ms
+ Ô£ô tests/unit/blog-subscription.test.ts (6 tests) 145ms
+ Ô£ô tests/unit/admin-hours.test.ts (13 tests) 120ms
+ Ô£ô tests/unit/admin-versions.test.ts (11 tests) 125ms
+ Ô£ô tests/unit/admin-theme.test.ts (10 tests) 87ms
+ Ô£ô tests/unit/admin-social.test.ts (9 tests) 89ms
+ Ô£ô tests/unit/admin-contact.test.ts (10 tests) 70ms
+ Ô£ô tests/unit/admin-helpers.test.ts (7 tests) 85ms
+ Ô£ô tests/integration/voyage-cron.test.ts (3 tests) 81ms
+ Ô£ô tests/unit/blog-newsletter-routes.test.ts (5 tests) 83ms
+ Ô£ô tests/unit/blog-taxonomy-actions.test.ts (9 tests) 130ms
+ Ô£ô tests/unit/admin-navigation-items.test.ts (11 tests) 140ms
+ Ô£ô tests/unit/admin-menus.test.ts (13 tests) 136ms
+ Ô£ô tests/unit/voyage/templates.test.ts (50 tests) 80ms
+ Ô£ô tests/unit/database/migration-sql.test.ts (13 tests) 81ms
+ Ô£ô tests/unit/admin-site-social-contact-hours.test.ts (10 tests) 90ms
+ Ô£ô tests/unit/contact-api.test.ts (12 tests) 95ms
+ Ô£ô tests/unit/cms-seeds.test.ts (12 tests) 75ms
+stdout | tests/unit/extract-ip.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
+
+ Ô£ô tests/unit/voyage/seed-content.test.ts (8 tests) 74ms
+ Ô£ô tests/unit/extract-ip.test.ts (19 tests) 114ms
+ Ô£ô tests/unit/admin-consent.test.ts (5 tests) 68ms
+12:08:25 [vite] (ssr) warning: invalid import "../../../src/database/data/${entry.dataFile}". A file extension must be included in the static part of the import. For example: import(`./foo/${bar}.js`).
+  Plugin: vite:dynamic-import-vars
+  File: C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/database/services-data-invariants.test.ts
+ Ô£ô tests/unit/database/services-data-invariants.test.ts (5 tests) 67ms
+ Ô£ô tests/unit/blog-gallery.test.ts (7 tests) 101ms
+ Ô£ô tests/unit/search-fts.test.ts (20 tests) 86ms
+ Ô£ô tests/unit/admin-pages-theme.test.ts (9 tests) 91ms
+ Ô£ô tests/unit/content-locking.test.ts (6 tests) 125ms
+ Ô£ô tests/unit/services/validation.test.ts (6 tests) 30ms
+ Ô£ô tests/unit/cache.test.ts (13 tests) 74ms
+ Ô£ô tests/unit/services/admin-actions.test.ts (4 tests) 55ms
+ Ô£ô tests/unit/blog-post-actions.test.ts (7 tests) 59ms
+ Ô£ô tests/unit/blog-profile.test.ts (3 tests) 56ms
+ Ô£ô tests/unit/permissions.test.ts (35 tests) 33ms
+ Ô£ô tests/unit/content-editor-helpers.test.ts (14 tests) 24ms
+ Ô£ô tests/unit/navigation-loader.test.ts (7 tests) 24ms
+ Ô£ô tests/unit/blog-newsletter-service.test.ts (8 tests) 49ms
 stdout | tests/unit/auth-guards.test.ts
-◇ injected env (14) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+Ôùç injected env (0) from .env // tip: Ôùê encrypted .env [www.dotenvx.com]
 
- ✓ tests/unit/blog-loader.test.ts (14 tests) 35ms
- ✓ tests/unit/auth-guards.test.ts (5 tests) 48ms
- ✓ tests/unit/services/admin-contract.test.ts (2 tests) 19ms
- ✓ tests/unit/media-list.test.ts (4 tests) 47ms
- ✓ tests/unit/services/validation.test.ts (6 tests) 31ms
- ✓ tests/unit/navigation-loader.test.ts (7 tests) 21ms
- ✓ tests/unit/services-validation.test.ts (7 tests) 29ms
- ✓ tests/unit/permissions.test.ts (37 tests) 36ms
- ✓ tests/unit/content-import-schema.test.ts (10 tests) 28ms
-stdout | tests/unit/mask-utils.test.ts
-◇ injected env (14) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+ Ô£ô tests/unit/cms-i18n.test.ts (16 tests) 41ms
+ Ô£ô tests/unit/auth-guards.test.ts (5 tests) 50ms
+ Ô£ô tests/unit/theme-tokens.test.ts (34 tests) 66ms
+ Ô£ô tests/unit/voyage/completeness.test.ts (35 tests) 57ms
+ Ô£ô tests/unit/content-import-schema.test.ts (10 tests) 60ms
+stdout | tests/unit/voyage/action-inputs.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ multiple files { path: ['.env.local', '.env'] }
 
-stdout | tests/unit/mask-utils.test.ts
-◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-
- ✓ tests/unit/mask-utils.test.ts (10 tests) 15ms
- ✓ tests/unit/seo.test.ts (32 tests) 23ms
- ✓ tests/unit/cms-schemas.test.ts (85 tests) 26ms
+ Ô£ô tests/unit/blog-loader.test.ts (14 tests) 39ms
+ Ô£ô tests/unit/section-content-xss.test.ts (18 tests) 16ms
+ Ô£ô tests/unit/media-list.test.ts (4 tests) 36ms
+ Ô£ô tests/unit/services-validation.test.ts (7 tests) 36ms
+ Ô£ô tests/unit/voyage/action-inputs.test.ts (11 tests) 41ms
+ Ô£ô tests/unit/section-schemas.test.ts (48 tests) 41ms
+ Ô£ô tests/unit/i18n-routes.test.ts (20 tests) 29ms
+ Ô£ô tests/unit/site-loader.test.ts (13 tests) 22ms
+ Ô£ô tests/unit/voyage/voyage-email.test.ts (12 tests) 27ms
+ Ô£ô tests/unit/media-loader.test.ts (12 tests) 49ms
+ Ô£ô tests/unit/services/workflow.test.ts (3 tests) 12ms
+ Ô£ô tests/unit/voyage/auth-guards.test.ts (5 tests) 26ms
+ Ô£ô tests/unit/cms-schemas.test.ts (85 tests) 25ms
+ Ô£ô tests/unit/voyage/core-templates.test.ts (20 tests) 22ms
+ Ô£ô tests/unit/seo.test.ts (32 tests) 23ms
 stdout | tests/unit/navigation-tree.test.ts
-◇ injected env (14) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+Ôùç injected env (0) from .env // tip: Ôîü auth for agents [www.vestauth.com]
 
- ✓ tests/unit/navigation-tree.test.ts (10 tests) 24ms
- ✓ tests/unit/database/seed-manifest.test.ts (3 tests) 22ms
- ✓ tests/unit/blog-link.test.ts (6 tests) 25ms
- ✓ tests/unit/blog-validation.test.ts (3 tests) 22ms
- ✓ tests/unit/blog/status-transitions.test.ts (17 tests) 19ms
- ✓ tests/unit/contact-form-template.test.ts (15 tests) 16ms
- ✓ tests/unit/cms/capabilities.test.ts (2 tests) 15ms
-stdout | tests/unit/cli-utils.test.ts
-◇ injected env (14) from .env // tip: ⌘ override existing { override: true }
+stderr | tests/unit/navigation-tree.test.ts > buildNavTree > detects self-referencing cycle and promotes to root
+[nav] Cycle detected for navigation item "a" (label: "a") ÔÇö treated as root.
 
- ✓ tests/unit/cli-utils.test.ts (12 tests) 16ms
+stderr | tests/unit/navigation-tree.test.ts > buildNavTree > detects AÔåÆBÔåÆA cycle and promotes both to root
+[nav] Cycle detected for navigation item "a" (label: "a") ÔÇö treated as root.
+[nav] Cycle detected for navigation item "b" (label: "b") ÔÇö treated as root.
+
+stderr | tests/unit/navigation-tree.test.ts > buildNavTree > detects AÔåÆBÔåÆCÔåÆA three-node cycle and promotes all to root
+[nav] Cycle detected for navigation item "a" (label: "a") ÔÇö treated as root.
+[nav] Cycle detected for navigation item "b" (label: "b") ÔÇö treated as root.
+[nav] Cycle detected for navigation item "c" (label: "c") ÔÇö treated as root.
+
+stderr | tests/unit/navigation-tree.test.ts > buildNavTree > handles mixed: some nodes in cycle, some healthy
+[nav] Cycle detected for navigation item "x" (label: "x") ÔÇö treated as root.
+[nav] Cycle detected for navigation item "y" (label: "y") ÔÇö treated as root.
+
+ Ô£ô tests/unit/navigation-tree.test.ts (10 tests) 22ms
+ Ô£ô tests/unit/database/seed-manifest.test.ts (3 tests) 25ms
+ Ô£ô tests/unit/query-filters.test.ts (5 tests) 26ms
+ Ô£ô tests/unit/blog-link.test.ts (6 tests) 42ms
+ Ô£ô tests/unit/voyage/pricing-availability.test.ts (11 tests) 20ms
+ Ô£ô tests/unit/blog/status-transitions.test.ts (17 tests) 19ms
+ Ô£ô tests/unit/voyage/transitions.test.ts (11 tests) 18ms
+ Ô£ô tests/unit/blog-validation.test.ts (3 tests) 21ms
 stdout | tests/unit/loaders.test.ts
-◇ injected env (14) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+Ôùç injected env (0) from .env // tip: Ôîÿ custom filepath { path: '/custom/path/.env' }
 
- ✓ tests/unit/loaders.test.ts (9 tests) 18ms
- ✓ tests/unit/blog-lifecycle.test.ts (2 tests) 12ms
- ✓ tests/unit/upload-api.test.ts (9 tests) 12ms
+stderr | tests/unit/loaders.test.ts > buildNavTree > detects cycles and promotes cyclic items to root
+[nav] Cycle detected for navigation item "a" (label: "A") ÔÇö treated as root.
+[nav] Cycle detected for navigation item "b" (label: "B") ÔÇö treated as root.
+
+ Ô£ô tests/unit/loaders.test.ts (9 tests) 18ms
+ Ô£ô tests/unit/services/admin-contract.test.ts (2 tests) 18ms
+stdout | tests/unit/mask-utils.test.ts
+Ôùç injected env (0) from .env // tip: Ôùê secrets for agents [www.dotenvx.com]
+
+stdout | tests/unit/mask-utils.test.ts
+Ôùç injected env (0) from .env // tip: Ôîÿ custom filepath { path: '/custom/path/.env' }
+
+ Ô£ô tests/unit/mask-utils.test.ts (10 tests) 13ms
+stdout | tests/unit/voyage/core-utils.test.ts
+Ôùç injected env (0) from .env // tip: Ôùê secrets for agents [www.dotenvx.com]
+
+ Ô£ô tests/unit/analytics.test.ts (2 tests) 13ms
+ Ô£ô tests/unit/voyage/core-utils.test.ts (7 tests) 20ms
+ Ô£ô tests/unit/contact-form-template.test.ts (15 tests) 16ms
+ Ô£ô tests/unit/cms/capabilities.test.ts (2 tests) 17ms
+ Ô£ô tests/unit/i18n-switch.test.ts (11 tests) 16ms
+ Ô£ô tests/unit/request-id.test.ts (6 tests) 14ms
 stdout | tests/unit/cms/module-boundaries.test.ts
-◇ injected env (14) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+Ôùç injected env (0) from .env // tip: Ôîÿ override existing { override: true }
 
- ✓ tests/unit/schema-validation.test.ts (12 tests) 12ms
 stdout | tests/unit/services/module-contract.test.ts
-◇ injected env (14) from .env // tip: ⌘ override existing { override: true }
+Ôùç injected env (0) from .env // tip: Ôîÿ suppress logs { quiet: true }
 
- ✓ tests/unit/cms/resource-contract.test.ts (6 tests) 12ms
- ✓ tests/unit/services/module-contract.test.ts (3 tests) 12ms
- ✓ tests/unit/cms/module-registry.test.ts (2 tests) 13ms
- ✓ tests/unit/services/workflow.test.ts (3 tests) 11ms
- ✓ tests/unit/i18n-utils.test.ts (6 tests) 12ms
+stdout | tests/unit/cli-utils.test.ts
+Ôùç injected env (0) from .env // tip: Ôùê encrypted .env [www.dotenvx.com]
+
+ Ô£ô tests/unit/cli-utils.test.ts (12 tests) 13ms
+ Ô£ô tests/unit/services/module-contract.test.ts (3 tests) 13ms
+ Ô£ô tests/unit/upload-api.test.ts (9 tests) 12ms
+ Ô£ô tests/unit/blog-lifecycle.test.ts (2 tests) 14ms
+ Ô£ô tests/unit/voyage/cancellation.test.ts (4 tests) 13ms
+ Ô£ô tests/unit/cms/admin-module-contract.test.ts (3 tests) 11ms
 stdout | tests/unit/cms/module-contract.test.ts
-◇ injected env (14) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+Ôùç injected env (0) from .env // tip: Ôîü auth for agents [www.vestauth.com]
 
- ✓ tests/unit/cms/module-contract.test.ts (4 tests) 11ms
+ Ô£ô tests/unit/cms/module-contract.test.ts (4 tests) 12ms
 stdout | tests/unit/cms/module-boundaries.test.ts
-◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+Ôùç injected env (0) from .env // tip: Ôîÿ override existing { override: true }
 
- ✓ tests/unit/services-workflow-restore.test.ts (2 tests) 11ms
- ✓ tests/unit/cms/module-boundaries.test.ts (2 tests) 14ms
- ✓ tests/unit/cms/workflow.test.ts (4 tests) 11ms
- ✓ tests/unit/editor-dom-safety.test.ts (4 tests) 29ms
- ✓ tests/unit/cms/admin-filter-contract.test.ts (2 tests) 9ms
- ✓ tests/unit/blog-public-visibility.test.ts (1 test) 10ms
- ✓ tests/unit/cms-audit.test.ts (1 test) 8ms
+ Ô£ô tests/unit/cms/module-boundaries.test.ts (2 tests) 16ms
+ Ô£ô tests/unit/cms/resource-contract.test.ts (6 tests) 13ms
+ Ô£ô tests/unit/cms/workflow.test.ts (4 tests) 12ms
+ Ô£ô tests/unit/voyage/admin-resources.test.ts (7 tests) 12ms
+ Ô£ô tests/unit/schema-validation.test.ts (9 tests) 12ms
+ Ô£ô tests/unit/i18n-utils.test.ts (6 tests) 11ms
+ Ô£ô tests/unit/voyage/admin-resource.test.ts (3 tests) 12ms
+ Ô£ô tests/unit/blog-public-visibility.test.ts (1 test) 13ms
+ Ô£ô tests/unit/cms/module-registry.test.ts (2 tests) 13ms
+ Ô£ô tests/unit/services-workflow-restore.test.ts (2 tests) 12ms
+ Ô£ô tests/unit/editor-dom-safety.test.ts (4 tests) 11ms
 stdout | tests/unit/services/admin-resource.test.ts
-◇ injected env (14) from .env // tip: ⌘ suppress logs { quiet: true }
+Ôùç injected env (0) from .env // tip: Ôùê secrets for agents [www.dotenvx.com]
 
- ✓ tests/unit/services/urls.test.ts (2 tests) 10ms
- ✓ tests/unit/services/admin-resource.test.ts (3 tests) 10ms
+ Ô£ô tests/unit/cms/admin-filter-contract.test.ts (2 tests) 11ms
+ Ô£ô tests/unit/services/admin-resource.test.ts (3 tests) 11ms
+ Ô£ô tests/unit/cms-audit.test.ts (1 test) 11ms
+ Ô£ô tests/unit/services/urls.test.ts (2 tests) 9ms
+ Ô£ô tests/unit/voyage/request-id-fallback.test.ts (1 test) 8ms
 
- Test Files  113 passed (113)
-      Tests  1309 passed (1309)
-   Start at  19:36:01
-   Duration  83.01s (transform 8.01s, setup 0ms, import 160.45s, tests 27.30s, environment 34ms)
+ Test Files  167 passed (167)
+      Tests  1765 passed (1765)
+   Start at  12:05:53
+   Duration  213.63s (transform 18.61s, setup 0ms, import 323.93s, tests 81.34s, environment 47ms)
 
-JSON report written to C:/Users/Utilisateur/Documents/atlaselle/tests/reports/vitest-results.json
+JSON report written to C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/reports/vitest-results.json
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   70.41 |    59.98 |   64.74 |   77.48 |                   
+ actions/admin     |   85.75 |    72.44 |   79.48 |   86.47 |                   
+  _helpers.ts      |   95.65 |    95.23 |     100 |   95.65 | 57                
+  consent.ts       |   93.33 |    66.66 |      50 |   93.33 | 29                
+  media.ts         |   90.11 |       70 |      75 |   90.11 | ...41,364-368,406 
+  menus.ts         |   93.61 |    88.88 |     100 |   93.61 | 45,115,173        
+  navigation.ts    |   93.02 |    69.04 |      90 |   92.85 | ...58,264,270,278 
+  pages.ts         |   71.36 |    64.58 |   58.33 |   72.05 | ...48-726,804-806 
+  sections.ts      |   86.36 |     77.5 |   73.33 |    87.5 | ...08,158-162,290 
+  site.ts          |   96.55 |       80 |   66.66 |     100 | 10                
+  social.ts        |      98 |    91.66 |     100 |   97.95 | 56                
+  theme.ts         |   73.75 |    31.57 |      80 |   77.02 | 16-23,33-43       
+  versions.ts      |   96.49 |     82.6 |   85.71 |   96.42 | 168,188           
+ actions/blog      |   72.96 |    53.83 |   75.22 |   81.11 |                   
+  _helpers.ts      |   93.61 |    79.41 |   93.33 |     100 | 17,30,55,82-83,88 
+  bulk.ts          |   16.12 |        0 |       0 |   21.73 | 16,22-40          
+  category.ts      |   82.85 |    51.21 |     100 |   87.09 | 26-34,67-68       
+  check-links.ts   |   81.48 |       60 |   33.33 |   80.76 | 61-62,76,108-109  
+  comment.ts       |   87.71 |    62.71 |     100 |   89.09 | ...65,179-190,194 
+  gallery.ts       |   96.29 |    64.28 |     100 |     100 | 75-105,181        
+  internal-link.ts |   78.94 |    44.44 |     100 |     100 | 10-25,28-31       
+  lifecycle.ts     |   33.62 |    19.23 |      50 |   44.44 | 17,40-62,66-70    
+  link.ts          |   94.44 |       60 |     100 |   97.05 | 24                
+  moderation.ts    |      80 |    57.89 |     100 |   83.01 | ...23,126-131,135 
+  post.ts          |   58.11 |    52.38 |    37.5 |   62.96 | ...11-332,339-345 
+  profile.ts       |     100 |      100 |      75 |     100 |                   
+  reaction.ts      |    75.6 |    61.11 |     100 |   77.77 | 40,80-94          
+  review.ts        |   97.82 |     90.9 |     100 |     100 | 53-91             
+  tag.ts           |   67.34 |       24 |     100 |   67.34 | 57,110-161        
+  view.ts          |   88.23 |    71.42 |     100 |   96.55 | 58                
+ actions/services  |   11.02 |    18.72 |    8.98 |   21.42 |                   
+  _helpers.ts      |      18 |    16.21 |   33.33 |   18.42 | 15-31,41-72       
+  attributes.ts    |       0 |        0 |       0 |       0 | 9-41              
+  availability.ts  |       0 |        0 |       0 |       0 | 11-29             
+  engagement.ts    |       0 |        0 |       0 |       0 | 17-71             
+  internal-link.ts |       0 |        0 |       0 |       0 | 7-19              
+  lifecycle.ts     |       0 |        0 |       0 |       0 | 15-77             
+  media.ts         |       0 |        0 |       0 |       0 | 9-13              
+  moderation.ts    |       0 |        0 |       0 |       0 | 13-45             
+  notification.ts  |       0 |        0 |       0 |       0 | 13-68             
+  reactions.ts     |       0 |        0 |       0 |       0 | 10-37             
+  service.ts       |   68.22 |    53.53 |   33.33 |   93.42 | 38-39,106,124-125 
+  taxonomy.ts      |       0 |        0 |       0 |       0 | 10-45             
+  views.ts         |       0 |        0 |       0 |       0 | 10-39             
+ actions/voyage    |   97.35 |    89.47 |     100 |   98.73 |                   
+  _helpers.ts      |     100 |     93.1 |     100 |     100 | 63,65             
+  applications.ts  |   92.94 |    88.46 |     100 |   93.82 | 90,135-140        
+  checkout.ts      |   96.96 |    88.88 |     100 |     100 | 79,90             
+  contents.ts      |   98.07 |    89.13 |     100 |     100 | ...18,133,142,151 
+  departures.ts    |   98.03 |       95 |     100 |     100 | 57                
+  faq.ts           |   97.77 |    83.33 |     100 |     100 | 23,54             
+  itinerary.ts     |      96 |    82.14 |     100 |   97.77 | 34                
+  payments.ts      |     100 |    83.33 |     100 |     100 | 31                
+  policies.ts      |      96 |    83.33 |     100 |     100 | 32                
+  trips.ts         |   98.86 |     92.3 |     100 |     100 | 78,192            
+ ...ScrollCarousel |       0 |        0 |       0 |       0 |                   
+  carousel.ts      |       0 |        0 |       0 |       0 | 2-51              
+ core/admin        |    34.9 |    64.42 |   22.22 |   74.46 |                   
+  confirmation.ts  |       0 |        0 |       0 |       0 | 2-10              
+  ...r-contract.ts |   59.25 |     64.7 |     100 |      80 | 55-57,61          
+  ...e-contract.ts |      70 |    80.35 |     100 |     100 | ...77,79-83,85-87 
+ core/attributes   |       0 |        0 |       0 |       0 |                   
+  index.ts         |       0 |        0 |       0 |       0 | 18-20             
+ core/engagement   |       0 |        0 |       0 |       0 |                   
+  index.ts         |       0 |        0 |       0 |       0 | 9                 
+ core/localization |      50 |      100 |       0 |      50 |                   
+  module-labels.ts |      50 |      100 |       0 |      50 | 11                
+ core/locks        |       0 |        0 |       0 |       0 |                   
+  index.ts         |       0 |        0 |       0 |       0 | 10-18             
+ core/moderation   |       0 |        0 |       0 |       0 |                   
+  index.ts         |       0 |        0 |       0 |       0 | 12-14             
+ core/modules      |   87.09 |       75 |     100 |     100 |                   
+  bootstrap.ts     |     100 |    66.66 |     100 |     100 | 15-16             
+  ...e-contract.ts |   66.66 |       75 |     100 |     100 | 64-68             
+ .../notifications |       0 |        0 |       0 |       0 |                   
+  index.ts         |       0 |        0 |       0 |       0 | 12-16             
+ core/presentation |       0 |        0 |       0 |       0 |                   
+  index.ts         |       0 |        0 |       0 |       0 | 9                 
+ core/revision     |       0 |        0 |       0 |       0 |                   
+  index.ts         |       0 |        0 |       0 |       0 | 9-11              
+ database          |      93 |    82.97 |      95 |   93.18 |                   
+  cache.ts         |   89.28 |       76 |    87.5 |   90.56 | 29-33             
+  env.ts           |   97.72 |     90.9 |     100 |   97.14 | 98                
+ database/loaders  |    55.6 |    37.32 |    59.6 |   55.44 |                   
+  ...tor.loader.ts |       0 |        0 |       0 |       0 | 8-39              
+  ...ion.loader.ts |       0 |        0 |       0 |       0 | 6-15              
+  ...min.loader.ts |       0 |        0 |       0 |       0 | 44-132            
+  blog.loader.ts   |   50.14 |     34.8 |   53.42 |   50.87 | ...-985,1029-1211 
+  ...ent.loader.ts |     100 |       75 |     100 |     100 | 17                
+  media.loader.ts  |     100 |    89.28 |     100 |     100 | 128,200-214       
+  ...ion.loader.ts |   85.45 |    86.36 |      60 |   83.67 | ...38,149-150,162 
+  page.loader.ts   |   29.89 |    20.37 |   46.66 |   29.03 | ...09-164,245-347 
+  search.loader.ts |      90 |       25 |      50 |     100 | 104-110           
+  site.loader.ts   |     100 |    76.66 |     100 |     100 | 103-109           
+ database/schemas  |   62.62 |      100 |   47.85 |   63.29 |                   
+  ...ons.schema.ts |   69.56 |      100 |   56.25 |   68.18 | ...,77,90,101-102 
+  auth.schema.ts   |   78.94 |      100 |   66.66 |      75 | 42-48,63,92       
+  blog.schema.ts   |   56.39 |      100 |   39.51 |   49.66 | ...36-438,455-469 
+  ...res.schema.ts |   88.23 |      100 |   77.77 |   86.66 | 35,82             
+  ...age.schema.ts |   82.35 |      100 |      70 |   81.25 | 39-48,85          
+  ...ary.schema.ts |   84.61 |      100 |   77.77 |   83.33 | 21,44             
+  media.schema.ts  |   63.15 |      100 |   46.15 |   56.25 | 18-25,44-57,74-77 
+  ...ion.schema.ts |   71.42 |      100 |      60 |   71.42 | 30,46-60          
+  ...ion.schema.ts |   57.14 |      100 |      40 |      50 | 22-29             
+  page.schema.ts   |      75 |      100 |   66.66 |   71.42 | 38-39,70,80       
+  ...nts.schema.ts |      75 |      100 |      60 |   73.33 | 37,67-69          
+  ...ies.schema.ts |   83.33 |      100 |   71.42 |   81.81 | 26,38             
+  ...ons.schema.ts |   63.15 |      100 |      50 |   61.11 | 35-38,71,81-82    
+  ...ent.schema.ts |   38.46 |      100 |    23.8 |    62.5 | 8,14,25,31,38-39  
+  ...ces.schema.ts |   41.05 |      100 |   25.33 |   50.76 | ...95,212,216,220 
+  site.schema.ts   |   68.42 |      100 |   57.14 |   68.42 | ...,84-97,109-122 
+  ...ers.schema.ts |      70 |      100 |   57.14 |      70 | 23,44-45          
+  trips.schema.ts  |   77.04 |      100 |   68.88 |   76.27 | ...83,198-199,210 
+ i18n              |   86.25 |    78.18 |     100 |     100 |                   
+  utils.ts         |   80.43 |    68.42 |     100 |     100 | 17-25,32          
+ i18n/blog         |       0 |      100 |       0 |       0 |                   
+  ar.ts            |       0 |      100 |       0 |       0 | 7-9               
+  en.ts            |       0 |      100 |       0 |       0 | 7-9               
+  es.ts            |       0 |      100 |       0 |       0 | 7-9               
+  fr.ts            |       0 |      100 |       0 |       0 | 7-9               
+ lib               |   93.49 |    91.25 |   95.45 |   94.51 |                   
+  audit.ts         |   96.66 |    93.33 |   83.33 |     100 | 33-38             
+  rate-limit.ts    |   82.14 |    85.71 |   66.66 |      84 | 15-18             
+  ...on-schemas.ts |   87.14 |    86.66 |     100 |   86.56 | ...22,232,235,245 
+  seo.ts           |   98.48 |    96.77 |     100 |     100 | 81,90             
+  store.ts         |   78.94 |    43.75 |   94.44 |   85.29 | 85-87,112-113     
+ lib/blog          |   63.88 |     38.8 |   48.64 |   67.47 |                   
+  ...ernal-link.ts |     100 |     87.5 |     100 |     100 | 29                
+  utils.ts         |   17.77 |     12.5 |   19.04 |   19.04 | 25-26,42-113      
+  validation.ts    |   73.68 |    40.62 |      60 |   85.71 | 12,87-91          
+ lib/cms           |   83.33 |    77.77 |   83.33 |   94.73 |                   
+  capabilities.ts  |      50 |      100 |       0 |      50 | 88                
+  taxonomy.ts      |   83.33 |    78.57 |     100 |     100 | 9,19-23           
+  workflow.ts      |     100 |       75 |     100 |     100 | 24                
+ lib/content       |   93.15 |    73.68 |   90.47 |   93.05 |                   
+  ...or-helpers.ts |    94.2 |    73.68 |   94.44 |   94.11 | 137,167-168,191   
+  ...k-resolver.ts |      75 |      100 |   66.66 |      75 | 55                
+ lib/newsletter    |      90 |    74.46 |     100 |    97.5 |                   
+  ...er-service.ts |      90 |    74.46 |     100 |    97.5 | 93,97             
+ lib/services      |    8.33 |        0 |       0 |   11.11 |                   
+  ...ernal-link.ts |    8.33 |        0 |       0 |   11.11 | 14-25             
+ media             |   92.22 |    80.95 |     100 |   94.04 |                   
+  delete.ts        |     100 |    83.33 |     100 |     100 | 27                
+  list.ts          |    90.9 |    83.33 |     100 |   94.73 | 52                
+  upload.ts        |   90.74 |       80 |     100 |   92.15 | 32,85,94,105      
+ ...cations/domain |     100 |       80 |     100 |     100 |                   
+  ...ransitions.ts |     100 |       75 |     100 |     100 | 16                
+ ...s/repositories |     100 |       50 |     100 |     100 |                   
+  ...repository.ts |     100 |       50 |     100 |     100 | 9-11              
+ ...ability/domain |   97.91 |    97.22 |     100 |     100 |                   
+  ...ty-service.ts |   97.67 |    96.77 |     100 |     100 | 86                
+ ...artures/domain |     100 |       75 |     100 |     100 |                   
+  ...ransitions.ts |     100 |       75 |     100 |     100 | 15                
+ ...s/repositories |     100 |       90 |     100 |     100 |                   
+  ...repository.ts |     100 |       90 |     100 |     100 | 23                
+ ...-voyage/domain |   95.23 |    82.17 |     100 |   97.84 |                   
+  reminders.ts     |   97.82 |    81.25 |     100 |     100 | ...15-117,124-126 
+  ...ail-worker.ts |   93.33 |    80.88 |     100 |      95 | 132-133           
+  voyage-email.ts  |   92.85 |     92.3 |     100 |     100 | 42                
+ .../outbox/domain |   95.23 |    81.25 |     100 |     100 |                   
+  outbox-worker.ts |     100 |       75 |     100 |     100 | 21,64             
+  outbox.ts        |      75 |    83.33 |     100 |     100 | 22                
+ ...ayments/domain |   95.49 |    87.23 |   83.33 |   98.96 |                   
+  ...ut-service.ts |   95.23 |    93.33 |     100 |     100 | 18                
+  ...nt-service.ts |   93.68 |    87.32 |      50 |   97.67 | 33,37             
+  ...ransitions.ts |     100 |       75 |     100 |     100 | 17                
+  providers.ts     |      96 |    84.61 |   93.33 |     100 | ...31,167,186-201 
+  ...nd-service.ts |     100 |       95 |     100 |     100 | 46                
+ ...s/repositories |     100 |    59.09 |     100 |     100 |                   
+  ...repository.ts |     100 |    59.09 |     100 |     100 | 9-15,21-27,33-41  
+ ...vations/domain |   96.96 |    83.92 |     100 |   98.36 |                   
+  ...on-service.ts |   96.36 |    82.97 |     100 |      98 | 70                
+  ...ransitions.ts |     100 |       75 |     100 |     100 | 15                
+ ...ations/loaders |    92.3 |    85.71 |     100 |     100 |                   
+  ...ing.loader.ts |   88.63 |    78.78 |     100 |     100 | 30,63,69-72,89-98 
+ ...s/repositories |     100 |       75 |     100 |     100 |                   
+  ...repository.ts |     100 |       75 |     100 |     100 | 25-36             
+ ...services/admin |   56.45 |    35.92 |   27.27 |   65.11 |                   
+  loader.ts        |   53.44 |    35.92 |   27.27 |   61.53 | 45-103            
+ .../services/i18n |   31.81 |    33.33 |   33.33 |   31.81 |                   
+  engagement.ts    |       0 |        0 |       0 |       0 | 28-35             
+  index.ts         |       0 |        0 |       0 |       0 | 7-25              
+  notifications.ts |     100 |       50 |     100 |     100 | 49                
+  sort.ts          |       0 |        0 |       0 |       0 | 6-13              
+ ...rvices/loaders |   46.57 |    38.67 |   38.46 |   47.91 |                   
+  index.ts         |   46.57 |    38.67 |   38.46 |   47.91 | 10-45,78-87,90    
+ ...es/permissions |       0 |        0 |       0 |       0 |                   
+  index.ts         |       0 |        0 |       0 |       0 | 9-75              
+ ...s/services/seo |       0 |        0 |       0 |       0 |                   
+  index.ts         |       0 |        0 |       0 |       0 | 6-15              
+ ...services/utils |   86.66 |       75 |     100 |     100 |                   
+  index.ts         |   81.81 |       70 |     100 |     100 | 7-12,16           
+ ...ces/validation |    97.5 |    93.54 |     100 |   95.65 |                   
+  index.ts         |    97.5 |    93.54 |     100 |   95.65 | 16                
+ ...avelers/domain |      60 |    61.53 |      75 |    62.5 |                   
+  ...rs-service.ts |      50 |    54.54 |      50 |      55 | 45-63             
+ ...s/repositories |     100 |       50 |     100 |     100 |                   
+  ...repository.ts |     100 |       50 |     100 |     100 | 9-11              
+ ...s/trips/domain |     100 |       75 |     100 |     100 |                   
+  ...ransitions.ts |     100 |       75 |     100 |     100 | 14                
+ .../trips/loaders |   97.29 |     92.3 |   91.17 |    99.2 |                   
+  ...nts.loader.ts |    90.9 |       50 |      80 |   95.23 | 34                
+  ...lth.loader.ts |     100 |    53.33 |     100 |     100 | 34-40             
+  trip.loader.ts   |   97.72 |    97.67 |    91.3 |     100 | 143-144           
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 70.41% ( 4845/6881 )
+Branches     : 59.98% ( 2523/4206 )
+Functions    : 64.74% ( 955/1475 )
+Lines        : 77.48% ( 4396/5673 )
+================================================================================
+ERROR: Coverage for lines (77.48%) does not meet global threshold (80%)
+ERROR: Coverage for functions (64.74%) does not meet global threshold (75%)
+ERROR: Coverage for statements (70.41%) does not meet global threshold (80%)
+ERROR: Coverage for branches (59.98%) does not meet global threshold (75%)
+ÔÇëELIFECYCLEÔÇë Test failed. See above for more details.

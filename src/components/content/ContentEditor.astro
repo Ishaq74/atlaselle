@@ -24,7 +24,6 @@ interface Props {
   name: string;
   value?: string;
   locale: Locale;
-  organizationId?: string | null;
   /** Key of the registered internal-link resolver (e.g. "blog"). */
   resolverName?: string;
   /** Id of a MediaPicker instance to use for image insertion. */
@@ -59,7 +58,6 @@ const {
   name,
   value = "",
   locale,
-  organizationId,
   resolverName,
   mediaPickerId,
   label,
@@ -94,14 +92,12 @@ const textareaId = `${editorId}-textarea`;
 const previewId = `${editorId}-preview`;
 const linkDialogId = `${editorId}-link-dialog`;
 const resolverAttr = resolverName ?? "";
-const orgAttr = organizationId ?? "";
 ---
 
 <div
   class="content-editor"
   data-editor-id={editorId}
   data-resolver={resolverAttr}
-  data-org={orgAttr}
   data-locale={locale}
   data-media-picker-target={mediaPickerId ?? ""}
   data-t-noresult={t.linkNoResult}
@@ -180,7 +176,6 @@ const orgAttr = organizationId ?? "";
     if (!textarea) return;
     const preview = root.querySelector('[id$="-preview"]') as HTMLElement | null;
     const resolverName = root.getAttribute('data-resolver') ?? '';
-    const orgId = root.getAttribute('data-org') ?? '';
     const locale = root.getAttribute('data-locale') ?? 'fr';
     const mediaPickerId = root.getAttribute('data-media-picker-target') ?? '';
 

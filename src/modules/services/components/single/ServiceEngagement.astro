@@ -5,7 +5,7 @@ import { serviceComments, serviceFavorites, serviceReactions, serviceReviews, se
 import type { Locale } from "@i18n/config";
 import { getServiceEngagementTranslations } from "@/modules/services/i18n/engagement";
 
-const { serviceId, organizationId = null, locale } = Astro.props as { serviceId: string; organizationId?: string | null; locale: Locale };
+const { serviceId, locale } = Astro.props as { serviceId: string; locale: Locale };
 const db = getDrizzle();
 const currentUserId = Astro.locals.user?.id ?? null;
 const [reviews, comments, favorite, reaction] = await Promise.all([
@@ -23,7 +23,7 @@ const favoriteActive = favorite.length > 0;
 const currentReaction = reaction[0]?.reactionType ?? null;
 const reactionTypes = ["LIKE", "LOVE", "FIRE", "CLAP"] as const;
 ---
-<section class="mt-14 space-y-10" data-service-engagement data-service-id={serviceId} data-organization-id={organizationId ?? ""} data-locale={locale} data-favorite-label={t.favorite} data-unfavorite-label={t.unfavorite} data-pending-label={t.pendingModeration} data-error-label={t.error} data-helpful-label={t.helpful} data-helpful-mark-label={t.helpfulMark} data-helpful-unmark-label={t.helpfulUnmark} data-success-label={t.success} data-favorite-active={favoriteActive ? "true" : "false"} data-reaction={currentReaction ?? ""}>
+<section class="mt-14 space-y-10" data-service-engagement data-service-id={serviceId} data-locale={locale} data-favorite-label={t.favorite} data-unfavorite-label={t.unfavorite} data-pending-label={t.pendingModeration} data-error-label={t.error} data-helpful-label={t.helpful} data-helpful-mark-label={t.helpfulMark} data-helpful-unmark-label={t.helpfulUnmark} data-success-label={t.success} data-favorite-active={favoriteActive ? "true" : "false"} data-reaction={currentReaction ?? ""}>
   <div class="flex flex-wrap items-center gap-3">
     {currentUserId && <button type="button" class="rounded-md border px-4 py-2 text-sm hover:bg-muted" data-service-favorite>{favoriteActive ? t.unfavorite : t.favorite}</button>}
     <span class="text-sm font-medium" aria-label={t.reactionLabel}>{t.reactionLabel}</span>
@@ -49,7 +49,7 @@ const reactionTypes = ["LIKE", "LOVE", "FIRE", "CLAP"] as const;
   import { toast } from "@atoms/toast";
   import { getServiceErrorMessage } from "@/modules/services/i18n";
   for (const root of document.querySelectorAll<HTMLElement>("[data-service-engagement]")) {
-    const serviceId = root.dataset.serviceId; const organizationId = root.dataset.organizationId || null; const locale = root.dataset.locale ?? "fr"; if (!serviceId) continue;
+    const serviceId = root.dataset.serviceId; const locale = root.dataset.locale ?? "fr"; if (!serviceId) continue;
     const pendingLabel = root.dataset.pendingLabel ?? ""; const status = root.querySelector<HTMLElement>("[data-service-engagement-status]");
     const showError = (error?: { code?: string }) => { const message = error ? getServiceErrorMessage(locale, error.code) : (root.dataset.errorLabel ?? ""); if (status) status.textContent = message; if (error) toast.error(message); };
     const showSuccess = (message: string) => { if (status) status.textContent = message; toast.success(message); };

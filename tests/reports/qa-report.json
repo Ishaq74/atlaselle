@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-06 18:06:11",
+  "generatedAt": "2026-09-19 10:09:52",
   "overall": "red",
   "reportsAvailable": 6,
   "sections": [
@@ -7,31 +7,31 @@
       "key": "check",
       "title": "Type & Template Check (astro check)",
       "ok": true,
-      "summary": "0 errors, 0 warnings, 53 hints",
+      "summary": "0 errors, 0 warnings, 0 hints",
       "metrics": {
         "errors": 0,
         "warnings": 0,
-        "hints": 53
+        "hints": 0
       }
     },
     {
       "key": "lint",
       "title": "Lint (ESLint)",
       "ok": true,
-      "summary": "0 errors, 21 warnings",
+      "summary": "0 errors, 0 warnings",
       "metrics": {
         "errors": 0,
-        "warnings": 21
+        "warnings": 0
       }
     },
     {
       "key": "vitest",
       "title": "Unit & Integration Tests (Vitest)",
       "ok": true,
-      "summary": "1309/1309 passed",
+      "summary": "1765/1765 passed",
       "metrics": {
-        "total": 1309,
-        "passed": 1309,
+        "total": 1765,
+        "passed": 1765,
         "failed": 0,
         "skipped": 0
       }

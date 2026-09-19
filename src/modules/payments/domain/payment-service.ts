@@ -1,11 +1,12 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { invalidateCache } from "@database/cache";
 import { payments, checkoutSessions } from "@database/schemas";
-import { seatHolds } from "@database/schemas/departures.schema";
-import { reservations } from "@database/schemas";
-import { applications } from "@database/schemas";
-import { travelers } from "@database/schemas";
+import { getCheckoutById, getPaymentByProviderId, getPaymentByIdempotencyKey } from "@/modules/payments/repositories/payment.repository";
+import { getApplicationById } from "@/modules/applications/repositories/application.repository";
+import { getTravelerById } from "@/modules/travelers/repositories/traveler.repository";
+import { deleteReservationById, getReservationById, markReservationAwaitingPayment } from "@/modules/reservations/repositories/reservation.repository";
+import { getActiveHoldIdsByApplication } from "@/modules/departures/repositories/departure.repository";
 import { quoteForDeparture } from "@/modules/pricing/domain/pricing-service";
 import type { RoomType } from "@/modules/pricing/domain/pricing";
 import { holdSeats, convertHold, releaseHold } from "@/modules/availability/domain/availability-service";
@@ -27,20 +28,20 @@ export async function initiateCheckout(input: {
   cancelUrl: string;
 }): Promise<{ reservationId: string; checkoutUrl: string }> {
   const db = getDrizzle();
-  const [checkout] = await db.select().from(checkoutSessions).where(eq(checkoutSessions.id, input.checkoutSessionId)).limit(1);
+  const checkout = await getCheckoutById(input.checkoutSessionId, db);
   if (!checkout || checkout.status !== "open" || checkout.expiresAt.getTime() <= Date.now()) {
     throw codedError("CHECKOUT_EXPIRED", "Lien de paiement expiré ou invalide.");
   }
-  const [application] = await db.select().from(applications).where(eq(applications.id, checkout.applicationId)).limit(1);
+  const application = await getApplicationById(checkout.applicationId, db);
   if (!application || application.status !== "approved") {
     throw codedError("CHECKOUT_EXPIRED", "Candidature non approuvée.");
   }
-  const [traveler] = await db.select().from(travelers).where(eq(travelers.id, application.travelerId)).limit(1);
+  const traveler = await getTravelerById(application.travelerId, db);
   if (!traveler || traveler.email.toLowerCase() !== input.travelerEmail.trim().toLowerCase()) {
     throw codedError("CHECKOUT_EXPIRED", "Email ne correspondant pas au dossier.");
   }
   if (checkout.reservationId) {
-    const [existing] = await db.select().from(reservations).where(eq(reservations.id, checkout.reservationId)).limit(1);
+    const existing = await getReservationById(checkout.reservationId, db);
     if (existing && (existing.status === "confirmed" || existing.status === "awaiting_payment")) {
       throw codedError("RESERVATION_ALREADY_CONFIRMED", "Réservation déjà en cours.");
     }
@@ -76,10 +77,7 @@ export async function initiateCheckout(input: {
       .returning();
     if (!payment) throw new Error("Payment creation failed");
 
-    await db
-      .update(reservations)
-      .set({ status: "awaiting_payment" })
-      .where(eq(reservations.id, reservation.id));
+    await markReservationAwaitingPayment(reservation.id, db);
     await db
       .update(checkoutSessions)
       .set({ reservationId: reservation.id })
@@ -107,7 +105,7 @@ export async function initiateCheckout(input: {
         .where(eq(checkoutSessions.id, checkout.id))
         .catch(() => {});
       if (payment) await db.delete(payments).where(eq(payments.id, payment.id)).catch(() => {});
-      await db.delete(reservations).where(eq(reservations.id, reservation.id)).catch(() => {});
+      await deleteReservationById(reservation.id, db).catch(() => {});
       throw err;
     }
     await db
@@ -121,13 +119,13 @@ export async function initiateCheckout(input: {
       payload: { checkoutSessionId: checkout.id, applicationId: application.id, reservationId: reservation.id },
     });
     // Les places affichées changent dès le hold.
-    invalidateCache("trip:");
-    invalidateCache("trips:list");
+    await invalidateCache("trip:");
+    await invalidateCache("trips:list");
     return { reservationId: reservation.id, checkoutUrl: session.checkoutUrl };
   } catch (err) {
     await releaseHold(hold.id).catch(() => {});
-    invalidateCache("trip:");
-    invalidateCache("trips:list");
+    await invalidateCache("trip:");
+    await invalidateCache("trips:list");
     throw err;
   }
 }
@@ -136,14 +134,10 @@ export async function initiateCheckout(input: {
 // Webhook dupliqué → 1 paiement, 1 confirmation (retourne { duplicate: true }).
 export async function processProviderSuccess(event: ProviderWebhookEvent): Promise<{ reservationId: string; duplicate: boolean }> {
   const db = getDrizzle();
-  const [payment] = await db
-    .select()
-    .from(payments)
-    .where(eq(payments.providerPaymentId, event.providerPaymentId))
-    .limit(1);
+  const payment = await getPaymentByProviderId(event.providerPaymentId, db);
   const target = payment
     ?? (event.idempotencyKey
-      ? (await db.select().from(payments).where(eq(payments.idempotencyKey, event.idempotencyKey)).limit(1))[0]
+      ? await getPaymentByIdempotencyKey(event.idempotencyKey, db) ?? undefined
       : undefined);
   if (!target) throw codedError("PAYMENT_FAILED", "Paiement introuvable pour cet événement.");
   if (target.status === "paid") return { reservationId: target.reservationId, duplicate: true };
@@ -151,7 +145,7 @@ export async function processProviderSuccess(event: ProviderWebhookEvent): Promi
     await db.update(payments).set({ status: "failed", failedAt: new Date() }).where(eq(payments.id, target.id));
     throw codedError("PAYMENT_AMOUNT_MISMATCH", "Montant du paiement différent du montant réservé.");
   }
-  const [reservation] = await db.select().from(reservations).where(eq(reservations.id, target.reservationId)).limit(1);
+  const reservation = await getReservationById(target.reservationId, db);
   if (!reservation) throw codedError("PAYMENT_FAILED", "Réservation introuvable.");
 
   await db
@@ -161,15 +155,12 @@ export async function processProviderSuccess(event: ProviderWebhookEvent): Promi
   await confirmReservation(reservation.id, event.amount);
   await markCheckoutCompletedForReservation(reservation.id);
 
-  const [application] = reservation.applicationId
-    ? await db.select().from(applications).where(eq(applications.id, reservation.applicationId)).limit(1)
-    : [undefined];
+  const application = reservation.applicationId
+    ? await getApplicationById(reservation.applicationId, db)
+    : null;
   if (application) {
     // Convertit les holds actifs de la candidature (les autres expirent par TTL).
-    const holds = await db
-      .select({ id: seatHolds.id })
-      .from(seatHolds)
-      .where(and(eq(seatHolds.applicationId, application.id), eq(seatHolds.status, "active")));
+    const holds = await getActiveHoldIdsByApplication(application.id, db);
     for (const h of holds) await convertHold(h.id);
   }
   await emitOutboxEvent({
@@ -185,8 +176,8 @@ export async function processProviderSuccess(event: ProviderWebhookEvent): Promi
     payload: { reservationId: reservation.id },
   });
   // Une place vient d'être confirmée : purger les fiches/listes cachées.
-  invalidateCache("trip:");
-  invalidateCache("trips:list");
+  await invalidateCache("trip:");
+  await invalidateCache("trips:list");
   return { reservationId: reservation.id, duplicate: false };
 }
 
@@ -213,14 +204,14 @@ export async function initiateBalancePayment(input: {
   cancelUrl: string;
 }): Promise<{ paymentId: string; checkoutUrl: string }> {
   const db = getDrizzle();
-  const [reservation] = await db.select().from(reservations).where(eq(reservations.id, input.reservationId)).limit(1);
+  const reservation = await getReservationById(input.reservationId, db);
   if (!reservation || (reservation.status !== "confirmed" && reservation.status !== "balance_due")) {
     throw codedError("CHECKOUT_EXPIRED", "Aucun solde à régler sur cette réservation.");
   }
   if (reservation.amountDue <= 0) {
     throw codedError("RESERVATION_ALREADY_CONFIRMED", "Réservation déjà soldée.");
   }
-  const [traveler] = await db.select().from(travelers).where(eq(travelers.id, reservation.travelerId)).limit(1);
+  const traveler = await getTravelerById(reservation.travelerId, db);
   if (!traveler || traveler.email.toLowerCase() !== input.travelerEmail.trim().toLowerCase()) {
     throw codedError("CHECKOUT_EXPIRED", "Email ne correspondant pas au dossier.");
   }

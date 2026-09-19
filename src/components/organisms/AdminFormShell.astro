@@ -68,7 +68,6 @@ const {
           const state = dirtyForms.get(form);
           if (state?.dirty && !state.submitted && form.isConnected) {
             event.preventDefault();
-            event.returnValue = "";
             return;
           }
         }

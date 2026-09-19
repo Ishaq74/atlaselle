@@ -132,13 +132,13 @@ const toAbsUrl = (u: string) => new URL(u, Astro.url.origin).href;
     <meta name="twitter:description" content={metaDesc} />
     {(ogImageOverride || siteData?.ogImage) && <meta name="twitter:image" content={ogImageOverride ?? siteData!.ogImage!} />}
     {/* eslint-disable-next-line astro/no-set-html-directive -- jsonLd is pre-escaped via safeJsonLd() (neutralizes </script> breakout); it is structured data (JSON.stringify output), not arbitrary HTML */}
-    {jsonLd && <script type="application/ld+json" set:html={safeJsonLd(jsonLd)} />}
+    {jsonLd && <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLd)} />}
     {/* eslint-disable-next-line astro/no-set-html-directive -- theme CSS is generated server-side from validated OKLCH tokens */}
     {themeCss && <style set:html={themeCss} />}
 </head>
 
 <body class="flex min-h-screen flex-col">
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-ring">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:start-4 focus:z-50 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-ring">
       {t.a11y.skipToContent}
     </a>
     {isImpersonating && (

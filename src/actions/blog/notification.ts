@@ -31,7 +31,7 @@ export const markBlogNotificationRead = defineAction({
 /** Marks every unread notification belonging to the requesting user as read. */
 export const markAllBlogNotificationsRead = defineAction({
   input: z.object({}),
-  handler: async (input, context) => {
+  handler: async (_input, context) => {
     const user = context.locals.user;
     if (!user) throw new ActionError({ code: "UNAUTHORIZED", message: "Connexion requise." });
 

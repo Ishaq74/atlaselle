@@ -22,7 +22,6 @@ import {
   resolveTripSlug,
   type TripId,
 } from '@/i18n/routes';
-import { getTripBySlug, tripUrl, calculateTripTotal, TRIPS } from '@/data/trips';
 import type { Locale } from '@/i18n/config';
 
 const LOCALES: Locale[] = ['fr', 'en', 'es', 'ar'];
@@ -148,7 +147,7 @@ describe('structural path getters', () => {
   });
 });
 
-describe('static trip data helpers', () => {
+describe('trip path helpers (source unique routes.ts, DB en prod)', () => {
   it('getTripSlug couvre les 3 voyages × 4 locales', () => {
     for (const id of ['south-africa', 'sicily-malta', 'andalusia-morocco'] as TripId[]) {
       for (const locale of LOCALES) {
@@ -162,20 +161,5 @@ describe('static trip data helpers', () => {
     expect(isTripDetailPath('/en/trips/south-africa')).toBe(true);
     expect(isTripDetailPath('/fr/voyages')).toBe(false);
     expect(isTripDetailPath('/en/trips/unknown')).toBe(false);
-  });
-
-  it('getTripBySlug résout + compat ancien id-slug, tripUrl construit', () => {
-    expect(getTripBySlug('fr', 'afrique-du-sud')?.id).toBe('south-africa');
-    expect(getTripBySlug('en', 'nope')).toBeUndefined();
-    expect(getTripBySlug('es', 'sicily-malta')?.id).toBe('sicily-malta');
-    const trip = TRIPS[0];
-    expect(tripUrl('fr', trip)).toBe(getTripPath('fr', TRIP_SLUGS[trip.id].fr));
-  });
-
-  it('calculateTripTotal protège la quantité', () => {
-    expect(calculateTripTotal(TRIPS[0], 2)).toMatchObject({ travelers: 2, total: TRIPS[0].price * 2 });
-    expect(calculateTripTotal(TRIPS[0], 0).travelers).toBe(1);
-    expect(calculateTripTotal(TRIPS[0], 1.5).travelers).toBe(1);
-    expect(calculateTripTotal(TRIPS[0]).depositDue).toBe(TRIPS[0].deposit);
   });
 });

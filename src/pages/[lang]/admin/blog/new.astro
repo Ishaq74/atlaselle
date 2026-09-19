@@ -19,8 +19,8 @@ const baseAdminUrl = `/${locale}/admin/blog`;
 const basePublicUrl = `/${locale}/${blogT.routes.blog}`;
 
 const [categoryRows, tagRows] = await Promise.all([
-  getBlogCategories(null, locale),
-  getBlogTags(null, locale),
+  getBlogCategories(locale),
+  getBlogTags(locale),
 ]);
 
 const categories = categoryRows.map((item) => ({

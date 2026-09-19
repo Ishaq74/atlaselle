@@ -31,7 +31,6 @@ import {
   blogNewsletterService,
   NewsletterConfigurationError,
   NewsletterDeliveryError,
-  NewsletterOrganizationNotFoundError,
 } from "@/lib/newsletter/blog-newsletter-service";
 
 const tx = {
@@ -138,7 +137,6 @@ describe("blog newsletter business service", () => {
     await blogNewsletterService.subscribe({
       email: " Reader@Example.COM ",
       locale: "fr",
-      organizationId: null,
       configuredSite: new URL("https://ignored-request.invalid"),
     });
 
@@ -175,29 +173,13 @@ expect(insertedValues[0].token).toBeNull();
     expect(smtpMocks.sendEmail).toHaveBeenCalledTimes(1);
   });
 
-  it("validates an organization before persisting a subscriber", async () => {
-    selectResults.push([]);
-
-    await expect(
-      blogNewsletterService.subscribe({
-        email: "reader@example.com",
-        locale: "en",
-        organizationId: "missing-organization",
-      }),
-    ).rejects.toBeInstanceOf(NewsletterOrganizationNotFoundError);
-
-    expect(tx.insert).not.toHaveBeenCalled();
-    expect(smtpMocks.sendEmail).not.toHaveBeenCalled();
-  });
-
   it("resubscription resets timestamps and token consumption state", async () => {
-    selectResults.push([{ id: "organization-1" }], [{ id: "subscriber-1" }]);
+    selectResults.push([{ id: "subscriber-1" }]);
     txUpdateResults.push([{ id: "subscriber-1" }]);
 
     await blogNewsletterService.subscribe({
       email: "reader@example.com",
       locale: "es",
-      organizationId: "organization-1",
     });
 
     expect(txSets[0]).toMatchObject({
@@ -222,7 +204,6 @@ expect(insertedValues[0].token).toBeNull();
       blogNewsletterService.subscribe({
         email: "reader@example.com",
         locale: "fr",
-        organizationId: null,
       }),
     ).rejects.toBeInstanceOf(NewsletterDeliveryError);
 
@@ -249,7 +230,6 @@ expect(insertedValues[0].token).toBeNull();
       blogNewsletterService.subscribe({
         email: "reader@example.com",
         locale: "fr",
-        organizationId: null,
         configuredSite: null,
       }),
     ).rejects.toBeInstanceOf(NewsletterConfigurationError);

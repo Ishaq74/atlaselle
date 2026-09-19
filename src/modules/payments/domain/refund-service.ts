@@ -58,7 +58,7 @@ export async function refundReservationPayments(reservationId: string, amount?: 
     payload: { paymentId: outcome.target.id, reservationId, amount: outcome.refundAmount, providerRefundId: outcome.providerRefundId },
   });
   // Un remboursement total libère la place.
-  invalidateCache("trip:");
-  invalidateCache("trips:list");
+  await invalidateCache("trip:");
+  await invalidateCache("trips:list");
   return { refunded: true, amount: outcome.refundAmount, providerRefundId: outcome.providerRefundId };
 }

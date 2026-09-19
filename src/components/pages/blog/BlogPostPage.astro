@@ -50,7 +50,6 @@ interface Props {
   baseUrl: string;
   absoluteUrl: string;
   user: AppUser | null;
-  organizationId?: string | null;
 }
 
 const {
@@ -65,13 +64,12 @@ const {
   baseUrl,
   absoluteUrl,
   user,
-  organizationId,
 } = Astro.props;
 
 if (!data.translation) return null;
 
 const { html: articleHtml, headings } = extractHeadings(data.translation.content);
-const validTargets = Array.from(await getBlogValidLinkTargets(organizationId ?? null, locale));
+const validTargets = Array.from(await getBlogValidLinkTargets(locale));
 const tocHeadings = headings.filter((h) => h.depth <= 3);
 const hasToc = tocHeadings.length >= 2;
 ---

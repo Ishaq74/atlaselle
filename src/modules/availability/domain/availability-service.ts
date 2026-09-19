@@ -1,13 +1,19 @@
 import { and, eq, inArray, lte } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { invalidateCache } from "@database/cache";
-import { departures, seatHolds, SEAT_HOLD_TTL_MINUTES } from "@database/schemas/departures.schema";
-import { reservations } from "@database/schemas/reservations.schema";
+import { seatHolds, SEAT_HOLD_TTL_MINUTES } from "@database/schemas/departures.schema";
+import { getDepartureById, getActiveHoldsByDeparture, lockDepartureForUpdate } from "@/modules/departures/repositories/departure.repository";
+import { countConfirmedByDeparture } from "@/modules/reservations/repositories/reservation.repository";
 import { availableSeats, canHold } from "./availability";
 import { codedError } from "@/lib/voyage-codes";
 
 // NOTE : la capacité est intrinsèquement transverse (departures + reservations
 // + holds). Ce service est l'unique lecteur croisé autorisé (TODO §10).
+// P1-4 : injection Db/Tx — chaque fonction accepte un `dbOverride` optionnel
+// (db ou tx Drizzle) pour tests + compositions transactionnelles futures.
+// Sans override, `getDrizzle()` est utilisé (comportement inchangé).
+
+type Db = ReturnType<typeof getDrizzle>;
 
 const BOOKABLE_STATUSES = ["open", "limited"] as const;
 
@@ -21,18 +27,12 @@ export interface AvailabilitySnapshot {
   bookable: boolean;
 }
 
-export async function getAvailability(departureId: string, now = new Date()): Promise<AvailabilitySnapshot | null> {
-  const db = getDrizzle();
-  const [dep] = await db.select().from(departures).where(eq(departures.id, departureId)).limit(1);
+export async function getAvailability(departureId: string, now = new Date(), dbOverride?: Db): Promise<AvailabilitySnapshot | null> {
+  const db = dbOverride ?? getDrizzle();
+  const dep = await getDepartureById(departureId, db);
   if (!dep) return null;
-  const confirmed = await db
-    .select({ id: reservations.id })
-    .from(reservations)
-    .where(and(eq(reservations.departureId, departureId), inArray(reservations.status, ["confirmed", "balance_due", "completed"])));
-  const holds = await db
-    .select({ quantity: seatHolds.quantity, expiresAt: seatHolds.expiresAt })
-    .from(seatHolds)
-    .where(and(eq(seatHolds.departureId, departureId), eq(seatHolds.status, "active")));
+  const confirmedSeats = await countConfirmedByDeparture(departureId, db);
+  const holds = await getActiveHoldsByDeparture(departureId, db);
   const heldSeats = holds
     .filter((h) => h.expiresAt.getTime() > now.getTime())
     .reduce((n, h) => n + h.quantity, 0);
@@ -40,9 +40,9 @@ export async function getAvailability(departureId: string, now = new Date()): Pr
     departureId,
     status: dep.status,
     capacityMax: dep.capacityMax,
-    confirmedSeats: confirmed.length,
+    confirmedSeats,
     heldSeats,
-    availableSeats: availableSeats({ capacityMax: dep.capacityMax, confirmedSeats: confirmed.length, heldSeats }),
+    availableSeats: availableSeats({ capacityMax: dep.capacityMax, confirmedSeats, heldSeats }),
     bookable: (BOOKABLE_STATUSES as readonly string[]).includes(dep.status),
   };
 }
@@ -61,23 +61,17 @@ export async function holdSeats(departureId: string, input: HoldSeatsInput = {})
   const now = input.now ?? new Date();
   const ttl = input.ttlMinutes ?? SEAT_HOLD_TTL_MINUTES;
   return getDrizzle().transaction(async (tx) => {
-    const [dep] = await tx.select().from(departures).where(eq(departures.id, departureId)).for("update").limit(1);
+    const dep = await lockDepartureForUpdate(departureId, tx);
     if (!dep) throw codedError("DEPARTURE_SOLD_OUT", "Départ introuvable.");
     if (!(BOOKABLE_STATUSES as readonly string[]).includes(dep.status)) {
       throw codedError("DEPARTURE_SOLD_OUT", "Départ non réservable.");
     }
-    const confirmed = await tx
-      .select({ id: reservations.id })
-      .from(reservations)
-      .where(and(eq(reservations.departureId, departureId), inArray(reservations.status, ["confirmed", "balance_due", "completed"])));
-    const holds = await tx
-      .select({ quantity: seatHolds.quantity, expiresAt: seatHolds.expiresAt })
-      .from(seatHolds)
-      .where(and(eq(seatHolds.departureId, departureId), eq(seatHolds.status, "active")));
+    const confirmedSeats = await countConfirmedByDeparture(departureId, tx);
+    const holds = await getActiveHoldsByDeparture(departureId, tx);
     const heldSeats = holds
       .filter((h) => h.expiresAt.getTime() > now.getTime())
       .reduce((n, h) => n + h.quantity, 0);
-    if (!canHold({ capacityMax: dep.capacityMax, confirmedSeats: confirmed.length, heldSeats }, quantity)) {
+    if (!canHold({ capacityMax: dep.capacityMax, confirmedSeats, heldSeats }, quantity)) {
       throw codedError("DEPARTURE_SOLD_OUT", "Plus de place disponible sur ce départ.");
     }
     const [hold] = await tx
@@ -120,8 +114,8 @@ export async function expireHolds(now = new Date()): Promise<number> {
     .where(and(eq(seatHolds.status, "active"), lte(seatHolds.expiresAt, now)))
     .returning({ id: seatHolds.id });
   if (expired.length > 0) {
-    invalidateCache("trip:");
-    invalidateCache("trips:list");
+    await invalidateCache("trip:");
+    await invalidateCache("trips:list");
   }
   return expired.length;
 }

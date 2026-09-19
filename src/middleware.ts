@@ -9,8 +9,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   bootstrapModules();
 
   // ─── Request ID — corrélation transverse (TODO §20.4, opaque, sans PII) ──
-  const incomingId = context.request.headers.get("x-request-id")?.trim().slice(0, 128);
-  context.locals.requestId = incomingId || newRequestId();
+  // P0-M9 : n'accepte que les UUID valides, sinon régénère (anti-poisoning/collision).
+  const rawIncoming = context.request.headers.get("x-request-id")?.trim() ?? "";
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  context.locals.requestId = UUID_RE.test(rawIncoming) ? rawIncoming : newRequestId();
 
   // ─── Locale guard — reject invalid [lang] segments with 404 ─────
   // URLs canoniques en minuscules : /EN/.. et /Fr/.. redirigent (301) vers la
