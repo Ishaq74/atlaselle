@@ -3,7 +3,6 @@ import { serviceAvailabilitySchema, serviceFormSchema, serviceListFiltersSchema 
 import { canTransitionService } from "@/modules/services/workflow";
 
 const valid = {
-  organizationId: null,
   locale: "fr",
   title: "Consultation stratégique pour votre activité",
   slug: "consultation-strategique",

@@ -56,22 +56,6 @@ export async function assertBlogMediaExists(mediaId: string) {
   return media;
 }
 
-export async function assertPostInTenant(postId: string) {
-  return assertBlogPostExists(postId);
-}
-
-export async function assertCategoryInTenant(categoryId: string) {
-  return assertBlogCategoryExists(categoryId);
-}
-
-export async function assertTagInTenant(tagId: string) {
-  return assertBlogTagExists(tagId);
-}
-
-export async function assertMediaInTenant(mediaId: string) {
-  return assertBlogMediaExists(mediaId);
-}
-
 export function blogRateLimit(_context: ActionAPIContext, userId: string, scope: string, opts = { window: 60, max: 30 }) {
   const rl = checkRateLimit(`blog-${scope.replace(/:/g, "_")}:${userId}`, opts);
   if (!rl.allowed) throw new ActionError({ code: "TOO_MANY_REQUESTS", message: "Trop de requêtes. Veuillez réessayer dans quelques instants." });

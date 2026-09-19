@@ -10,8 +10,8 @@ vi.mock('@database/drizzle', () => ({
 }));
 
 vi.mock('@database/schemas', () => ({
-  mediaFolders: { id: 'id', organizationId: 'organizationId', parentId: 'parentId', sortOrder: 'sortOrder', name: 'name' },
-  mediaFiles: { id: 'id', organizationId: 'organizationId', folderId: 'folderId', createdAt: 'createdAt', size: 'size' },
+  mediaFolders: { id: 'id', parentId: 'parentId', sortOrder: 'sortOrder', name: 'name' },
+  mediaFiles: { id: 'id', folderId: 'folderId', createdAt: 'createdAt', size: 'size' },
   mediaFileAlts: { id: 'id', fileId: 'fileId' },
 }));
 

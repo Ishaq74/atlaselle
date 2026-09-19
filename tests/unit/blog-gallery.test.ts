@@ -29,8 +29,8 @@ vi.mock('@database/drizzle', () => ({
 vi.mock('@database/schemas', () => ({
   blogPostGalleries: { id: 'id', postId: 'postId' },
   blogPostGalleryMedia: { id: 'id', galleryId: 'galleryId', mediaId: 'mediaId' },
-  blogPosts: { id: 'id', organizationId: 'organizationId' },
-  mediaFiles: { id: 'id', organizationId: 'organizationId' },
+  blogPosts: { id: 'id' },
+  mediaFiles: { id: 'id' },
 }));
 
 vi.mock('@database/cache', () => ({ invalidateCache: vi.fn() }));
@@ -87,7 +87,7 @@ function selectChain(rows: any[]) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockSelect.mockImplementation(() => selectChain([{ id: 'post-1', organizationId: null }]));
+  mockSelect.mockImplementation(() => selectChain([{ id: 'post-1' }]));
   mockInsert.mockReturnValue({ values: () => ({ returning: () => Promise.resolve([{ id: 'gal-1' }]) }) });
   mockUpdate.mockReturnValue({ set: () => ({ where: () => Promise.resolve([]) }) });
   mockDelete.mockReturnValue({ where: () => Promise.resolve([]) });
@@ -96,7 +96,7 @@ beforeEach(() => {
 describe('blog gallery actions', () => {
   it('creates a gallery for a post', async () => {
     const res = await create.handler(
-      { postId: 'post-1', title: 'Mes photos', sortOrder: 0, organizationId: null },
+      { postId: 'post-1', title: 'Mes photos', sortOrder: 0 },
       adminCtx(),
     );
     expect(res.id).toBe('gal-1');
@@ -106,7 +106,7 @@ describe('blog gallery actions', () => {
   it('updates a gallery', async () => {
     mockSelect.mockImplementation(() => selectChain([{ id: 'gal-1', postId: 'post-1' }]));
     const res = await update.handler(
-      { id: 'gal-1', title: 'Nouveau titre', organizationId: null },
+      { id: 'gal-1', title: 'Nouveau titre' },
       adminCtx(),
     );
     expect(res.success).toBe(true);
@@ -116,13 +116,13 @@ describe('blog gallery actions', () => {
   it('throws NOT_FOUND when updating a missing gallery', async () => {
     mockSelect.mockImplementation(() => selectChain([]));
     await expect(
-      update.handler({ id: 'gal-1', organizationId: null }, adminCtx()),
+      update.handler({ id: 'gal-1' }, adminCtx()),
     ).rejects.toThrow();
   });
 
   it('deletes a gallery', async () => {
     mockSelect.mockImplementation(() => selectChain([{ id: 'gal-1', postId: 'post-1' }]));
-    const res = await del.handler({ id: 'gal-1', organizationId: null }, adminCtx());
+    const res = await del.handler({ id: 'gal-1' }, adminCtx());
     expect(res.success).toBe(true);
     expect(mockDelete).toHaveBeenCalledTimes(1);
   });
@@ -130,10 +130,10 @@ describe('blog gallery actions', () => {
   it('adds media to a gallery', async () => {
     mockSelect
       .mockImplementationOnce(() => selectChain([{ id: 'gal-1', postId: 'post-1' }]))
-      .mockImplementationOnce(() => selectChain([{ id: 'post-1', organizationId: null }]))
-      .mockImplementationOnce(() => selectChain([{ id: 'media-1', organizationId: null }]));
+      .mockImplementationOnce(() => selectChain([{ id: 'post-1' }]))
+      .mockImplementationOnce(() => selectChain([{ id: 'media-1' }]));
     const res = await addMedia.handler(
-      { galleryId: 'gal-1', mediaId: 'media-1', altText: 'alt', sortOrder: 0, organizationId: null },
+      { galleryId: 'gal-1', mediaId: 'media-1', altText: 'alt', sortOrder: 0 },
       adminCtx(),
     );
     expect(res.success).toBe(true);
@@ -145,7 +145,7 @@ describe('blog gallery actions', () => {
 
     await expect(
       addMedia.handler(
-        { galleryId: 'missing', mediaId: 'media-1', altText: 'alt', sortOrder: 0, organizationId: null },
+        { galleryId: 'missing', mediaId: 'media-1', altText: 'alt', sortOrder: 0 },
         adminCtx(),
       ),
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
@@ -156,7 +156,7 @@ describe('blog gallery actions', () => {
   it('removes media from a gallery', async () => {
     mockSelect.mockImplementation(() => selectChain([{ id: 'gal-1', postId: 'post-1' }]));
     const res = await removeMedia.handler(
-      { galleryId: 'gal-1', mediaId: 'media-1', organizationId: null },
+      { galleryId: 'gal-1', mediaId: 'media-1' },
       adminCtx(),
     );
     expect(res.success).toBe(true);

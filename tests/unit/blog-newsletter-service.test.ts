@@ -239,7 +239,7 @@ expect(insertedValues[0].token).toBeNull();
 
   it("atlaselleally confirms only a pending, unused, unexpired v2 token", async () => {
     rootUpdateResults.push([
-      { id: "subscriber-1", organizationId: "organization-1" },
+      { id: "subscriber-1" },
     ]);
     const token = `newsletter.confirm.v2.${"a".repeat(43)}`;
 
@@ -277,7 +277,7 @@ expect(compiled.sql).toContain('"confirmation_token_hash" =');
   });
 
   it("explicitly rotates a legacy confirmation token to a hashed unsubscribe token", async () => {
-    rootUpdateResults.push([{ id: "subscriber-1", organizationId: null }]);
+    rootUpdateResults.push([{ id: "subscriber-1" }]);
 
     const result = await blogNewsletterService.confirm({ token: "legacy-token" });
 
@@ -291,7 +291,7 @@ expect(rootSets[0]).toMatchObject({
   });
 
   it("consumes unsubscribe atlaselleally while preserving confirmation history", async () => {
-    rootUpdateResults.push([{ id: "subscriber-1", organizationId: null }]);
+    rootUpdateResults.push([{ id: "subscriber-1" }]);
     const token = `newsletter.unsubscribe.v2.${"b".repeat(43)}`;
 
     const result = await blogNewsletterService.unsubscribe({ token });

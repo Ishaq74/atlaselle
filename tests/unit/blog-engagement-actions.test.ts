@@ -32,7 +32,7 @@ vi.mock('@database/drizzle', () => ({
 }));
 
 vi.mock('@database/schemas', () => ({
-  blogPosts: { id: 'id', organizationId: 'organizationId', commentStatus: 'commentStatus', allowReviews: 'allowReviews', authorId: 'authorId', slug: 'slug', viewCount: 'viewCount', status: 'status', publishedAt: 'publishedAt' },
+  blogPosts: { id: 'id', commentStatus: 'commentStatus', allowReviews: 'allowReviews', authorId: 'authorId', slug: 'slug', viewCount: 'viewCount', status: 'status', publishedAt: 'publishedAt' },
   blogComments: { id: 'id', postId: 'postId', parentId: 'parentId', authorId: 'authorId', status: 'status', content: 'content', createdAt: 'createdAt' },
   blogCommentModerations: { id: 'id', commentId: 'commentId' },
   blogPostReviews: { id: 'id', postId: 'postId', authorId: 'authorId', status: 'status', rating: 'rating', helpfulCount: 'helpfulCount', createdAt: 'createdAt' },
@@ -152,7 +152,7 @@ beforeEach(() => {
 
 describe('createBlogComment', () => {
   it('rejects when comments are disabled on the post', async () => {
-    mockSelect.mockReturnValueOnce(makeChain([{ id: 'post-1', commentStatus: 'DISABLED', organizationId: null }]));
+    mockSelect.mockReturnValueOnce(makeChain([{ id: 'post-1', commentStatus: 'DISABLED' }]));
 
     await expect(
       createComment.handler({ postId: 'post-1', content: 'Hello there' }, guestCtx()),
@@ -160,7 +160,7 @@ describe('createBlogComment', () => {
   });
 
   it('allows a guest comment and sanitizes its content', async () => {
-    mockSelect.mockReturnValueOnce(makeChain([{ id: 'post-1', commentStatus: 'OPEN', organizationId: null }]));
+    mockSelect.mockReturnValueOnce(makeChain([{ id: 'post-1', commentStatus: 'OPEN' }]));
     const insertChain = makeMutationChain([{ id: 'comment-1', status: 'PENDING' }]);
     mockInsert.mockReturnValue(insertChain);
 
@@ -240,7 +240,7 @@ describe('moderateBlogComment', () => {
     mockInsert.mockReturnValue(makeMutationChain());
 
     const result = await moderateComment.handler(
-      { commentId: 'comment-1', moderationAction: 'APPROVE', organizationId: null },
+      { commentId: 'comment-1', moderationAction: 'APPROVE' },
       adminCtx(),
     );
 
@@ -261,7 +261,7 @@ describe('moderateBlogComment', () => {
       .mockReturnValueOnce(notificationInsert);
 
     await moderateComment.handler(
-      { commentId: 'comment-1', moderationAction: 'APPROVE', organizationId: null },
+      { commentId: 'comment-1', moderationAction: 'APPROVE' },
       adminCtx(),
     );
 
@@ -288,7 +288,7 @@ describe('createBlogReview', () => {
       mockInsert.mockReturnValue(notificationInsert);
 
       const result = await moderateReview.handler(
-        { reviewId: 'review-1', status: 'APPROVED', organizationId: null },
+        { reviewId: 'review-1', status: 'APPROVED' },
         adminCtx(),
       );
 
@@ -305,7 +305,7 @@ describe('createBlogReview', () => {
       mockUpdate.mockReturnValue(makeMutationChain());
 
       await moderateReview.handler(
-        { reviewId: 'review-1', status: 'REJECTED', organizationId: null },
+        { reviewId: 'review-1', status: 'REJECTED' },
         adminCtx(),
       );
 
@@ -473,7 +473,7 @@ describe('createBlogReport', () => {
         .mockReturnValueOnce(reportsChain);
 
       const result = await moderationQueue.handler(
-        { organizationId: null, page: 1, limit: 20 },
+        { page: 1, limit: 20 },
         adminCtx(),
       );
 

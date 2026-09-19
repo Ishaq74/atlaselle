@@ -24,8 +24,8 @@ vi.mock("@/lib/audit", () => ({ logAuditEvent: vi.fn(async () => undefined), ext
 vi.mock("@/lib/rate-limit", () => ({ checkRateLimit: vi.fn(() => ({ allowed: true, remaining: 10, resetAt: Date.now() + 60_000 })) }));
 vi.mock("@i18n/config", () => ({ LOCALES: ["fr", "en", "es", "ar"], DEFAULT_LOCALE: "fr" }));
 vi.mock("@database/schemas", () => ({
-  blogPosts: { id: "id", organizationId: "organizationId", authorId: "authorId", status: "status", slug: "slug", publishedAt: "publishedAt", isFeatured: "isFeatured", isSticky: "isSticky", commentStatus: "commentStatus", allowReviews: "allowReviews", seoScore: "seoScore", updatedBy: "updatedBy" },
-  blogPostTranslations: { id: "id", postId: "postId", organizationId: "organizationId", locale: "locale", title: "title", slug: "slug", content: "content", excerpt: "excerpt", updatedAt: "updatedAt" },
+  blogPosts: { id: "id", authorId: "authorId", status: "status", slug: "slug", publishedAt: "publishedAt", isFeatured: "isFeatured", isSticky: "isSticky", commentStatus: "commentStatus", allowReviews: "allowReviews", seoScore: "seoScore", updatedBy: "updatedBy" },
+  blogPostTranslations: { id: "id", postId: "postId", locale: "locale", title: "title", slug: "slug", content: "content", excerpt: "excerpt", updatedAt: "updatedAt" },
   blogPostCategories: { postId: "postId", categoryId: "categoryId" },
   blogPostTags: { postId: "postId", tagId: "tagId" },
   blogPostRevisions: { id: "id", postId: "postId", createdAt: "createdAt" },
@@ -34,9 +34,9 @@ vi.mock("@database/schemas", () => ({
   blogPostGalleryMedia: { galleryId: "galleryId", mediaId: "mediaId" },
   blogPostLinks: { id: "id", sourcePostId: "sourcePostId", targetPostId: "targetPostId", linkType: "linkType", sortOrder: "sortOrder" },
   blogPostLocks: { id: "id", postId: "postId", userId: "userId", expiresAt: "expiresAt" },
-  blogCategories: { id: "id", organizationId: "organizationId" },
-  blogTags: { id: "id", organizationId: "organizationId" },
-  mediaFiles: { id: "id", organizationId: "organizationId" },
+  blogCategories: { id: "id" },
+  blogTags: { id: "id" },
+  mediaFiles: { id: "id" },
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -118,8 +118,7 @@ describe("createBlogPost", () => {
       slug: "a-valid-title",
       content: "<p>content</p>",
       status: "DRAFT",
-      organizationId: null,
-    }, context());
+      }, context());
     expect(result).toEqual({ id: "post-1", slug: "a-valid-title" });
     expect(transaction).toHaveBeenCalledOnce();
   });
@@ -128,12 +127,12 @@ describe("createBlogPost", () => {
 describe("updateBlogPost", () => {
   it("accepts editorial changes without a lifecycle status", async () => {
     select
-      .mockReturnValueOnce(chain([{ id: "post-1", organizationId: null, status: "DRAFT" }]))
+      .mockReturnValueOnce(chain([{ id: "post-1", status: "DRAFT" }]))
       .mockReturnValueOnce(chain([]))
       .mockReturnValueOnce(chain([]))
       .mockReturnValueOnce(chain([]));
     const action = updateBlogPost as unknown as { handler: (input: unknown, ctx: unknown) => Promise<{ id: string }> };
-    const result = await action.handler({ id: "post-1", organizationId: null, locale: "fr", title: "Updated", slug: "updated", content: "<p>content</p>" }, context());
+    const result = await action.handler({ id: "post-1", locale: "fr", title: "Updated", slug: "updated", content: "<p>content</p>" }, context());
     expect(result).toEqual({ id: "post-1" });
   });
 });
@@ -141,25 +140,25 @@ describe("updateBlogPost", () => {
 describe("post lifecycle", () => {
   const handler = (action: unknown) => action as { handler: (input: unknown, ctx: unknown) => Promise<{ success: boolean }> };
   it("publishes only through publishBlogPost", async () => {
-    select.mockReturnValueOnce(chain([{ id: "post-1", organizationId: null, status: "DRAFT" }]));
-    expect(await handler(publishBlogPost).handler({ id: "post-1", organizationId: null }, context())).toEqual({ success: true });
+    select.mockReturnValueOnce(chain([{ id: "post-1", status: "DRAFT" }]));
+    expect(await handler(publishBlogPost).handler({ id: "post-1" }, context())).toEqual({ success: true });
     expect(update).toHaveBeenCalled();
   });
   it("unpublishes a published post", async () => {
-    select.mockReturnValueOnce(chain([{ id: "post-1", organizationId: null, status: "PUBLISHED" }]));
-    expect(await handler(unpublishBlogPost).handler({ id: "post-1", organizationId: null }, context())).toEqual({ success: true });
+    select.mockReturnValueOnce(chain([{ id: "post-1", status: "PUBLISHED" }]));
+    expect(await handler(unpublishBlogPost).handler({ id: "post-1" }, context())).toEqual({ success: true });
   });
   it("rejects illegal archive from deleted state", async () => {
-    select.mockReturnValueOnce(chain([{ id: "post-1", organizationId: null, status: "DELETED" }]));
-    await expect(handler(archiveBlogPost).handler({ id: "post-1", organizationId: null }, context())).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    select.mockReturnValueOnce(chain([{ id: "post-1", status: "DELETED" }]));
+    await expect(handler(archiveBlogPost).handler({ id: "post-1" }, context())).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
   it("restores an archived post to draft", async () => {
-    select.mockReturnValueOnce(chain([{ id: "post-1", organizationId: null, status: "ARCHIVED" }]));
-    expect(await handler(restoreBlogPost).handler({ id: "post-1", organizationId: null }, context())).toEqual({ success: true });
+    select.mockReturnValueOnce(chain([{ id: "post-1", status: "ARCHIVED" }]));
+    expect(await handler(restoreBlogPost).handler({ id: "post-1" }, context())).toEqual({ success: true });
   });
   it("soft deletes with a revision", async () => {
-    select.mockReturnValueOnce(chain([{ id: "post-1", organizationId: null, status: "DRAFT" }])).mockReturnValueOnce(chain([{ locale: "fr", title: "Title", slug: "title", content: "content", excerpt: null, updatedAt: new Date(), id: "t1" }]));
-    expect(await handler(deleteBlogPost).handler({ id: "post-1", organizationId: null }, context())).toEqual({ success: true });
+    select.mockReturnValueOnce(chain([{ id: "post-1", status: "DRAFT" }])).mockReturnValueOnce(chain([{ locale: "fr", title: "Title", slug: "title", content: "content", excerpt: null, updatedAt: new Date(), id: "t1" }]));
+    expect(await handler(deleteBlogPost).handler({ id: "post-1" }, context())).toEqual({ success: true });
     expect(transaction).toHaveBeenCalledOnce();
   });
 });

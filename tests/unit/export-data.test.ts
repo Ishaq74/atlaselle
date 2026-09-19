@@ -28,8 +28,6 @@ vi.mock('@database/drizzle', () => ({
     user: { id: 'id', name: 'name', email: 'email', emailVerified: 'ev', image: 'img', createdAt: 'ca', updatedAt: 'ua', username: 'u', displayUsername: 'du', role: 'role' },
     account: { id: 'id', providerId: 'pid', accountId: 'aid', createdAt: 'ca', userId: 'uid' },
     session: { id: 'id', createdAt: 'ca', expiresAt: 'ea', userId: 'uid' },
-    member: { id: 'id', organizationId: 'oid', role: 'role', createdAt: 'ca', userId: 'uid' },
-    invitation: { id: 'id', organizationId: 'oid', email: 'e', role: 'r', status: 's', createdAt: 'ca', inviterId: 'iid' },
     auditLog: { id: 'id', action: 'a', resource: 'r', resourceId: 'rid', createdAt: 'ca', userId: 'uid' },
   },
   withDbActorContext: vi.fn(async (_ctx: any, fn: any) => {

@@ -24,16 +24,16 @@ vi.mock("@/lib/audit", () => ({ logAuditEvent: vi.fn(async () => undefined), ext
 vi.mock("@/lib/rate-limit", () => ({ checkRateLimit: vi.fn(() => ({ allowed: true, remaining: 10, resetAt: Date.now() + 60_000 })) }));
 vi.mock("@i18n/config", () => ({ LOCALES: ["fr", "en", "es", "ar"], DEFAULT_LOCALE: "fr" }));
 vi.mock("@database/schemas", () => ({
-  services: { id: "id", organizationId: "organizationId", providerId: "providerId", slug: "slug", status: "status" },
-  serviceTranslations: { id: "id", serviceId: "serviceId", organizationId: "organizationId", locale: "locale", title: "title", slug: "slug", content: "content" },
+  services: { id: "id", providerId: "providerId", slug: "slug", status: "status" },
+  serviceTranslations: { id: "id", serviceId: "serviceId", locale: "locale", title: "title", slug: "slug", content: "content" },
   serviceCategoryLinks: { serviceId: "serviceId", categoryId: "categoryId" },
   serviceTagLinks: { serviceId: "serviceId", tagId: "tagId" },
   serviceSeo: { id: "id", serviceId: "serviceId", locale: "locale" },
   serviceRevisions: { serviceId: "serviceId" },
   serviceLocks: { serviceId: "serviceId", userId: "userId", sessionId: "sessionId", expiresAt: "expiresAt" },
-  serviceCategories: { id: "id", organizationId: "organizationId" },
-  serviceTags: { id: "id", organizationId: "organizationId" },
-  mediaFiles: { id: "id", organizationId: "organizationId" },
+  serviceCategories: { id: "id" },
+  serviceTags: { id: "id" },
+  mediaFiles: { id: "id" },
 }));
 
 const { permission, assertLockOwner } = vi.hoisted(() => ({
@@ -83,7 +83,6 @@ function context() {
 }
 
 const validCreate = {
-  organizationId: null,
   locale: "fr",
   title: "Service de conseil fiable",
   slug: "service-de-conseil-fiable",
@@ -119,11 +118,11 @@ describe("services admin CRUD actions", () => {
 
   it("updates the selected locale without changing lifecycle state", async () => {
     select
-      .mockReturnValueOnce(query([{ id: "service-1", organizationId: null, status: "DRAFT", providerId: "user-1" }]))
+      .mockReturnValueOnce(query([{ id: "service-1", status: "DRAFT", providerId: "user-1" }]))
       .mockReturnValueOnce(query([{ id: "translation-1", serviceId: "service-1", locale: "fr", title: "Old", slug: "old", content: "old content" }]))
       .mockReturnValueOnce(query([]));
 
-    await expect(updateAction.handler({ id: "00000000-0000-4000-8000-000000000001", organizationId: null, locale: "fr", title: "New title", slug: "new-title", content: "<p>new content</p>", categoryIds: [], tagIds: [] }, context())).resolves.toEqual({ id: "00000000-0000-4000-8000-000000000001" });
+    await expect(updateAction.handler({ id: "00000000-0000-4000-8000-000000000001", locale: "fr", title: "New title", slug: "new-title", content: "<p>new content</p>", categoryIds: [], tagIds: [] }, context())).resolves.toEqual({ id: "00000000-0000-4000-8000-000000000001" });
 
     expect(assertLockOwner).toHaveBeenCalledWith("00000000-0000-4000-8000-000000000001", "user-1", "session-1");
     expect(transaction).toHaveBeenCalledOnce();
@@ -132,7 +131,7 @@ describe("services admin CRUD actions", () => {
   it("stops before persistence when the service does not exist", async () => {
     select.mockReturnValueOnce(query([]));
 
-    await expect(updateAction.handler({ id: "00000000-0000-4000-8000-000000000001", organizationId: null, locale: "fr", title: "New title" }, context())).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(updateAction.handler({ id: "00000000-0000-4000-8000-000000000001", locale: "fr", title: "New title" }, context())).rejects.toMatchObject({ code: "NOT_FOUND" });
     expect(transaction).not.toHaveBeenCalled();
   });
 
@@ -140,7 +139,7 @@ describe("services admin CRUD actions", () => {
     select.mockReturnValueOnce(query([{ id: "00000000-0000-4000-8000-000000000001", status: "DRAFT", providerId: "user-1" }]));
     assertLockOwner.mockRejectedValueOnce(new Error("locked by another editor"));
 
-    await expect(updateAction.handler({ id: "00000000-0000-4000-8000-000000000001", organizationId: null, locale: "fr", title: "New title" }, context())).rejects.toThrow("locked by another editor");
+    await expect(updateAction.handler({ id: "00000000-0000-4000-8000-000000000001", locale: "fr", title: "New title" }, context())).rejects.toThrow("locked by another editor");
     expect(transaction).not.toHaveBeenCalled();
   });
 });

@@ -5,16 +5,15 @@ import type { ServiceListItem } from "@/modules/services/domain";
 import { formatServicePrice, formatServiceDuration, formatServiceRating } from "@/modules/services/utils";
 import { getServiceTranslations } from "@/modules/services/i18n";
 
-const { item, locale = "fr", variant = "default", organizationSlug = null } = Astro.props as {
+const { item, locale = "fr", variant = "default" } = Astro.props as {
   item: ServiceListItem;
   locale?: Locale;
   variant?: "default" | "compact" | "featured" | "horizontal";
-  organizationSlug?: string | null;
 };
 const t = getServiceTranslations(locale);
 const title = item.translation?.title ?? item.service.slug;
 const category = item.categories[0];
-const base = organizationSlug ? `/${locale}/organizations/${organizationSlug}/services` : `/${locale}/services`;
+const base = `/${locale}/services`;
 const href = category ? `${base}/${category.slug}/${item.translation?.slug ?? item.service.slug}` : `${base}/${item.translation?.slug ?? item.service.slug}`;
 const price = formatServicePrice(item.service.priceMinor, item.service.currency, locale);
 const duration = formatServiceDuration(item.service.durationMinutes);

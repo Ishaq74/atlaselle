@@ -4,7 +4,6 @@ import { serviceAdminFiltersSchema } from "@/modules/services/validation";
 describe("Services admin contract", () => {
   it("accepts every supported filter and normalizes booleans", () => {
     const result = serviceAdminFiltersSchema.parse({
-      organizationId: "org-1",
       page: "2",
       limit: "50",
       search: "plombier",

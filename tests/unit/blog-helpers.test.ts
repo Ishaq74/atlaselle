@@ -22,10 +22,10 @@ vi.mock('@database/drizzle', () => ({
 }));
 
 vi.mock('@database/schemas', () => ({
-  blogPosts: { id: 'id', organizationId: 'organizationId' },
-  blogCategories: { id: 'id', organizationId: 'organizationId' },
-  blogTags: { id: 'id', organizationId: 'organizationId' },
-  mediaFiles: { id: 'id', organizationId: 'organizationId' },
+  blogPosts: { id: 'id' },
+  blogCategories: { id: 'id' },
+  blogTags: { id: 'id' },
+  mediaFiles: { id: 'id' },
 }));
 
 vi.mock('@/lib/auth', () => ({
@@ -48,10 +48,10 @@ vi.mock('@database/cache', () => ({ invalidateCache: vi.fn() }));
 
 import {
   assertBlogPermission,
-  assertCategoryInTenant,
-  assertMediaInTenant,
-  assertPostInTenant,
-  assertTagInTenant,
+  assertBlogCategoryExists,
+  assertBlogMediaExists,
+  assertBlogPostExists,
+  assertBlogTagExists,
   hasBlogPermission,
   invalidateBlogCache,
 } from '@/actions/blog/_helpers';
@@ -130,39 +130,39 @@ describe('assertBlogPermission', () => {
   });
 });
 
-describe('tenant resource guards (single-tenant: existence only)', () => {
+describe('resource existence guards (single-tenant)', () => {
   it('resolves an existing post', async () => {
-    const row = { id: 'post-1', organizationId: null };
+    const row = { id: 'post-1' };
     mockSelect.mockReturnValueOnce(selectChain([row]));
 
-    await expect(assertPostInTenant('post-1')).resolves.toEqual(row);
+    await expect(assertBlogPostExists('post-1')).resolves.toEqual(row);
   });
 
   it('rejects a missing post', async () => {
     mockSelect.mockReturnValueOnce(selectChain([]));
 
-    await expect(assertPostInTenant('missing')).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await expect(assertBlogPostExists('missing')).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 
   it('resolves an existing category', async () => {
-    const row = { id: 'cat-1', organizationId: null };
+    const row = { id: 'cat-1' };
     mockSelect.mockReturnValueOnce(selectChain([row]));
 
-    await expect(assertCategoryInTenant('cat-1')).resolves.toEqual(row);
+    await expect(assertBlogCategoryExists('cat-1')).resolves.toEqual(row);
   });
 
   it('resolves an existing tag', async () => {
-    const row = { id: 'tag-1', organizationId: null };
+    const row = { id: 'tag-1' };
     mockSelect.mockReturnValueOnce(selectChain([row]));
 
-    await expect(assertTagInTenant('tag-1')).resolves.toEqual(row);
+    await expect(assertBlogTagExists('tag-1')).resolves.toEqual(row);
   });
 
   it('resolves existing media', async () => {
-    const row = { id: 'media-1', organizationId: null };
+    const row = { id: 'media-1' };
     mockSelect.mockReturnValueOnce(selectChain([row]));
 
-    await expect(assertMediaInTenant('media-1')).resolves.toEqual(row);
+    await expect(assertBlogMediaExists('media-1')).resolves.toEqual(row);
   });
 });
 

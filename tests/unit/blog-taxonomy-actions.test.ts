@@ -25,10 +25,10 @@ vi.mock('@database/drizzle', () => ({
 }));
 
 vi.mock('@database/schemas', () => ({
-  blogCategories: { id: 'id', organizationId: 'organizationId', slug: 'slug', parentId: 'parentId' },
+  blogCategories: { id: 'id', slug: 'slug', parentId: 'parentId' },
   blogCategoryTranslations: { id: 'id', categoryId: 'categoryId', locale: 'locale', slug: 'slug' },
   blogPostCategories: { postId: 'postId', categoryId: 'categoryId' },
-  blogTags: { id: 'id', organizationId: 'organizationId', slug: 'slug' },
+  blogTags: { id: 'id', slug: 'slug' },
   blogTagTranslations: { id: 'id', tagId: 'tagId', locale: 'locale', slug: 'slug' },
   blogPostTags: { postId: 'postId', tagId: 'tagId' },
 }));
@@ -107,7 +107,7 @@ describe('createBlogCategory', () => {
     mockInsert.mockReturnValue(makeMutationChain([{ id: 'cat-1' }]));
 
     const result = await createCategory.handler(
-      { locale: 'fr', name: 'Voyage', slug: 'voyage', organizationId: null },
+      { locale: 'fr', name: 'Voyage', slug: 'voyage' },
       adminCtx(),
     );
 
@@ -118,7 +118,7 @@ describe('createBlogCategory', () => {
     mockSelect.mockReturnValueOnce(makeChain([{ id: 'existing-cat' }]));
 
     await expect(
-      createCategory.handler({ locale: 'fr', name: 'Voyage', slug: 'voyage', organizationId: null }, adminCtx()),
+      createCategory.handler({ locale: 'fr', name: 'Voyage', slug: 'voyage' }, adminCtx()),
     ).rejects.toMatchObject({ code: 'CONFLICT' });
   });
 });
@@ -128,19 +128,19 @@ describe('updateBlogCategory', () => {
     mockSelect.mockReturnValueOnce(makeChain([]));
 
     await expect(
-      updateCategory.handler({ id: 'missing', organizationId: null, name: 'x' }, adminCtx()),
+      updateCategory.handler({ id: 'missing', name: 'x' }, adminCtx()),
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 
   it('updates a category in the same tenant', async () => {
     mockSelect
-      .mockReturnValueOnce(makeChain([{ id: 'cat-1', organizationId: null }])) // assertCategoryInTenant
+      .mockReturnValueOnce(makeChain([{ id: 'cat-1' }])) // existence check
       .mockReturnValueOnce(makeChain([])); // existing translation lookup
     mockUpdate.mockReturnValue(makeMutationChain());
     mockInsert.mockReturnValue(makeMutationChain());
 
     const result = await updateCategory.handler(
-      { id: 'cat-1', organizationId: null, locale: 'fr', name: 'Nouveau nom' },
+      { id: 'cat-1', locale: 'fr', name: 'Nouveau nom' },
       adminCtx(),
     );
 
@@ -151,15 +151,15 @@ describe('updateBlogCategory', () => {
 describe('deleteBlogCategory', () => {
   it('reassigns posts to another category before deleting', async () => {
     mockSelect
-      .mockReturnValueOnce(makeChain([{ id: 'cat-1', organizationId: null }])) // assertCategoryInTenant (target)
-      .mockReturnValueOnce(makeChain([{ id: 'cat-2', organizationId: null }])) // assertCategoryInTenant (reassignTo)
+      .mockReturnValueOnce(makeChain([{ id: 'cat-1' }])) // existence check
+      .mockReturnValueOnce(makeChain([{ id: 'cat-2' }])) // existence check
       .mockReturnValueOnce(makeChain([{ postId: 'post-1' }])); // affected post-category relations
     const insertChain = makeMutationChain();
     mockInsert.mockReturnValue(insertChain);
     mockDelete.mockReturnValue(makeMutationChain());
 
     const result = await deleteCategory.handler(
-      { id: 'cat-1', organizationId: null, reassignToId: 'cat-2' },
+      { id: 'cat-1', reassignToId: 'cat-2' },
       adminCtx(),
     );
 
@@ -174,7 +174,7 @@ describe('createBlogTag', () => {
     mockSelect.mockReturnValueOnce(makeChain([])).mockReturnValueOnce(makeChain([]));
     mockInsert.mockReturnValue(makeMutationChain([{ id: 'tag-1' }]));
 
-    const result = await createTag.handler({ locale: 'fr', name: 'Randonnée', slug: 'randonnee', organizationId: null }, adminCtx());
+    const result = await createTag.handler({ locale: 'fr', name: 'Randonnée', slug: 'randonnee' }, adminCtx());
 
     expect(result).toEqual({ id: 'tag-1', slug: 'randonnee' });
   });
@@ -183,7 +183,7 @@ describe('createBlogTag', () => {
     mockSelect.mockReturnValueOnce(makeChain([{ id: 'existing-tag' }]));
 
     await expect(
-      createTag.handler({ locale: 'fr', name: 'Randonnée', slug: 'randonnee', organizationId: null }, adminCtx()),
+      createTag.handler({ locale: 'fr', name: 'Randonnée', slug: 'randonnee' }, adminCtx()),
     ).rejects.toMatchObject({ code: 'CONFLICT' });
   });
 });
@@ -193,17 +193,17 @@ describe('updateBlogTag', () => {
     mockSelect.mockReturnValueOnce(makeChain([]));
 
     await expect(
-      updateTag.handler({ id: 'missing', organizationId: null, name: 'x' }, adminCtx()),
+      updateTag.handler({ id: 'missing', name: 'x' }, adminCtx()),
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 });
 
 describe('deleteBlogTag', () => {
   it('deletes tag associations then the tag itself', async () => {
-    mockSelect.mockReturnValueOnce(makeChain([{ id: 'tag-1', organizationId: null }]));
+    mockSelect.mockReturnValueOnce(makeChain([{ id: 'tag-1' }]));
     mockDelete.mockReturnValue(makeMutationChain());
 
-    const result = await deleteTag.handler({ id: 'tag-1', organizationId: null }, adminCtx());
+    const result = await deleteTag.handler({ id: 'tag-1' }, adminCtx());
 
     expect(result).toEqual({ success: true });
     expect(mockDelete).toHaveBeenCalledTimes(2);

@@ -31,18 +31,17 @@ vi.mock('@database/drizzle', () => ({
 
 vi.mock('@database/schemas', () => ({
   blogPostLinks: { id: 'id', sourcePostId: 'sourcePostId', targetPostId: 'targetPostId' },
-  blogPosts: { id: 'id', organizationId: 'organizationId', status: 'status' },
+  blogPosts: { id: 'id', status: 'status' },
   blogPostTranslations: {
     id: 'id',
     postId: 'postId',
-    organizationId: 'organizationId',
     locale: 'locale',
     content: 'content',
     slug: 'slug',
   },
-  blogCategories: { id: 'id', organizationId: 'organizationId' },
-  blogTags: { id: 'id', organizationId: 'organizationId' },
-  mediaFiles: { id: 'id', organizationId: 'organizationId' },
+  blogCategories: { id: 'id' },
+  blogTags: { id: 'id' },
+  mediaFiles: { id: 'id' },
 }));
 
 vi.mock('@database/cache', () => ({ invalidateCache: vi.fn() }));
@@ -98,7 +97,7 @@ function selectChain(rows: any[]) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockSelect.mockImplementation(() => selectChain([{ id: 'post-1', organizationId: null }]));
+  mockSelect.mockImplementation(() => selectChain([{ id: 'post-1' }]));
   mockInsert.mockReturnValue({ values: () => ({ returning: () => Promise.resolve([{ id: 'link-1' }]) }) });
   mockUpdate.mockReturnValue({ set: () => ({ where: () => Promise.resolve([]) }) });
   mockDelete.mockReturnValue({ where: () => Promise.resolve([]) });
@@ -108,29 +107,29 @@ beforeEach(() => {
 describe('checkBlogPostLinks', () => {
   it('rejects explicit self-links', async () => {
     mockSelect
-      .mockImplementationOnce(() => selectChain([{ id: 'post-1', organizationId: null }]))
+      .mockImplementationOnce(() => selectChain([{ id: 'post-1' }]))
       .mockImplementationOnce(() => selectChain([
         { id: 'link-1', linkType: 'RELATED', targetPostId: 'post-1' },
       ]));
 
     await expect(
-      check.handler({ postId: 'post-1', locale: 'fr', organizationId: null }, adminCtx()),
+      check.handler({ postId: 'post-1', locale: 'fr' }, adminCtx()),
     ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
   });
 
   it('resolves explicit targets in the same (global) scope as alive', async () => {
     mockSelect
-      .mockImplementationOnce(() => selectChain([{ id: 'post-1', organizationId: null }]))
+      .mockImplementationOnce(() => selectChain([{ id: 'post-1' }]))
       .mockImplementationOnce(() => selectChain([
         { id: 'link-1', linkType: 'RELATED', targetPostId: 'post-2' },
       ]))
-      .mockImplementationOnce(() => selectChain([{ id: 'post-2', organizationId: null }]))
+      .mockImplementationOnce(() => selectChain([{ id: 'post-2' }]))
       .mockImplementationOnce(() => selectChain([
         { content: '<p>Content</p>', slug: 'source-post' },
       ]));
 
     const result = await check.handler(
-      { postId: 'post-1', locale: 'fr', organizationId: null },
+      { postId: 'post-1', locale: 'fr' },
       adminCtx(),
     );
 
@@ -141,7 +140,7 @@ describe('checkBlogPostLinks', () => {
 describe('blog link actions', () => {
   it('creates a link between two posts', async () => {
     const res = await create.handler(
-      { sourcePostId: 'post-1', targetPostId: 'post-2', linkType: 'RELATED', sortOrder: 0, organizationId: null },
+      { sourcePostId: 'post-1', targetPostId: 'post-2', linkType: 'RELATED', sortOrder: 0 },
       adminCtx(),
     );
     expect(res.id).toBe('link-1');
@@ -151,7 +150,7 @@ describe('blog link actions', () => {
   it('updates a link', async () => {
     mockSelect.mockImplementation(() => selectChain([{ id: 'link-1', sourcePostId: 'post-1', targetPostId: 'post-1' }]));
     const res = await update.handler(
-      { id: 'link-1', linkType: 'CROSS_REFERENCE', organizationId: null },
+      { id: 'link-1', linkType: 'CROSS_REFERENCE' },
       adminCtx(),
     );
     expect(res.success).toBe(true);
@@ -161,13 +160,13 @@ describe('blog link actions', () => {
   it('throws NOT_FOUND when updating a missing link', async () => {
     mockSelect.mockImplementation(() => selectChain([]));
     await expect(
-      update.handler({ id: 'link-1', organizationId: null }, adminCtx()),
+      update.handler({ id: 'link-1' }, adminCtx()),
     ).rejects.toThrow();
   });
 
   it('deletes a link', async () => {
     mockSelect.mockImplementation(() => selectChain([{ id: 'link-1', sourcePostId: 'post-1', targetPostId: 'post-1' }]));
-    const res = await del.handler({ id: 'link-1', organizationId: null }, adminCtx());
+    const res = await del.handler({ id: 'link-1' }, adminCtx());
     expect(res.success).toBe(true);
     expect(mockDelete).toHaveBeenCalledTimes(1);
   });

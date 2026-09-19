@@ -12,7 +12,7 @@ async function dataset(schemaExport: string): Promise<Row[]> {
 }
 
 describe("Services seed invariants", () => {
-  it("preserves tenant ownership across Services relationships", async () => {
+  it("keeps Services relationships referentially consistent (single-tenant, no org scoping)", async () => {
     const services = await dataset("services");
     const translations = await dataset("serviceTranslations");
     const categories = await dataset("serviceCategories");
@@ -25,40 +25,35 @@ describe("Services seed invariants", () => {
     const categoryById = new Map(categories.map((row) => [row.id, row]));
     const tagById = new Map(tags.map((row) => [row.id, row]));
 
+    for (const row of [...services, ...categories, ...tags] as Row[]) {
+      expect(row, "seed rows carry no organization scoping").not.toHaveProperty("organizationId");
+    }
+
     for (const row of translations) {
       const service = serviceById.get(row.serviceId);
       expect(service, `unknown service ${String(row.serviceId)}`).toBeDefined();
-      expect(row.organizationId).toBe(service?.organizationId);
       expect(row.locale).toMatch(/^(fr|en|es|ar)$/);
       expect(row.slug).toMatch(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     }
     for (const row of categoryTranslations) {
       const category = categoryById.get(row.categoryId);
       expect(category, `unknown category ${String(row.categoryId)}`).toBeDefined();
-      expect(row.organizationId).toBe(category?.organizationId);
       expect(row.locale).toMatch(/^(fr|en|es|ar)$/);
       expect(row.slug).toMatch(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     }
     for (const row of tagTranslations) {
       const tag = tagById.get(row.tagId);
       expect(tag, `unknown tag ${String(row.tagId)}`).toBeDefined();
-      expect(row.organizationId).toBe(tag?.organizationId);
       expect(row.locale).toMatch(/^(fr|en|es|ar)$/);
       expect(row.slug).toMatch(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
     }
     for (const row of categoryLinks) {
-      const service = serviceById.get(row.serviceId);
-      const category = categoryById.get(row.categoryId);
-      expect(service).toBeDefined();
-      expect(category).toBeDefined();
-      expect(service?.organizationId).toBe(category?.organizationId);
+      expect(serviceById.get(row.serviceId)).toBeDefined();
+      expect(categoryById.get(row.categoryId)).toBeDefined();
     }
     for (const row of tagLinks) {
-      const service = serviceById.get(row.serviceId);
-      const tag = tagById.get(row.tagId);
-      expect(service).toBeDefined();
-      expect(tag).toBeDefined();
-      expect(service?.organizationId).toBe(tag?.organizationId);
+      expect(serviceById.get(row.serviceId)).toBeDefined();
+      expect(tagById.get(row.tagId)).toBeDefined();
     }
   });
 
