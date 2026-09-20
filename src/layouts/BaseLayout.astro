@@ -62,12 +62,12 @@ function toNavLinks(tree: NavTreeItem[]): NavLink[] {
 }
 
 const publicNav = locale === "fr"
-  ? [{ label: "Voyages", href: "/fr/voyages/sicile-malte" }, { label: "FAQ", href: "/fr/faq" }, { label: "Conditions", href: "/fr/terms" }]
+  ? [{ label: "Voyages", href: "/fr/trips" }, { label: "Blog", href: "/fr/blog" }, { label: "Contact", href: "/fr/contact" }]
   : locale === "ar"
-    ? [{ label: "الرحلات", href: "/ar/trips/sicily-malta" }, { label: "الأسئلة الشائعة", href: "/ar/faq" }, { label: "الشروط", href: "/ar/terms" }]
+    ? [{ label: "الرحلات", href: "/ar/trips" }, { label: "المدونة", href: "/ar/blog" }, { label: "اتصلي بنا", href: "/ar/contact" }]
     : locale === "es"
-      ? [{ label: "Viajes", href: "/es/viajes/sicilia-malta" }, { label: "Preguntas frecuentes", href: "/es/faq" }, { label: "Condiciones", href: "/es/terms" }]
-      : [{ label: "Journeys", href: "/en/trips/sicily-malta" }, { label: "FAQ", href: "/en/faq" }, { label: "Terms", href: "/en/terms" }];
+      ? [{ label: "Viajes", href: "/es/viajes" }, { label: "Blog", href: "/es/blog" }, { label: "Contacto", href: "/es/contacto" }]
+      : [{ label: "Trips", href: "/en/trips" }, { label: "Blog", href: "/en/blog" }, { label: "Contact", href: "/en/contact" }];
 const links: NavLink[] = headerNav.length > 0 ? toNavLinks(headerNav) : publicNav;
 
 // Map DB nav items → FooterLink[]

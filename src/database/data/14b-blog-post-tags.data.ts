@@ -1,2 +1,24 @@
-// PURGE 2026-09-20 — contenu obsolete Demo/Annecy supprime. Dataset vide volontaire (seed SKIP). Remplacement voyage dans 41-47 + medias 00-00c.
-export default [];
+// Blog post ↔ tag junctions (2-3 tags par article).
+export default [
+  { postId: "9b4d8fef-badd-4787-ae7b-d91f7c7107c3", tagId: "77d41813-1664-4cd6-9d89-e8279ef3315b" },
+  { postId: "9b4d8fef-badd-4787-ae7b-d91f7c7107c3", tagId: "cf4f4d87-13da-4e3a-a9ed-29dbeefb42f7" },
+  { postId: "9b4d8fef-badd-4787-ae7b-d91f7c7107c3", tagId: "9e1dd7d8-de2e-4de0-906c-381852fa5854" },
+  { postId: "39ee3d3f-56be-4097-915c-db53b8bf927f", tagId: "61f272a5-ba9c-479b-b85a-8bbd24839471" },
+  { postId: "39ee3d3f-56be-4097-915c-db53b8bf927f", tagId: "9e1dd7d8-de2e-4de0-906c-381852fa5854" },
+  { postId: "d7d77012-392f-49ad-8b72-e5860a1eff5a", tagId: "61f272a5-ba9c-479b-b85a-8bbd24839471" },
+  { postId: "d7d77012-392f-49ad-8b72-e5860a1eff5a", tagId: "9e1dd7d8-de2e-4de0-906c-381852fa5854" },
+  { postId: "335960c7-43bb-44eb-84fb-3bb7b2f5969b", tagId: "61f272a5-ba9c-479b-b85a-8bbd24839471" },
+  { postId: "335960c7-43bb-44eb-84fb-3bb7b2f5969b", tagId: "7c03e6e4-9585-4516-8c67-b32047b0bd4c" },
+  { postId: "cc564fbf-0a61-4554-a5dc-a30fbfb5fb83", tagId: "61f272a5-ba9c-479b-b85a-8bbd24839471" },
+  { postId: "cc564fbf-0a61-4554-a5dc-a30fbfb5fb83", tagId: "0ba46b94-a32d-4883-9406-c6b0fc0c0a7c" },
+  { postId: "c4092370-2aa2-4986-ac3d-9ee0c40622cc", tagId: "bb00a3d9-0175-4947-a062-124101bf7dad" },
+  { postId: "c4092370-2aa2-4986-ac3d-9ee0c40622cc", tagId: "9166a075-a8d2-468d-a32b-94150403bc89" },
+  { postId: "e58bf5f3-629e-433f-a53c-804f3de36783", tagId: "9166a075-a8d2-468d-a32b-94150403bc89" },
+  { postId: "e58bf5f3-629e-433f-a53c-804f3de36783", tagId: "bb00a3d9-0175-4947-a062-124101bf7dad" },
+  { postId: "2e254fa0-937a-4575-859c-79b037ee095c", tagId: "dc3bcf8f-bece-434a-a1ad-83c3e017303f" },
+  { postId: "2e254fa0-937a-4575-859c-79b037ee095c", tagId: "4a33b847-a7e7-4d07-b2af-c41b240b91e7" },
+  { postId: "e4eade2e-cb1c-4852-a326-ab1e77149b82", tagId: "f7c5f866-4ec2-46fb-a069-90467010a93a" },
+  { postId: "e4eade2e-cb1c-4852-a326-ab1e77149b82", tagId: "44b635cc-7a45-40f3-8b1f-6df8ba5429f4" },
+  { postId: "2ae90d0f-fa6d-45d8-996f-45d3c1a7060f", tagId: "4a33b847-a7e7-4d07-b2af-c41b240b91e7" },
+  { postId: "2ae90d0f-fa6d-45d8-996f-45d3c1a7060f", tagId: "bb00a3d9-0175-4947-a062-124101bf7dad" },
+];

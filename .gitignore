@@ -55,3 +55,9 @@ coverage/
 email-dead-letter-*.jsonl
 audit-fallback-*.jsonl
 logs/
+
+# documents
+
+*.docs
+*.docx
+*.csv

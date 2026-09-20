@@ -3,7 +3,6 @@ import {
   ABOUT_SEGMENT,
   APPLY_SEGMENT,
   CONTACT_SEGMENT,
-  FAQ_SEGMENT,
   PRIVACY_SEGMENT,
   TERMS_SEGMENT,
   TRIP_LIST_SEGMENT,
@@ -12,7 +11,6 @@ import {
   getTripPath,
   getTripSlug,
   getTripsBasePath,
-  getFaqPath,
   getTermsPath,
   getPrivacyPath,
   getAboutPath,
@@ -25,7 +23,7 @@ import {
 import type { Locale } from '@/i18n/config';
 
 const LOCALES: Locale[] = ['fr', 'en', 'es', 'ar'];
-const TRIP_IDS: TripId[] = ['south-africa', 'sicily-malta', 'andalusia-morocco'];
+const TRIP_IDS: TripId[] = ['algeria', 'sicily-malta', 'andalusia-morocco', 'bosnia', 'silkroad'];
 
 describe('ROUTE_SEGMENTS (TODO Annexe A)', () => {
   it('exposes the translated trip-list segment per locale', () => {
@@ -36,8 +34,8 @@ describe('ROUTE_SEGMENTS (TODO Annexe A)', () => {
     expect(APPLY_SEGMENT).toEqual({ fr: 'candidature', en: 'apply', ar: 'apply', es: 'postulacion' });
   });
 
-  it('exposes faq / terms / privacy / about / contact segments per locale', () => {
-    expect(FAQ_SEGMENT).toEqual({ fr: 'faq', en: 'faq', ar: 'faq', es: 'faq' });
+  it('exposes terms / privacy / about / contact segments per locale', () => {
+
     expect(TERMS_SEGMENT).toEqual({ fr: 'conditions', en: 'terms', ar: 'terms', es: 'terminos' });
     expect(PRIVACY_SEGMENT).toEqual({ fr: 'confidentialite', en: 'privacy', ar: 'privacy', es: 'privacidad' });
     expect(ABOUT_SEGMENT).toEqual({ fr: 'a-propos', en: 'about', ar: 'about', es: 'acerca-de' });
@@ -46,8 +44,8 @@ describe('ROUTE_SEGMENTS (TODO Annexe A)', () => {
 });
 
 describe('TRIP_SLUGS (TODO Annexe A.1)', () => {
-  it('matches the reference table for the 3 initial trips', () => {
-    expect(TRIP_SLUGS['south-africa']).toEqual({ fr: 'afrique-du-sud', en: 'south-africa', ar: 'south-africa', es: 'sudafrica' });
+  it('matches the reference table for the 5 published trips', () => {
+    expect(TRIP_SLUGS['algeria']).toEqual({ fr: 'algerie', en: 'algeria', ar: 'algeria', es: 'argelia' });
     expect(TRIP_SLUGS['sicily-malta']).toEqual({ fr: 'sicile-malte', en: 'sicily-malta', ar: 'sicily-malta', es: 'sicilia-malta' });
     expect(TRIP_SLUGS['andalusia-morocco']).toEqual({
       fr: 'andalousie-maroc',
@@ -107,7 +105,7 @@ describe('resolveLocalizedRoute (middleware rewrite → routes physiques)', () =
   });
 
   it('returns null when nothing to rewrite', () => {
-    expect(resolveLocalizedRoute('/en/trips/south-africa')).toBeNull();
+    expect(resolveLocalizedRoute('/en/trips/algeria')).toBeNull();
     expect(resolveLocalizedRoute('/ar/apply/sicily-malta')).toBeNull();
     expect(resolveLocalizedRoute('/fr/a-propos')).toBeNull();
     expect(resolveLocalizedRoute('/fr/candidature')).toBeNull();
@@ -124,8 +122,8 @@ describe('resolveLocalizedRoute (middleware rewrite → routes physiques)', () =
 });
 
 describe('structural path getters', () => {
-  it('faq/terms/privacy/about/contact paths per locale', () => {
-    expect(getFaqPath('fr')).toBe('/fr/faq');
+  it('terms/privacy/about/contact paths per locale', () => {
+
     expect(getTermsPath('fr')).toBe('/fr/conditions');
     expect(getTermsPath('es')).toBe('/es/terminos');
     expect(getPrivacyPath('fr')).toBe('/fr/confidentialite');
@@ -149,7 +147,7 @@ describe('structural path getters', () => {
 
 describe('trip path helpers (source unique routes.ts, DB en prod)', () => {
   it('getTripSlug couvre les 3 voyages × 4 locales', () => {
-    for (const id of ['south-africa', 'sicily-malta', 'andalusia-morocco'] as TripId[]) {
+    for (const id of TRIP_IDS) {
       for (const locale of LOCALES) {
         expect(getTripSlug(id, locale)).toBe(TRIP_SLUGS[id][locale]);
       }
@@ -157,8 +155,8 @@ describe('trip path helpers (source unique routes.ts, DB en prod)', () => {
   });
 
   it('isTripDetailPath reconnaît les fiches', () => {
-    expect(isTripDetailPath('/fr/voyages/afrique-du-sud')).toBe(true);
-    expect(isTripDetailPath('/en/trips/south-africa')).toBe(true);
+    expect(isTripDetailPath('/fr/voyages/algerie')).toBe(true);
+    expect(isTripDetailPath('/en/trips/algeria')).toBe(true);
     expect(isTripDetailPath('/fr/voyages')).toBe(false);
     expect(isTripDetailPath('/en/trips/unknown')).toBe(false);
   });

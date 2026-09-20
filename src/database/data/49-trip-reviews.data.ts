@@ -1,9 +1,11 @@
 // Trip reviews — approved + pending, gabarit blog 17 + services 34.
 // UNIQUE(tripId, authorId) respected: one review per user per trip.
+// Compteurs 41-trips cohérents : algeria (5+4)/2=450 count 2 ·
+// andalusia 500/1 · sicily-malta 500/1 (le PENDING n'est pas compté).
 export default [
   {
-    id: "t9000000-0000-0000-0000-000000000001",
-    tripId: "trip-algeria",
+    id: "1f69f2c3-b737-4ab0-b2ec-0c9b20298927",
+    tripId: "26cf16d8-0770-48f9-870e-c68c9a9c47e0",
     authorId: "11111111-1111-1111-1111-111111111111",
     rating: 5,
     title: "Parfait pour un premier grand voyage",
@@ -16,9 +18,9 @@ export default [
     updatedAt: new Date("2026-09-11T10:00:00.000Z"),
   },
   {
-    id: "t9000000-0000-0000-0000-000000000002",
-    tripId: "trip-algeria",
-    authorId: "22222222-2222-2222-2222-222222222222",
+    id: "44c385b0-9996-48ec-aad4-dedcc0c47e70",
+    tripId: "26cf16d8-0770-48f9-870e-c68c9a9c47e0",
+    authorId: "44444444-4444-4444-4444-444444444444",
     rating: 4,
     title: "Très beau voyage, météo capricieuse",
     content: "Désert et oasis superbes. Prévoir coupe-vent pour les soirées.",
@@ -30,8 +32,8 @@ export default [
     updatedAt: new Date("2026-09-11T11:00:00.000Z"),
   },
   {
-    id: "t9000000-0000-0000-0000-000000000003",
-    tripId: "trip-sicily-malta",
+    id: "e2faff61-f8cc-4ed8-ad87-43718b3b2cad",
+    tripId: "b912b620-1d69-448f-a289-4790b4ce271c",
     authorId: "11111111-1111-1111-1111-111111111111",
     rating: 5,
     title: "Two islands, one smooth crossing",
@@ -44,9 +46,9 @@ export default [
     updatedAt: new Date("2026-09-13T10:00:00.000Z"),
   },
   {
-    id: "t9000000-0000-0000-0000-000000000004",
-    tripId: "trip-sicily-malta",
-    authorId: "22222222-2222-2222-2222-222222222222",
+    id: "fa105fd6-db2c-4d15-bb04-15b22bd693de",
+    tripId: "b912b620-1d69-448f-a289-4790b4ce271c",
+    authorId: "66666666-6666-6666-6666-666666666666",
     rating: 3,
     title: "Beau parcours, version pluie à prévoir",
     content: "Structure excellente. Une alternative jour de pluie et plus de détails sur les traversées rendraient le voyage complet.",
@@ -58,9 +60,9 @@ export default [
     updatedAt: new Date("2026-09-13T11:00:00.000Z"),
   },
   {
-    id: "t9000000-0000-0000-0000-000000000005",
-    tripId: "trip-andalusia-morocco",
-    authorId: "22222222-2222-2222-2222-222222222222",
+    id: "9847d987-3a61-4300-bdb7-7a47f64d421b",
+    tripId: "22b3db08-f245-44eb-8ee2-a858eb7e25c4",
+    authorId: "33333333-3333-3333-3333-333333333333",
     rating: 5,
     title: "Traversée intimiste réussie",
     content: "Grenade, Chefchaouen et Tanger en petit groupe — guides locaux remarquables.",

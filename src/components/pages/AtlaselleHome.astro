@@ -3,8 +3,266 @@ import type { Locale } from "@i18n/config";
 import { TRIP_SLUGS, getApplyPath, getTripPath } from "@i18n/routes";
 import type { TripSummaryDTO } from "@/modules/trips/loaders/trip.loader";
 const { locale, trips } = Astro.props as { locale: Locale; trips: TripSummaryDTO[] };
-const content = locale === "fr" ? {eyebrow:"Voyages en petit groupe",title:"Voyager avec attention.",intro:"Des itinéraires culturels pensés avec soin, des rencontres locales et le temps de vraiment habiter un lieu.",journeys:"Voyages à venir",cta:"Découvrir le voyage",trust:"Petits groupes · Hébergements choisis · Accompagnement attentif",interest:"Recevez les prochaines dates",interestText:"Restez informé·e des ouvertures et nouveaux itinéraires.",button:"Rejoindre la liste d’intérêt"} : locale === "ar" ? {eyebrow:"رحلات لمجموعات صغيرة",title:"سافر بعناية.",intro:"مسارات ثقافية مصممة بتأنٍ، ولقاءات محلية، ووقت حقيقي للانتماء إلى المكان.",journeys:"الرحلات القادمة",cta:"اكتشف الرحلة",trust:"مجموعات صغيرة · إقامات مختارة · مرافقة واعية",interest:"احصل على التواريخ القادمة",interestText:"ابقَ على اطلاع بمواعيد الفتح والمسارات الجديدة.",button:"انضم إلى قائمة الاهتمام"} : {eyebrow:"Small-group journeys",title:"Travel with attention.",intro:"Thoughtfully shaped cultural journeys, rooted local encounters, and time to truly inhabit a place.",journeys:"Upcoming journeys",cta:"Discover the journey",trust:"Small groups · Considered stays · Attentive hosting",interest:"Receive upcoming dates",interestText:"Stay close to new departures and journeys.",button:"Join the interest list"};
+
+const content =
+  locale === "fr"
+    ? {
+        eyebrow: "Voyages en petit groupe",
+        title: "Voyager avec attention.",
+        intro:
+          "Des itinéraires culturels pensés avec soin, des rencontres locales et le temps de vraiment habiter un lieu.",
+        journeys: "Voyages à venir",
+        cta: "Découvrir le voyage",
+        trust:
+          "Petits groupes · Hébergements choisis · Accompagnement attentif",
+        interest: "Recevez les prochaines dates",
+        interestText: "Restez informée des ouvertures et nouveaux itinéraires.",
+        button: "Rejoindre la liste d'intérêt",
+        faqTitle: "Questions fréquentes",
+        faqIntro:
+          "Les réponses aux questions que l'on nous pose le plus souvent avant un départ.",
+        faqs: [
+          [
+            "Comment réserver un voyage ?",
+            "Déposez votre candidature sur la page du voyage : nous confirmons la disponibilité avant tout paiement. L'acompte de 500 € n'est demandé qu'après acceptation.",
+          ],
+          [
+            "Puis-je partir seule ?",
+            "Oui — la moitié de nos voyageuses s'inscrivent seules. Les groupes de 6 à 14 sont composés avec soin, et chaque jour prévoit du temps libre pour celles qui le souhaitent.",
+          ],
+          [
+            "Les vols internationaux sont-ils inclus ?",
+            "Non, sauf mention expresse sur la page du voyage. Nous pouvons les réserver pour vous, et nous vous conseillons d'attendre la confirmation du départ avant tout achat non remboursable.",
+          ],
+          [
+            "L'assurance voyage est-elle obligatoire ?",
+            "Oui. Une couverture comprenant au minimum 100 000 € de frais médicaux et 250 000 € d'évacuation est exigée, avec justificatif sous 14 jours après le premier paiement. Notre service d'assurance (39 €) vous couvre en cinq minutes si besoin.",
+          ],
+          [
+            "Puis-je demander une chambre individuelle ?",
+            "Oui, selon disponibilité. Le supplément éventuel vous est communiqué avant confirmation, jamais après.",
+          ],
+          [
+            "Le voyage est-il adapté si je prie ou si je jeûne ?",
+            "Oui. Les temps calmes sont prévus chaque jour, les espaces de prière sont identifiés, et nos programmes s'adaptent pendant le Ramadan sans que personne n'ait à se justifier.",
+          ],
+          [
+            "Puis-je payer en plusieurs fois ?",
+            "Oui, sans frais. Le solde est dû 28 jours avant le départ, et nous pouvons étaler les échéances — écrivez-nous.",
+          ],
+        ],
+      }
+    : locale === "ar"
+      ? {
+          eyebrow: "رحلات لمجموعات صغيرة",
+          title: "سافر بعناية.",
+          intro:
+            "مسارات ثقافية مصممة بتأنٍ، ولقاءات محلية، ووقت حقيقي للانتماء إلى المكان.",
+          journeys: "الرحلات القادمة",
+          cta: "اكتشف الرحلة",
+          trust: "مجموعات صغيرة · إقامات مختارة · مرافقة واعية",
+          interest: "احصل على التواريخ القادمة",
+          interestText: "ابقَ على اطلاع بمواعيد الفتح والمسارات الجديدة.",
+          button: "انضم إلى قائمة الاهتمام",
+          faqTitle: "الأسئلة الشائعة",
+          faqIntro: "إجابات عن الأسئلة الأكثر تكراراً قبل المغادرة.",
+          faqs: [
+            [
+              "كيف أحجز رحلة؟",
+              "قدّم طلبك على صفحة الرحلة؛ نؤكد التوفر قبل أي دفع. ولا تُطلب الدفعة المقدمة (500 يورو) إلا بعد القبول.",
+            ],
+            [
+              "هل يمكنني السفر وحدي؟",
+              "نعم — نصف مسافراتنا يسجلن بمفردهن. تُبنى المجموعات المكونة من 6 إلى 14 بعناية، مع وقت حر كل يوم لمن تشاء.",
+            ],
+            [
+              "هل الرحلات الجوية الدولية مشمولة؟",
+              "لا، ما لم يرد نص صريح في صفحة الرحلة. يمكننا حجزها لك، وننصحك بانتظار تأكيد المغادرة قبل أي شراء غير قابل للاسترداد.",
+            ],
+            [
+              "هل تأمين السفر إلزامي؟",
+              "نعم. تُشترط تغطية لا تقل عن 100 000 يورو للنفقات الطبية و250 000 يورو للإخلاء، مع إثبات خلال 14 يوماً من الدفعة الأولى. خدمة التأمين لدينا (39 يورو) تغطيك في خمس دقائق عند الحاجة.",
+            ],
+            [
+              "هل يمكنني طلب غرفة مفردة؟",
+              "نعم، بحسب التوفر. وأي رسوم إضافية نبلغك بها قبل التأكيد، وليس بعده أبداً.",
+            ],
+            [
+              "هل الرحلة مناسبة إذا كنت أصلي أو أصوم؟",
+              "نعم. الأوقات الهادئة مدرجة كل يوم، وأماكن الصلاة محددة، وتتكيف برامجنا خلال رمضان دون أن يضطر أحد لتبرير نفسه.",
+            ],
+            [
+              "هل يمكنني الدفع على أقساط؟",
+              "نعم، دون رسوم. يستحق الرصيد قبل 28 يوماً من المغادرة، ويمكننا تقسيط المواعيد — راسلينا.",
+            ],
+          ],
+        }
+      : locale === "es"
+        ? {
+            eyebrow: "Viajes en grupo pequeño",
+            title: "Viajar con atención.",
+            intro:
+              "Itinerarios culturales pensados con cuidado, encuentros locales y tiempo para habitar de verdad un lugar.",
+            journeys: "Próximos viajes",
+            cta: "Descubrir el viaje",
+            trust:
+              "Grupos pequeños · Alojamientos elegidos · Acompañamiento atento",
+            interest: "Recibe las próximas fechas",
+            interestText:
+              "Mantente informada de las aperturas y nuevos itinerarios.",
+            button: "Unirse a la lista de interés",
+            faqTitle: "Preguntas frecuentes",
+            faqIntro:
+              "Las respuestas a las preguntas que más nos hacen antes de una salida.",
+            faqs: [
+              [
+                "¿Cómo reservo un viaje?",
+                "Envía tu candidatura en la página del viaje: confirmamos la disponibilidad antes de cualquier pago. El depósito de 500 € solo se pide tras la aceptación.",
+              ],
+              [
+                "¿Puedo viajar sola?",
+                "Sí — la mitad de nuestras viajeras se apuntan solas. Los grupos de 6 a 14 se componen con cuidado, y cada día prevé tiempo libre para quien lo desee.",
+              ],
+              [
+                "¿Los vuelos internacionales están incluidos?",
+                "No, salvo mención expresa en la página del viaje. Podemos reservarlos por ti y te aconsejamos esperar la confirmación de la salida antes de cualquier compra no reembolsable.",
+              ],
+              [
+                "¿El seguro de viaje es obligatorio?",
+                "Sí. Se exige una cobertura mínima de 100 000 € en gastos médicos y 250 000 € en evacuación, con justificante en 14 días tras el primer pago. Nuestro servicio de seguro (39 €) te cubre en cinco minutos si lo necesitas.",
+              ],
+              [
+                "¿Puedo pedir una habitación individual?",
+                "Sí, según disponibilidad. El suplemento eventual se te comunica antes de la confirmación, nunca después.",
+              ],
+              [
+                "¿El viaje es adecuado si rezo o ayuno?",
+                "Sí. Los tiempos de calma están previstos cada día, los espacios de oración están identificados y nuestros programas se adaptan durante el Ramadán sin que nadie tenga que justificarse.",
+              ],
+              [
+                "¿Puedo pagar a plazos?",
+                "Sí, sin coste. El saldo vence 28 días antes de la salida y podemos fraccionar los plazos — escríbenos.",
+              ],
+            ],
+          }
+        : {
+            eyebrow: "Small-group journeys",
+            title: "Travel with attention.",
+            intro:
+              "Thoughtfully shaped cultural journeys, rooted local encounters, and time to truly inhabit a place.",
+            journeys: "Upcoming journeys",
+            cta: "Discover the journey",
+            trust: "Small groups · Considered stays · Attentive hosting",
+            interest: "Receive upcoming dates",
+            interestText: "Stay close to new departures and journeys.",
+            button: "Join the interest list",
+            faqTitle: "Frequently asked questions",
+            faqIntro:
+              "Answers to the questions we hear most often before a departure.",
+            faqs: [
+              [
+                "How do I book a trip?",
+                "Submit your application on the trip page: we confirm availability before any payment is due. The €500 deposit is only requested after acceptance.",
+              ],
+              [
+                "Can I travel alone?",
+                "Yes — half of our travellers book alone. Groups of 6 to 14 are assembled with care, and every day includes free time for those who want it.",
+              ],
+              [
+                "Are international flights included?",
+                "No, unless the trip page explicitly says so. We can book them for you, and we advise waiting for departure confirmation before any nonrefundable purchase.",
+              ],
+              [
+                "Is travel insurance mandatory?",
+                "Yes. Coverage of at least €100,000 in medical expenses and €250,000 in evacuation is required, with proof within 14 days of the first payment. Our insurance service (€39) covers you in five minutes if needed.",
+              ],
+              [
+                "Can I request a single room?",
+                "Yes, subject to availability. Any supplement is communicated before confirmation, never after.",
+              ],
+              [
+                "Is the trip suitable if I pray or fast?",
+                "Yes. Quiet time is built into every day, prayer spaces are identified, and our programmes adapt during Ramadan without anyone having to justify themselves.",
+              ],
+              [
+                "Can I pay in instalments?",
+                "Yes, at no extra cost. The balance is due 28 days before departure, and we can spread the deadlines — just write to us.",
+              ],
+            ],
+          };
 ---
-<section class="bg-primary px-6 py-24 text-primary-foreground"><div class="mx-auto max-w-6xl"><p class="text-sm font-semibold uppercase tracking-[.24em]">ATLASELLE · {content.eyebrow}</p><h1 class="mt-6 max-w-3xl text-5xl font-bold tracking-tight sm:text-7xl">{content.title}</h1><p class="mt-7 max-w-2xl text-xl leading-relaxed opacity-90">{content.intro}</p><p class="mt-12 text-sm font-medium">{content.trust}</p></div></section>
-<section class="mx-auto max-w-6xl px-6 py-20"><h2 class="text-3xl font-bold">{content.journeys}</h2><div class="mt-8 grid gap-6 md:grid-cols-3">{trips.map((trip) => <article class="flex flex-col rounded-xl border p-6"><p class="text-sm text-primary">{trip.dates}</p><h3 class="mt-4 text-2xl font-bold">{trip.title}</h3><p class="mt-3 flex-1 text-muted-foreground">{trip.summary}</p><p class="mt-6 font-semibold">{trip.currency === "EUR" ? "€" : `${trip.currency} `}{trip.priceFrom.toLocaleString("en")}</p><a class="mt-5 font-semibold text-primary underline" href={getTripPath(locale, trip.slug)}>{content.cta} →</a></article>)}</div></section>
-<section class="bg-muted px-6 py-16"><div class="mx-auto max-w-3xl text-center"><h2 class="text-3xl font-bold">{content.interest}</h2><p class="mt-4 text-muted-foreground">{content.interestText}</p><a class="mt-7 inline-block rounded-md bg-primary px-5 py-3 font-semibold text-primary-foreground" href={getApplyPath(locale, TRIP_SLUGS["sicily-malta"][locale])}>{content.button}</a></div></section>
+
+<section class="bg-primary px-6 py-24 text-primary-foreground">
+  <div class="mx-auto max-w-6xl">
+    <p class="text-sm font-semibold uppercase tracking-[.24em]">
+      ATLASELLE · {content.eyebrow}
+    </p>
+    <h1 class="mt-6 max-w-3xl text-5xl font-bold tracking-tight sm:text-7xl">
+      {content.title}
+    </h1>
+    <p class="mt-7 max-w-2xl text-xl leading-relaxed opacity-90">
+      {content.intro}
+    </p>
+    <p class="mt-12 text-sm font-medium">{content.trust}</p>
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-6 py-20">
+  <h2 class="text-3xl font-bold">{content.journeys}</h2>
+  <div class="mt-8 grid gap-6 md:grid-cols-3">
+    {
+      trips.map((trip) => (
+        <article class="flex flex-col rounded-xl border p-6">
+          <p class="text-sm text-primary">{trip.dates}</p>
+          <h3 class="mt-4 text-2xl font-bold">{trip.title}</h3>
+          <p class="mt-3 flex-1 text-muted-foreground">{trip.summary}</p>
+          <p class="mt-6 font-semibold">
+            {trip.currency === "EUR" ? "€" : `${trip.currency} `}
+            {trip.priceFrom.toLocaleString("en")}
+          </p>
+          <a
+            class="mt-5 font-semibold text-primary underline"
+            href={getTripPath(locale, trip.slug)}
+          >
+            {content.cta} →
+          </a>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<section class="bg-muted px-6 py-16">
+  <div class="mx-auto max-w-3xl text-center">
+    <h2 class="text-3xl font-bold">{content.interest}</h2>
+    <p class="mt-4 text-muted-foreground">{content.interestText}</p>
+    <a
+      class="mt-7 inline-block rounded-md bg-primary px-5 py-3 font-semibold text-primary-foreground"
+      href={getApplyPath(locale, TRIP_SLUGS["sicily-malta"][locale])}
+      >{content.button}</a
+    >
+  </div>
+</section>
+
+{/* ── FAQ — section tout en bas de la page d'accueil ─────────────────── */}
+<section class="mx-auto max-w-3xl px-6 py-20">
+  <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">
+    {content.faqTitle}
+  </h2>
+  <p class="mt-3 text-muted-foreground">{content.faqIntro}</p>
+  <div class="mt-10 divide-y border-y">
+    {
+      content.faqs.map(([q, a]) => (
+        <details class="group py-5">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold [&::-webkit-details-marker]:hidden">
+            {q}
+            <span class="shrink-0 text-primary transition-transform group-open:rotate-45">
+              +
+            </span>
+          </summary>
+          <p class="mt-3 leading-relaxed text-muted-foreground">{a}</p>
+        </details>
+      ))
+    }
+  </div>
+</section>

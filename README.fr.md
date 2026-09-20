@@ -32,7 +32,7 @@ Application web SSR multi-langue avec authentification complète, gestion d'orga
 - 📁 **Médias** — Upload, traitement Sharp, organisation en dossiers
 - 📧 **SMTP** — Brevo / Resend / Nodemailer + file morte de mails
 - 🛡️ **Sécurité** — Audit trail, rate limiting, sanitization des inputs
-- ✅ **Tests** — 167 Vitest + 9 E2E × 3 navigateurs
+- ✅ **Tests** — 168 Vitest + 9 E2E × 3 navigateurs
 
 ### Stack technique
 
@@ -233,6 +233,7 @@ src/assets/
 images/
   avatars/
   brand/
+  trips/
 ```
 
 ### Composants
@@ -290,6 +291,7 @@ commands/
 data/
   00-media.data.ts
   00b-media-files.data.ts
+  00c-media-file-alts.data.ts
   01-users.data.ts
   01b-user-accounts.data.ts
   03-site-settings.data.ts
@@ -301,6 +303,8 @@ data/
   08-theme.data.ts
   09-legal-pages.data.ts
   09b-legal-sections.data.ts
+  09c-travel-legal-pages.data.ts
+  09d-travel-legal-sections.data.ts
   10-consent-settings.data.ts
   11-blog-categories.data.ts
   11b-blog-category-translations.data.ts
@@ -364,6 +368,15 @@ data/
   46f-trip-exclusion-translations.data.ts
   47-policy-documents.data.ts
   47b-policy-versions.data.ts
+  48-trip-comments.data.ts
+  48b-trip-comment-moderations.data.ts
+  49-trip-reviews.data.ts
+  49b-trip-review-helpful.data.ts
+  50-trip-reports.data.ts
+  51-trip-favorites.data.ts
+  52-trip-view-stats.data.ts
+  53-trip-reactions.data.ts
+  54-trip-notifications.data.ts
   manifest.ts
 drizzle.ts
 env.ts
@@ -385,8 +398,11 @@ loaders/
   site.loader.ts
 migrations/
   0000_tranquil_toad.sql
+  0001_steady_meteorite.sql
+  0001_trip_engagement.sql
   meta/
     0000_snapshot.json
+    0001_snapshot.json
     _journal.json
 schemas/
   applications.schema.ts
@@ -504,7 +520,7 @@ schemas.ts
 - `service_review_helpful`: `reviewId`, `userId`, `isHelpful`, `createdAt`
 
 **trips.schema.ts**
-- `trips`: `id`, `status`, `countryCode`, `defaultCurrency`, `heroMediaId`, `durationDays`, `durationNights`, `groupMin`, `groupMax`, `difficulty`, `difficultyLevel`, `arrivalAirport`, `departureAirport`, `accommodationStyle`, `requireAccount`, `publishedAt`, `archivedAt`, `createdAt`, `updatedAt` _(translations: many, highlights: many, inclusions: many, exclusions: many, tripFaqs: many, revisions: many)_
+- `trips`: `id`, `status`, `countryCode`, `defaultCurrency`, `heroMediaId`, `durationDays`, `durationNights`, `groupMin`, `groupMax`, `difficulty`, `difficultyLevel`, `arrivalAirport`, `departureAirport`, `accommodationStyle`, `requireAccount`, `commentStatus`, `allowReviews`, `viewCount`, `ratingAverage100`, `ratingCount`, `publishedAt`, `archivedAt`, `createdAt`, `updatedAt` _(translations: many, highlights: many, inclusions: many, exclusions: many, tripFaqs: many, revisions: many, comments: many, reviews: many, favorites: many, reactions: many, viewStats: many, locks: one)_
 - `trip_translations`: `id`, `tripId`, `locale`, `slug`, `title`, `shortTitle`, `summary`, `overview`, `highlights`, `experience`, `fitness`, `preparation`, `lodging`, `food`, `faithConsiderations`, `metaTitle`, `metaDescription`, `localeVisible`, `createdAt`, `updatedAt` _(trip: one)_
 - `trip_highlights`: `id`, `tripId`, `mediaId`, `iconKey`, `sortOrder`, `createdAt`
 - `trip_highlight_translations`: `id`, `highlightId`, `locale`, `title`, `description`, `updatedAt`
@@ -516,6 +532,16 @@ schemas.ts
 - `faq_translations`: `id`, `faqId`, `locale`, `question`, `answer`, `updatedAt`
 - `trip_faqs`: `tripId`, `faqId`, `sortOrder`
 - `trip_revisions`: `id`, `tripId`, `snapshot`, `createdBy`, `createdAt`
+- `trip_comments`: `id`, `tripId`, `authorId`, `parentId`, `guestName`, `guestEmail`, `content`, `status`, `karma`, `ipAddress`, `userAgent`, `isEdited`, `createdAt`, `updatedAt` _(trip: one, author: one, parent: one, replies: many, moderations: many)_
+- `trip_comment_moderations`: `id`, `commentId`, `moderatorId`, `action`, `reason`, `previousValues`, `createdAt` _(comment: one, moderator: one)_
+- `trip_reviews`: `id`, `tripId`, `authorId`, `rating`, `title`, `content`, `status`, `isRecommended`, `helpfulCount`, `ipAddress`, `createdAt`, `updatedAt` _(trip: one, author: one, helpfulVotes: many)_
+- `trip_review_helpful`: `reviewId`, `userId`, `isHelpful`, `createdAt` _(review: one, user: one)_
+- `trip_reports`: `id`, `tripId`, `commentId`, `reviewId`, `reporterId`, `reason`, `description`, `status`, `resolvedBy`, `resolvedAt`, `createdAt` _(trip: one, comment: one, review: one, reporter: one, resolver: one)_
+- `trip_favorites`: `tripId`, `userId`, `createdAt` _(trip: one, user: one)_
+- `trip_reactions`: `tripId`, `userId`, `reactionType`, `createdAt`, `updatedAt` _(trip: one, user: one)_
+- `trip_notifications`: `id`, `recipientId`, `actorId`, `tripId`, `commentId`, `reviewId`, `type`, `title`, `message`, `readAt`, `createdAt` _(recipient: one, actor: one, trip: one, comment: one, review: one)_
+- `trip_view_stats`: `id`, `tripId`, `viewedAt`, `date`, `hour`, `referrer`, `country` _(trip: one)_
+- `trip_locks`: `id`, `tripId`, `userId`, `sessionId`, `lockedAt`, `expiresAt` _(trip: one, user: one)_
 
 **itinerary.schema.ts**
 - `itinerary_days`: `id`, `tripId`, `dayNumber`, `location`, `route`, `activityLevel`, `distanceKm`, `activityDurationMin`, `minAltitudeM`, `maxAltitudeM`, `createdAt`, `updatedAt` _(translations: many, trip: one)_
@@ -559,6 +585,8 @@ schemas.ts
 ### Migrations
 
 - `0000_tranquil_toad.sql`
+- `0001_steady_meteorite.sql`
+- `0001_trip_engagement.sql`
 
 ### Commandes
 
@@ -917,16 +945,26 @@ trips/
     AdminTripForm.astro
     AdminTripList.astro
     TripCard.astro
+    TripEngagement.astro
   domain/
+    trip-engagement-workflow.ts
+    trip-engagement.ts
     trip-transitions.ts
+  i18n/
+    engagement.ts
   loaders/
     admin-contents.loader.ts
     admin-health.loader.ts
+    admin-moderation.loader.ts
+    admin-reporting.loader.ts
     admin-trips.loader.ts
+    trip-engagement.loader.ts
     trip.loader.ts
   module.ts
   repositories/
     trip.repository.ts
+  validation/
+    index.ts
 src/pages/
 404.astro
 500.astro
@@ -989,7 +1027,6 @@ sitemap-cms.xml.ts
   checkout/
     [session].astro
   contact.astro
-  faq.astro
   index.astro
   services/
     index.astro
@@ -1078,6 +1115,7 @@ favicon.ico
 favicon.svg
 uploads/
   images/
+  media/
 ```
 
 ### Upload et traitement

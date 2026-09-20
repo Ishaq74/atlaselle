@@ -42,11 +42,10 @@ describe('mapStaticSlugPath — auth localisé', () => {
   });
 });
 
-describe('mapStaticSlugPath — pages universelles terms/faq', () => {
+describe('mapStaticSlugPath — page universelle terms', () => {
   it.each(LOCALES)('keeps universal slug from %s', (from) => {
     for (const to of LOCALES) {
       expect(mapStaticSlugPath(from, to, '/terms', MAPS)).toBe(`/${to}/terms`);
-      expect(mapStaticSlugPath(from, to, '/faq', MAPS)).toBe(`/${to}/faq`);
     }
   });
 });

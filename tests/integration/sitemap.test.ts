@@ -7,10 +7,10 @@ describe('Sitemap CMS — voyages', () => {
     const response = await GET({ site: new URL('https://atlaselle.test') } as any);
     expect(response.status).toBe(200);
     const xml = await response.text();
-    expect(xml).toContain('/fr/voyages/afrique-du-sud');
-    expect(xml).toContain('/en/trips/south-africa');
-    expect(xml).toContain('/ar/trips/south-africa');
-    expect(xml).toContain('/es/viajes/sudafrica');
+    expect(xml).toContain('/fr/voyages/algerie');
+    expect(xml).toContain('/en/trips/algeria');
+    expect(xml).toContain('/ar/trips/algeria');
+    expect(xml).toContain('/es/viajes/argelia');
     expect(xml).toContain('/fr/voyages');
     expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
   });

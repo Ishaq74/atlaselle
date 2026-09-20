@@ -1,12 +1,13 @@
 // Trip notifications — gabarit blog 21 + services 39.
+// acteurs/ré destinataires réassignés aux comptes voyageuses réels.
 export default [
   {
-    id: "tn000000-0000-0000-0000-000000000001",
+    id: "2ef45a64-9baa-4629-9d7f-b4004480318c",
     recipientId: "11111111-1111-1111-1111-111111111111",
-    actorId: "22222222-2222-2222-2222-222222222222",
-    tripId: "trip-algeria",
+    actorId: "33333333-3333-3333-3333-333333333333",
+    tripId: "26cf16d8-0770-48f9-870e-c68c9a9c47e0",
     commentId: null,
-    reviewId: "t9000000-0000-0000-0000-000000000001",
+    reviewId: "1f69f2c3-b737-4ab0-b2ec-0c9b20298927",
     type: "NEW_REVIEW",
     title: "Nouvel avis voyage",
     message: "Un nouvel avis a été soumis pour l'Algérie.",
@@ -14,11 +15,11 @@ export default [
     createdAt: new Date("2026-09-11T10:05:00.000Z"),
   },
   {
-    id: "tn000000-0000-0000-0000-000000000002",
+    id: "099ac777-b94a-47ec-a597-e1bfa3e53c43",
     recipientId: "11111111-1111-1111-1111-111111111111",
-    actorId: "22222222-2222-2222-2222-222222222222",
-    tripId: "trip-algeria",
-    commentId: "t8000000-0000-0000-0000-000000000001",
+    actorId: "33333333-3333-3333-3333-333333333333",
+    tripId: "26cf16d8-0770-48f9-870e-c68c9a9c47e0",
+    commentId: "a084fdd2-8380-4f09-9818-123ec3024c92",
     reviewId: null,
     type: "NEW_COMMENT",
     title: "Nouveau commentaire voyage",
@@ -27,10 +28,10 @@ export default [
     createdAt: new Date("2026-09-10T12:05:00.000Z"),
   },
   {
-    id: "tn000000-0000-0000-0000-000000000003",
-    recipientId: "22222222-2222-2222-2222-222222222222",
+    id: "6b634dc6-5a15-4200-a2e4-7d2ad96e8e06",
+    recipientId: "55555555-5555-5555-5555-555555555555",
     actorId: "11111111-1111-1111-1111-111111111111",
-    tripId: "trip-algeria",
+    tripId: "26cf16d8-0770-48f9-870e-c68c9a9c47e0",
     commentId: null,
     reviewId: null,
     type: "TRIP_PUBLISHED",

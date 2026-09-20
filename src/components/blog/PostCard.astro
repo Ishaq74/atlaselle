@@ -15,7 +15,7 @@ interface Props {
     post: { id: string; viewCount: number; isFeatured: boolean; isSticky: boolean; publishedAt: Date | null };
     translation: { title: string; slug: string; excerpt: string | null; content: string } | null;
     author: { id: string; name: string; image: string | null } | null;
-    featuredImage: { id: string; url: string } | null;
+    featuredImage: { id: string; url: string; width: number | null; height: number | null } | null;
     categories: { id: string; slug: string; name: string | null }[];
     commentCount: number;
   };
@@ -58,7 +58,8 @@ const readingTime = formatReadingTime(translation.content);
           src={post.featuredImage.url}
           alt={translation.title}
           class="post-card__image"
-          inferSize={true}
+          width={post.featuredImage.width ?? 1200}
+          height={post.featuredImage.height ?? 675}
         />
       ) : (
         <div class="post-card__image-placeholder">

@@ -1,7 +1,7 @@
 export default [
   // ── FR ──
   {
-    id: '00000000-0000-4000-a000-consent000fr',
+    id: '5adf9a00-8544-478c-b023-c13cc2ec6b30',
     locale: 'fr',
     title: 'Nous respectons votre vie privée',
     description: 'Ce site utilise des cookies pour améliorer votre expérience de navigation, analyser le trafic et personnaliser le contenu. Vous pouvez choisir les cookies que vous acceptez.',
@@ -21,7 +21,7 @@ export default [
   },
   // ── EN ──
   {
-    id: '00000000-0000-4000-a000-consent000en',
+    id: 'afc66fff-1564-4528-89cb-4bd39a97e03f',
     locale: 'en',
     title: 'We respect your privacy',
     description: 'This site uses cookies to improve your browsing experience, analyze traffic, and personalize content. You can choose which cookies you accept.',
@@ -41,7 +41,7 @@ export default [
   },
   // ── ES ──
   {
-    id: '00000000-0000-4000-a000-consent000es',
+    id: '8a6cdd12-265a-4506-a779-c2e2f5245cde',
     locale: 'es',
     title: 'Respetamos su privacidad',
     description: 'Este sitio utiliza cookies para mejorar su experiencia de navegación, analizar el tráfico y personalizar el contenido. Puede elegir qué cookies acepta.',
@@ -61,7 +61,7 @@ export default [
   },
   // ── AR ──
   {
-    id: '00000000-0000-4000-a000-consent000ar',
+    id: '43fc60c7-44af-4c82-9e2d-74b3f39fbcdf',
     locale: 'ar',
     title: '\u0646\u062d\u0646 \u0646\u062d\u062a\u0631\u0645 \u062e\u0635\u0648\u0635\u064a\u062a\u0643',
     description: '\u064a\u0633\u062a\u062e\u062f\u0645 \u0647\u0630\u0627 \u0627\u0644\u0645\u0648\u0642\u0639 \u0645\u0644\u0641\u0627\u062a \u062a\u0639\u0631\u064a\u0641 \u0627\u0644\u0627\u0631\u062a\u0628\u0627\u0637 \u0644\u062a\u062d\u0633\u064a\u0646 \u062a\u062c\u0631\u0628\u0629 \u0627\u0644\u062a\u0635\u0641\u062d \u0648\u062a\u062d\u0644\u064a\u0644 \u062d\u0631\u0643\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u0648\u062a\u062e\u0635\u064a\u0635 \u0627\u0644\u0645\u062d\u062a\u0648\u0649. \u064a\u0645\u0643\u0646\u0643 \u0627\u062e\u062a\u064a\u0627\u0631 \u0645\u0644\u0641\u0627\u062a \u062a\u0639\u0631\u064a\u0641 \u0627\u0644\u0627\u0631\u062a\u0628\u0627\u0637 \u0627\u0644\u062a\u064a \u062a\u0642\u0628\u0644\u0647\u0627.',

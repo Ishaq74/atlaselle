@@ -50,7 +50,7 @@ type BlogPostListRow = {
   post: typeof blogPosts.$inferSelect;
   translation: typeof blogPostTranslations.$inferSelect | null;
   author: { id: string; name: string; image: string | null } | null;
-  featuredImage: { id: string; url: string } | null;
+  featuredImage: { id: string; url: string; width: number | null; height: number | null } | null;
 };
 
 async function hydrateBlogPostListItems(
@@ -425,7 +425,7 @@ export const getBlogPosts = cached(
         post: blogPosts,
         translation: blogPostTranslations,
         author: { id: user.id, name: user.name, image: user.image },
-        featuredImage: { id: mediaFiles.id, url: mediaFiles.url },
+        featuredImage: { id: mediaFiles.id, url: mediaFiles.url, width: mediaFiles.width, height: mediaFiles.height },
       })
       .from(blogPosts)
       .innerJoin(blogPostTranslations, eq(blogPostTranslations.postId, blogPosts.id))
@@ -575,7 +575,7 @@ export const getRelatedBlogPosts = cached(
         post: blogPosts,
         translation: blogPostTranslations,
         author: { id: user.id, name: user.name, image: user.image },
-        featuredImage: { id: mediaFiles.id, url: mediaFiles.url },
+        featuredImage: { id: mediaFiles.id, url: mediaFiles.url, width: mediaFiles.width, height: mediaFiles.height },
       })
       .from(blogPosts)
       .innerJoin(blogPostTranslations, eq(blogPostTranslations.postId, blogPosts.id))

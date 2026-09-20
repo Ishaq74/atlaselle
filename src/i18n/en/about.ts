@@ -1,119 +1,87 @@
 import type { AboutTranslations } from '../config';
 import { stone, bronze, houseCivilization, polish } from '../../assets/images/brand';
-import { avatar1, avatar2, avatar3 } from '../../assets/images/avatars';
+import { avatar1 } from '../../assets/images/avatars';
 
 export default {
   meta: {
-    title: 'About – ATLASELLE',
-    description: 'Discover the story, mission and team behind ATLASELLE. We build civilization layer by layer.',
+    title: 'About – Atlaselle',
+    description: 'Atlaselle designs small-group journeys for women, across medinas, deserts and islands. Discover our story and our founder.',
   },
   hero: {
-    eyebrow: 'Our Story',
-    title: 'Building civilization layer by layer',
-    description: 'ATLASELLE was born from a conviction: every generation builds upon the foundations left by those before it. Our mission is to structure this transmission so that every layer of knowledge, culture and experience is preserved and accessible.',
+    eyebrow: 'Our story',
+    title: 'Journeys designed as encounters',
+    description: 'Atlaselle was born from a simple observation: too many women give up travelling for lack of a reassuring structure. We design small-group journeys — six to fourteen travellers — across medinas, deserts and Mediterranean islands, with the time to truly inhabit each place.',
   },
   mission: {
-    eyebrow: 'Our Purpose',
+    eyebrow: 'Our purpose',
     title: 'Mission & Vision',
-    description: 'Two pillars guide every decision we make.',
+    description: 'Two pillars guide every one of our itineraries.',
     cards: [
       {
         icon: 'mdi:target',
         title: 'Our Mission',
-        description: 'Support communities that build on the legacy of those who came before. We create tools that enable intergenerational transmission of knowledge, values and resources.',
+        description: 'To let every woman travel with peace of mind, alone without being isolated: carefully assembled small groups, handpicked accommodation, local guides and a pace that respects everyone.',
       },
       {
         icon: 'mdi:eye-outline',
         title: 'Our Vision',
-        description: 'A world where every community can build sustainably, layer after layer, on solid foundations. Where collective heritage is not lost but amplified.',
+        description: 'Travel that leaves a positive trace: for the travellers who come back transformed, and for the communities that host us — artisans, guesthouses and local tables first.',
       },
     ],
   },
   values: {
-    eyebrow: 'What Defines Us',
+    eyebrow: 'What defines us',
     title: 'Our Values',
-    description: 'The founding principles that guide ATLASELLE every day.',
+    description: 'The principles that guide Atlaselle every day.',
     items: [
       {
-        title: 'Heritage',
-        description: 'We believe the past is a treasure. Every piece of knowledge, every experience deserves to be preserved and passed on to future generations. Heritage is not a burden — it\'s a springboard.',
+        title: 'Care',
+        description: 'Every itinerary is field-tested. Unhurried pace, real breaks, quiet time every day: a journey should remain a pleasure, not a race.',
         image: stone,
-        value: 'heritage',
+        value: 'care',
       },
       {
-        title: 'Transmission',
-        description: 'Knowledge that is not passed on is knowledge lost. We do everything to ensure that wisdom flows freely between generations and communities.',
+        title: 'Trust',
+        description: 'Line-by-line transparent pricing, clear cancellation terms, insurance explained without jargon. No hidden extras, no surprises.',
         image: bronze,
-        value: 'transmission',
+        value: 'trust',
       },
       {
-        title: 'Community',
-        description: 'Alone we go fast, together we go far. ATLASELLE places community at the center of everything. It is within the collective that the most ambitious and lasting projects are born.',
+        title: 'Encounter',
+        description: 'We favour local addresses: guesthouses, artisan workshops, family tables. The journey begins with those who welcome us.',
         image: houseCivilization,
-        value: 'community',
+        value: 'encounter',
       },
       {
-        title: 'Integrity',
-        description: 'Building on solid foundations requires transparency and authenticity. We are committed to acting with honesty towards our community, our partners and ourselves.',
+        title: 'Respect',
+        description: 'For the planet, for cultures, and for your inner rhythm. Identified prayer spaces, programmes adapted during Ramadan, small groups to limit our footprint.',
         image: polish,
-        value: 'integrity',
+        value: 'respect',
       },
     ],
   },
   team: {
-    eyebrow: 'The Builders',
-    title: 'Our Team',
-    description: 'Passionate people who work every day to bring ATLASELLE\'s vision to life.',
+    eyebrow: 'The founder',
+    title: 'Who is behind Atlaselle',
+    description: 'Atlaselle is a human-scale company: one person designs, tests and accompanies every journey.',
     members: [
       {
-        name: 'Youssef Mansouri',
-        role: 'Founder & CEO',
-        bio: 'A visionary passionate about intergenerational transmission and community building.',
-        image: avatar2,
-        socials: [
-          { name: 'LinkedIn', icon: 'linkedin', href: '#' },
-          { name: 'X', icon: 'twitter', href: '#' },
-          { name: 'Email', icon: 'mail', href: 'mailto:youssef@klan.com' },
-        ],
-      },
-      {
-        name: 'Amina Belkacem',
-        role: 'Operations Director',
-        bio: 'Expert in community management and organizational development.',
+        name: 'Oumhani Achour',
+        role: 'Founder & Journey Designer',
+        bio: 'A field traveller, Oumhani explored Algeria, Morocco, Andalusia, Bosnia and the Silk Road before turning them into itineraries. She personally answers every application.',
         image: avatar1,
         socials: [
-          { name: 'LinkedIn', icon: 'linkedin', href: '#' },
-          { name: 'Email', icon: 'mail', href: 'mailto:amina@klan.com' },
-        ],
-      },
-      {
-        name: 'Karim Ouadah',
-        role: 'CTO',
-        bio: 'Software architect specialized in large-scale community platforms.',
-        image: avatar3,
-        socials: [
-          { name: 'LinkedIn', icon: 'linkedin', href: '#' },
-          { name: 'X', icon: 'twitter', href: '#' },
-          { name: 'Email', icon: 'mail', href: 'mailto:karim@klan.com' },
-        ],
-      },
-      {
-        name: 'Sarah Dupont',
-        role: 'Community Manager',
-        bio: 'Committed community builder who weaves connections between ATLASELLE members.',
-        image: avatar1,
-        socials: [
-          { name: 'LinkedIn', icon: 'linkedin', href: '#' },
-          { name: 'X', icon: 'twitter', href: '#' },
-          { name: 'Email', icon: 'mail', href: 'mailto:sarah@klan.com' },
+          { name: 'LinkedIn', icon: 'linkedin', href: 'https://linkedin.com/in/oumhani-achour' },
+          { name: 'Instagram', icon: 'instagram', href: 'https://instagram.com/atlaselle.voyages' },
+          { name: 'Email', icon: 'mail', href: 'mailto:contact@atlaselle.com' },
         ],
       },
     ],
   },
   cta: {
-    title: 'Join the ATLASELLE adventure',
-    description: 'Become part of this collective construction. Every stone counts in the common edifice.',
-    primaryButton: { text: 'Join ATLASELLE', href: '#' },
-    secondaryButton: { text: 'Contact us', href: '#' },
+    title: 'Ready for your next journey?',
+    description: 'Browse our destinations or write to us directly: every journey begins with a conversation.',
+    primaryButton: { text: 'View trips', href: '/en/trips' },
+    secondaryButton: { text: 'Contact us', href: '/en/contact' },
   },
 } satisfies AboutTranslations;

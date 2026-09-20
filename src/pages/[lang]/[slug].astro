@@ -35,7 +35,7 @@ if (!isStaticPage && !cmsData) {
   return Astro.rewrite('/404');
 }
 
-const isLegal = pageId === 'legal';
+const isLegal = pageId === 'legal' || cmsData?.page.template === 'legal';
 const isDynamicCms = !isStaticPage && !isLegal && !!cmsData;
 
 const translations = {

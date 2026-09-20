@@ -2,14 +2,147 @@
 > atlaselle@0.0.1 check C:\Users\Utilisateur\Documents\t3code\atlaselle
 > astro check
 
-[ASTRO] SITE_URL is not set ÔÇö using http://localhost:4321 fallback. Set SITE_URL for production builds.
-[2m11:59:05[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
-[2m11:59:05[22m [34m[content][39m Syncing content
-[2m11:59:05[22m [34m[content][39m Synced content
-[2m11:59:05[22m [34m[types][39m Generated [2m585ms[22m
-[2m11:59:05[22m [34m[check][39m Getting diagnostics for Astro files in C:\Users\Utilisateur\Documents\t3code\atlaselle...
-Result (1071 files): 
-- 0 errors
-- 0 warnings
-- 0 hints
+[2m17:51:49[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
+[2m17:51:49[22m [34m[content][39m Syncing content
+[2m17:51:49[22m [34m[content][39m Synced content
+[2m17:51:49[22m [34m[types][39m Generated [2m461ms[22m
+[2m17:51:49[22m [34m[check][39m Getting diagnostics for Astro files in C:\Users\Utilisateur\Documents\t3code\atlaselle...
+[96m_tmp-scan2.cjs[0m:[93m4[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'uuidRe' is declared but its value is never read.
 
+[7m4[0m const uuidRe=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+[7m [0m [93m      ~~~~~~[0m
+[96m_tmp-scan2.cjs[0m:[93m1[0m:[93m45[0m - [93mwarning[0m[90m ts(6133): [0m'crypto' is declared but its value is never read.
+
+[7m1[0m const fs=require('fs'),path=require('path'),crypto=require('crypto');
+[7m [0m [93m                                            ~~~~~~[0m
+
+[96msrc/actions/voyage/moderation.ts[0m:[93m112[0m:[93m65[0m - [91merror[0m[90m ts(2322): [0mType '"moderate"' is not assignable to type '"create" | "read" | "update" | "publish" | "archive"'.
+
+[7m112[0m     const user = await assertVoyagePermission(context, { trip: ["moderate"] });
+[7m   [0m [91m                                                                ~~~~~~~~~~[0m
+
+[96msrc/components/pages/admin/AdminRolesPage.astro[0m:[93m59[0m:[93m45[0m - [91merror[0m[90m ts(2339): [0mProperty 'permissions' does not exist on type '{ title: string; description: string; }'.
+
+[7m59[0m             <TableHead class="min-w-24">{tr.permissions}</TableHead>
+[7m  [0m [91m                                            ~~~~~~~~~~~[0m
+[96msrc/components/pages/admin/AdminRolesPage.astro[0m:[93m58[0m:[93m81[0m - [91merror[0m[90m ts(2339): [0mProperty 'resource' does not exist on type '{ title: string; description: string; }'.
+
+[7m58[0m             <TableHead class="sticky inset-s-0 bg-background z-10 min-w-32">{tr.resource}</TableHead>
+[7m  [0m [91m                                                                                ~~~~~~~~[0m
+[96msrc/components/pages/admin/AdminRolesPage.astro[0m:[93m50[0m:[93m38[0m - [91merror[0m[90m ts(2339): [0mProperty 'globalRoles' does not exist on type '{ title: string; description: string; }'.
+
+[7m50[0m     <CardTitle class="text-base">{tr.globalRoles}</CardTitle>
+[7m  [0m [91m                                     ~~~~~~~~~~~[0m
+[96msrc/components/pages/admin/AdminRolesPage.astro[0m:[93m37[0m:[93m26[0m - [91merror[0m[90m ts(2339): [0mProperty 'resourceName' does not exist on type '{ title: string; description: string; }'.
+
+[7m37[0m const resourceNames = tr.resourceName as Record<string, string>;
+[7m  [0m [91m                         ~~~~~~~~~~~~[0m
+[96msrc/components/pages/admin/AdminRolesPage.astro[0m:[93m34[0m:[93m14[0m - [91merror[0m[90m ts(2339): [0mProperty 'roleName' does not exist on type '{ title: string; description: string; }'.
+
+[7m34[0m   { name: tr.roleName.user, statements: userRole.statements as Record<string, readonly string[]> },
+[7m  [0m [91m             ~~~~~~~~[0m
+[96msrc/components/pages/admin/AdminRolesPage.astro[0m:[93m33[0m:[93m14[0m - [91merror[0m[90m ts(2339): [0mProperty 'roleName' does not exist on type '{ title: string; description: string; }'.
+
+[7m33[0m   { name: tr.roleName.editor, statements: editorRole.statements as Record<string, readonly string[]> },
+[7m  [0m [91m             ~~~~~~~~[0m
+[96msrc/components/pages/admin/AdminRolesPage.astro[0m:[93m32[0m:[93m14[0m - [91merror[0m[90m ts(2339): [0mProperty 'roleName' does not exist on type '{ title: string; description: string; }'.
+
+[7m32[0m   { name: tr.roleName.admin, statements: adminRole.statements as Record<string, readonly string[]> },
+[7m  [0m [91m             ~~~~~~~~[0m
+
+[96msrc/components/pages/blog/BlogPostPage.astro[0m:[93m86[0m:[93m50[0m - [91merror[0m[90m ts(2322): [0mType 'PostContentData' is not assignable to type 'BlogPostContentData'.
+  Types of property 'galleries' are incompatible.
+    Type '{ id: string; title: string | null; description: string | null; sortOrder: number; media: { id: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string; }; }[]; }[]' is not assignable to type '{ id: string; title: string | null; description: string | null; sortOrder: number; media: { id: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string; width: number | null; height: number | null; }; }[]; }[]'.
+      Type '{ id: string; title: string | null; description: string | null; sortOrder: number; media: { id: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string; }; }[]; }' is not assignable to type '{ id: string; title: string | null; description: string | null; sortOrder: number; media: { id: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string; width: number | null; height: number | null; }; }[]; }'.
+        Types of property 'media' are incompatible.
+          Type '{ id: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string; }; }[]' is not assignable to type '{ id: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string; width: number | null; height: number | null; }; }[]'.
+            Type '{ id: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string; }; }' is not assignable to type '{ id: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string; width: number | null; height: number | null; }; }'.
+              Types of property 'file' are incompatible.
+                Type '{ id: string; url: string; }' is missing the following properties from type '{ id: string; url: string; width: number | null; height: number | null; }': width, height
+
+[7m86[0m       <PostContent locale={locale} blogT={blogT} data={data} baseUrl={baseUrl} contentHtml={articleHtml} validTargets={validTargets} />
+[7m  [0m [91m                                                 ~~~~[0m
+
+[96msrc/i18n/utils.ts[0m:[93m24[0m:[93m126[0m - [91merror[0m[90m ts(2322): [0mType 'Promise<typeof import("C:/Users/Utilisateur/Documents/t3code/atlaselle/src/i18n/en/auth")>' is not assignable to type 'Promise<{ default: AuthTranslations; }>'.
+  Type 'typeof import("C:/Users/Utilisateur/Documents/t3code/atlaselle/src/i18n/en/auth")' is not assignable to type '{ default: AuthTranslations; }'.
+    The types of 'default.dashboard' are incompatible between these types.
+      Type '{ welcome: string; profile: { title: string; email: string; username: string; role: string; }; }' is missing the following properties from type '{ welcome: string; profile: { title: string; email: string; username: string; role: string; }; signOut: string; editProfile: string; }': signOut, editProfile
+
+[7m24[0m const authModules: Record<Locale, () => Promise<{ default: AuthTranslations }>> = { fr: () => import('./fr/auth'), en: () => import('./en/auth'), es: () => import('./es/auth'), ar: () => import('./ar/auth') };
+[7m  [0m [91m                                                                                                                             ~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/i18n/ar/auth.ts[0m:[93m743[0m:[93m5[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'organizations' does not exist in type '{ dashboard: string; profile: string; admin: string; signOut: string; signIn: string; }'.
+
+[7m743[0m     organizations: 'المؤسسات',
+[7m   [0m [91m    ~~~~~~~~~~~~~[0m
+[96msrc/i18n/ar/auth.ts[0m:[93m183[0m:[93m7[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'globalRoles' does not exist in type '{ title: string; description: string; }'.
+
+[7m183[0m       globalRoles: 'الأدوار العامة',
+[7m   [0m [91m      ~~~~~~~~~~~[0m
+[96msrc/i18n/ar/auth.ts[0m:[93m100[0m:[93m7[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'totalOrganizations' does not exist in type '{ totalUsers: string; recentSignups: string; recentSignupsDescription: string; }'.
+
+[7m100[0m       totalOrganizations: 'المؤسسات',
+[7m   [0m [91m      ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/i18n/ar/auth.ts[0m:[93m81[0m:[93m7[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'organizations' does not exist in type '{ stats: string; users: string; auditLog: string; roles: string; blog: string; trips: string; applications: string; reservations: string; payments: string; travelers: string; emails: string; policies: string; ... 4 more ...; theme: string; }'.
+
+[7m81[0m       organizations: 'المؤسسات',
+[7m  [0m [91m      ~~~~~~~~~~~~~[0m
+[96msrc/i18n/ar/auth.ts[0m:[93m63[0m:[93m5[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'organizations' does not exist in type '{ welcome: string; profile: { title: string; email: string; username: string; role: string; }; signOut: string; editProfile: string; }'.
+
+[7m63[0m     organizations: {
+[7m  [0m [91m    ~~~~~~~~~~~~~[0m
+
+[96msrc/i18n/en/auth.ts[0m:[93m55[0m:[93m3[0m - [91merror[0m[90m ts(2739): [0mType '{ welcome: string; profile: { title: string; email: string; username: string; role: string; }; }' is missing the following properties from type '{ welcome: string; profile: { title: string; email: string; username: string; role: string; }; signOut: string; editProfile: string; }': signOut, editProfile
+
+[7m55[0m   dashboard: {
+[7m  [0m [91m  ~~~~~~~~~[0m
+
+[96msrc/i18n/es/auth.ts[0m:[93m743[0m:[93m5[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'organizations' does not exist in type '{ dashboard: string; profile: string; admin: string; signOut: string; signIn: string; }'.
+
+[7m743[0m     organizations: 'Organizaciones',
+[7m   [0m [91m    ~~~~~~~~~~~~~[0m
+[96msrc/i18n/es/auth.ts[0m:[93m183[0m:[93m7[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'globalRoles' does not exist in type '{ title: string; description: string; }'.
+
+[7m183[0m       globalRoles: 'Roles globales',
+[7m   [0m [91m      ~~~~~~~~~~~[0m
+[96msrc/i18n/es/auth.ts[0m:[93m100[0m:[93m7[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'totalOrganizations' does not exist in type '{ totalUsers: string; recentSignups: string; recentSignupsDescription: string; }'.
+
+[7m100[0m       totalOrganizations: 'Organizaciones',
+[7m   [0m [91m      ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/i18n/es/auth.ts[0m:[93m81[0m:[93m7[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'organizations' does not exist in type '{ stats: string; users: string; auditLog: string; roles: string; blog: string; trips: string; applications: string; reservations: string; payments: string; travelers: string; emails: string; policies: string; ... 4 more ...; theme: string; }'.
+
+[7m81[0m       organizations: 'Organizaciones',
+[7m  [0m [91m      ~~~~~~~~~~~~~[0m
+[96msrc/i18n/es/auth.ts[0m:[93m63[0m:[93m5[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'organizations' does not exist in type '{ welcome: string; profile: { title: string; email: string; username: string; role: string; }; signOut: string; editProfile: string; }'.
+
+[7m63[0m     organizations: {
+[7m  [0m [91m    ~~~~~~~~~~~~~[0m
+
+[96msrc/i18n/fr/auth.ts[0m:[93m412[0m:[93m93[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'organizations' does not exist in type '{ dashboard: string; profile: string; admin: string; signOut: string; signIn: string; }'.
+
+[7m412[0m   userMenu: { dashboard: 'Tableau de bord', profile: 'Mon profil', admin: 'Administration', organizations: 'Organisations', signOut: 'Se déconnecter', signIn: 'Se connecter' },
+[7m   [0m [91m                                                                                            ~~~~~~~~~~~~~[0m
+[96msrc/i18n/fr/auth.ts[0m:[93m183[0m:[93m7[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'globalRoles' does not exist in type '{ title: string; description: string; }'.
+
+[7m183[0m       globalRoles: 'Rôles globaux',
+[7m   [0m [91m      ~~~~~~~~~~~[0m
+[96msrc/i18n/fr/auth.ts[0m:[93m100[0m:[93m7[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'totalOrganizations' does not exist in type '{ totalUsers: string; recentSignups: string; recentSignupsDescription: string; }'.
+
+[7m100[0m       totalOrganizations: 'Organisations',
+[7m   [0m [91m      ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/i18n/fr/auth.ts[0m:[93m81[0m:[93m7[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'organizations' does not exist in type '{ stats: string; users: string; auditLog: string; roles: string; blog: string; trips: string; applications: string; reservations: string; payments: string; travelers: string; emails: string; policies: string; ... 4 more ...; theme: string; }'.
+
+[7m81[0m       organizations: 'Organisations',
+[7m  [0m [91m      ~~~~~~~~~~~~~[0m
+[96msrc/i18n/fr/auth.ts[0m:[93m63[0m:[93m5[0m - [91merror[0m[90m ts(2353): [0mObject literal may only specify known properties, and 'organizations' does not exist in type '{ welcome: string; profile: { title: string; email: string; username: string; role: string; }; signOut: string; editProfile: string; }'.
+
+[7m63[0m     organizations: {
+[7m  [0m [91m    ~~~~~~~~~~~~~[0m
+
+Result (1102 files): 
+- 26 errors
+- 0 warnings
+- 2 hints
+
+ ELIFECYCLE  Command failed with exit code 1.
+[ASTRO] SITE_URL is not set — using http://localhost:4321 fallback. Set SITE_URL for production builds.

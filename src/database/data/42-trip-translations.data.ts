@@ -4,7 +4,7 @@
 export default [
   // ── Algérie ──
   {
-    id: "tr-dz-fr", tripId: "trip-algeria", locale: "fr", slug: "algerie",
+    id: "8bbb48b3-6dd1-40bf-b023-aed7e16b045b", tripId: "26cf16d8-0770-48f9-870e-c68c9a9c47e0", locale: "fr", slug: "algerie",
     title: "Algérie : désert, oasis et Alger", shortTitle: "Algérie",
     summary: "D'Alger à Djanet, un passage entre médina, désert et tables partagées.",
     overview: "Huit jours d'Alger à Djanet via le désert. Dunes, oasis, gravures et nuits en bivouac encadré, en petit groupe de 14 voyageuses maximum.",
@@ -20,7 +20,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-dz-en", tripId: "trip-algeria", locale: "en", slug: "algeria",
+    id: "7c92562c-ea5b-43c5-b8a1-daf0b6086e7c", tripId: "26cf16d8-0770-48f9-870e-c68c9a9c47e0", locale: "en", slug: "algeria",
     title: "Algeria: Desert, Oasis and Algiers", shortTitle: "Algeria",
     summary: "From Algiers to Djanet, between medina, desert and shared tables.",
     overview: "Eight days from Algiers to Djanet via the desert. Dunes, oasis, rock art and guided bivouac nights in a small group of 14 travellers at most.",
@@ -36,7 +36,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-dz-ar", tripId: "trip-algeria", locale: "ar", slug: "algeria",
+    id: "d94e95f4-620a-4ab4-b76d-2ad88fc0d934", tripId: "26cf16d8-0770-48f9-870e-c68c9a9c47e0", locale: "ar", slug: "algeria",
     title: "الجزائر: الصحراء والواحات والجزائر", shortTitle: "الجزائر",
     summary: "من الجزائر إلى جانت، بين المدينة والصحراء والموائد المشتركة.",
     overview: "ثمانية أيام من الجزائر إلى جانت عبر الصحراء. كثبان وواحات ونقوش وليالٍ في مخيم موجه ضمن مجموعة صغيرة لا تتجاوز 14 مسافرة.",
@@ -52,7 +52,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-dz-es", tripId: "trip-algeria", locale: "es", slug: "argelia",
+    id: "93a7b6a1-ccbb-4345-861e-ad31af33d5ad", tripId: "26cf16d8-0770-48f9-870e-c68c9a9c47e0", locale: "es", slug: "argelia",
     title: "Argelia: desierto, oasis y Argel", shortTitle: "Argelia",
     summary: "De Argel a Djanet, entre medina, desierto y mesas compartidas.",
     overview: "Ocho días de Argel a Djanet vía el desierto. Dunas, oasis, grabados y noches en vivac guiado en un grupo pequeño de 14 viajeras como máximo.",
@@ -69,7 +69,7 @@ export default [
   },
   // ── Sicily + Malta (corrigée Valettete → Valette/Valletta) ──
   {
-    id: "tr-sm-fr", tripId: "trip-sicily-malta", locale: "fr", slug: "sicile-malte",
+    id: "f5075163-66c8-4609-9558-8b9bd275eb27", tripId: "b912b620-1d69-448f-a289-4790b4ce271c", locale: "fr", slug: "sicile-malte",
     title: "Sicile + Malte : deux îles, une traversée", shortTitle: "Sicile + Malte",
     summary: "Pierre, mer et cultures superposées entre le sud-est sicilien et Malte.",
     overview: "Huit jours de Catane à La Valette via Taormina, Syracuse, Noto et Gozo. Liaison Pozzallo–Malte en ferry rapide incluse. Pas de prix journaliers : un prix unique tout compris.",
@@ -85,7 +85,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-sm-en", tripId: "trip-sicily-malta", locale: "en", slug: "sicily-malta",
+    id: "7553e3fc-e9a7-4a71-89c2-930ca37e8ed0", tripId: "b912b620-1d69-448f-a289-4790b4ce271c", locale: "en", slug: "sicily-malta",
     title: "Sicily + Malta: Two Islands, One Crossing", shortTitle: "Sicily + Malta",
     summary: "Stone, sea and layered cultures across southeastern Sicily and Malta.",
     overview: "Eight days from Catania to Valletta via Taormina, Syracuse, Noto and Gozo. Pozzallo–Malta fast-ferry crossing included. One single price, no daily pricing.",
@@ -101,7 +101,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-sm-ar", tripId: "trip-sicily-malta", locale: "ar", slug: "sicily-malta",
+    id: "429a9ea4-c0b1-47ee-bda4-45847fbe6118", tripId: "b912b620-1d69-448f-a289-4790b4ce271c", locale: "ar", slug: "sicily-malta",
     title: "صقلية + مالطا: جزيرتان وعبور واحد", shortTitle: "صقلية + مالطا",
     summary: "حجر وبحر وثقافات متراكبة عبر جنوب شرق صقلية ومالطا.",
     overview: "ثمانية أيام من كاتانيا إلى فاليتا عبر تاورمينا وسيراكوزا ونوتو وغوزو. عبور بوزالو–مالطا بالعبّارة السريعة مشمول. سعر واحد شامل بدون أسعار يومية.",
@@ -117,7 +117,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-sm-es", tripId: "trip-sicily-malta", locale: "es", slug: "sicilia-malta",
+    id: "c57a0e51-df05-48ae-81aa-f75544198419", tripId: "b912b620-1d69-448f-a289-4790b4ce271c", locale: "es", slug: "sicilia-malta",
     title: "Sicilia + Malta: dos islas, una travesía", shortTitle: "Sicilia + Malta",
     summary: "Piedra, mar y culturas superpuestas entre el sureste siciliano y Malta.",
     overview: "Ocho días de Catania a La Valeta vía Taormina, Siracusa, Noto y Gozo. Travesía Pozzallo–Malta en ferri rápido incluida. Un precio único, sin precios por día.",
@@ -134,7 +134,7 @@ export default [
   },
   // ── Andalusia + Morocco ──
   {
-    id: "tr-am-fr", tripId: "trip-andalusia-morocco", locale: "fr", slug: "andalousie-maroc",
+    id: "5a54c9d1-0d4e-4175-a459-94014693defd", tripId: "22b3db08-f245-44eb-8ee2-a858eb7e25c4", locale: "fr", slug: "andalousie-maroc",
     title: "Andalousie + Maroc : traverser le détroit", shortTitle: "Andalousie + Maroc",
     summary: "Un passage intimiste entre les villes andalouses et le nord du Maroc.",
     overview: "Huit jours de Malaga à Tanger via Grenade et Cordoue puis Chefchaouen. Départ en ferry de Tarifa ou d'Algésiras selon les horaires confirmés — jamais de prix journaliers.",
@@ -150,7 +150,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-am-en", tripId: "trip-andalusia-morocco", locale: "en", slug: "andalusia-morocco",
+    id: "218f9ace-7e5c-45be-ba57-a25673c042ca", tripId: "22b3db08-f245-44eb-8ee2-a858eb7e25c4", locale: "en", slug: "andalusia-morocco",
     title: "Andalusia + Morocco: Across the Strait", shortTitle: "Andalusia + Morocco",
     summary: "An intimate passage between Andalusian cities and northern Morocco.",
     overview: "Eight days from Málaga to Tangier via Granada and Córdoba, then Chefchaouen. Ferry from Tarifa or Algeciras depending on confirmed timetables — never any daily pricing.",
@@ -166,7 +166,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-am-ar", tripId: "trip-andalusia-morocco", locale: "ar", slug: "andalusia-morocco",
+    id: "b5c58b96-2001-48e3-ae39-bfce43c81512", tripId: "22b3db08-f245-44eb-8ee2-a858eb7e25c4", locale: "ar", slug: "andalusia-morocco",
     title: "الأندلس + المغرب: عبر المضيق", shortTitle: "الأندلس + المغرب",
     summary: "عبور حميم بين مدن الأندلس وشمال المغرب.",
     overview: "ثمانية أيام من مالقة إلى طنجة عبر غرناطة وقرطبة ثم شفشاون. المغادرة بالعبّارة من طريفة أو الجزيرة الخضراء بحسب الجداول المؤكدة — ولا أسعار يومية أبدا.",
@@ -182,7 +182,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-am-es", tripId: "trip-andalusia-morocco", locale: "es", slug: "andalucia-marruecos",
+    id: "38a4fb43-73bb-4174-b23f-069f633b3813", tripId: "22b3db08-f245-44eb-8ee2-a858eb7e25c4", locale: "es", slug: "andalucia-marruecos",
     title: "Andalucía + Marruecos: cruzar el estrecho", shortTitle: "Andalucía + Marruecos",
     summary: "Un paso íntimo entre las ciudades andaluzas y el norte de Marruecos.",
     overview: "Ocho días de Málaga a Tánger vía Granada y Córdoba, luego Chauen. Salida en ferri desde Tarifa o Algeciras según horarios confirmados — nunca precios por día.",
@@ -199,7 +199,7 @@ export default [
   },
   // ── Bosnie ──
   {
-    id: "tr-bo-fr", tripId: "trip-bosnia", locale: "fr", slug: "bosnie",
+    id: "021aa8a0-76c1-40d1-a930-8f2c5f184a80", tripId: "2c45ce15-a211-4a07-9472-1539aae514c5", locale: "fr", slug: "bosnie",
     title: "Bosnie : Sarajevo, rivières et ponts", shortTitle: "Bosnie",
     summary: "Entre Sarajevo, Blagaj et les chutes de Kravica, une Bosnie à pied et en bateau.",
     overview: "Sept jours de Sarajevo à Mostar via Blagaj et Kravica. Bazars ottomans, rivières émeraude et ponts de pierre, en petit groupe de 12 voyageuses maximum.",
@@ -215,7 +215,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-bo-en", tripId: "trip-bosnia", locale: "en", slug: "bosnia",
+    id: "57017e9f-b829-4f0e-8bdc-1763e30bc42f", tripId: "2c45ce15-a211-4a07-9472-1539aae514c5", locale: "en", slug: "bosnia",
     title: "Bosnia: Sarajevo, Rivers and Bridges", shortTitle: "Bosnia",
     summary: "From Sarajevo to Blagaj and Kravica falls, Bosnia on foot and by boat.",
     overview: "Seven days from Sarajevo to Mostar via Blagaj and Kravica. Ottoman bazaars, emerald rivers and stone bridges in a small group of 12 travellers at most.",
@@ -231,7 +231,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-bo-ar", tripId: "trip-bosnia", locale: "ar", slug: "bosnia",
+    id: "b3bdbe67-362c-452d-89e8-42a3d8e3d92f", tripId: "2c45ce15-a211-4a07-9472-1539aae514c5", locale: "ar", slug: "bosnia",
     title: "البوسنة: سراييفو والأنهار والجسور", shortTitle: "البوسنة",
     summary: "من سراييفو إلى بلاغاي وشلالات كرافيتسا، البوسنة مشيا وبالقارب.",
     overview: "سبعة أيام من سراييفو إلى موستار عبر بلاغاي وكرافيتسا. أسواق عثمانية وأنهار زمردية وجسور حجرية ضمن مجموعة صغيرة لا تتجاوز 12 مسافرة.",
@@ -247,7 +247,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-bo-es", tripId: "trip-bosnia", locale: "es", slug: "bosnia",
+    id: "31a7ebb2-e272-40d2-9334-fbd24270792e", tripId: "2c45ce15-a211-4a07-9472-1539aae514c5", locale: "es", slug: "bosnia",
     title: "Bosnia: Sarajevo, ríos y puentes", shortTitle: "Bosnia",
     summary: "De Sarajevo a Blagaj y las cascadas de Kravica, Bosnia a pie y en barco.",
     overview: "Siete días de Sarajevo a Mostar vía Blagaj y Kravica. Bazares otomanos, ríos esmeralda y puentes de piedra en un grupo pequeño de 12 viajeras como máximo.",
@@ -264,7 +264,7 @@ export default [
   },
   // ── Route de la Soie ──
   {
-    id: "tr-sk-fr", tripId: "trip-silkroad", locale: "fr", slug: "route-de-la-soie",
+    id: "ccf2d025-a3cb-4e1a-beb9-2b65ac7f6f59", tripId: "6675b138-4572-4283-b866-b64840f63004", locale: "fr", slug: "route-de-la-soie",
     title: "Route de la Soie : Samarcande et lacs célestes", shortTitle: "Route de la Soie",
     summary: "De Samarcande aux lacs du Kirghizistan, caravansérails et yourtes.",
     overview: "Dix jours de Samarcande à Issyk-Kul via Boukhara et Song-Kul. Coupoles turquoise, bazars, lacs d'altitude et nuits en yourte, en petit groupe de 14 voyageuses maximum.",
@@ -280,7 +280,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-sk-en", tripId: "trip-silkroad", locale: "en", slug: "silk-road",
+    id: "696109ba-1b2e-4305-b04e-151285f4f2ce", tripId: "6675b138-4572-4283-b866-b64840f63004", locale: "en", slug: "silk-road",
     title: "Silk Road: Samarkand and Celestial Lakes", shortTitle: "Silk Road",
     summary: "From Samarkand to Kyrgyz lakes, caravanserais and yurts.",
     overview: "Ten days from Samarkand to Issyk-Kul via Bukhara and Song-Kul. Turquoise domes, bazaars, high lakes and yurt nights in a small group of 14 travellers at most.",
@@ -296,7 +296,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-sk-ar", tripId: "trip-silkroad", locale: "ar", slug: "silk-road",
+    id: "f1b37de2-50ce-4d5a-a798-194a04cc0456", tripId: "6675b138-4572-4283-b866-b64840f63004", locale: "ar", slug: "silk-road",
     title: "طريق الحرير: سمرقند والبحيرات السماوية", shortTitle: "طريق الحرير",
     summary: "من سمرقند إلى بحيرات قيرغيزستان، خانات وخيام.",
     overview: "عشرة أيام من سمرقند إلى إيسيك كول عبر بخارى وسونغ كول. قباب فيروزية وأسواق وبحيرات مرتفعة وليالٍ في الخيام ضمن مجموعة صغيرة لا تتجاوز 14 مسافرة.",
@@ -312,7 +312,7 @@ export default [
     localeVisible: true,
   },
   {
-    id: "tr-sk-es", tripId: "trip-silkroad", locale: "es", slug: "ruta-de-la-seda",
+    id: "ab430197-f0e4-40a0-a8f7-30a37a473dcf", tripId: "6675b138-4572-4283-b866-b64840f63004", locale: "es", slug: "ruta-de-la-seda",
     title: "Ruta de la Seda: Samarcanda y lagos celestes", shortTitle: "Ruta de la Seda",
     summary: "De Samarcanda a los lagos kirguises, caravasares y yurtas.",
     overview: "Diez días de Samarcanda a Issyk-Kul vía Bujará y Song-Kul. Cúpulas turquesas, bazares, lagos de altura y noches en yurta en un grupo pequeño de 14 viajeras como máximo.",

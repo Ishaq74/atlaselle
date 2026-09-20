@@ -31,7 +31,7 @@ describe('apply page — alternateUrls sans lookup statique', () => {
   });
 
   it('les 3 slugs FR seeds se chargent avec 4 traductions', async () => {
-    for (const slug of ['afrique-du-sud', 'sicile-malte', 'andalousie-maroc']) {
+    for (const slug of ['algerie', 'sicile-malte', 'andalousie-maroc', 'bosnie', 'route-de-la-soie']) {
       const dto = await loadTripPage('fr', slug);
       expect(dto, slug).not.toBeNull();
       for (const loc of ['fr', 'en', 'es', 'ar'] as Locale[]) {

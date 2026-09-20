@@ -46,7 +46,7 @@ export interface StaticSlugMaps {
 
 /**
  * Page équivalente dans la langue cible pour les slugs structurels
- * (about/contact/legal, auth, pages universelles terms/faq).
+ * (about/contact/legal, auth, page universelle terms).
  * Pur et testé (tests/unit/i18n-switch.test.ts). Retourne le chemin ou `null`
  * (repli : page parente / getRelativeLocaleUrl, jamais de contenu d'une autre langue).
  */
@@ -56,7 +56,7 @@ export function mapStaticSlugPath(
   pathWithoutLocale: string,
   maps: StaticSlugMaps,
 ): string | null {
-  if (pathWithoutLocale === '/terms' || pathWithoutLocale === '/faq') {
+  if (pathWithoutLocale === '/terms') {
     return `/${targetLocale}${pathWithoutLocale}`;
   }
   const curPages = maps.pageRoutes[currentLocale];

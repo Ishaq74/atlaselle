@@ -1,2 +1,51 @@
-// PURGE 2026-09-20 — contenu obsolete Demo/Annecy supprime. Dataset vide volontaire (seed SKIP). Remplacement voyage dans 41-47 + medias 00-00c.
-export default [];
+// Service tag translations — 8 tags × 4 locales. Slugs AR = ASCII EN.
+const T = (
+  id: string,
+  tagId: string,
+  locale: "fr" | "en" | "es" | "ar",
+  name: string,
+  slug: string,
+) => ({
+  id,
+  tagId,
+  locale,
+  name,
+  slug,
+  createdAt: new Date("2026-06-15T09:00:00.000Z"),
+  updatedAt: new Date("2026-06-15T09:00:00.000Z"),
+});
+
+export default [
+  T("3b733e3c-ba10-4464-aac4-c4bd96484d43", "ff6843ae-97d9-4e6e-bc4b-95160a1c2efa", "fr", "Visa", "visa"),
+  T("3029ecda-b9d0-4113-a9e0-5cf4d50624c2", "ff6843ae-97d9-4e6e-bc4b-95160a1c2efa", "en", "Visa", "visa"),
+  T("3b75321e-8bf8-4b63-a551-ab7732f5df6e", "ff6843ae-97d9-4e6e-bc4b-95160a1c2efa", "es", "Visado", "visado"),
+  T("c6bea510-d217-4a1a-a38d-b5f74d181517", "ff6843ae-97d9-4e6e-bc4b-95160a1c2efa", "ar", "التأشيرة", "visa"),
+  T("343a1f38-4543-45a3-a72a-4092b53870c6", "390da339-de91-4e94-905b-bfb102771c6d", "fr", "Guide", "guide"),
+  T("50917759-e410-44d9-a1fe-64f766a7aa62", "390da339-de91-4e94-905b-bfb102771c6d", "en", "Guide", "guide"),
+  T("f111a493-9b53-4ee2-a3bc-565fa334d80e", "390da339-de91-4e94-905b-bfb102771c6d", "es", "Guía", "guia"),
+  T("958b5556-a0a2-40b9-a9b1-914f31115c43", "390da339-de91-4e94-905b-bfb102771c6d", "ar", "مرشدة", "guide"),
+  T("dec3bd87-ed3d-40d7-a3a7-77c6cbca4804", "85cbc9bc-ed04-495c-b1fa-65d48d4a92e8", "fr", "Transfert", "transfert"),
+  T("4a537b37-41bd-4bef-a537-76e4d5584817", "85cbc9bc-ed04-495c-b1fa-65d48d4a92e8", "en", "Transfer", "transfer"),
+  T("d7228d7f-2ecd-49ac-a378-1e49890a8a73", "85cbc9bc-ed04-495c-b1fa-65d48d4a92e8", "es", "Traslado", "traslado"),
+  T("8632bb9a-78c5-4ad5-adc1-66759a120f4b", "85cbc9bc-ed04-495c-b1fa-65d48d4a92e8", "ar", "النقل", "transfer"),
+  T("9868d290-e379-4e5a-a1a5-a52afdc75e89", "bc9f2653-e7ac-4ded-822f-bacf9f6b2473", "fr", "Sur-mesure", "sur-mesure"),
+  T("1ddeec9d-b695-436b-a407-994d303bda95", "bc9f2653-e7ac-4ded-822f-bacf9f6b2473", "en", "Tailor-made", "tailor-made"),
+  T("eed38d37-c55b-4fd6-a935-6c0626bbc1cc", "bc9f2653-e7ac-4ded-822f-bacf9f6b2473", "es", "A medida", "a-medida"),
+  T("84ba96fd-aeaa-446f-aae1-ef493d7bfbe1", "bc9f2653-e7ac-4ded-822f-bacf9f6b2473", "ar", "حسب الطلب", "tailor-made"),
+  T("3eb89313-eed8-481a-a227-b69959de0196", "020abab2-c9b4-465b-9417-97326140b29e", "fr", "Désert", "desert"),
+  T("811b7b41-2bf2-4164-aa5f-87e5c5623e30", "020abab2-c9b4-465b-9417-97326140b29e", "en", "Desert", "desert"),
+  T("313baecb-2103-4603-ab10-e3e317f674e8", "020abab2-c9b4-465b-9417-97326140b29e", "es", "Desierto", "desierto"),
+  T("e094602f-4a1a-42ee-a721-5131961f7164", "020abab2-c9b4-465b-9417-97326140b29e", "ar", "الصحراء", "desert"),
+  T("12609a01-49f9-4eb7-adc1-5c419f5735c3", "0932d98c-1244-4827-81ca-0d6c4ee28890", "fr", "Assurance", "assurance"),
+  T("6a6b19d4-f9fe-4959-a475-18ebb76c161d", "0932d98c-1244-4827-81ca-0d6c4ee28890", "en", "Insurance", "insurance"),
+  T("11a00621-dff1-4947-a56e-a4cfb115cd00", "0932d98c-1244-4827-81ca-0d6c4ee28890", "es", "Seguro", "seguro"),
+  T("0a90a841-1916-4708-a38a-189c5b4c6338", "0932d98c-1244-4827-81ca-0d6c4ee28890", "ar", "التأمين", "insurance"),
+  T("0073b968-14a9-4fd5-a805-f5bdaf99b158", "365d8e38-6440-43ca-8321-53747c28da18", "fr", "Francophone", "francophone"),
+  T("e1dee55a-b12b-4f6e-a508-15c422b9fadd", "365d8e38-6440-43ca-8321-53747c28da18", "en", "French-speaking", "french-speaking"),
+  T("9d1ec577-1624-4a98-a9eb-c28857aff6d9", "365d8e38-6440-43ca-8321-53747c28da18", "es", "Francófono", "francofono"),
+  T("88246cc8-66a5-470b-a932-c7fa9b7eda00", "365d8e38-6440-43ca-8321-53747c28da18", "ar", "ناطق بالفرنسية", "french-speaking"),
+  T("f4ac52bd-f17e-46c8-a79e-dff755bd0644", "484cb698-8174-4293-af25-519425188008", "fr", "Petit groupe", "petit-groupe"),
+  T("a6b4915e-db59-4d02-aff2-7359e12493f8", "484cb698-8174-4293-af25-519425188008", "en", "Small group", "small-group"),
+  T("544557b4-5725-4e5e-a846-f94a5fd71276", "484cb698-8174-4293-af25-519425188008", "es", "Grupo pequeño", "grupo-pequeno"),
+  T("9ee3f0ff-774c-495c-a05a-c0f87e07cd79", "484cb698-8174-4293-af25-519425188008", "ar", "مجموعة صغيرة", "small-group"),
+];

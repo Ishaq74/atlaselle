@@ -22,8 +22,8 @@ const ASCII_SLUG = /^[a-z0-9-]+$/;
 const tripIds = new Set((trips as { id: string }[]).map((t) => t.id));
 
 describe('seeds voyage — invariants contenu', () => {
-  it('3 voyages publiés cohérents', () => {
-    expect(trips).toHaveLength(3);
+  it('5 voyages publiés cohérents', () => {
+    expect(trips).toHaveLength(5);
     for (const t of trips as any[]) {
       expect(t.status).toBe('published');
       expect(t.publishedAt).toBeInstanceOf(Date);
@@ -34,8 +34,8 @@ describe('seeds voyage — invariants contenu', () => {
     }
   });
 
-  it('12 traductions (3×4), slugs ASCII alignés sur routes.ts', () => {
-    expect(tripTranslations).toHaveLength(12);
+  it('20 traductions (5×4), slugs ASCII alignés sur routes.ts', () => {
+    expect(tripTranslations).toHaveLength(20);
     const seen = new Set<string>();
     for (const tr of tripTranslations as any[]) {
       expect(tripIds.has(tr.tripId)).toBe(true);

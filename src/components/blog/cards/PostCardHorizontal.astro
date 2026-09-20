@@ -25,7 +25,7 @@ interface Props {
     };
     translation: { title: string; slug: string; excerpt: string | null; content: string } | null;
     author: { id: string; name: string; image: string | null } | null;
-    featuredImage: { id: string; url: string } | null;
+    featuredImage: { id: string; url: string; width: number | null; height: number | null } | null;
     categories: { id: string; slug: string; name: string | null }[];
     commentCount: number;
     rating?: number | null;
@@ -96,7 +96,7 @@ const loadingAttr = priority === "eager" ? ("eager" as const) : ("lazy" as const
             class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading={loadingAttr}
             decoding="async"
-            inferSize
+            width={post.featuredImage.width ?? 1200} height={post.featuredImage.height ?? 675}
           />
         ) : (
           <div class="flex h-full w-full items-center justify-center bg-muted">
@@ -113,7 +113,7 @@ const loadingAttr = priority === "eager" ? ("eager" as const) : ("lazy" as const
             class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading={loadingAttr}
             decoding="async"
-            inferSize
+            width={post.featuredImage.width ?? 1200} height={post.featuredImage.height ?? 675}
           />
         ) : (
           <div class="flex h-full min-h-44 w-full items-center justify-center bg-muted">

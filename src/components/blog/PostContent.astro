@@ -23,7 +23,7 @@ interface BlogPostContentData {
     title: string | null;
     description: string | null;
     sortOrder: number;
-    media: { id: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string } }[];
+    media: { id: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string; width: number | null; height: number | null } }[];
   }[];
 }
 
@@ -126,7 +126,8 @@ const isUpdated =
       <Image
         src={featuredImage.url}
         alt={translation.title}
-        inferSize={true}
+        width={featuredImage.width ?? 1200}
+        height={featuredImage.height ?? 675}
         loading="eager"
         class="aspect-video w-full object-cover md:aspect-21/9"
       />
@@ -153,7 +154,8 @@ const isUpdated =
                       <Image
                         src={m.file.url}
                         alt={m.altText}
-                        inferSize={true}
+                        width={m.file.width ?? 800}
+                        height={m.file.height ?? 800}
                         class="aspect-square w-full object-cover"
                       />
                       {m.caption && (

@@ -63,7 +63,7 @@ function localizedHref(loc: Locale): string {
     const tripId = resolveTripSlug(currentLocale, isApply[1]);
     if (tripId) return getApplyPath(loc, getTripSlug(tripId, loc));
   }
-  // Slugs structurels (about/contact/legal, auth, universels terms/faq — TODO §7.6 : page équivalente ou repli, jamais de contenu d'une autre langue)
+  // Slugs structurels (about/contact/legal, auth, universelle terms — TODO §7.6 : page équivalente ou repli, jamais de contenu d'une autre langue)
   const mapped = mapStaticSlugPath(currentLocale, loc, pathWithoutLocale, STATIC_MAPS);
   if (mapped) return mapped;
   return getRelativeLocaleUrl(loc, pathWithoutLocale);

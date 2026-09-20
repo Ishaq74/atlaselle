@@ -2,8 +2,8 @@
 // Invariants : endDate > startDate, solde et deadline < départ, deposit percent 0-100.
 export default [
   {
-    id: "dep-algeria-2027",
-    tripId: "trip-algeria",
+    id: "36a8a58c-62ac-4957-b7c3-65141cd27d88",
+    tripId: "26cf16d8-0770-48f9-870e-c68c9a9c47e0",
     startDate: new Date("2027-10-09T08:00:00.000Z"),
     endDate: new Date("2027-10-16T18:00:00.000Z"),
     status: "open",
@@ -29,8 +29,8 @@ export default [
     departureAirport: "ALG",
   },
   {
-    id: "dep-sicily-malta-2027",
-    tripId: "trip-sicily-malta",
+    id: "be3f46b4-4350-4d1a-9936-609000f49bcc",
+    tripId: "b912b620-1d69-448f-a289-4790b4ce271c",
     startDate: new Date("2027-06-12T08:00:00.000Z"),
     endDate: new Date("2027-06-19T18:00:00.000Z"),
     status: "open",
@@ -56,8 +56,8 @@ export default [
     departureAirport: "MLA",
   },
   {
-    id: "dep-andalusia-morocco-2027",
-    tripId: "trip-andalusia-morocco",
+    id: "43b67c7c-d716-40a3-bd69-dd70da44a2fc",
+    tripId: "22b3db08-f245-44eb-8ee2-a858eb7e25c4",
     startDate: new Date("2027-03-13T08:00:00.000Z"),
     endDate: new Date("2027-03-20T18:00:00.000Z"),
     status: "open",
@@ -83,8 +83,8 @@ export default [
     departureAirport: "TNG",
   },
   {
-    id: "dep-bosnia-2027",
-    tripId: "trip-bosnia",
+    id: "5277dd91-9108-41c2-81c7-486d41d16691",
+    tripId: "2c45ce15-a211-4a07-9472-1539aae514c5",
     startDate: new Date("2027-05-15T08:00:00.000Z"),
     endDate: new Date("2027-05-21T18:00:00.000Z"),
     status: "open",
@@ -110,8 +110,8 @@ export default [
     departureAirport: "SJJ",
   },
   {
-    id: "dep-silkroad-2027",
-    tripId: "trip-silkroad",
+    id: "91e0df6c-4014-4f70-9557-4ba872cc9114",
+    tripId: "6675b138-4572-4283-b866-b64840f63004",
     startDate: new Date("2027-09-11T08:00:00.000Z"),
     endDate: new Date("2027-09-20T18:00:00.000Z"),
     status: "open",

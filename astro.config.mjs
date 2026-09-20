@@ -43,7 +43,13 @@ export default defineConfig({
   },
 
   integrations: [
-    Icon(),
+    Icon({
+      include: {
+        mdi: ['*'],
+        'circle-flags': ['*'],
+        openmoji: ['*'],
+      },
+    }),
     sitemap({
       // SSR mode: no pages are prerendered, so auto-discovery finds nothing.
       // All public URLs live in /sitemap-cms.xml (runtime endpoint).

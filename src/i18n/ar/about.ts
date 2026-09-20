@@ -1,119 +1,87 @@
 import type { AboutTranslations } from '../config';
 import { stone, bronze, houseCivilization, polish } from '../../assets/images/brand';
-import { avatar1, avatar2, avatar3 } from '../../assets/images/avatars';
+import { avatar1 } from '../../assets/images/avatars';
 
 export default {
   meta: {
-    title: 'من نحن – كلان',
-    description: 'اكتشف القصة والمهمة والفريق وراء كلان. نبني الحضارة طبقة بعد طبقة.',
+    title: 'من نحن – Atlaselle',
+    description: 'أطلسيل تصمم رحلات بمجموعات صغيرة للنساء، بين المدن العتيقة والصحارى والجزر. اكتشفي قصتنا ومؤسِّستنا.',
   },
   hero: {
     eyebrow: 'قصتنا',
-    title: 'بناء حضارة طبقة بعد طبقة',
-    description: 'وُلد كلان من قناعة: كل جيل يُبنى على الأسس التي خلّفها من سبقه. مهمتنا هي هيكلة هذا النقل حتى تُحفظ كل طبقة من المعرفة والثقافة والخبرة وتبقى متاحة.',
+    title: 'رحلات مصممة كأنها لقاءات',
+    description: 'وُلدت أطلسيل من ملاحظة بسيطة: كثير من النساء يتنازلن عن السفر لغياب إطار يطمئنّ إليه. نصمم رحلات بمجموعات صغيرة — من ست إلى أربع عشرة مسافرة — بين المدن العتيقة والصحارى وجزر المتوسط، مع وقت حقيقي لأن تحييي المكان فعلاً.',
   },
   mission: {
     eyebrow: 'سبب وجودنا',
     title: 'المهمة والرؤية',
-    description: 'ركيزتان توجّهان كل قراراتنا.',
+    description: 'ركيزتان توجهان كل مساراتنا.',
     cards: [
       {
         icon: 'mdi:target',
         title: 'مهمتنا',
-        description: 'مرافقة المجتمعات التي تبني على إرث من سبقها. نصنع الأدوات التي تمكّن من النقل بين الأجيال للمعارف والقيم والموارد.',
+        description: 'أن نتيح لكل امرأة السفر بطمأنينة، وحدها دون أن تكون معزولة: مجموعات صغيرة تُبنى بعناية، وإقامات مختارة في الميدان، ومرشدات محليات، وإيقاع يحترم كل واحدة.',
       },
       {
         icon: 'mdi:eye-outline',
         title: 'رؤيتنا',
-        description: 'عالم يستطيع فيه كل مجتمع البناء بشكل مستدام، طبقة بعد طبقة، على أسس صلبة. حيث لا يُفقد الإرث الجماعي بل يُضخّم.',
+        description: 'سفر يترك أثراً إيجابياً: للمسافرات اللواتي يعدن متحولات، وللمجتمعات التي تستضيفنا — الحرفيون وبيوت الضيافة والموائد المحلية أولاً.',
       },
     ],
   },
   values: {
-    eyebrow: 'ما يُعرّفنا',
+    eyebrow: 'ما يميزنا',
     title: 'قيمنا',
-    description: 'المبادئ المؤسسة التي توجّه كلان كل يوم.',
+    description: 'المبادئ التي توجه أطلسيل كل يوم.',
     items: [
       {
-        title: 'الإرث',
-        description: 'نؤمن بأن الماضي كنز. كل معرفة وكل تجربة تستحق أن تُحفظ وتُنقل إلى الأجيال القادمة. الإرث ليس عبئًا، بل هو نقطة انطلاق.',
+        title: 'العناية',
+        description: 'كل مسار يُختبر في الميدان. إيقاع هادئ، واستراحات حقيقية، وأوقات هادئة كل يوم: يجب أن يبقى السفر متعة، لا سباقاً.',
         image: stone,
-        value: 'heritage',
+        value: 'care',
       },
       {
-        title: 'النقل',
-        description: 'المعرفة التي لا تُنقل هي معرفة مفقودة. نبذل كل ما في وسعنا لضمان تدفق الحكمة بحرية بين الأجيال والمجتمعات.',
+        title: 'الثقة',
+        description: 'أسعار شفافة بنداً ببند، وشروط إلغاء واضحة، وتأمين مشروح بلا تعقيد. لا رسوم خفية ولا مفاجآت.',
         image: bronze,
-        value: 'transmission',
+        value: 'trust',
       },
       {
-        title: 'المجتمع',
-        description: 'وحدك تسير سريعًا، معًا نصل بعيدًا. يضع كلان المجتمع في صميم كل شيء. في الجماعة تولد المشاريع الأكثر طموحًا واستدامة.',
+        title: 'اللقاء',
+        description: 'نفضّل العناوين المحلية: بيوت الضيافة وورش الحرفيين والموائد العائلية. فالرحلة تبدأ بمن يستضيفوننا.',
         image: houseCivilization,
-        value: 'community',
+        value: 'encounter',
       },
       {
-        title: 'النزاهة',
-        description: 'البناء على أسس صلبة يتطلب الشفافية والأصالة. نلتزم بالتصرف بأمانة تجاه مجتمعنا وشركائنا وأنفسنا.',
+        title: 'الاحترام',
+        description: 'للكوكب وللثقافات ولإيقاعك الداخلي. أماكن صلاة محددة، وبرامج مكيّفة خلال رمضان، ومجموعات صغيرة للحد من بصمتنا.',
         image: polish,
-        value: 'integrity',
+        value: 'respect',
       },
     ],
   },
   team: {
-    eyebrow: 'البنّاؤون',
-    title: 'فريقنا',
-    description: 'أشخاص شغوفون يعملون كل يوم لإحياء رؤية كلان.',
+    eyebrow: 'المؤسِّسة',
+    title: 'من تقف وراء أطلسيل',
+    description: 'أطلسيل شركة بمقياس إنساني: شخص واحد يصمم كل رحلة ويختبرها ويرافقها.',
     members: [
       {
-        name: 'يوسف منصوري',
-        role: 'المؤسس والرئيس التنفيذي',
-        bio: 'صاحب رؤية شغوف بالنقل بين الأجيال وبناء المجتمعات.',
-        image: avatar2,
-        socials: [
-          { name: 'LinkedIn', icon: 'linkedin', href: '#' },
-          { name: 'X', icon: 'twitter', href: '#' },
-          { name: 'Email', icon: 'mail', href: 'mailto:youssef@klan.com' },
-        ],
-      },
-      {
-        name: 'أمينة بلقاسم',
-        role: 'مديرة العمليات',
-        bio: 'خبيرة في إدارة المجتمعات والتطوير المؤسسي.',
+        name: 'أمهاني عاشور',
+        role: 'المؤسِّسة ومصممة الرحلات',
+        bio: 'مسافرة ميدانية، طافت أمهاني بالجزائر والمغرب والأندلس والبوسنة وطريق الحرير قبل أن تحولها إلى مسارات. وهي تجيب شخصياً على كل طلب.',
         image: avatar1,
         socials: [
-          { name: 'LinkedIn', icon: 'linkedin', href: '#' },
-          { name: 'Email', icon: 'mail', href: 'mailto:amina@klan.com' },
-        ],
-      },
-      {
-        name: 'كريم وعدة',
-        role: 'المدير التقني',
-        bio: 'مهندس برمجيات متخصص في منصات المجتمعات واسعة النطاق.',
-        image: avatar3,
-        socials: [
-          { name: 'LinkedIn', icon: 'linkedin', href: '#' },
-          { name: 'X', icon: 'twitter', href: '#' },
-          { name: 'Email', icon: 'mail', href: 'mailto:karim@klan.com' },
-        ],
-      },
-      {
-        name: 'سارة دوبون',
-        role: 'مسؤولة المجتمع',
-        bio: 'منشّطة مجتمعات ملتزمة تنسج الروابط بين أعضاء كلان.',
-        image: avatar1,
-        socials: [
-          { name: 'LinkedIn', icon: 'linkedin', href: '#' },
-          { name: 'X', icon: 'twitter', href: '#' },
-          { name: 'Email', icon: 'mail', href: 'mailto:sarah@klan.com' },
+          { name: 'LinkedIn', icon: 'linkedin', href: 'https://linkedin.com/in/oumhani-achour' },
+          { name: 'Instagram', icon: 'instagram', href: 'https://instagram.com/atlaselle.voyages' },
+          { name: 'Email', icon: 'mail', href: 'mailto:contact@atlaselle.com' },
         ],
       },
     ],
   },
   cta: {
-    title: 'انضم إلى مغامرة كلان',
-    description: 'كن فاعلاً في هذا البناء الجماعي. كل حجر يُحسب في الصرح المشترك.',
-    primaryButton: { text: 'انضم إلى كلان', href: '#' },
-    secondaryButton: { text: 'تواصل معنا', href: '#' },
+    title: 'مستعدة لرحلتك القادمة؟',
+    description: 'تصفحي وجهاتنا أو راسلينا مباشرة: كل رحلة تبدأ بمحادثة.',
+    primaryButton: { text: 'شاهدي الرحلات', href: '/ar/trips' },
+    secondaryButton: { text: 'اتصلي بنا', href: '/ar/contact' },
   },
 } satisfies AboutTranslations;

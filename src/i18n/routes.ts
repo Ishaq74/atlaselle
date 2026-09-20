@@ -13,7 +13,7 @@ import type { Locale } from './config';
  * copier-coller / indexation), contenu de page entièrement en arabe.
  */
 
-export type TripId = 'south-africa' | 'sicily-malta' | 'andalusia-morocco';
+export type TripId = 'algeria' | 'sicily-malta' | 'andalusia-morocco' | 'bosnia' | 'silkroad';
 
 /** `/fr/voyages` · `/en/trips` · `/ar/trips` · `/es/viajes` */
 export const TRIP_LIST_SEGMENT: Record<Locale, string> = {
@@ -29,13 +29,6 @@ export const APPLY_SEGMENT: Record<Locale, string> = {
   en: 'apply',
   ar: 'apply',
   es: 'postulacion',
-};
-
-export const FAQ_SEGMENT: Record<Locale, string> = {
-  fr: 'faq',
-  en: 'faq',
-  ar: 'faq',
-  es: 'faq',
 };
 
 /** `/fr/conditions` · `/en/terms` · `/ar/terms` · `/es/terminos` */
@@ -75,11 +68,11 @@ export const CONTACT_SEGMENT: Record<Locale, string> = {
  * FR/EN/ES traduits, AR = slug EN translittéré (ASCII).
  */
 export const TRIP_SLUGS: Record<TripId, Record<Locale, string>> = {
-  'south-africa': {
-    fr: 'afrique-du-sud',
-    en: 'south-africa',
-    ar: 'south-africa',
-    es: 'sudafrica',
+  'algeria': {
+    fr: 'algerie',
+    en: 'algeria',
+    ar: 'algeria',
+    es: 'argelia',
   },
   'sicily-malta': {
     fr: 'sicile-malte',
@@ -92,6 +85,18 @@ export const TRIP_SLUGS: Record<TripId, Record<Locale, string>> = {
     en: 'andalusia-morocco',
     ar: 'andalusia-morocco',
     es: 'andalucia-marruecos',
+  },
+  'bosnia': {
+    fr: 'bosnie',
+    en: 'bosnia',
+    ar: 'bosnia',
+    es: 'bosnia',
+  },
+  'silkroad': {
+    fr: 'route-de-la-soie',
+    en: 'silk-road',
+    ar: 'silk-road',
+    es: 'ruta-de-la-seda',
   },
 };
 
@@ -122,9 +127,6 @@ export function getApplyPath(locale: Locale, tripSlug: string): string {
   return `/${locale}/${APPLY_SEGMENT[locale]}/${tripSlug}`;
 }
 
-export function getFaqPath(locale: Locale): string {
-  return `/${locale}/${FAQ_SEGMENT[locale]}`;
-}
 
 export function getTermsPath(locale: Locale): string {
   return `/${locale}/${TERMS_SEGMENT[locale]}`;

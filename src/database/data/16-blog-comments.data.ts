@@ -1,2 +1,85 @@
-// PURGE 2026-09-20 — contenu obsolete Demo/Annecy supprime. Dataset vide volontaire (seed SKIP). Remplacement voyage dans 41-47 + medias 00-00c.
-export default [];
+// Blog comments — 15 commentaires réalistes : voyageuses + invitées,
+// fils de réponses, majoritairement APPROVED, quelques PENDING.
+// Réponses de la rédaction signées Oumhani (11111111).
+const K = (
+  id: string,
+  postId: string,
+  authorId: string | null,
+  parentId: string | null,
+  guestName: string | null,
+  guestEmail: string | null,
+  content: string,
+  status: string,
+  karma: number,
+  createdAt: Date,
+) => ({
+  id,
+  postId,
+  authorId,
+  parentId,
+  guestName,
+  guestEmail,
+  content,
+  status,
+  karma,
+  ipAddress: "127.0.0.1",
+  userAgent: "Mozilla/5.0 (seed)",
+  isEdited: false,
+  createdAt,
+  updatedAt: createdAt,
+});
+
+const ADMIN = "11111111-1111-1111-1111-111111111111";
+const CAMILLE = "33333333-3333-3333-3333-333333333333";
+const LUCAS = "44444444-4444-4444-4444-444444444444";
+const SARAH = "55555555-5555-5555-5555-555555555555";
+const AMINA = "66666666-6666-6666-6666-666666666666";
+const INES = "77777777-7777-7777-7777-777777777777";
+
+export default [
+  K("ac7f9543-ac0a-489b-a400-e02a46d0cb7a", "9b4d8fef-badd-4787-ae7b-d91f7c7107c3", CAMILLE, null, null, null,
+    "Récit très fidèle — le silence du bivouac, c'est exactement ça. Et le thé à la menthe de Djanet, je le refais encore à la maison.",
+    "APPROVED", 5, new Date("2026-07-08T19:20:00.000Z")),
+  K("5430c8b6-7bf2-49e1-a8e9-4f4b2a953c6d", "9b4d8fef-badd-4787-ae7b-d91f7c7107c3", ADMIN, "ac7f9543-ac0a-489b-a400-e02a46d0cb7a", null, null,
+    "Merci Camille ! La prochaine date est prévue en octobre 2027 pour celles qui lisent.",
+    "APPROVED", 2, new Date("2026-07-09T09:05:00.000Z")),
+  K("ac3270a1-a77c-45b3-ae3a-6a67d79e60ec", "9b4d8fef-badd-4787-ae7b-d91f7c7107c3", null, null, "Lydia", "lydia.m@example.fr",
+    "La marche dans les dunes est-elle accessible avec des genoux fragiles ?",
+    "APPROVED", 1, new Date("2026-07-10T14:40:00.000Z")),
+  K("5acd9bd0-bb2f-4aa3-aa91-643b8dd24a24", "9b4d8fef-badd-4787-ae7b-d91f7c7107c3", ADMIN, "ac3270a1-a77c-45b3-ae3a-6a67d79e60ec", null, null,
+    "Bonjour Lydia — les marches sont modérées et adaptables ; écrivez-nous, on regarde ensemble votre situation.",
+    "APPROVED", 1, new Date("2026-07-10T16:10:00.000Z")),
+  K("f9144337-a06f-45d1-a386-44c67c111aaf", "39ee3d3f-56be-4097-915c-db53b8bf927f", CAMILLE, null, null, null,
+    "L'Alhambra tôt le matin, meilleur conseil du voyage. Et la traversée du détroit reste mon moment préféré.",
+    "APPROVED", 4, new Date("2026-07-15T20:00:00.000Z")),
+  K("dfd9a8bb-6d8a-4c46-a5f1-cb8c4f23d085", "d7d77012-392f-49ad-8b72-e5860a1eff5a", null, null, "Nadia", "nadia.k@example.fr",
+    "La Bosnie n'était pas sur ma liste — cet article vient de changer ça. Sept jours, c'est suffisant pour Sarajevo ET Mostar ?",
+    "APPROVED", 3, new Date("2026-07-22T11:15:00.000Z")),
+  K("02788f2e-7827-45a0-a0c6-c6963f974459", "d7d77012-392f-49ad-8b72-e5860a1eff5a", ADMIN, "dfd9a8bb-6d8a-4c46-a5f1-cb8c4f23d085", null, null,
+    "Oui Nadia, le programme est calibré pour les deux, avec une journée complète dans chaque ville.",
+    "APPROVED", 1, new Date("2026-07-22T14:00:00.000Z")),
+  K("023dc9dc-3d70-4102-ab8a-21689b88a8b1", "335960c7-43bb-44eb-84fb-3bb7b2f5969b", SARAH, null, null, null,
+    "Mdina en fin de journée, sans les groupes : je confirme, c'est magique. Le ferry est très bien organisé.",
+    "APPROVED", 2, new Date("2026-07-29T18:30:00.000Z")),
+  K("e69e9d2c-bed6-4056-a884-42be5b73508c", "cc564fbf-0a61-4554-a5dc-a30fbfb5fb83", INES, null, null, null,
+    "Inscrite pour 2027 ! La nuit en yourte me fait un peu peur — il fait froid au Song-Kul en été ?",
+    "APPROVED", 2, new Date("2026-08-06T21:00:00.000Z")),
+  K("c7e31ed5-ae5f-4a2e-ab36-11a2f65b7e46", "cc564fbf-0a61-4554-a5dc-a30fbfb5fb83", ADMIN, "e69e9d2c-bed6-4056-a884-42be5b73508c", null, null,
+    "Bienvenue Inès ! Les nuits sont fraîches (5-10°C) mais les yourtes sont chauffées et les couvertures fournies.",
+    "APPROVED", 1, new Date("2026-08-07T08:45:00.000Z")),
+  K("7e221d96-819e-4b99-acf6-bbc052f662ee", "c4092370-2aa2-4986-ac3d-9ee0c40622cc", LUCAS, null, null, null,
+    "Huit kilos, j'y croyais pas. Testé et approuvé sur l'Algérie — la liste est exacte, ne rajoutez rien.",
+    "APPROVED", 6, new Date("2026-08-12T12:10:00.000Z")),
+  K("fabad835-2f2a-4d4c-a0fa-340366d9f701", "e58bf5f3-629e-433f-a53c-804f3de36783", AMINA, null, null, null,
+    "« Partir sans attendre que l'agenda des autres s'aligne » — je me suis reconnue. Premier voyage solo à 52 ans, zéro regret.",
+    "APPROVED", 9, new Date("2026-08-19T09:30:00.000Z")),
+  K("3ec170c3-f2ca-49a9-a225-128bdc55d907", "e58bf5f3-629e-433f-a53c-804f3de36783", null, null, "Emma", "emma.b@example.fr",
+    "Cet article m'a décidée. Une question : les chambres sont-elles partagées ou individuelles ?",
+    "PENDING", 0, new Date("2026-09-18T22:05:00.000Z")),
+  K("13859e72-4c5d-4ca6-abaf-d4cd7c0baeb6", "e4eade2e-cb1c-4852-a326-ab1e77149b82", null, null, "Sonia", "sonia.r@example.fr",
+    "L'iftar partagé à Fès reste mon plus beau souvenir de voyage, toutes catégories confondues.",
+    "APPROVED", 4, new Date("2026-09-03T20:40:00.000Z")),
+  K("6f00ea41-a4ab-4213-a7b4-d5997f9621f7", "2ae90d0f-fa6d-45d8-996f-45d3c1a7060f", INES, null, null, null,
+    "Le paiement en plusieurs fois sans frais, c'est ce qui m'a permis de réserver la Route de la Soie. Merci pour la transparence.",
+    "PENDING", 0, new Date("2026-09-19T10:15:00.000Z")),
+];

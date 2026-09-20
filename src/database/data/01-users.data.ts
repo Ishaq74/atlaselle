@@ -1,20 +1,73 @@
-// Atlaselle users — équipe éditoriale voyage (purge Demo/Annecy).
-// Comptes techniques déterministes, emails normalisés, vérifiés.
+// Atlaselle users — Oumhani Achour (propriétaire, seule admin, publie tout)
+// + 5 comptes voyageuses pour l'engagement (avis, commentaires, favoris).
+// Comptes déterministes, emails normalisés, vérifiés.
+// Avatars : fichiers réels src/assets/images/avatars/* copiés vers
+// public/uploads/images/avatars/* (médiathèque : folder-avatars, med-avatar-*).
 export default [
   {
     id: "11111111-1111-1111-1111-111111111111",
-    name: "Atlaselle Admin",
-    email: "admin@atlaselle.travel",
+    name: "Oumhani Achour",
+    email: "contact@atlaselle.com",
     emailVerified: true,
+    image: null,
     role: "admin",
+    bio: "Fondatrice d'Atlaselle. Conceptrice des voyages et rédactrice du journal.",
     createdAt: new Date("2026-09-20T09:00:00.000Z"),
+    updatedAt: new Date("2026-09-20T09:00:00.000Z"),
   },
   {
-    id: "22222222-2222-2222-2222-222222222222",
-    name: "Atlaselle Édition",
-    email: "edition@atlaselle.travel",
+    id: "33333333-3333-3333-3333-333333333333",
+    name: "Camille Dupond",
+    email: "camille.dupond@example.fr",
     emailVerified: true,
+    image: "/uploads/images/avatars/camille-dupond.png",
     role: "user",
-    createdAt: new Date("2026-09-20T09:05:00.000Z"),
+    bio: "Voyageuse Atlaselle — Algérie 2026, Andalousie-Maroc 2026.",
+    createdAt: new Date("2026-06-14T10:00:00.000Z"),
+    updatedAt: new Date("2026-06-14T10:00:00.000Z"),
+  },
+  {
+    id: "44444444-4444-4444-4444-444444444444",
+    name: "Lucas Martin",
+    email: "lucas.martin@example.fr",
+    emailVerified: true,
+    image: "/uploads/images/avatars/lucas-martin.png",
+    role: "user",
+    bio: "Voyageur Atlaselle — Algérie 2026.",
+    createdAt: new Date("2026-06-20T10:00:00.000Z"),
+    updatedAt: new Date("2026-06-20T10:00:00.000Z"),
+  },
+  {
+    id: "55555555-5555-5555-5555-555555555555",
+    name: "Sarah Leroy",
+    email: "sarah.leroy@example.fr",
+    emailVerified: true,
+    image: "/uploads/images/avatars/sarah-leroy.png",
+    role: "user",
+    bio: "Voyageuse Atlaselle — Sicile-Malte 2026, extension désert.",
+    createdAt: new Date("2026-07-02T10:00:00.000Z"),
+    updatedAt: new Date("2026-07-02T10:00:00.000Z"),
+  },
+  {
+    id: "66666666-6666-6666-6666-666666666666",
+    name: "Amina Benali",
+    email: "amina.benali@example.fr",
+    emailVerified: true,
+    image: null,
+    role: "user",
+    bio: "Voyageuse Atlaselle — Sicile-Malte 2026.",
+    createdAt: new Date("2026-07-18T10:00:00.000Z"),
+    updatedAt: new Date("2026-07-18T10:00:00.000Z"),
+  },
+  {
+    id: "77777777-7777-7777-7777-777777777777",
+    name: "Inès Kaci",
+    email: "ines.kaci@example.fr",
+    emailVerified: true,
+    image: null,
+    role: "user",
+    bio: "Nouvelle voyageuse Atlaselle — départ Route de la Soie 2027.",
+    createdAt: new Date("2026-08-05T10:00:00.000Z"),
+    updatedAt: new Date("2026-08-05T10:00:00.000Z"),
   },
 ];

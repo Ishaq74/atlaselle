@@ -64,7 +64,7 @@ export interface BlogPostListItem {
   post: BlogPost;
   translation: BlogPostTranslation | null;
   author: { id: string; name: string; image: string | null } | null;
-  featuredImage: { id: string; url: string } | null;
+  featuredImage: { id: string; url: string; width: number | null; height: number | null } | null;
   categories: { id: string; slug: string; name: string | null }[];
   tags: { id: string; slug: string; name: string | null }[];
   commentCount: number;

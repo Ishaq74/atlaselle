@@ -1,10 +1,10 @@
 // Trip comments — approved + pending + threaded, gabarit blog 16.
-// authorId references voyage demo users (111..., 222...); guests for visitors.
+// authorId → comptes voyageuses réels (333 Camille, 555 Sarah, 111 Oumhani).
 export default [
   {
-    id: "t8000000-0000-0000-0000-000000000001",
-    tripId: "trip-algeria",
-    authorId: "22222222-2222-2222-2222-222222222222",
+    id: "a084fdd2-8380-4f09-9818-123ec3024c92",
+    tripId: "26cf16d8-0770-48f9-870e-c68c9a9c47e0",
+    authorId: "33333333-3333-3333-3333-333333333333",
     parentId: null,
     guestName: null,
     guestEmail: null,
@@ -18,10 +18,10 @@ export default [
     updatedAt: new Date("2026-09-10T12:00:00.000Z"),
   },
   {
-    id: "t8000000-0000-0000-0000-000000000002",
-    tripId: "trip-algeria",
+    id: "024d8421-244a-491d-9565-ada9f88b9e55",
+    tripId: "26cf16d8-0770-48f9-870e-c68c9a9c47e0",
     authorId: null,
-    parentId: "t8000000-0000-0000-0000-000000000001",
+    parentId: "a084fdd2-8380-4f09-9818-123ec3024c92",
     guestName: "Nora",
     guestEmail: "nora.demo@example.com",
     content: "La pause oasis en fin d'après-midi était parfaite avec notre groupe.",
@@ -34,8 +34,8 @@ export default [
     updatedAt: new Date("2026-09-10T13:00:00.000Z"),
   },
   {
-    id: "t8000000-0000-0000-0000-000000000003",
-    tripId: "trip-sicily-malta",
+    id: "64160a70-c515-4332-92b2-49142e14f018",
+    tripId: "b912b620-1d69-448f-a289-4790b4ce271c",
     authorId: null,
     parentId: null,
     guestName: "Paul",
@@ -50,9 +50,9 @@ export default [
     updatedAt: new Date("2026-09-12T14:00:00.000Z"),
   },
   {
-    id: "t8000000-0000-0000-0000-000000000004",
-    tripId: "trip-sicily-malta",
-    authorId: "22222222-2222-2222-2222-222222222222",
+    id: "b79a5e47-65df-4d46-a595-e47f639db3c3",
+    tripId: "b912b620-1d69-448f-a289-4790b4ce271c",
+    authorId: "55555555-5555-5555-5555-555555555555",
     parentId: null,
     guestName: null,
     guestEmail: null,
@@ -66,8 +66,8 @@ export default [
     updatedAt: new Date("2026-09-13T15:00:00.000Z"),
   },
   {
-    id: "t8000000-0000-0000-0000-000000000005",
-    tripId: "trip-andalusia-morocco",
+    id: "1962e496-06aa-475a-a2e3-7fea99260586",
+    tripId: "22b3db08-f245-44eb-8ee2-a858eb7e25c4",
     authorId: "11111111-1111-1111-1111-111111111111",
     parentId: null,
     guestName: null,
