@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -7,6 +7,7 @@ import {
   integer,
   uniqueIndex,
   index,
+  check,
 } from "drizzle-orm/pg-core";
 import { LOCALES } from "@i18n/config";
 
@@ -48,6 +49,9 @@ export const policyVersions = pgTable(
   (table) => [
     uniqueIndex("policy_versions_doc_version_uidx").on(table.documentId, table.version),
     index("policy_versions_doc_idx").on(table.documentId),
+    check("policy_versions_version_ck", sql`${table.version} > 0`),
+    check("policy_versions_published_review_ck", sql`NOT ${table.published} OR ${table.reviewedBy} IS NOT NULL`),
+    check("policy_versions_published_at_ck", sql`NOT ${table.published} OR ${table.publishedAt} IS NOT NULL`),
   ],
 );
 

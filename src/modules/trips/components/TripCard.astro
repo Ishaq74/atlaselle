@@ -21,14 +21,24 @@ const labels =
         : { from: "From", duration: "days", discover: "Discover", open: "Available", interest: "Interest list" };
 ---
 <article class="overflow-hidden rounded-xl border bg-card">
-  <div class="flex h-44 items-end bg-gradient-to-br from-primary/80 to-primary p-5" aria-hidden="true">
-    <span class="rounded-full bg-background/90 px-3 py-1 text-xs font-semibold">
-      {trip.status === "open" ? labels.open : labels.interest}
-    </span>
-  </div>
+  {trip.hero ? (
+    <div class="relative h-44 overflow-hidden">
+      <img src={trip.hero.url} alt={trip.hero.alt} width={trip.hero.width ?? 800} height={trip.hero.height ?? 450} loading="lazy" class="h-full w-full object-cover" />
+      <span class="absolute bottom-5 left-5 rounded-full bg-background/90 px-3 py-1 text-xs font-semibold">
+        {trip.status === "open" ? labels.open : labels.interest}
+      </span>
+    </div>
+  ) : (
+    <div class="flex h-44 items-end bg-gradient-to-br from-primary/80 to-primary p-5" aria-hidden="true">
+      <span class="rounded-full bg-background/90 px-3 py-1 text-xs font-semibold">
+        {trip.status === "open" ? labels.open : labels.interest}
+      </span>
+    </div>
+  )}
   <div class="p-6">
     <h2 class="text-xl font-bold">{trip.title}</h2>
     <p class="mt-2 text-sm text-muted-foreground"><bdi>{trip.dates}</bdi> · <bdi>{trip.durationDays} {labels.duration}</bdi> · {trip.difficulty}</p>
+    {trip.ratingCount > 0 && <p class="mt-2 text-sm" aria-label={`${trip.ratingAverage}/5`}><bdi>{trip.ratingAverage}/5</bdi> · <bdi>{trip.ratingCount}</bdi> {"★".repeat(Math.round(trip.ratingAverage))}{"☆".repeat(5 - Math.round(trip.ratingAverage))}</p>}
     <p class="mt-3 line-clamp-3 text-sm">{trip.summary}</p>
     <div class="mt-5 flex items-center justify-between">
       <p class="text-sm text-muted-foreground">{labels.from} <span class="text-lg font-bold text-foreground"><bdi>{pricePrefix}{trip.priceFrom.toLocaleString("en")}</bdi></span></p>

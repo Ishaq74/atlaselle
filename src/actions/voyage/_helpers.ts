@@ -1,8 +1,9 @@
 import { ActionError, type ActionAPIContext } from "astro:actions";
 import { eq } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
-import { trips } from "@database/schemas";
+import { trips, tripLocks } from "@database/schemas";
 import { logAuditEvent, extractIp, type AuditAction } from "@/lib/audit";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { invalidateCache } from "@database/cache";
 import type { statement } from "@/lib/permissions";
 
@@ -33,6 +34,36 @@ export async function assertTripExists(tripId: string) {
   const [trip] = await getDrizzle().select().from(trips).where(eq(trips.id, tripId)).limit(1);
   if (!trip) throw new ActionError({ code: "NOT_FOUND", message: "Voyage introuvable." });
   return trip;
+}
+
+export async function assertPublishedTripExists(tripId: string) {
+  const trip = await assertTripExists(tripId);
+  if (trip.status !== "published") throw new ActionError({ code: "NOT_FOUND", message: "Voyage introuvable." });
+  return trip;
+}
+
+export async function assertTripLockOwner(tripId: string, userId: string, sessionId?: string | null): Promise<void> {
+  const [lock] = await getDrizzle().select().from(tripLocks).where(eq(tripLocks.tripId, tripId)).limit(1);
+  if (!lock) return;
+  if (lock.expiresAt <= new Date()) {
+    await getDrizzle().delete(tripLocks).where(eq(tripLocks.tripId, tripId));
+    return;
+  }
+  if (lock.userId !== userId || (sessionId != null && lock.sessionId !== sessionId)) {
+    throw new ActionError({ code: "CONFLICT", message: "Ce voyage est verrouillé par un autre éditeur." });
+  }
+}
+
+export function voyageRateLimit(_context: ActionAPIContext, userId: string, scope: string, opts = { window: 60, max: 30 }) {
+  const result = checkRateLimit(`voyage-${scope.replace(/:/g, "_")}:${userId}`, opts);
+  if (!result.allowed) throw new ActionError({ code: "TOO_MANY_REQUESTS", message: "Trop de requêtes. Veuillez réessayer dans quelques instants." });
+}
+
+export function voyagePublicRateLimit(context: ActionAPIContext, scope: string, opts = { window: 300, max: 5 }) {
+  const ip = extractIp(context.request.headers, context.clientAddress);
+  const key = ip ? `voyage-${scope.replace(/:/g, "_")}:${ip}` : `voyage-${scope.replace(/:/g, "_")}:__global__`;
+  const result = checkRateLimit(key, ip ? opts : { window: opts.window, max: Math.max(1, Math.floor(opts.max / 3)) });
+  if (!result.allowed) throw new ActionError({ code: "TOO_MANY_REQUESTS", message: "Trop de requêtes. Veuillez réessayer dans quelques instants." });
 }
 
 // Verrouillage optimiste (TODO §16.8) : rejette les écritures sur version
@@ -71,4 +102,6 @@ export function auditVoyage(
 export function invalidateVoyageCache(): void {
   invalidateCache("trip:");
   invalidateCache("trips:list");
+  invalidateCache("voyage:moderation:");
+  invalidateCache("voyage:reporting:");
 }

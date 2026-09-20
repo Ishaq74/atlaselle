@@ -6,6 +6,13 @@
       "when": 1789784172484,
       "tag": "0000_tranquil_toad",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789884973145,
+      "tag": "0001_steady_meteorite",
+      "breakpoints": true
     }
   ]
 }

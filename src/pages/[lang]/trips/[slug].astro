@@ -3,6 +3,7 @@ import { toLocale } from "@i18n/utils";
 import { LOCALES } from "@i18n/config";
 import { getTripPath } from "@i18n/routes";
 import { loadTripPage } from "@/modules/trips/loaders/trip.loader";
+import { safeJsonLd } from "@/lib/sanitize";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import TripPage from "@/components/pages/TripPage.astro";
 const locale = toLocale(Astro.params.lang);
@@ -16,7 +17,16 @@ const alternateUrls = Object.fromEntries(
   LOCALES.filter((loc) => dto.visibleLocales.includes(loc)).map((loc) => [loc, getTripPath(loc, dto.translations[loc].slug)]),
 );
 const canonicalPath = getTripPath(locale, copy.slug);
-const jsonLd = JSON.stringify({"@context":"https://schema.org","@type":"TouristTrip",name:copy.title,description:copy.summary,inLanguage:locale,offers:{"@type":"Offer",price:dto.price,priceCurrency:dto.currency,availability:dto.status === "open" ? "https://schema.org/InStock" : "https://schema.org/PreOrder"}});
+const jsonLdPayload = {
+  "@context": "https://schema.org",
+  "@type": "TouristTrip",
+  name: copy.title,
+  description: copy.summary,
+  inLanguage: locale,
+  offers: { "@type": "Offer", price: dto.price, priceCurrency: dto.currency, availability: dto.status === "open" ? "https://schema.org/InStock" : "https://schema.org/PreOrder" },
+  ...(dto.ratingCount > 0 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: dto.ratingAverage, reviewCount: dto.ratingCount } } : {}),
+};
+const jsonLd = safeJsonLd(JSON.stringify(jsonLdPayload));
 ---
 <BaseLayout title={`${copy.title} — ATLASELLE`} description={copy.summary} canonicalPath={canonicalPath} alternateUrls={alternateUrls} jsonLd={jsonLd}>
   <TripPage trip={dto} locale={locale} />

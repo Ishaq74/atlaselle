@@ -1,8 +1,8 @@
-// Social links seed — global (not i18n).
+// Social links Atlaselle — URLs réelles marque (purge génériques).
 export default [
   {
     platform: "facebook",
-    url: "https://facebook.com",
+    url: "https://facebook.com/atlaselle",
     icon: "mdi:facebook",
     label: "Facebook",
     sortOrder: 0,
@@ -10,7 +10,7 @@ export default [
   },
   {
     platform: "instagram",
-    url: "https://instagram.com",
+    url: "https://instagram.com/atlaselle.voyages",
     icon: "mdi:instagram",
     label: "Instagram",
     sortOrder: 1,
@@ -18,26 +18,18 @@ export default [
   },
   {
     platform: "x",
-    url: "https://x.com",
+    url: "https://x.com/atlaselle",
     icon: "mdi:twitter",
     label: "Twitter / X",
     sortOrder: 2,
     isActive: true,
   },
   {
-    platform: "linkedin",
-    url: "https://linkedin.com",
-    icon: "mdi:linkedin",
-    label: "LinkedIn",
-    sortOrder: 3,
-    isActive: true,
-  },
-  {
     platform: "youtube",
-    url: "https://youtube.com",
+    url: "https://youtube.com/@atlaselle",
     icon: "mdi:youtube",
     label: "YouTube",
-    sortOrder: 4,
-    isActive: false,
+    sortOrder: 3,
+    isActive: true,
   },
 ];

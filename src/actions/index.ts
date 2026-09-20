@@ -24,6 +24,8 @@ import { moderateServiceComment, moderateServiceReview, resolveServiceReport } f
 import { addServiceMedia, updateServiceMedia, removeServiceMedia } from "./services/media";
 import { resolveServiceInternalLink } from "./services/internal-link";
 import { createTrip, submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, restoreTripRevision, updateTrip, upsertTripTranslation } from "./voyage/trips";
+import { createTripComment, createTripReview, createTripReport, voteTripReviewHelpful, toggleTripFavorite, toggleTripReaction, recordTripView } from "./voyage/engagement";
+import { moderateTripComment, moderateTripReview, resolveTripReport, updateTripEngagementSettings } from "./voyage/moderation";
 import { createDeparture, updateDeparture, setDepartureStatus } from "./voyage/departures";
 import { submitApplication, reviewApplication, withdrawApplication } from "./voyage/applications";
 import { initiateCheckout, cancelReservation } from "./voyage/checkout";
@@ -49,6 +51,8 @@ export const server = {
   toggleServiceReaction, listServiceNotifications, markServiceNotificationRead, markAllServiceNotificationsRead, recordServiceView, createServiceAttributeDefinition, setServiceAttributeValue,
   createServiceCategory, updateServiceCategory, deleteServiceCategory, createServiceTag, updateServiceTag, deleteServiceTag, moderateServiceComment, moderateServiceReview, resolveServiceReport, addServiceMedia, updateServiceMedia, removeServiceMedia, resolveServiceInternalLink,
   createTrip, submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, restoreTripRevision, updateTrip, upsertTripTranslation,
+  createTripComment, createTripReview, createTripReport, voteTripReviewHelpful, toggleTripFavorite, toggleTripReaction, recordTripView,
+  moderateTripComment, moderateTripReview, resolveTripReport, updateTripEngagementSettings,
   createDeparture, updateDeparture, setDepartureStatus,
   submitApplication, reviewApplication, withdrawApplication,
   initiateCheckout, cancelReservation, refundPayment, payBalance,

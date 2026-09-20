@@ -10,6 +10,7 @@ import {
 } from "@database/schemas/trips.schema";
 import { itineraryDays, itineraryDayTranslations } from "@database/schemas/itinerary.schema";
 import { departures } from "@database/schemas/departures.schema";
+import { mediaFiles, mediaFileAlts } from "@database/schemas/media.schema";
 import { reservations } from "@database/schemas/reservations.schema";
 import { seatHolds } from "@database/schemas/departures.schema";
 import { isValidLocale } from "@/i18n/utils";
@@ -29,6 +30,13 @@ export interface TripCopy {
   itinerary: { title: string; text: string }[];
 }
 
+export interface TripHero {
+  url: string;
+  alt: string;
+  width: number | null;
+  height: number | null;
+}
+
 export interface TripPageDTO {
   id: TripId;
   dates: string;
@@ -40,6 +48,12 @@ export interface TripPageDTO {
   deposit: number;
   finalPaymentDue: string;
   roomRule: string;
+  hero: TripHero | null;
+  commentStatus: "OPEN" | "CLOSED" | "DISABLED";
+  allowReviews: boolean;
+  ratingAverage: number;
+  ratingCount: number;
+  viewCount: number;
   translations: Record<Locale, TripCopy>;
   /** Locales publiées (localeVisible) — seules indexables (hreflang/sitemap, TODO §7.5). */
   visibleLocales: Locale[];
@@ -57,6 +71,9 @@ export interface TripSummaryDTO {
   priceFrom: number;
   currency: string;
   status: TripPageStatus;
+  hero: TripHero | null;
+  ratingAverage: number;
+  ratingCount: number;
 }
 
 const OPEN_DEPARTURE_STATUSES = ["open", "limited", "waitlist"] as const;
@@ -84,6 +101,19 @@ async function departureAvailability(departureId: string, capacityMax: number): 
     .where(and(eq(seatHolds.departureId, departureId), eq(seatHolds.status, "active")));
   const held = holds.filter((h) => h.expiresAt.getTime() > now.getTime()).reduce((n, h) => n + h.quantity, 0);
   return availableSeats({ capacityMax, confirmedSeats: confirmed.length, heldSeats: held });
+}
+
+async function loadHero(heroMediaId: string | null, locale: Locale): Promise<TripHero | null> {
+  if (!heroMediaId) return null;
+  const db = getDrizzle();
+  const [file] = await db.select().from(mediaFiles).where(eq(mediaFiles.id, heroMediaId)).limit(1);
+  if (!file) return null;
+  const alts = await db.select().from(mediaFileAlts).where(eq(mediaFileAlts.fileId, heroMediaId));
+  const alt = alts.find((a) => a.locale === locale)?.alt
+    ?? alts.find((a) => a.locale === "en")?.alt
+    ?? alts.find((a) => a.locale === "fr")?.alt
+    ?? "";
+  return { url: file.url, alt, width: file.width ?? null, height: file.height ?? null };
 }
 
 const loadTripPageInner = async (locale: Locale, slug: string): Promise<TripPageDTO | null> => {
@@ -171,6 +201,8 @@ const loadTripPageInner = async (locale: Locale, slug: string): Promise<TripPage
   const status: TripPageStatus = dep && remaining > 0 ? "open" : "interest-list";
   // Acompte recalculé serveur (gère le type percent — jamais le montant brut).
   const quote = dep ? await quoteForDeparture(dep.id) : null;
+  const ratingAverage = trip.ratingCount > 0 ? Math.round((trip.ratingAverage100 / 100) * 10) / 10 : 0;
+  const hero = await loadHero(trip.heroMediaId ?? null, locale);
   return {
     id: tripId,
     dates: dep ? formatRange(locale, dep.startDate, dep.endDate) : "",
@@ -182,6 +214,12 @@ const loadTripPageInner = async (locale: Locale, slug: string): Promise<TripPage
     deposit: quote ? Math.round(quote.depositAmount / 100) : 0,
     finalPaymentDue: dep ? formatDate(locale, dep.balanceDueDate) : "",
     roomRule: main.lodging ?? "",
+    hero,
+    commentStatus: (trip.commentStatus as TripPageDTO["commentStatus"]) ?? "OPEN",
+    allowReviews: trip.allowReviews ?? true,
+    ratingAverage,
+    ratingCount: trip.ratingCount ?? 0,
+    viewCount: trip.viewCount ?? 0,
     translations,
     visibleLocales: LOCALES.filter((loc) => byLocale.get(loc)?.localeVisible ?? false),
   };
@@ -211,6 +249,7 @@ const loadTripsListInner = async (locale: Locale): Promise<TripSummaryDTO[]> => 
       .limit(1);
     const dep = deps[0] ?? null;
     const remaining = dep ? await departureAvailability(dep.id, dep.capacityMax) : 0;
+    const hero = await loadHero(trip.heroMediaId ?? null, locale);
     out.push({
       id: trip.id as TripId,
       slug: tr.slug,
@@ -223,6 +262,9 @@ const loadTripsListInner = async (locale: Locale): Promise<TripSummaryDTO[]> => 
       priceFrom: dep ? Math.round(dep.priceAmount / 100) : 0,
       currency: dep?.currency ?? trip.defaultCurrency,
       status: dep && remaining > 0 ? "open" : "interest-list",
+      hero,
+      ratingAverage: trip.ratingCount > 0 ? Math.round((trip.ratingAverage100 / 100) * 10) / 10 : 0,
+      ratingCount: trip.ratingCount ?? 0,
     });
   }
   return out;

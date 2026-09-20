@@ -2,6 +2,7 @@
 import type { AuthTranslations, Locale } from '@i18n/config';
 import type { AppUser } from '@/lib/types';
 import type { VoyageHealth } from '@/modules/trips/loaders/admin-health.loader';
+import type { VoyageReportingRange, VoyageTripReportRow, VoyageDepartureReportRow } from '@/modules/trips/loaders/admin-reporting.loader';
 import { Card, CardHeader, CardTitle, CardContent } from '@atoms/card';
 
 interface Props {
@@ -10,13 +11,16 @@ interface Props {
   user: AppUser;
   adminStats: { totalUsers: number; recentSignups: number };
   voyageStats?: VoyageHealth | null;
+  voyageReporting?: VoyageReportingRange | null;
+  voyageTripReports?: VoyageTripReportRow[] | null;
+  voyageDepartureReports?: VoyageDepartureReportRow[] | null;
 }
 
-const { t, locale, adminStats, voyageStats } = Astro.props;
+const { t, locale, adminStats, voyageStats, voyageReporting, voyageTripReports, voyageDepartureReports } = Astro.props;
 const ta = t.admin;
 const vt = locale === "fr"
-  ? { title: "Voyages", pending: "Candidatures à relire", open: "Départs ouverts", upcoming: "Départs 7 j", recent: "Réservations 7 j", failed: "Paiements échoués", balances: "Soldes dus", unpublished: "Traductions non visibles" }
-  : { title: "Voyages", pending: "Applications to review", open: "Open departures", upcoming: "Departures 7d", recent: "Bookings 7d", failed: "Failed payments", balances: "Balances due", unpublished: "Hidden translations" };
+  ? { title: "Voyages", pending: "Candidatures à relire", open: "Départs ouverts", upcoming: "Départs 7 j", recent: "Réservations 7 j", failed: "Paiements échoués", balances: "Soldes dus", unpublished: "Traductions non visibles", moderation: "Modération avis & commentaires", pendingComments: "Commentaires en attente", pendingReviews: "Avis en attente", pendingReports: "Signalements en attente", reporting: "Reporting — jour / semaine / mois", day: "Jour", week: "7 jours", month: "30 jours", applications: "Candidatures", reservations: "Réservations", revenue: "Revenu brut (centimes)", views: "Vues", byTrip: "Par voyage", byDeparture: "Par départ", approval: "Approbation", occupancy: "Occupation", rating: "Note" }
+  : { title: "Voyages", pending: "Applications to review", open: "Open departures", upcoming: "Departures 7d", recent: "Bookings 7d", failed: "Failed payments", balances: "Balances due", unpublished: "Hidden translations", moderation: "Reviews & comments moderation", pendingComments: "Pending comments", pendingReviews: "Pending reviews", pendingReports: "Pending reports", reporting: "Reporting — day / week / month", day: "Day", week: "7 days", month: "30 days", applications: "Applications", reservations: "Bookings", revenue: "Gross revenue (cents)", views: "Views", byTrip: "By trip", byDeparture: "By departure", approval: "Approval", occupancy: "Occupancy", rating: "Rating" };
 ---
 
 <div class="grid gap-4 sm:grid-cols-2">
@@ -46,6 +50,52 @@ const vt = locale === "fr"
       <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.failed}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.failedPayments}</p></CardContent></Card>
       <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.balances}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.balancesDue}</p></CardContent></Card>
       <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.unpublished}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.unpublishedTrips}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.pendingComments}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold"><bdi>{voyageStats.pendingComments}</bdi></p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.pendingReviews}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold"><bdi>{voyageStats.pendingReviews}</bdi></p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.pendingReports}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold"><bdi>{voyageStats.pendingReports}</bdi></p></CardContent></Card>
+    </div>
+  </div>
+) : null}
+
+{voyageReporting ? (
+  <div class="mt-8">
+    <h2 class="mb-4 text-xl font-bold">{vt.reporting}</h2>
+    <div class="grid gap-4 sm:grid-cols-3">
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.day}</CardTitle></CardHeader><CardContent><p class="text-sm">{vt.applications} : <bdi>{voyageReporting.day.applications}</bdi></p><p class="text-sm">{vt.reservations} : <bdi>{voyageReporting.day.reservations}</bdi></p><p class="text-sm">{vt.revenue} : <bdi>{voyageReporting.day.revenueGross}</bdi></p><p class="text-sm">{vt.views} : <bdi>{voyageReporting.day.views}</bdi></p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.week}</CardTitle></CardHeader><CardContent><p class="text-sm">{vt.applications} : <bdi>{voyageReporting.week.applications}</bdi></p><p class="text-sm">{vt.reservations} : <bdi>{voyageReporting.week.reservations}</bdi></p><p class="text-sm">{vt.revenue} : <bdi>{voyageReporting.week.revenueGross}</bdi></p><p class="text-sm">{vt.views} : <bdi>{voyageReporting.week.views}</bdi></p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.month}</CardTitle></CardHeader><CardContent><p class="text-sm">{vt.applications} : <bdi>{voyageReporting.month.applications}</bdi></p><p class="text-sm">{vt.reservations} : <bdi>{voyageReporting.month.reservations}</bdi></p><p class="text-sm">{vt.revenue} : <bdi>{voyageReporting.month.revenueGross}</bdi></p><p class="text-sm">{vt.views} : <bdi>{voyageReporting.month.views}</bdi></p></CardContent></Card>
+    </div>
+  </div>
+) : null}
+
+{voyageTripReports && voyageTripReports.length > 0 ? (
+  <div class="mt-8">
+    <h2 class="mb-4 text-xl font-bold">{vt.byTrip}</h2>
+    <div class="overflow-x-auto rounded-xl border">
+      <table class="w-full text-sm">
+        <thead><tr class="border-b text-start text-muted-foreground"><th class="p-3 text-start">Voyage</th><th class="p-3 text-start">{vt.applications}</th><th class="p-3 text-start">{vt.approval} %</th><th class="p-3 text-start">{vt.reservations}</th><th class="p-3 text-start">{vt.revenue}</th><th class="p-3 text-start">{vt.rating}</th></tr></thead>
+        <tbody>
+          {voyageTripReports.map((row) => (
+            <tr class="border-b last:border-0"><td class="p-3">{row.title ?? row.tripId}</td><td class="p-3"><bdi>{row.applications}</bdi></td><td class="p-3"><bdi>{row.approvalRate}</bdi></td><td class="p-3"><bdi>{row.reservations}</bdi></td><td class="p-3"><bdi>{row.revenueGross}</bdi></td><td class="p-3"><bdi>{row.ratingAverage}/5 ({row.ratingCount})</bdi></td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+) : null}
+
+{voyageDepartureReports && voyageDepartureReports.length > 0 ? (
+  <div class="mt-8">
+    <h2 class="mb-4 text-xl font-bold">{vt.byDeparture}</h2>
+    <div class="overflow-x-auto rounded-xl border">
+      <table class="w-full text-sm">
+        <thead><tr class="border-b text-start text-muted-foreground"><th class="p-3 text-start">Départ</th><th class="p-3 text-start">Statut</th><th class="p-3 text-start">{vt.occupancy} %</th><th class="p-3 text-start">{vt.revenue}</th></tr></thead>
+        <tbody>
+          {voyageDepartureReports.map((row) => (
+            <tr class="border-b last:border-0"><td class="p-3"><bdi>{row.startDate.toISOString().slice(0, 10)}</bdi></td><td class="p-3">{row.status}</td><td class="p-3"><bdi>{row.occupancyRate}</bdi></td><td class="p-3"><bdi>{row.revenueGross}</bdi></td></tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   </div>
 ) : null}

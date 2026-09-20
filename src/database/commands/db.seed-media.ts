@@ -1,13 +1,14 @@
 /**
- * db.seed-media — Scan public/uploads/ and index all existing files
- * into media_folders + media_files tables.
+ * db.seed-media — Synchronise src/assets/images/trips/* vers public/uploads/
+ * puis indexe tous les fichiers existants into media_folders + media_files.
  *
  * Run: pnpm db:seed-media
  *
  * Safe to run multiple times — skips files already in DB (by url).
+ * Invariant voyage : 26 fichiers 5 dossiers alignés aux trips (00b).
  */
-import { readdirSync, statSync } from 'node:fs';
-import { join, extname, relative } from 'node:path';
+import { readdirSync, statSync, mkdirSync, copyFileSync, existsSync } from 'node:fs';
+import { join, extname, relative, dirname } from 'node:path';
 import { getDrizzle, shutdownDb } from '../drizzle';
 import { mediaFolders, mediaFiles } from '../schemas';
 import { eq } from 'drizzle-orm';
@@ -91,13 +92,53 @@ function scanUploads(baseDir: string, currentDir: string = baseDir): ScanResult[
  * Mapping: disk subfolder path → logical folder name
  * - images/avatars → Avatars
  * - images/logos, images/brand → Brand
+ * - media/trips/* → Voyages (dossier parent, enfants créés via seed 00)
  * - everything else (images/site, images/test, media, ...) → Médias
  */
 function resolveFolder(subfolder: string | null): string {
   if (!subfolder) return 'Médias';
   if (subfolder === 'images/avatars') return 'Avatars';
   if (subfolder === 'images/logos' || subfolder === 'images/brand') return 'Brand';
+  if (subfolder.startsWith('media/trips')) return 'Voyages';
   return 'Médias';
+}
+
+// ─── Sync src/assets/images/trips/* → public/uploads/media/trips/* ─────────
+// Source de vérité : 26 fichiers 5 dossiers (algeria, andalusiamorocco, bosnia,
+// maltasicily, silkroad). Copie idempotente (skip si même taille).
+function syncTripAssets(): { copied: number; skipped: number } {
+  const srcBase = join(process.cwd(), 'src', 'assets', 'images', 'trips');
+  const dstBase = join(process.cwd(), 'public', 'uploads', 'media', 'trips');
+  let copied = 0;
+  let skipped = 0;
+  const walk = (srcDir: string) => {
+    let entries: string[];
+    try {
+      entries = readdirSync(srcDir);
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const srcPath = join(srcDir, entry);
+      const stat = statSync(srcPath);
+      if (stat.isDirectory()) {
+        walk(srcPath);
+      } else if (stat.isFile()) {
+        if (entry === '.gitkeep') continue;
+        const rel = relative(srcBase, srcPath).replace(/\\/g, '/');
+        const dstPath = join(dstBase, rel);
+        mkdirSync(dirname(dstPath), { recursive: true });
+        if (existsSync(dstPath) && statSync(dstPath).size === stat.size) {
+          skipped++;
+          continue;
+        }
+        copyFileSync(srcPath, dstPath);
+        copied++;
+      }
+    }
+  };
+  walk(srcBase);
+  return { copied, skipped };
 }
 
 async function seedMedia() {
@@ -109,6 +150,8 @@ async function seedMedia() {
   await confirmProd('seed-media');
 
   const uploadsDir = join(process.cwd(), 'public', 'uploads');
+  const synced = syncTripAssets();
+  console.log(`\n${c.cyan(`[sync]`)} src/assets/images/trips → public/uploads/media/trips : ${synced.copied} copié(s), ${synced.skipped} déjà à jour\n`);
   const scanned = scanUploads(uploadsDir);
 
   console.log(`\n${c.cyan(`[scan]`)} ${scanned.length} fichiers trouvés dans public/uploads/\n`);
@@ -121,8 +164,8 @@ async function seedMedia() {
 
   const db = getDrizzle();
 
-  // 1. Create the 3 logical folders: Avatars, Brand, Médias
-  const FOLDER_NAMES = ['Avatars', 'Brand', 'Médias'] as const;
+  // 1. Create the logical folders: Avatars, Brand, Médias, Voyages (+ 5 enfants voyage)
+  const FOLDER_NAMES = ['Avatars', 'Brand', 'Médias', 'Voyages'] as const;
   const folderMap = new Map<string, string>(); // name → id
   let foldersCreated = 0;
 

@@ -1,14 +1,14 @@
-// Contact info seed — single global row.
+// Contact Atlaselle — identité voyage (purge Starwind Pro / Paris générique).
 export default [
   {
-    email: "contact@starwindpro.com",
-    phone: "+33 1 23 45 67 89",
-    address: "123 Rue de l'Exemple",
-    city: "Paris",
-    postalCode: "75001",
-    country: "France",
-    mapUrl: "https://maps.google.com/?q=48.8606,2.3376",
-    latitude: "48.8606",
-    longitude: "2.3376",
+    email: "contact@atlaselle.travel",
+    phone: "+221 33 800 00 00",
+    address: "Almadies, Route de la Corniche",
+    city: "Dakar",
+    postalCode: "12000",
+    country: "Sénégal",
+    mapUrl: "https://maps.google.com/?q=14.7390,-17.5230",
+    latitude: "14.7390",
+    longitude: "-17.5230",
   },
 ];

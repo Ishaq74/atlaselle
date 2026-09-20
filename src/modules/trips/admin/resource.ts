@@ -33,6 +33,27 @@ export const tripAdminResource: AdminResourceDefinition = {
 
 assertResourceCompatibility(tripsModule, tripAdminResource);
 
+export const tripModerationAdminResource: AdminResourceDefinition = {
+  id: "trip-moderation",
+  entity: "trip-moderation",
+  management: { list: true, search: false, filters: true, sort: true, pagination: true, stats: true },
+  list: {
+    filters: [
+      { id: "tab", kind: "select", queryParam: "tab" },
+      { id: "status", kind: "select", queryParam: "status" },
+      { id: "trip", kind: "select", queryParam: "tripId" },
+    ],
+    sorts: [{ id: "createdAt", queryParam: "sortBy", directions: ["asc", "desc"] }],
+    defaultSort: "createdAt",
+  } as const,
+  actions: {
+    create: false, read: true, update: true, duplicate: false,
+    publish: false, unpublish: false, archive: false, restore: true, delete: false, bulk: false,
+  },
+  presentation: { list: ["default"], single: ["default"] },
+  permissionNamespace: "trip",
+};
+
 const departureListDefinition = {
   filters: [
     { id: "status", kind: "select", queryParam: "status" },

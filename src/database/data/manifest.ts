@@ -11,6 +11,7 @@ export interface SeedEntry {
 export const seedManifest: SeedEntry[] = [
   { dataFile: '00-media.data.ts', schemaExport: 'mediaFolders', label: 'media folders' },
   { dataFile: '00b-media-files.data.ts', schemaExport: 'mediaFiles', label: 'media files' },
+  { dataFile: '00c-media-file-alts.data.ts', schemaExport: 'mediaFileAlts', label: 'media file alts' },
   { dataFile: '01-users.data.ts', schemaExport: 'user', label: 'users' },
   { dataFile: '01b-user-accounts.data.ts', schemaExport: 'account', label: 'user accounts' },
   { dataFile: '03-site-settings.data.ts', schemaExport: 'siteSettings', label: 'site settings' },
@@ -88,4 +89,13 @@ export const seedManifest: SeedEntry[] = [
   { dataFile: '46f-trip-exclusion-translations.data.ts', schemaExport: 'tripExclusionTranslations', label: 'trip exclusion translations' },
   { dataFile: '47-policy-documents.data.ts', schemaExport: 'policyDocuments', label: 'policy documents' },
   { dataFile: '47b-policy-versions.data.ts', schemaExport: 'policyVersions', label: 'policy versions' },
+  { dataFile: '48-trip-comments.data.ts', schemaExport: 'tripComments', label: 'trip comments' },
+  { dataFile: '48b-trip-comment-moderations.data.ts', schemaExport: 'tripCommentModerations', label: 'trip comment moderations' },
+  { dataFile: '49-trip-reviews.data.ts', schemaExport: 'tripReviews', label: 'trip reviews' },
+  { dataFile: '49b-trip-review-helpful.data.ts', schemaExport: 'tripReviewHelpful', label: 'trip review helpful' },
+  { dataFile: '50-trip-reports.data.ts', schemaExport: 'tripReports', label: 'trip reports' },
+  { dataFile: '51-trip-favorites.data.ts', schemaExport: 'tripFavorites', label: 'trip favorites' },
+  { dataFile: '52-trip-view-stats.data.ts', schemaExport: 'tripViewStats', label: 'trip view stats' },
+  { dataFile: '53-trip-reactions.data.ts', schemaExport: 'tripReactions', label: 'trip reactions' },
+  { dataFile: '54-trip-notifications.data.ts', schemaExport: 'tripNotifications', label: 'trip notifications' },
 ];

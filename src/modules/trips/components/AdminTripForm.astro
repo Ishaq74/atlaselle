@@ -79,6 +79,25 @@ const t = locale === "fr"
     </form>
   ) : null}
 
+  {canUpdate ? (
+    <form data-engagement-form class="space-y-4 rounded-xl border p-6">
+      <h2 class="text-xl font-bold">Engagement — avis & commentaires</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="block text-sm">commentStatus
+          <select name="commentStatus" class="mt-1 w-full rounded-md border bg-background p-2">
+            {(["OPEN", "CLOSED", "DISABLED"] as const).map((s) => (
+              <option value={s} selected={(trip.commentStatus ?? "OPEN") === s}>{s}</option>
+            ))}
+          </select>
+        </label>
+        <label class="inline-flex items-center gap-2 text-sm"><input type="checkbox" name="allowReviews" checked={trip.allowReviews ?? true} /> allowReviews</label>
+      </div>
+      <p class="text-xs text-muted-foreground">Ratings : <bdi>{trip.ratingCount}</bdi> avis · moyenne <bdi>{trip.ratingCount > 0 ? Math.round((trip.ratingAverage100 / 100) * 10) / 10 : 0}/5</bdi> · <bdi>{trip.viewCount}</bdi> vues</p>
+      <button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save}</button>
+      <output class="block text-sm" data-form-message></output>
+    </form>
+  ) : null}
+
   <div class="space-y-6">
     <h2 class="text-xl font-bold">{t.translations}</h2>
     {LOCALES.map((loc: Locale) => {
@@ -339,6 +358,20 @@ const t = locale === "fr"
         if (el) el.textContent = error.message;
       } else window.location.reload();
     });
+  });
+
+  document.querySelector("[data-engagement-form]")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = asForm(e);
+    if (!form) return;
+    const data = new FormData(form);
+    const { error } = await actions.updateTripEngagementSettings({
+      tripId,
+      commentStatus: String(data.get("commentStatus") ?? "OPEN") as "OPEN" | "CLOSED" | "DISABLED",
+      allowReviews: form.querySelector<HTMLInputElement>('input[name="allowReviews"]')?.checked ?? true,
+    });
+    if (error) say(form, false, error.message);
+    else window.location.reload();
   });
 
   document.querySelector("[data-departure-form]")?.addEventListener("submit", async (e) => {

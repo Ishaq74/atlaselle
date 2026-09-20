@@ -34,6 +34,9 @@ export const itineraryDays = pgTable(
     uniqueIndex("itinerary_days_trip_day_uidx").on(table.tripId, table.dayNumber),
     index("itinerary_days_trip_idx").on(table.tripId),
     check("itinerary_days_day_ck", sql`${table.dayNumber} > 0`),
+    check("itinerary_days_activity_ck", sql`${table.activityLevel} IS NULL OR (${table.activityLevel} BETWEEN 1 AND 5)`),
+    check("itinerary_days_distance_ck", sql`${table.distanceKm} IS NULL OR ${table.distanceKm} >= 0`),
+    check("itinerary_days_duration_ck", sql`${table.activityDurationMin} IS NULL OR ${table.activityDurationMin} >= 0`),
   ],
 );
 

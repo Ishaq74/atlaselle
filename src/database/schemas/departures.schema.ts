@@ -66,6 +66,9 @@ export const departures = pgTable(
     check("departures_dates_ck", sql`${table.endDate} > ${table.startDate}`),
     check("departures_capacity_ck", sql`${table.capacityMin} > 0 AND ${table.capacityMax} >= ${table.capacityMin}`),
     check("departures_price_ck", sql`${table.priceAmount} >= 0`),
+    check("departures_balance_due_ck", sql`${table.balanceDueDate} IS NULL OR ${table.balanceDueDate} < ${table.startDate}`),
+    check("departures_booking_deadline_ck", sql`${table.bookingDeadline} IS NULL OR ${table.bookingDeadline} < ${table.startDate}`),
+    check("departures_deposit_percent_ck", sql`${table.depositPercent} >= 0 AND ${table.depositPercent} <= 100`),
   ],
 );
 

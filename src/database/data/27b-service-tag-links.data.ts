@@ -1,5 +1,2 @@
-export default [
-  { serviceId: "90000000-0000-0000-0000-000000000001", tagId: "93000000-0000-0000-0000-000000000001" },
-  { serviceId: "90000000-0000-0000-0000-000000000002", tagId: "93000000-0000-0000-0000-000000000002" },
-  { serviceId: "90000000-0000-0000-0000-000000000003", tagId: "93000000-0000-0000-0000-000000000003" },
-];
+// PURGE 2026-09-20 — contenu obsolete Demo/Annecy supprime. Dataset vide volontaire (seed SKIP). Remplacement voyage dans 41-47 + medias 00-00c.
+export default [];

@@ -12,8 +12,8 @@ export default [
   { id: "faqt-3-en", faqId: "faq-book-3", locale: "en", question: "Can I request a single room?", answer: "Yes, subject to availability and a supplement confirmed before booking." },
   { id: "faqt-3-es", faqId: "faq-book-3", locale: "es", question: "¿Puedo pedir habitación individual?", answer: "Sí, según disponibilidad y suplemento comunicado antes de la confirmación." },
   { id: "faqt-3-ar", faqId: "faq-book-3", locale: "ar", question: "هل يمكنني طلب غرفة مفردة؟", answer: "نعم، بحسب التوفر والرسوم الإضافية التي نبلغك بها قبل التأكيد." },
-  { id: "faqt-4-fr", faqId: "faq-book-4", locale: "fr", question: "Quel niveau de forme faut-il ?", answer: "Nos voyages sont notés de 1 à 5 : les trois premiers sont au niveau 3, marche confortable et terrains variés." },
-  { id: "faqt-4-en", faqId: "faq-book-4", locale: "en", question: "What fitness level is needed?", answer: "Our trips are rated 1 to 5: the first three are level 3, comfortable walking on varied terrain." },
-  { id: "faqt-4-es", faqId: "faq-book-4", locale: "es", question: "¿Qué forma física se necesita?", answer: "Nuestros viajes se puntúan del 1 al 5: los tres primeros son nivel 3, caminata cómoda en terrenos variados." },
-  { id: "faqt-4-ar", faqId: "faq-book-4", locale: "ar", question: "ما مستوى اللياقة المطلوب؟", answer: "رحلاتنا مصنفة من 1 إلى 5: الثلاث الأولى مستوى 3، مشي مريح وتضاريس متنوعة." },
+  { id: "faqt-4-fr", faqId: "faq-book-4", locale: "fr", question: "Quel niveau de forme faut-il ?", answer: "Nos voyages sont notés de 1 à 5 : la plupart sont au niveau 3, marche confortable et terrains variés ; la Bosnie est au niveau 2." },
+  { id: "faqt-4-en", faqId: "faq-book-4", locale: "en", question: "What fitness level is needed?", answer: "Our trips are rated 1 to 5: most are level 3, comfortable walking on varied terrain ; Bosnia is level 2." },
+  { id: "faqt-4-es", faqId: "faq-book-4", locale: "es", question: "¿Qué forma física se necesita?", answer: "Nuestros viajes se puntúan del 1 al 5: la mayoría son nivel 3, caminata cómoda en terrenos variados ; Bosnia es nivel 2." },
+  { id: "faqt-4-ar", faqId: "faq-book-4", locale: "ar", question: "ما مستوى اللياقة المطلوب؟", answer: "رحلاتنا مصنفة من 1 إلى 5: معظمها مستوى 3، مشي مريح وتضاريس متنوعة ؛ البوسنة مستوى 2." },
 ];

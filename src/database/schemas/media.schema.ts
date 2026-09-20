@@ -66,6 +66,7 @@ export const mediaFiles = pgTable(
 
 // ─── Media File Alts (i18n) ──────────────────────────────────────────────────
 // Localised alt text and title per file. One row per file × locale.
+// Invariant voyage : tout hero published exige 4 alts (fr/en/es/ar) — seed 00c.
 export const mediaFileAlts = pgTable(
   "media_file_alts",
   {
@@ -75,13 +76,14 @@ export const mediaFileAlts = pgTable(
     fileId: text("file_id")
       .notNull()
       .references(() => mediaFiles.id, { onDelete: "cascade" }),
-    locale: text("locale").notNull(),
+    locale: text("locale", { enum: ["fr", "en", "es", "ar"] }).notNull(),
     alt: text("alt").notNull(),
     title: text("title"),
   },
   (table) => [
     uniqueIndex("media_file_alts_fileId_locale_uidx").on(table.fileId, table.locale),
     index("media_file_alts_fileId_idx").on(table.fileId),
+    check("media_file_alts_alt_ck", sql`char_length(${table.alt}) BETWEEN 4 AND 280`),
   ],
 );
 
