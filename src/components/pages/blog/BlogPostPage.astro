@@ -34,7 +34,7 @@ interface PostContentData {
     title: string | null;
     description: string | null;
     sortOrder: number;
-    media: { id: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string } }[];
+    media: { id: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string; width: number | null; height: number | null } }[];
   }[];
 }
 

@@ -32,6 +32,7 @@ vi.mock('@/modules/payments/domain/providers', async (importOriginal) => {
 import { ActionError } from 'astro:actions';
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '@database/drizzle';
+import { insertTestTrip } from '../helpers/trip-factory';
 import { invalidateCache } from '@database/cache';
 import { trips } from '@database/schemas/trips.schema';
 import { departures } from '@database/schemas/departures.schema';
@@ -84,7 +85,7 @@ describe('refundPayment — passthrough ActionError provider', () => {
     const saved = await helpers.saveUser(u);
     adminId = saved.id;
     await db.update(user).set({ role: 'admin' }).where(eq(user.id, adminId));
-    await db.insert(trips).values({
+    await insertTestTrip(db, {
       id: TRIP, status: 'published', countryCode: 'FR', defaultCurrency: 'EUR',
       durationDays: 2, durationNights: 1, groupMin: 1, groupMax: 2, difficulty: 'easy', difficultyLevel: 1,
       publishedAt: new Date(),

@@ -1,0 +1,20 @@
+import type { SearchResourceDefinition } from "@/core/search";
+import { assertSearchResourceDefinition } from "@/core/search";
+
+export const tripsSearchDefinition: SearchResourceDefinition = {
+  resourceId: "trip",
+  defaultSort: "publishedAt",
+  fields: [
+    { name: "title", kind: "text", searchable: true, sortable: true },
+    { name: "slug", kind: "keyword", searchable: true, filterable: true, sortable: true },
+    { name: "content", kind: "text", searchable: true },
+    { name: "status", kind: "keyword", filterable: true, sortable: true },
+    { name: "countryCode", kind: "keyword", filterable: true, sortable: true },
+    { name: "difficultyLevel", kind: "keyword", filterable: true, sortable: true },
+    { name: "ratingAverage100", kind: "number", filterable: true, sortable: true },
+    { name: "publishedAt", kind: "date", filterable: true, sortable: true },
+    { name: "viewCount", kind: "number", sortable: true },
+  ],
+};
+
+assertSearchResourceDefinition(tripsSearchDefinition);

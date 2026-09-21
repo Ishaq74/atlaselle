@@ -63,12 +63,13 @@ describe('departure input', () => {
 describe('application inputs', () => {
   const base = {
     tripId: UUID, departureId: UUID, legalName: 'Test', email: 't@test.com',
-    activityAcknowledgement: true, consent: true,
+    activityAcknowledgement: true, consent: true, termsAccepted: true,
   };
   it('requires acknowledgement and consent literals', () => {
     expect(applicationSubmitInput.safeParse(base).success).toBe(true);
     expect(applicationSubmitInput.safeParse({ ...base, consent: false }).success).toBe(false);
     expect(applicationSubmitInput.safeParse({ ...base, activityAcknowledgement: false }).success).toBe(false);
+    expect(applicationSubmitInput.safeParse({ ...base, termsAccepted: false }).success).toBe(false);
   });
 
   it('rejects bad emails', () => {

@@ -281,6 +281,12 @@ export interface AuthTranslations {
       username: string;
       role: string;
     };
+    organizations: {
+      title: string;
+      empty: string;
+      create: string;
+      viewDetails: string;
+    };
     signOut: string;
     editProfile: string;
   };
@@ -293,6 +299,7 @@ export interface AuthTranslations {
     tabs: {
       stats: string;
       users: string;
+      organizations: string;
       auditLog: string;
       roles: string;
       blog: string;
@@ -311,6 +318,7 @@ export interface AuthTranslations {
     };
     stats: {
       totalUsers: string;
+      totalOrganizations: string;
       recentSignups: string;
       recentSignupsDescription: string;
     };
@@ -354,6 +362,29 @@ export interface AuthTranslations {
         allStatuses: string;
       };
     };
+    organizations: {
+      searchPlaceholder: string;
+      columns: {
+        name: string;
+        slug: string;
+        owner: string;
+        members: string;
+        created: string;
+        actions: string;
+      };
+      actions: { delete: string };
+      confirmDelete: string;
+      deleted: string;
+      noResults: string;
+      sort: {
+        label: string;
+        nameAsc: string;
+        nameDesc: string;
+        newest: string;
+        oldest: string;
+        mostMembers: string;
+      };
+    };
     auditLog: {
       columns: {
         date: string;
@@ -370,6 +401,36 @@ export interface AuthTranslations {
     roles: {
       title: string;
       description: string;
+      globalRoles: string;
+      orgRoles: string;
+      resource: string;
+      permissions: string;
+      roleName: {
+        admin: string;
+        editor: string;
+        user: string;
+        owner: string;
+        member: string;
+      };
+      resourceName: Record<string, string>;
+      systemPermissions: string;
+      customRoles: string;
+      customRolesDescription: string;
+      selectOrg: string;
+      noOrgs: string;
+      noCustomRoles: string;
+      createRole: string;
+      editRole: string;
+      deleteRole: string;
+      roleNameLabel: string;
+      roleNamePlaceholder: string;
+      permissionsLabel: string;
+      confirmDelete: string;
+      created: string;
+      updated: string;
+      deleted: string;
+      save: string;
+      cancel: string;
     };
     impersonation: {
       banner: string;
@@ -758,10 +819,120 @@ export interface AuthTranslations {
       deleteAccountSent: string;
     };
   };
+  organizations: {
+    list: {
+      title: string;
+      createButton: string;
+      empty: string;
+      membersCount: string;
+      viewDetails: string;
+    };
+    pendingInvitations: {
+      title: string;
+      empty: string;
+      accept: string;
+      reject: string;
+      from: string;
+      role: string;
+      accepted: string;
+      rejected: string;
+    };
+    create: {
+      title: string;
+      name: string;
+      namePlaceholder: string;
+      slug: string;
+      slugPlaceholder: string;
+      slugAvailable: string;
+      slugTaken: string;
+      slugChecking: string;
+      logo: string;
+      submit: string;
+      success: string;
+    };
+    detail: {
+      backToList: string;
+      membersTab: string;
+      rolesTab: string;
+      settingsTab: string;
+    };
+    blog: { title: string; description: string };
+    media: { title: string; description: string };
+    roles: {
+      title: string;
+      description: string;
+      builtinTitle: string;
+      builtinDescription: string;
+      noCustomRoles: string;
+      createRole: string;
+      editRole: string;
+      deleteRole: string;
+      roleNameLabel: string;
+      roleNamePlaceholder: string;
+      permissionsLabel: string;
+      confirmDelete: string;
+      created: string;
+      updated: string;
+      deleted: string;
+      save: string;
+      cancel: string;
+      assignToMembers: string;
+      memberRoleUpdated: string;
+      resourceName: Record<string, string>;
+    };
+    members: {
+      title: string;
+      invite: string;
+      email: string;
+      emailPlaceholder: string;
+      rolePlaceholder: string;
+      sendInvite: string;
+      inviteSent: string;
+      remove: string;
+      removeConfirm: string;
+      removed: string;
+      changeRole: string;
+      roleChanged: string;
+      you: string;
+      owner: string;
+      admin: string;
+      member: string;
+    };
+    invitations: {
+      title: string;
+      empty: string;
+      pending: string;
+      cancel: string;
+      cancelled: string;
+    };
+    settings: {
+      title: string;
+      name: string;
+      namePlaceholder: string;
+      slug: string;
+      slugPlaceholder: string;
+      logo: string;
+      save: string;
+      saved: string;
+    };
+    danger: {
+      title: string;
+      description: string;
+      leave: string;
+      leaveDescription: string;
+      leaveConfirm: string;
+      left: string;
+      delete: string;
+      deleteDescription: string;
+      deleteConfirm: string;
+      deleted: string;
+    };
+  };
   userMenu: {
     dashboard: string;
     profile: string;
     admin: string;
+    organizations: string;
     signOut: string;
     signIn: string;
   };

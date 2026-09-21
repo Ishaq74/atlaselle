@@ -17,6 +17,10 @@ interface Props {
 const { t, locale } = Astro.props;
 const signUpUrl = getAuthUrl(locale, 'sign-up', t);
 const forgotPasswordUrl = getAuthUrl(locale, 'forgot-password', t);
+// Retour post-connexion (ex. tunnel /apply) : seuls les chemins internes
+// absolus sont acceptés (anti open-redirect).
+const nextParam = Astro.url.searchParams.get('next');
+const safeNext = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : null;
 ---
 
 <section class="flex min-h-[calc(100vh-8rem)] items-center justify-center px-4 py-12">
@@ -29,7 +33,7 @@ const forgotPasswordUrl = getAuthUrl(locale, 'forgot-password', t);
       <form id="sign-in-form" class="grid gap-4"
         data-success={t.signIn.success}
         data-errors={JSON.stringify(t.errors)}
-        data-redirect={getAuthUrl(locale, 'dashboard', t)}
+        data-redirect={safeNext ?? getAuthUrl(locale, 'dashboard', t)}
       >
         <div class="grid gap-2">
           <Label for="email">{t.signIn.email}</Label>

@@ -11,7 +11,6 @@ const stamp = Date.now().toString(36);
 const TRIP_ID = `e2e-trip-${stamp}`;
 const SLUG_EN = `e2e-trip-${stamp}`;
 const SLUG_FR = `voyage-e2e-${stamp}`;
-const EMAIL = `e2e-cand-${stamp}@test.com`;
 
 async function db() {
   const { getDrizzle } = await import('../../src/database/drizzle');
@@ -20,8 +19,27 @@ async function db() {
 
 test.beforeAll(async () => {
   const database = await db();
+  const { eq } = await import('drizzle-orm');
   const { trips, tripTranslations } = await import('../../src/database/schemas/trips.schema');
   const { departures } = await import('../../src/database/schemas/departures.schema');
+  // Nettoyage défensif d'un run interrompu : la candidature utilise désormais
+  // SEED_EMAIL (fixe) — un traveler résiduel non vérifié bloquerait le submit
+  // via APPLICATION_EMAIL_CONFLICT (le stamp des trips change à chaque run,
+  // l'afterAll ne peut pas rattraper les fixtures d'un run précédent).
+  const { applications, applicationDecisions, applicationEvents } = await import('../../src/database/schemas/applications.schema');
+  const { travelers } = await import('../../src/database/schemas/travelers.schema');
+  const { outboxEvents } = await import('../../src/database/schemas/outbox.schema');
+  const staleTravelers = await database.select({ id: travelers.id }).from(travelers).where(eq(travelers.email, SEED_EMAIL));
+  for (const t of staleTravelers) {
+    const staleApps = await database.select({ id: applications.id }).from(applications).where(eq(applications.travelerId, t.id));
+    for (const a of staleApps) {
+      await database.delete(applicationDecisions).where(eq(applicationDecisions.applicationId, a.id));
+      await database.delete(applicationEvents).where(eq(applicationEvents.applicationId, a.id));
+      await database.delete(outboxEvents).where(eq(outboxEvents.aggregateId, a.id));
+      await database.delete(applications).where(eq(applications.id, a.id));
+    }
+    await database.delete(travelers).where(eq(travelers.id, t.id));
+  }
   await database.insert(trips).values({
     id: TRIP_ID, status: 'published', countryCode: 'FR', defaultCurrency: 'EUR',
     durationDays: 4, durationNights: 3, groupMin: 2, groupMax: 8,
@@ -117,13 +135,24 @@ test.describe('Voyage — arabe RTL', () => {
 });
 
 test.describe('Voyage — candidature', () => {
+  // Compte vérifié exigé inconditionnellement (2026-09-21) : les anonymes sont
+  // redirigés 302 vers sign-in avec ?next= vers l'URL de candidature.
+  test('anonymous visitor is redirected to sign-in with ?next=', async ({ page }) => {
+    await page.goto(`/en/apply/${SLUG_EN}`, { waitUntil: 'networkidle' });
+    await expect(page).toHaveURL(/\/en\/auth\/sign-in\?next=/);
+  });
+
   test('authenticated flow submits an application', async ({ page }) => {
+    await signInAsAdmin(page);
     const response = await page.goto(`/en/apply/${SLUG_EN}`, { waitUntil: 'networkidle' });
     expect(response?.status()).toBe(200);
+    // Email pré-rempli readonly depuis la session (doit matcher le compte connecté).
+    await expect(page.locator('input[name="email"]')).toHaveValue(SEED_EMAIL);
+    await expect(page.locator('input[name="email"]')).toHaveAttribute('readonly', '');
     await page.locator('input[name="legalName"]').fill('E2E Candidate');
-    await page.locator('input[name="email"]').fill(EMAIL);
     await page.locator('input[name="activityAcknowledgement"]').check();
     await page.locator('input[name="consent"]').check();
+    await page.locator('input[name="termsAccepted"]').check();
     const submitBtn = page.locator('form [type="submit"], form button').last();
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/_astro/actions/') && r.ok(), { timeout: 30000 }).catch(() => null),

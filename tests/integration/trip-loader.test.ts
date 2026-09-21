@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '@database/drizzle';
+import { insertTestTrip } from '../helpers/trip-factory';
 import { invalidateCache } from '@database/cache';
 import { trips, tripTranslations } from '@database/schemas/trips.schema';
 import { departures } from '@database/schemas/departures.schema';
@@ -28,7 +29,7 @@ async function cleanup() {
 describe('Trip loaders (DB voyage)', () => {
   beforeAll(async () => {
     await cleanup();
-    await db.insert(trips).values({
+    await insertTestTrip(db, {
       id: TRIP_ID,
       status: 'published',
       countryCode: 'FR',

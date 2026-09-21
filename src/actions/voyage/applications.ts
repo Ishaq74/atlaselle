@@ -34,10 +34,13 @@ export const applicationSubmitInput = z.object({
   motivation: z.string().trim().max(5000).transform(sanitizeHtml).nullable().optional(),
   expectations: z.string().trim().max(5000).transform(sanitizeHtml).nullable().optional(),
   consent: z.literal(true),
+  // Acceptation explicite des conditions de réservation + assurance voyage (liens dans le formulaire).
+  termsAccepted: z.literal(true),
   locale: z.enum(LOCALES).default("en"),
 });
 
-// Candidature publique : aucune donnée sensible en log/URL, rate-limitée (TODO §11).
+// Candidature authentifiée : compte à email vérifié exigé (inconditionnel),
+// aucune donnée sensible en log/URL, rate-limitée (TODO §11).
 export const submitApplication = defineAction({
   input: applicationSubmitInput,
   handler: async (input, context) => {
@@ -61,16 +64,15 @@ export const submitApplication = defineAction({
       throw domainError("BAD_REQUEST", "APPLICATION_DEADLINE_PASSED", "La date limite de candidature est passée.");
     }
 
-    // Compte obligatoire paramétrable (TODO §11.1 : défaut false en V1).
-    const requireAccount = trip.requireAccount ?? false;
+    // Compte vérifié obligatoire — inconditionnel (décision produit 2026-09-21 :
+    // « le booking c'est censé être connecté »). trips.requireAccount reste en schéma
+    // (feature flag admin, ex. futur mode « candidature invitée ») sans effet ici.
     const sessionUser = context.locals.user;
-    if (requireAccount) {
-      if (!sessionUser?.emailVerified) {
-        throw new ActionError({ code: "UNAUTHORIZED", message: "Un compte vérifié est requis pour ce voyage." });
-      }
-      if (normalizeEmail(sessionUser.email) !== normalizeEmail(input.email)) {
-        throw new ActionError({ code: "FORBIDDEN", message: "L'email doit correspondre au compte connecté." });
-      }
+    if (!sessionUser?.emailVerified) {
+      throw new ActionError({ code: "UNAUTHORIZED", message: "Un compte vérifié est requis pour candidater." });
+    }
+    if (normalizeEmail(sessionUser.email) !== normalizeEmail(input.email)) {
+      throw new ActionError({ code: "FORBIDDEN", message: "L'email doit correspondre au compte connecté." });
     }
 
     let travelerId: string;
@@ -80,7 +82,7 @@ export const submitApplication = defineAction({
         legalName: input.legalName,
         phone: input.phone ?? null,
         locale: input.locale as Locale,
-        userId: sessionUser?.id ?? null,
+        userId: sessionUser.id,
       });
       travelerId = traveler.id;
     } catch (err) {
@@ -151,7 +153,7 @@ export const submitApplication = defineAction({
       aggregateId: created.id,
       payload: { applicationId: created.id, tripId: input.tripId, departureId: input.departureId, locale: input.locale },
     });
-    auditVoyage(context, sessionUser?.id ?? travelerId, "APPLICATION_SUBMIT", {
+    auditVoyage(context, sessionUser.id, "APPLICATION_SUBMIT", {
       resource: "applications",
       resourceId: created.id,
       metadata: { tripId: input.tripId, departureId: input.departureId },

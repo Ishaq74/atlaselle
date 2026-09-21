@@ -45,6 +45,8 @@ export interface TripPageDTO {
   capacity: number;
   remainingPlaces: number;
   status: TripPageStatus;
+  /** true = candidature réservée aux comptes vérifiés (/apply redirige vers sign-in). */
+  requireAccount: boolean;
   deposit: number;
   finalPaymentDue: string;
   roomRule: string;
@@ -211,6 +213,7 @@ const loadTripPageInner = async (locale: Locale, slug: string): Promise<TripPage
     capacity: dep?.capacityMax ?? trip.groupMax,
     remainingPlaces: remaining,
     status,
+    requireAccount: trip.requireAccount ?? false,
     deposit: quote ? Math.round(quote.depositAmount / 100) : 0,
     finalPaymentDue: dep ? formatDate(locale, dep.balanceDueDate) : "",
     roomRule: main.lodging ?? "",

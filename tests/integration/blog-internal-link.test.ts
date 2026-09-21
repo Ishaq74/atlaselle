@@ -17,8 +17,8 @@ describe('blog internal link resolver (integration)', () => {
 
   it('lists published blog post slugs (single-tenant)', () => {
     expect(slugs.size).toBeGreaterThan(0);
-    // The demo seed includes a French post "week-end-annecy".
-    expect(slugs.has('week-end-annecy')).toBe(true);
+    // The blog seed includes a French post "voyager-pendant-le-ramadan".
+    expect(slugs.has('voyager-pendant-le-ramadan')).toBe(true);
   });
 
   it('resolver.listValidTargets matches getBlogValidLinkTargets', async () => {
@@ -26,11 +26,11 @@ describe('blog internal link resolver (integration)', () => {
       locale: 'fr' as Locale,
     });
     expect(targets instanceof Set).toBe(true);
-    expect(targets.has('week-end-annecy')).toBe(true);
+    expect(targets.has('voyager-pendant-le-ramadan')).toBe(true);
   });
 
   it('resolver.resolve returns a published URL', async () => {
-    const res = await blogInternalLinkResolver.resolve('week-end-annecy', {
+    const res = await blogInternalLinkResolver.resolve('voyager-pendant-le-ramadan', {
       locale: 'fr' as Locale,
     });
     expect(res.exists).toBe(true);
@@ -45,7 +45,7 @@ describe('blog internal link resolver (integration)', () => {
   });
 
   it('resolver.search finds posts by title', async () => {
-    const results = await blogInternalLinkResolver.search('Annecy', {
+    const results = await blogInternalLinkResolver.search('Ramadan', {
       locale: 'fr' as Locale,
     });
     expect(results.length).toBeGreaterThan(0);
@@ -67,7 +67,7 @@ describe('blog internal link resolver (integration)', () => {
   });
 
   it('valid internal links are not flagged', () => {
-    const html = '<a href="/fr/blog/week-end-annecy" data-internal-link="week-end-annecy">OK</a>';
+    const html = '<a href="/fr/blog/voyager-pendant-le-ramadan" data-internal-link="voyager-pendant-le-ramadan">OK</a>';
     const reports = detectDeadInternalLinks(html, slugs);
     expect(reports).toHaveLength(0);
   });

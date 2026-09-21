@@ -12,7 +12,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import RichContent from "@components/content/RichContent.astro";
 
 interface BlogPostContentData {
-  post: { id: string; publishedAt: Date | null; updatedAt?: Date | null; viewCount: number };
+  post: { id: string; publishedAt: Date | null; updatedAt?: Date | null; viewCount: number; commentStatus: "OPEN" | "CLOSED" | "DISABLED"; allowReviews: boolean };
   translation: { title: string; excerpt?: string | null; content: string } | null;
   author: { id: string; name: string; image: string | null } | null;
   featuredImage: { id: string; url: string; width: number | null; height: number | null } | null;

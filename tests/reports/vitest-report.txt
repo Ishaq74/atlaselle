@@ -1,51 +1,51 @@
 ════════════════════════════════════════════════════════════════════════════════
   VITEST UNIT & INTEGRATION TEST REPORT
-  Generated: 2026-09-20 15:55:56
+  Generated: 2026-09-21 05:11:05
 ════════════════════════════════════════════════════════════════════════════════
 
   ✅ tests\integration\admin-trips.test.ts  (4/4 passed)
   ✅ tests\integration\admin-voyage-actions.test.ts  (7/7 passed)
-  ✅ tests\integration\admin-voyage-loaders.test.ts  (0/10 passed, 10 skipped)
+  ✅ tests\integration\admin-voyage-loaders.test.ts  (10/10 passed)
   ✅ tests\integration\analytics-endpoint.test.ts  (2/2 passed)
-  ✅ tests\integration\applications.test.ts  (0/5 passed, 5 skipped)
+  ✅ tests\integration\applications.test.ts  (5/5 passed)
   ✅ tests\integration\apply-page.test.ts  (2/2 passed)
   ✅ tests\integration\audit.test.ts  (8/8 passed)
   ✅ tests\integration\auth-advanced.test.ts  (10/10 passed)
   ✅ tests\integration\auth-flow.test.ts  (5/5 passed)
   ✅ tests\integration\auth.test.ts  (11/11 passed)
-  ✅ tests\integration\availability.test.ts  (0/3 passed, 3 skipped)
-  ❌ tests\integration\blog-actions.test.ts  (7/8 passed)
-  ❌ tests\integration\blog-internal-link.test.ts  (3/8 passed)
-  ✅ tests\integration\booking-tunnel.test.ts  (0/5 passed, 5 skipped)
-  ✅ tests\integration\cancellation.test.ts  (0/5 passed, 5 skipped)
+  ✅ tests\integration\availability.test.ts  (3/3 passed)
+  ✅ tests\integration\blog-actions.test.ts  (8/8 passed)
+  ✅ tests\integration\blog-internal-link.test.ts  (8/8 passed)
+  ✅ tests\integration\booking-tunnel.test.ts  (5/5 passed)
+  ✅ tests\integration\cancellation.test.ts  (5/5 passed)
   ✅ tests\integration\cms-admin.test.ts  (14/14 passed)
   ✅ tests\integration\cms-content.test.ts  (3/3 passed)
   ✅ tests\integration\consent-cms.test.ts  (25/25 passed)
   ✅ tests\integration\contact-api.test.ts  (13/13 passed)
   ✅ tests\integration\db-health.test.ts  (4/4 passed)
-  ✅ tests\integration\email-worker.test.ts  (0/7 passed, 7 skipped)
+  ✅ tests\integration\email-worker.test.ts  (7/7 passed)
   ✅ tests\integration\export.test.ts  (3/3 passed)
   ✅ tests\integration\itinerary-contents-faq.test.ts  (4/4 passed)
-  ❌ tests\integration\legal-cms.test.ts  (18/19 passed)
+  ✅ tests\integration\legal-cms.test.ts  (19/19 passed)
   ✅ tests\integration\middleware.test.ts  (4/4 passed)
   ✅ tests\integration\navigation-cycle.test.ts  (6/6 passed)
-  ✅ tests\integration\payments-endpoints.test.ts  (0/5 passed, 5 skipped)
-  ✅ tests\integration\repositories.test.ts  (0/4 passed, 4 skipped)
+  ✅ tests\integration\payments-endpoints.test.ts  (5/5 passed)
+  ✅ tests\integration\repositories.test.ts  (4/4 passed)
   ✅ tests\integration\sitemap.test.ts  (2/2 passed)
-  ✅ tests\integration\trip-loader.test.ts  (0/3 passed, 3 skipped)
-  ✅ tests\integration\voyage-action-errors.test.ts  (0/14 passed, 14 skipped)
+  ✅ tests\integration\trip-loader.test.ts  (3/3 passed)
+  ✅ tests\integration\voyage-action-errors.test.ts  (15/15 passed)
   ✅ tests\integration\voyage-actions-missing.test.ts  (6/6 passed)
-  ✅ tests\integration\voyage-actions2.test.ts  (0/15 passed, 15 skipped)
-  ❌ tests\integration\voyage-actions3.test.ts  (13/14 passed)
-  ❌ tests\integration\voyage-completeness.test.ts  (10/17 passed, 3 skipped)
+  ✅ tests\integration\voyage-actions2.test.ts  (15/15 passed)
+  ✅ tests\integration\voyage-actions3.test.ts  (14/14 passed)
+  ✅ tests\integration\voyage-completeness.test.ts  (17/17 passed)
   ✅ tests\integration\voyage-cron.test.ts  (3/3 passed)
-  ✅ tests\integration\voyage-endpoints.test.ts  (0/3 passed, 3 skipped)
-  ✅ tests\integration\voyage-finition.test.ts  (0/10 passed, 10 skipped)
-  ✅ tests\integration\voyage-loaders2.test.ts  (0/13 passed, 13 skipped)
-  ✅ tests\integration\voyage-pages.test.ts  (0/9 passed, 9 skipped)
-  ✅ tests\integration\voyage-payments.test.ts  (0/16 passed, 16 skipped)
-  ✅ tests\integration\voyage-refund-passthrough.test.ts  (0/1 passed, 1 skipped)
-  ❌ tests\integration\voyage-services.test.ts  (0/16 passed, 11 skipped)
+  ✅ tests\integration\voyage-endpoints.test.ts  (3/3 passed)
+  ✅ tests\integration\voyage-finition.test.ts  (10/10 passed)
+  ✅ tests\integration\voyage-loaders2.test.ts  (13/13 passed)
+  ✅ tests\integration\voyage-pages.test.ts  (9/9 passed)
+  ✅ tests\integration\voyage-payments.test.ts  (16/16 passed)
+  ✅ tests\integration\voyage-refund-passthrough.test.ts  (1/1 passed)
+  ✅ tests\integration\voyage-services.test.ts  (16/16 passed)
   ✅ tests\unit\admin-consent.test.ts  (5/5 passed)
   ✅ tests\unit\admin-contact.test.ts  (10/10 passed)
   ✅ tests\unit\admin-helpers.test.ts  (7/7 passed)
@@ -107,7 +107,7 @@
   ✅ tests\unit\navigation-loader.test.ts  (7/7 passed)
   ✅ tests\unit\navigation-menus.test.ts  (10/10 passed)
   ✅ tests\unit\navigation-tree.test.ts  (10/10 passed)
-  ❌ tests\unit\permissions.test.ts  (34/35 passed)
+  ✅ tests\unit\permissions.test.ts  (35/35 passed)
   ✅ tests\unit\production-hardening.test.ts  (9/9 passed)
   ✅ tests\unit\project-stats.test.ts  (2/2 passed)
   ✅ tests\unit\query-filters.test.ts  (5/5 passed)
@@ -139,7 +139,7 @@
   ✅ tests\unit\cms\module-registry.test.ts  (2/2 passed)
   ✅ tests\unit\cms\resource-contract.test.ts  (6/6 passed)
   ✅ tests\unit\cms\workflow.test.ts  (4/4 passed)
-  ❌ tests\unit\database\migration-sql.test.ts  (12/13 passed)
+  ✅ tests\unit\database\migration-sql.test.ts  (13/13 passed)
   ✅ tests\unit\database\seed-data-contract.test.ts  (2/2 passed)
   ✅ tests\unit\database\seed-manifest.test.ts  (3/3 passed)
   ✅ tests\unit\database\services-data-invariants.test.ts  (5/5 passed)
@@ -152,7 +152,7 @@
   ✅ tests\unit\services\validation.test.ts  (6/6 passed)
   ✅ tests\unit\services\workflow.test.ts  (3/3 passed)
   ✅ tests\unit\voyage\action-inputs.test.ts  (11/11 passed)
-  ✅ tests\unit\voyage\admin-resource.test.ts  (0/0 passed)
+  ✅ tests\unit\voyage\admin-resource.test.ts  (3/3 passed)
   ✅ tests\unit\voyage\admin-resources.test.ts  (7/7 passed)
   ✅ tests\unit\voyage\auth-guards.test.ts  (5/5 passed)
   ✅ tests\unit\voyage\cancellation.test.ts  (4/4 passed)
@@ -176,160 +176,11 @@
   SUMMARY
 ════════════════════════════════════════════════════════════════════════════════
 
-  Total tests:   1778
-  Passed:        1617  
-  Failed:        19  ❌
-  Skipped:       142
-  Duration:      116s
+  Total tests:   1782
+  Passed:        1782  ✅
+  Failed:        0  
+  Duration:      148s
 
 ════════════════════════════════════════════════════════════════════════════════
-  FAILURES
-════════════════════════════════════════════════════════════════════════════════
-
-  Suite: tests\integration\blog-actions.test.ts
-  Test:  blog actions — integration (real DB) resolveBlogInternalLink searches posts
-────────────────────────────────────────────────────────────────────────────────
-  AssertionError: expected 0 to be greater than 0
-    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/integration/blog-actions.test.ts:204:32
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/
-
-
-  Suite: tests\integration\blog-internal-link.test.ts
-  Test:  blog internal link resolver (integration) lists published blog post slugs (single-tenant)
-────────────────────────────────────────────────────────────────────────────────
-  AssertionError: expected false to be true // Object.is equality
-    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/integration/blog-internal-link.test.ts:21:42
-    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runne
-
-
-  Suite: tests\integration\blog-internal-link.test.ts
-  Test:  blog internal link resolver (integration) resolver.listValidTargets matches getBlogValidLinkTargets
-────────────────────────────────────────────────────────────────────────────────
-  AssertionError: expected false to be true // Object.is equality
-    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/integration/blog-internal-link.test.ts:29:44
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at file:///C:/Users/Utilisateur/Documents/t3code/at
-
-
-  Suite: tests\integration\blog-internal-link.test.ts
-  Test:  blog internal link resolver (integration) resolver.resolve returns a published URL
-────────────────────────────────────────────────────────────────────────────────
-  AssertionError: expected false to be true // Object.is equality
-    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/integration/blog-internal-link.test.ts:36:24
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at file:///C:/Users/Utilisateur/Documents/t3code/at
-
-
-  Suite: tests\integration\blog-internal-link.test.ts
-  Test:  blog internal link resolver (integration) resolver.search finds posts by title
-────────────────────────────────────────────────────────────────────────────────
-  AssertionError: expected 0 to be greater than 0
-    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/integration/blog-internal-link.test.ts:51:28
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_mod
-
-
-  Suite: tests\integration\blog-internal-link.test.ts
-  Test:  blog internal link resolver (integration) valid internal links are not flagged
-────────────────────────────────────────────────────────────────────────────────
-  AssertionError: expected [ { …(4) } ] to have a length of +0 but got 1
-    at Proxy.<anonymous> (file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+expect@4.1.11/node_modules/@vitest/expect/dist/index.js:1389:20)
-    at Proxy.<anonymous> (file:///C:/Users/Utilisateur/
-
-
-  Suite: tests\integration\legal-cms.test.ts
-  Test:  Legal CMS — Seed data has exactly 4 legal pages (one per locale)
-────────────────────────────────────────────────────────────────────────────────
-  AssertionError: expected [ { …(3) }, { …(3) }, { …(3) }, …(9) ] to have a length of 4 but got 12
-    at Proxy.<anonymous> (file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+expect@4.1.11/node_modules/@vitest/expect/dist/index.js:1389:20)
-    at Proxy.<anonymous> (fil
-
-
-  Suite: tests\integration\voyage-actions3.test.ts
-  Test:  trips actions — transitions, restore, update, upsert chaîne complète draft->review->approved->published(unpublished, publishedAt)->archived->restored
-────────────────────────────────────────────────────────────────────────────────
-  Error: Failed query: update "trips" set "status" = $1, "published_at" = $2, "updated_at" = $3 where "trips"."id" = $4
-params: published,2026-09-20T15:54:11.147Z,2026-09-20T15:54:11.147Z,test-a3-trip-mu9zy1l5
-    at NodePgPreparedQuery.queryWithCache (file:///C:/Users/Utilisateur/Documents/t3code/atl
-
-
-  Suite: tests\integration\voyage-completeness.test.ts
-  Test:  checkout-service — TTL, validité, expiration expiré marque expired et retourne null
-────────────────────────────────────────────────────────────────────────────────
-  Error: Failed query: insert into "applications" ("id", "traveler_id", "trip_id", "departure_id", "status", "room_preference", "dietary_requirements", "accessibility_needs", "activity_acknowledgement", "motivation", "expectations", "consent", "submitted_at", "created_at", "updated_at") values ($1, $2
-
-
-  Suite: tests\integration\voyage-completeness.test.ts
-  Test:  checkout-service — TTL, validité, expiration non-approved -> null, completed no-op, expire job sur session dédiée
-────────────────────────────────────────────────────────────────────────────────
-  Error: Failed query: insert into "applications" ("id", "traveler_id", "trip_id", "departure_id", "status", "room_preference", "dietary_requirements", "accessibility_needs", "activity_acknowledgement", "motivation", "expectations", "consent", "submitted_at", "created_at", "updated_at") values ($1, $2
-
-
-  Suite: tests\integration\voyage-completeness.test.ts
-  Test:  pricing-service — null et single inconnu -> null, shared vs single
-────────────────────────────────────────────────────────────────────────────────
-  AssertionError: expected null not to be null
-    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/integration/voyage-completeness.test.ts:215:24
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modu
-
-
-  Suite: tests\integration\voyage-completeness.test.ts
-  Test:  departure.loader + trip revisions open inclus, closed exclu, order asc
-────────────────────────────────────────────────────────────────────────────────
-  AssertionError: expected 0 to be greater than or equal to 1
-    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/integration/voyage-completeness.test.ts:283:25
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at file:///C:/Users/Utilisateur/Documents/t3code/atla
-
-
-  Suite: tests\integration\voyage-services.test.ts
-  Test:  expireApplications direct stale -> expired + event ; récents, décidés et null ignorés (now figé 2021)
-────────────────────────────────────────────────────────────────────────────────
-  Error: Failed query: insert into "applications" ("id", "traveler_id", "trip_id", "departure_id", "status", "room_preference", "dietary_requirements", "accessibility_needs", "activity_acknowledgement", "motivation", "expectations", "consent", "submitted_at", "created_at", "updated_at") values ($1, $2
-
-
-  Suite: tests\integration\voyage-services.test.ts
-  Test:  refund-service direct aucun paid, montants invalides
-────────────────────────────────────────────────────────────────────────────────
-  Error: Failed query: insert into "reservations" ("id", "reservation_number", "traveler_id", "trip_id", "departure_id", "application_id", "status", "currency", "base_amount", "single_supplement_amount", "discount_amount", "tax_amount", "fee_amount", "total_amount", "amount_paid", "amount_due", "balan
-
-
-  Suite: tests\integration\voyage-services.test.ts
-  Test:  refund-service direct deux remboursements concurrents -> un seul passe (verrou FOR UPDATE)
-────────────────────────────────────────────────────────────────────────────────
-  Error: Failed query: insert into "reservations" ("id", "reservation_number", "traveler_id", "trip_id", "departure_id", "application_id", "status", "currency", "base_amount", "single_supplement_amount", "discount_amount", "tax_amount", "fee_amount", "total_amount", "amount_paid", "amount_due", "balan
-
-
-  Suite: tests\integration\voyage-services.test.ts
-  Test:  refund-service direct partiel garde cancelled, total passe refunded + outbox
-────────────────────────────────────────────────────────────────────────────────
-  Error: Failed query: insert into "reservations" ("id", "reservation_number", "traveler_id", "trip_id", "departure_id", "application_id", "status", "currency", "base_amount", "single_supplement_amount", "discount_amount", "tax_amount", "fee_amount", "total_amount", "amount_paid", "amount_due", "balan
-
-
-  Suite: tests\integration\voyage-services.test.ts
-  Test:  checkout-service happy + expire multi session valide puis complétée -> null ; expire 2 sessions
-────────────────────────────────────────────────────────────────────────────────
-  Error: Failed query: insert into "applications" ("id", "traveler_id", "trip_id", "departure_id", "status", "room_preference", "dietary_requirements", "accessibility_needs", "activity_acknowledgement", "motivation", "expectations", "consent", "submitted_at", "created_at", "updated_at") values ($1, $2
-
-
-  Suite: tests\unit\permissions.test.ts
-  Test:  RBAC Permissions role authorization user role cannot authorize trip:read (no voyage access)
-────────────────────────────────────────────────────────────────────────────────
-  AssertionError: expected true to be false // Object.is equality
-    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/permissions.test.ts:210:30
-    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-
-
-
-  Suite: tests\unit\database\migration-sql.test.ts
-  Test:  splitSqlStatements never contains two migration files for the same version prefix (regression: duplicate migration)
-────────────────────────────────────────────────────────────────────────────────
-  AssertionError: expected 2 to be 3 // Object.is equality
-    at C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/unit/database/migration-sql.test.ts:124:36
-    at file:///C:/Users/Utilisateur/Documents/t3code/atlaselle/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/ch
-
-
-════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 1617/1778 passed
+  END OF REPORT — 1782/1782 passed
 ════════════════════════════════════════════════════════════════════════════════

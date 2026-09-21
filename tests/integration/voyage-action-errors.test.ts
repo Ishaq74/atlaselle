@@ -14,6 +14,7 @@ vi.mock('astro:actions', () => {
 
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '@database/drizzle';
+import { insertTestTrip } from '../helpers/trip-factory';
 import { invalidateCache } from '@database/cache';
 import { trips } from '@database/schemas/trips.schema';
 import { departures, seatHolds } from '@database/schemas/departures.schema';
@@ -26,7 +27,7 @@ import { outboxEvents } from '@database/schemas/outbox.schema';
 import { user } from '@database/schemas';
 import { updateTrip, upsertTripTranslation } from '@/actions/voyage/trips';
 import { createDeparture, updateDeparture, setDepartureStatus } from '@/actions/voyage/departures';
-import { submitApplication, reviewApplication } from '@/actions/voyage/applications';
+import { submitApplication, reviewApplication, applicationSubmitInput } from '@/actions/voyage/applications';
 import { initiateCheckout } from '@/actions/voyage/checkout';
 import { refundPayment, payBalance } from '@/actions/voyage/payments';
 import { getValidCheckoutSession } from '@/modules/payments/domain/checkout-service';
@@ -57,6 +58,14 @@ const adminCtx = (userId: string) => ({
 
 const publicCtx = () => ({
   locals: { user: null },
+  request: { headers: new Headers(), url: 'http://localhost:4321/en/apply/x' },
+  clientAddress: '127.0.0.1',
+}) as any;
+
+// Candidature = compte vérifié obligatoire (inconditionnel) : ctx dont
+// locals.user.email matche input.email. L'id doit exister en base (FK travelers.userId).
+const verifiedCtx = (userId: string, email: string) => ({
+  locals: { user: { id: userId, email, emailVerified: true, banned: false } },
   request: { headers: new Headers(), url: 'http://localhost:4321/en/apply/x' },
   clientAddress: '127.0.0.1',
 }) as any;
@@ -100,7 +109,7 @@ describe('Voyage action error paths (real DB)', () => {
     adminId = saved.id;
     await db.update(user).set({ role: 'admin' }).where(eq(user.id, adminId));
     await cleanup();
-    await db.insert(trips).values({
+    await insertTestTrip(db, {
       id: TRIP_ID, status: 'published', countryCode: 'FR', defaultCurrency: 'EUR',
       durationDays: 4, durationNights: 3, groupMin: 2, groupMax: 8, difficulty: 'easy', difficultyLevel: 2,
       publishedAt: new Date(),
@@ -109,7 +118,7 @@ describe('Voyage action error paths (real DB)', () => {
       id: DEP_ID, tripId: TRIP_ID,
       startDate: new Date('2027-06-01T08:00:00.000Z'), endDate: new Date('2027-06-04T18:00:00.000Z'),
       status: 'open', capacityMin: 2, capacityMax: 8, priceAmount: 100000, currency: 'EUR', pricingRules: {},
-      bookingDeadline: new Date('2027-12-31T23:59:00.000Z'),
+      bookingDeadline: new Date('2027-05-15T23:59:00.000Z'),
     });
   });
 
@@ -152,9 +161,9 @@ describe('Voyage action error paths (real DB)', () => {
       {
         tripId: TRIP_ID, departureId: DEP_ID, legalName: 'Contact Me', email: `contact-${stamp}@test.com`, phone: null,
         roomPreference: 'shared', dietaryRequirements: null, accessibilityNeeds: null,
-        activityAcknowledgement: true, motivation: null, expectations: null, consent: true, locale: 'en',
+        activityAcknowledgement: true, motivation: null, expectations: null, consent: true, termsAccepted: true, locale: 'en',
       },
-      publicCtx(),
+      verifiedCtx(adminId, `contact-${stamp}@test.com`),
     );
     const out = await review({ id: res.id, decision: 'contact_required', internalNote: 'call her' }, adminCtx(adminId));
     expect(out.status).toBe('contact_required');
@@ -175,23 +184,29 @@ describe('Voyage action error paths (real DB)', () => {
     await db.delete(travelers).where(eq(travelers.id, traveler.id));
   });
 
-  it('requireAccount trips demand a verified matching user', async () => {
-    await db.update(trips).set({ requireAccount: true }).where(eq(trips.id, TRIP_ID));
-    try {
-      const base = {
-        tripId: TRIP_ID, departureId: DEP_ID, legalName: 'Anon', email: `req-${stamp}@test.com`, phone: null,
-        roomPreference: 'shared', dietaryRequirements: null, accessibilityNeeds: null,
-        activityAcknowledgement: true, motivation: null, expectations: null, consent: true, locale: 'en',
-      };
-      await expect(submit(base, publicCtx())).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
-      const otherCtx = { locals: { user: { id: adminId, email: `other-${stamp}@test.com`, emailVerified: true } }, request: { headers: new Headers() }, clientAddress: '127.0.0.1' } as any;
-      await expect(submit(base, otherCtx)).rejects.toMatchObject({ code: 'FORBIDDEN' });
-      const ownCtx = { locals: { user: { id: adminId, email: `req-${stamp}@test.com`, emailVerified: true } }, request: { headers: new Headers() }, clientAddress: '127.0.0.1' } as any;
-      const res = await submit(base, ownCtx);
-      expect(res.id).toBeTypeOf('string');
-    } finally {
-      await db.update(trips).set({ requireAccount: false }).where(eq(trips.id, TRIP_ID));
-    }
+  it('submitApplication demands a verified matching user account', async () => {
+    // Rejet anonyme inconditionnel (2026-09-21) : requireAccount ne gate plus —
+    // flag conservé en schéma pour un éventuel mode « candidature invitée » futur.
+    const base = {
+      tripId: TRIP_ID, departureId: DEP_ID, legalName: 'Anon', email: `req-${stamp}@test.com`, phone: null,
+      roomPreference: 'shared', dietaryRequirements: null, accessibilityNeeds: null,
+      activityAcknowledgement: true, motivation: null, expectations: null, consent: true, termsAccepted: true, locale: 'en',
+    };
+    await expect(submit(base, publicCtx())).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+    await expect(submit(base, verifiedCtx(adminId, `other-${stamp}@test.com`))).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    const res = await submit(base, verifiedCtx(adminId, `req-${stamp}@test.com`));
+    expect(res.id).toBeTypeOf('string');
+  });
+
+  it('submitApplication rejects a missing termsAccepted (BAD_REQUEST)', async () => {
+    // La validation zod tourne dans l'enrobage astro:actions, avant le handler :
+    // un input sans termsAccepted est rejeté BAD_REQUEST sans accès DB.
+    const parsed = applicationSubmitInput.safeParse({
+      tripId: TRIP_ID, departureId: DEP_ID, legalName: 'No Terms', email: `noterms-${stamp}@test.com`, phone: null,
+      roomPreference: 'shared', dietaryRequirements: null, accessibilityNeeds: null,
+      activityAcknowledgement: true, motivation: null, expectations: null, consent: true, locale: 'en',
+    });
+    expect(parsed.success).toBe(false);
   });
 
   it('initiateCheckout rejects bad sessions, mismatched emails and doubles', async () => {
@@ -204,9 +219,9 @@ describe('Voyage action error paths (real DB)', () => {
       {
         tripId: TRIP_ID, departureId: DEP_ID, legalName: 'Double', email, phone: null,
         roomPreference: 'shared', dietaryRequirements: null, accessibilityNeeds: null,
-        activityAcknowledgement: true, motivation: null, expectations: null, consent: true, locale: 'en',
+        activityAcknowledgement: true, motivation: null, expectations: null, consent: true, termsAccepted: true, locale: 'en',
       },
-      publicCtx(),
+      verifiedCtx(adminId, email),
     );
     await review({ id: sub.id, decision: 'approved' }, adminCtx(adminId));
     const { checkoutSessions: sessions } = await import('@database/schemas/payments.schema');

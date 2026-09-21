@@ -14,6 +14,7 @@ vi.mock('astro:actions', () => {
 
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '@database/drizzle';
+import { insertTestTrip } from '../helpers/trip-factory';
 import { invalidateCache } from '@database/cache';
 import { trips } from '@database/schemas/trips.schema';
 import { departures } from '@database/schemas/departures.schema';
@@ -43,6 +44,15 @@ const publicCtx = () => ({
   clientAddress: '127.0.0.1',
 }) as any;
 
+// Candidature = compte vérifié obligatoire (inconditionnel) : ctx dont
+// locals.user.email matche input.email. L'id doit exister en base (FK travelers.userId).
+let applicantId = '';
+const userCtx = (email: string) => ({
+  locals: { user: { id: applicantId, email, emailVerified: true, banned: false } },
+  request: { headers: new Headers() },
+  clientAddress: '127.0.0.1',
+}) as any;
+
 const adminCtx = (userId: string) => ({
   locals: { user: { id: userId, role: 'admin', email: 'admin@test.com', banned: false } },
   request: { headers: new Headers() },
@@ -61,6 +71,7 @@ const baseInput = {
   motivation: null,
   expectations: null,
   consent: true,
+  termsAccepted: true,
   locale: 'fr',
 };
 
@@ -96,9 +107,10 @@ describe('Applications — submit/review/withdraw (real DB)', () => {
     const saved = await helpers.saveUser(u);
     adminId = saved.id;
     await db.update(user).set({ role: 'admin' }).where(eq(user.id, adminId));
+    applicantId = (await helpers.saveUser(helpers.createUser({ email: `app-cand-${stamp}@test.com`, name: 'App Candidate', emailVerified: true }))).id;
 
     await cleanup();
-    await db.insert(trips).values({
+    await insertTestTrip(db, {
       id: TRIP_ID, status: 'published', countryCode: 'FR', defaultCurrency: 'EUR',
       durationDays: 4, durationNights: 3, groupMin: 2, groupMax: 8, difficulty: 'easy', difficultyLevel: 2,
       publishedAt: new Date(),
@@ -107,7 +119,7 @@ describe('Applications — submit/review/withdraw (real DB)', () => {
       {
         id: DEP_OPEN, tripId: TRIP_ID, startDate: new Date('2027-06-01T08:00:00.000Z'), endDate: new Date('2027-06-04T18:00:00.000Z'),
         status: 'open', capacityMin: 2, capacityMax: 8, priceAmount: 100000, currency: 'EUR', pricingRules: {},
-        bookingDeadline: new Date('2027-12-31T23:59:00.000Z'),
+        bookingDeadline: new Date('2027-05-15T23:59:00.000Z'),
       },
       {
         id: DEP_CLOSED, tripId: TRIP_ID, startDate: new Date('2027-07-01T08:00:00.000Z'), endDate: new Date('2027-07-04T18:00:00.000Z'),
@@ -124,12 +136,13 @@ describe('Applications — submit/review/withdraw (real DB)', () => {
   afterAll(async () => {
     await cleanup();
     await helpers.deleteUser(adminId).catch(() => {});
+    await helpers.deleteUser(applicantId).catch(() => {});
   });
 
   beforeEach(() => resetRateLimiter());
 
   it('submits an application with events and outbox', async () => {
-    const res = await submit({ ...baseInput, email: `cand-${stamp}@test.com` }, publicCtx());
+    const res = await submit({ ...baseInput, email: `cand-${stamp}@test.com` }, userCtx(`cand-${stamp}@test.com`));
     expect(res.id).toBeTypeOf('string');
     const [app] = await db.select().from(applications).where(eq(applications.id, res.id));
     expect(app.status).toBe('submitted');
@@ -142,22 +155,22 @@ describe('Applications — submit/review/withdraw (real DB)', () => {
   });
 
   it('rejects closed departures and past deadlines', async () => {
-    await expect(submit({ ...baseInput, departureId: DEP_CLOSED, email: `c1-${stamp}@test.com` }, publicCtx())).rejects.toThrow(
+    await expect(submit({ ...baseInput, departureId: DEP_CLOSED, email: `c1-${stamp}@test.com` }, userCtx(`c1-${stamp}@test.com`))).rejects.toThrow(
       /APPLICATION_CLOSED/,
     );
-    await expect(submit({ ...baseInput, departureId: DEP_LATE, email: `c2-${stamp}@test.com` }, publicCtx())).rejects.toThrow(
+    await expect(submit({ ...baseInput, departureId: DEP_LATE, email: `c2-${stamp}@test.com` }, userCtx(`c2-${stamp}@test.com`))).rejects.toThrow(
       /APPLICATION_DEADLINE_PASSED/,
     );
   });
 
   it('conflicts on unverified duplicate emails', async () => {
     const email = `dup-${stamp}@test.com`;
-    await submit({ ...baseInput, email }, publicCtx());
-    await expect(submit({ ...baseInput, email }, publicCtx())).rejects.toThrow(/APPLICATION_EMAIL_CONFLICT/);
+    await submit({ ...baseInput, email }, userCtx(email));
+    await expect(submit({ ...baseInput, email }, userCtx(email))).rejects.toThrow(/APPLICATION_EMAIL_CONFLICT/);
   });
 
   it('approves then refuses double decision', async () => {
-    const res = await submit({ ...baseInput, email: `dec-${stamp}@test.com` }, publicCtx());
+    const res = await submit({ ...baseInput, email: `dec-${stamp}@test.com` }, userCtx(`dec-${stamp}@test.com`));
     const ok = await review({ id: res.id, decision: 'approved' }, adminCtx(adminId));
     expect(ok.status).toBe('approved');
     const [app] = await db.select().from(applications).where(eq(applications.id, res.id));
@@ -169,7 +182,7 @@ describe('Applications — submit/review/withdraw (real DB)', () => {
 
   it('withdraws with matching email only', async () => {
     const email = `wd-${stamp}@test.com`;
-    const res = await submit({ ...baseInput, email }, publicCtx());
+    const res = await submit({ ...baseInput, email }, userCtx(email));
     await expect(withdraw({ id: res.id, email: 'autre@test.com' }, publicCtx())).rejects.toThrow();
     const ok = await withdraw({ id: res.id, email }, publicCtx());
     expect(ok.success).toBe(true);

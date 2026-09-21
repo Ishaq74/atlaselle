@@ -14,6 +14,7 @@ vi.mock('astro:actions', () => {
 import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '@database/drizzle';
+import { insertTestTrip } from '../helpers/trip-factory';
 import { invalidateCache } from '@database/cache';
 import { trips, tripTranslations, tripRevisions } from '@database/schemas/trips.schema';
 import { departures } from '@database/schemas/departures.schema';
@@ -89,7 +90,9 @@ async function cleanup() {
 
 beforeAll(async () => {
   await cleanup();
-  await db.insert(trips).values({
+  // Hero attaché dès le draft : la chaîne draft->...->published exige
+  // hero_media_id (contrainte trips_hero_ck) au moment de l'UPDATE publish.
+  await insertTestTrip(db, {
     id: TRIP, status: 'draft', countryCode: 'FR', defaultCurrency: 'EUR',
     durationDays: 4, durationNights: 3, groupMin: 1, groupMax: 5, difficulty: 'easy', difficultyLevel: 1,
   });

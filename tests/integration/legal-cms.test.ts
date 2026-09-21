@@ -22,22 +22,27 @@ const expectedSlugs: Record<string, string> = {
 // ─── Seed data presence ──────────────────────────────────────────────
 
 describe('Legal CMS — Seed data', () => {
-  it('has exactly 4 legal pages (one per locale)', async () => {
+  it('has exactly 12 legal pages (3 per locale: notice, booking terms, insurance)', async () => {
     const rows = await db
       .select({ id: pages.id, locale: pages.locale, slug: pages.slug })
       .from(pages)
       .where(eq(pages.template, 'legal'));
 
-    expect(rows).toHaveLength(4);
-    const locales = rows.map((r) => r.locale).sort();
-    expect(locales).toEqual([...LOCALES].sort());
+    expect(rows).toHaveLength(12);
+    for (const locale of LOCALES) {
+      const slugs = rows.filter((r) => r.locale === locale).map((r) => r.slug);
+      expect(slugs).toHaveLength(3);
+      // Chaque locale expose sa page "mentions légales" principale.
+      expect(slugs).toContain(expectedSlugs[locale]);
+    }
   });
 
   it.each([...LOCALES])('locale %s has 3 FAQ sections', async (locale) => {
+    // Cible la page principale (mentions légales) : elle porte les 3 sections FAQ.
     const [page] = await db
       .select({ id: pages.id })
       .from(pages)
-      .where(and(eq(pages.template, 'legal'), eq(pages.locale, locale)))
+      .where(and(eq(pages.template, 'legal'), eq(pages.locale, locale), eq(pages.slug, expectedSlugs[locale])))
       .limit(1);
 
     expect(page).toBeDefined();
@@ -58,7 +63,7 @@ describe('Legal CMS — Seed data', () => {
     const [page] = await db
       .select({ id: pages.id })
       .from(pages)
-      .where(and(eq(pages.template, 'legal'), eq(pages.locale, locale)))
+      .where(and(eq(pages.template, 'legal'), eq(pages.locale, locale), eq(pages.slug, expectedSlugs[locale])))
       .limit(1);
 
     const sections = await db

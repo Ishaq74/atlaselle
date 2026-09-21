@@ -36,7 +36,7 @@ Aucune donnée commerciale critique ne doit être définie à plusieurs endroits
 - 11 modules voyage indépendants, pluggables/supprimables sans toucher à la base (zéro import DB croisé, interfaces + outbox uniquement) ; ne pas confondre src/modules/services/ (CMS vitrine inachevé) avec les nouveaux modules.
 - Paiement = module payments générique + adaptateur Stripe (pas le plugin better-auth-stripe).
 - Pricing 100 % administrable (deposit/singleSupplement/tax/fee/discount + pricingRules JSON Zod), montants en centimes, multi-devises EUR/USD V1 scalable ISO-4217.
-- Traveler découplé de user (userId nullable, UNIQUE(email CITEXT), pas de fusion auto) ; mode anonyme vs compte obligatoire paramétrable admin (global + surcharge par Trip).
+- Traveler découplé de user (userId nullable, UNIQUE(email CITEXT), pas de fusion auto) ; ~~mode anonyme vs compte obligatoire paramétrable admin~~ → **amendement 2026-09-21 (décision client : « le booking c'est censé être connecté ») : compte à email vérifié exigé inconditionnellement pour candidater ; `requireAccount` reste en schéma comme feature flag (ex. futur mode invité), sans effet sur le gating.**
 
 0.4 Sommaire
 Objet du document et règle de lecture
@@ -610,7 +610,7 @@ text
 travelers : id, userId NULLABLE (lien optionnel vers auth.user, jamais FK dure bloquant la suppression du module),
   email CITEXT UNIQUE, phone, legalName, preferredName, dateOfBirth, locale, timezone,
   emailVerifiedAt, createdAt, updatedAt
-Décisions actées : traveler ≠ user (table propre au module travelers). Déduplication : UNIQUE(email) insensible à la casse + normalisation (trim/lowercase) à l'écriture, sans fusion automatique ; en cas de conflit : réutiliser le traveler existant si email vérifié, sinon erreur contrôlée APPLICATION_EMAIL_CONFLICT. Mode anonyme vs compte obligatoire = paramétrable depuis l'admin (global + surcharge par Trip : requireAccount true|false, par défaut false en V1). Si requireAccount=true : userId obligatoire + email vérifié better-auth avant submit.
+Décisions actées : traveler ≠ user (table propre au module travelers). Déduplication : UNIQUE(email) insensible à la casse + normalisation (trim/lowercase) à l'écriture, sans fusion automatique ; en cas de conflit : réutiliser le traveler existant si email vérifié, sinon erreur contrôlée APPLICATION_EMAIL_CONFLICT. ~~Mode anonyme vs compte obligatoire = paramétrable depuis l'admin (global + surcharge par Trip : requireAccount true|false, par défaut false en V1).~~ **Amendement 2026-09-21 : candidature = compte connecté à email vérifié better-auth, inconditionnel (`/apply` redirige 302 vers sign-in + `?next=`, `submitApplication` exige sessionUser.emailVerified + email match) ; `requireAccount` reste un feature flag admin sans effet sur le gating.**
 
 11.2 Données sensibles
 Jamais dans : analytics, logs, URLs, état client, messages d'erreur, HTML public. redactSensitive() masque les champs sensibles.

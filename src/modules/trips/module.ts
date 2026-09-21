@@ -5,6 +5,7 @@ import {
   defineModuleCapabilityProviders,
   defineModulePresentations,
 } from "@/core/modules/module-contract";
+import { tripsSearchDefinition } from "./search";
 
 const providers = {
   content: "trips",
@@ -36,6 +37,7 @@ export const tripsModule: AtlaselleModuleDefinition = {
   presentations: defineModulePresentations({
     card: ["default"], list: ["default", "dense"], single: ["default"], ui: ["facts", "itinerary", "pricing"],
   }),
+  searchDefinition: tripsSearchDefinition,
 };
 
 assertModuleCapabilityProviders(tripsModule);

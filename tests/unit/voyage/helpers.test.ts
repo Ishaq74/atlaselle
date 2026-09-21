@@ -96,7 +96,7 @@ describe('request-id — bords', () => {
 
 describe('permissions — statement voyage exact', () => {
   it('ressources voyage déclarées', () => {
-    expect(statement.trip).toEqual(['create', 'read', 'update', 'publish', 'archive']);
+    expect(statement.trip).toEqual(['create', 'read', 'update', 'publish', 'archive', 'moderate', 'engage']);
     expect(statement.departure).toEqual(['create', 'read', 'update', 'close']);
     expect(statement.application).toEqual(['read', 'review', 'approve', 'decline']);
     expect(statement.reservation).toEqual(['read', 'cancel']);

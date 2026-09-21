@@ -209,7 +209,7 @@ export const voteTripReviewHelpful = defineAction({
 export const toggleTripFavorite = defineAction({
   input: z.object({ tripId: z.string().min(1).max(160) }),
   handler: async (input, context) => {
-    const user = await assertVoyagePermission(context, { trip: ["read"] });
+    const user = await assertVoyagePermission(context, { trip: ["engage"] });
     await assertPublishedTripExists(input.tripId);
     voyageRateLimit(context, user.id, "favorite");
     const db = getDrizzle();
@@ -234,7 +234,7 @@ export const toggleTripFavorite = defineAction({
 export const toggleTripReaction = defineAction({
   input: z.object({ tripId: z.string().min(1).max(160), reactionType: z.enum(["LIKE", "LOVE", "FIRE", "CLAP"]) }),
   handler: async (input, context) => {
-    const user = await assertVoyagePermission(context, { trip: ["read"] });
+    const user = await assertVoyagePermission(context, { trip: ["engage"] });
     await assertPublishedTripExists(input.tripId);
     voyageRateLimit(context, user.id, "reaction");
     const db = getDrizzle();

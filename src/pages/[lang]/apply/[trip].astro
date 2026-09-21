@@ -1,9 +1,10 @@
 ---
-import { toLocale } from "@i18n/utils";
+import { toLocale, getAuthTranslations } from "@i18n/utils";
 import type { Locale } from "@i18n/config";
 import { getTripPath, getApplyPath } from "@i18n/routes";
 import { loadTripPage } from "@/modules/trips/loaders/trip.loader";
 import { loadOpenDepartures } from "@/modules/departures/loaders/departure.loader";
+import { resolveLegalLinks } from "@/lib/legal-pages";
 import BaseLayout from "@layouts/BaseLayout.astro";
 
 export const prerender = false;
@@ -13,6 +14,20 @@ const dto = await loadTripPage(locale, Astro.params.trip ?? "");
 if (!dto) {
   Astro.response.status = 404;
   return Astro.rewrite("/404");
+}
+// Tunnel réservé aux comptes vérifiés — inconditionnel (décision produit 2026-09-21 :
+// « le booking c'est censé être connecté »). trips.requireAccount reste un feature flag
+// admin (ex. futur mode « candidature invitée ») mais ne gate plus cette page.
+// Pattern de redirection identique à src/lib/auth-guards.ts, avec retour ?next=
+// vers l'URL courante (consommé par SignInPage.astro après connexion).
+const sessionUser = Astro.locals.user;
+if (!sessionUser?.emailVerified) {
+  const authT = await getAuthTranslations(locale);
+  const signInSlug = authT.routes["sign-in"];
+  // Variable testée dans une condition : astro check marque « unused » toute
+  // variable utilisée uniquement dans l'expression d'un return du frontmatter.
+  if (!signInSlug) return Astro.rewrite("/404");
+  return Astro.redirect(`/${locale}/auth/${signInSlug}?next=${encodeURIComponent(Astro.url.pathname + Astro.url.search)}`, 302);
 }
 const copy = dto.translations[locale];
 const departures = await loadOpenDepartures(dto.id);
@@ -30,6 +45,19 @@ const l =
       : locale === "ar"
         ? { title: "قدّم طلبك", departure: "الموعد", name: "الاسم الكامل", email: "البريد الإلكتروني", phone: "الهاتف (اختياري)", room: "الغرفة", shared: "مزدوجة مشتركة", single: "مفردة (+ رسوم)", diet: "النظام الغذائي (اختياري)", access: "احتياجات الوصول (اختياري)", activity: "أقر بأنني قرأت مستوى نشاط الرحلة.", motivation: "الدافع (اختياري)", expectations: "التوقعات (اختياري)", consent: "أوافق على استخدام بياناتي لمعالجة طلبي.", submit: "إرسال الطلب", sent: "تم إرسال الطلب. سنعاود الاتصال بك.", nodate: "لا مواعيد مفتوحة حاليا." }
         : { title: "Submit my application", departure: "Departure", name: "Full name", email: "Email", phone: "Phone (optional)", room: "Room", shared: "Shared twin", single: "Single (+ supplement)", diet: "Dietary requirements (optional)", access: "Accessibility needs (optional)", activity: "I acknowledge the trip activity level.", motivation: "Motivation (optional)", expectations: "Expectations (optional)", consent: "I agree my data is used to process my application.", submit: "Send my application", sent: "Application sent. We will contact you by email.", nodate: "No open departures right now." };
+// Checkbox légale : liens vers les pages CMS « conditions de réservation » et
+// « assurance voyage » (slugs DB, fallback seed — jamais de page cassée).
+const legalLinks = await resolveLegalLinks(locale);
+const legalLink = (href: string, text: string) =>
+  `<a href="${href}" class="text-primary underline" target="_blank" rel="noopener">${text}</a>`;
+const termsLabel =
+  locale === "fr"
+    ? `J'accepte les ${legalLink(legalLinks.terms, "Conditions de réservation")} et je confirme avoir pris connaissance de l'${legalLink(legalLinks.insurance, "Assurance voyage")} obligatoire.`
+    : locale === "es"
+      ? `Acepto las ${legalLink(legalLinks.terms, "condiciones de reserva")} y confirmo que he leído la página de ${legalLink(legalLinks.insurance, "seguro de viaje")} obligatorio.`
+      : locale === "ar"
+        ? `أوافق على ${legalLink(legalLinks.terms, "شروط الحجز")} وأؤكد أنني اطلعت على صفحة ${legalLink(legalLinks.insurance, "تأمين السفر")} الإلزامي.`
+        : `I accept the ${legalLink(legalLinks.terms, "booking terms")} and confirm I have read the mandatory ${legalLink(legalLinks.insurance, "travel insurance")} page.`;
 ---
 <BaseLayout title={`${l.title} — ${copy.title}`} description={copy.summary} canonicalPath={canonicalPath} alternateUrls={alternateUrls}>
   <section class="mx-auto max-w-xl px-6 py-14" data-apply-page data-trip-id={dto.id} data-sent={l.sent}>
@@ -46,8 +74,9 @@ const l =
             ))}
           </select>
         </label>
-        <label class="block font-medium">{l.name}<input required name="legalName" maxlength="200" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
-        <label class="block font-medium">{l.email}<input required name="email" type="email" maxlength="320" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
+        {/* sessionUser est garanti non nul ici : les anonymes sont redirigés plus haut. */}
+        <label class="block font-medium">{l.name}<input required name="legalName" maxlength="200" value={sessionUser.name || undefined} class="mt-2 w-full rounded-md border bg-background p-3" /></label>
+        <label class="block font-medium">{l.email}<input required name="email" type="email" maxlength="320" value={sessionUser.email} readonly class="mt-2 w-full rounded-md border bg-background p-3" /></label>
         <label class="block font-medium">{l.phone}<input name="phone" maxlength="40" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
         <label class="block font-medium">{l.room}
           <select name="roomPreference" class="mt-2 w-full rounded-md border bg-background p-3">
@@ -61,6 +90,8 @@ const l =
         <label class="block font-medium">{l.expectations}<textarea name="expectations" rows="3" maxlength="5000" class="mt-2 w-full rounded-md border bg-background p-3"></textarea></label>
         <label class="flex items-start gap-2 text-sm"><input required type="checkbox" name="activityAcknowledgement" class="mt-1" />{l.activity}</label>
         <label class="flex items-start gap-2 text-sm"><input required type="checkbox" name="consent" class="mt-1" />{l.consent}</label>
+        {/* eslint-disable-next-line astro/no-set-html-directive, astro/jsx-a11y/label-has-associated-control -- termsLabel est construit côté serveur depuis des textes i18n statiques et des slugs DB (aucune entrée utilisateur) ; le texte du label est rendu via set:html, invisible pour l'analyse statique */}
+        <label class="flex items-start gap-2 text-sm"><input required type="checkbox" name="termsAccepted" class="mt-1" /><span set:html={termsLabel} /></label>
         <button class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.submit}</button>
         <output class="block text-sm" data-form-message></output>
       </form>
@@ -83,7 +114,7 @@ const l =
       return s ? s : null;
     };
     const el = form.querySelector("[data-form-message]");
-    if (data.get("activityAcknowledgement") !== "on" || data.get("consent") !== "on") {
+    if (data.get("activityAcknowledgement") !== "on" || data.get("consent") !== "on" || data.get("termsAccepted") !== "on") {
       if (el) el.textContent = "Error";
       return;
     }
@@ -100,6 +131,7 @@ const l =
       motivation: opt(data.get("motivation")),
       expectations: opt(data.get("expectations")),
       consent: true as const,
+      termsAccepted: true as const,
     });
     if (error) {
       if (el) el.textContent = error.message;

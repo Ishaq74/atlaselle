@@ -9,12 +9,12 @@ import type { BlogTranslations } from '@/i18n/config';
  */
 
 async function loadCommon(locale: string): Promise<CommonTranslations> {
-  const mod = await import(`@/i18n/${locale}/common`);
+  const mod = await import(`@/i18n/${locale}/common.ts`);
   return mod.default;
 }
 
 async function loadBlog(locale: string): Promise<BlogTranslations> {
-  const mod = await import(`@/i18n/blog/${locale}`);
+  const mod = await import(`@/i18n/blog/${locale}.ts`);
   return mod.default;
 }
 

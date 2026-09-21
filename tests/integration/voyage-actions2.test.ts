@@ -14,6 +14,7 @@ vi.mock('astro:actions', () => {
 import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '@database/drizzle';
+import { insertTestTrip } from '../helpers/trip-factory';
 import { invalidateCache } from '@database/cache';
 import { trips } from '@database/schemas/trips.schema';
 import { departures } from '@database/schemas/departures.schema';
@@ -49,12 +50,20 @@ const DEP_ACC = `test-a2-depacc-${stamp}`;
 const baseSubmit = {
   legalName: 'Jane Doe', phone: null, roomPreference: 'shared',
   dietaryRequirements: null, accessibilityNeeds: null,
-  activityAcknowledgement: true, motivation: null, expectations: null, consent: true, locale: 'en',
+  activityAcknowledgement: true, motivation: null, expectations: null, consent: true, termsAccepted: true, locale: 'en',
 };
 
 const publicCtx = () =>
   ({
     locals: {},
+    request: { headers: new Headers(), url: 'http://localhost:4321/en/apply/x' },
+    clientAddress: `10.0.${Math.floor(Math.random() * 200) + 10}.${Math.floor(Math.random() * 200) + 10}`,
+  }) as never;
+// Candidature = compte vérifié obligatoire (inconditionnel) : ctx dont
+// locals.user.email matche input.email. L'id doit exister en base (FK travelers.userId).
+const verifiedCtx = (userId: string, email: string) =>
+  ({
+    locals: { user: { id: userId, email, emailVerified: true, banned: false } },
     request: { headers: new Headers(), url: 'http://localhost:4321/en/apply/x' },
     clientAddress: `10.0.${Math.floor(Math.random() * 200) + 10}.${Math.floor(Math.random() * 200) + 10}`,
   }) as never;
@@ -106,7 +115,7 @@ async function cleanup() {
 
 beforeAll(async () => {
   await cleanup();
-  await db.insert(trips).values([
+  await insertTestTrip(db, [
     {
       id: TRIP, status: 'published', countryCode: 'FR', defaultCurrency: 'EUR',
       durationDays: 4, durationNights: 3, groupMin: 1, groupMax: 5, difficulty: 'easy', difficultyLevel: 1,
@@ -174,7 +183,6 @@ describe('submitApplication — fermetures, délais, comptes, rate-limit', () =>
     const saved = await helpers.saveUser(u);
     adminId = saved.id;
     await db.update(user).set({ role: 'admin' }).where(eq(user.id, adminId));
-    void adminId;
   });
 
   afterAll(async () => {
@@ -184,66 +192,64 @@ describe('submitApplication — fermetures, délais, comptes, rate-limit', () =>
   beforeEach(() => resetRateLimiter());
 
   it('rate-limit après 5 essais (même IP)', async () => {
-    const ctx = { locals: {}, request: { headers: new Headers(), url: 'http://x/' }, clientAddress: '192.168.99.77' } as never;
+    const ctxFor = (email: string) =>
+      ({ locals: { user: { id: adminId, email, emailVerified: true, banned: false } }, request: { headers: new Headers(), url: 'http://x/' }, clientAddress: '192.168.99.77' }) as never;
     for (let i = 0; i < 5; i++) {
-      await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email: `rl${i}-${stamp}@test.com` }, ctx);
+      await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email: `rl${i}-${stamp}@test.com` }, ctxFor(`rl${i}-${stamp}@test.com`));
     }
-    await expect(submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email: `rl5-${stamp}@test.com` }, ctx)).rejects.toMatchObject({ code: 'TOO_MANY_REQUESTS' });
+    await expect(submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email: `rl5-${stamp}@test.com` }, ctxFor(`rl5-${stamp}@test.com`))).rejects.toMatchObject({ code: 'TOO_MANY_REQUESTS' });
   });
 
   it('voyage draft/inconnu -> APPLICATION_CLOSED, départ mismatch -> NOT_FOUND', async () => {
-    await expect(submit({ ...baseSubmit, tripId: TRIP_DRAFT, departureId: DEP, email: `c1-${stamp}@test.com` }, publicCtx())).rejects.toMatchObject({ code: 'BAD_REQUEST' });
-    await expect(submit({ ...baseSubmit, tripId: 'no-trip', departureId: DEP, email: `c2-${stamp}@test.com` }, publicCtx())).rejects.toMatchObject({ code: 'BAD_REQUEST' });
-    await expect(submit({ ...baseSubmit, tripId: TRIP, departureId: DEP_ACC, email: `c3-${stamp}@test.com` }, publicCtx())).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    await expect(submit({ ...baseSubmit, tripId: TRIP_DRAFT, departureId: DEP, email: `c1-${stamp}@test.com` }, verifiedCtx(adminId, `c1-${stamp}@test.com`))).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+    await expect(submit({ ...baseSubmit, tripId: 'no-trip', departureId: DEP, email: `c2-${stamp}@test.com` }, verifiedCtx(adminId, `c2-${stamp}@test.com`))).rejects.toMatchObject({ code: 'BAD_REQUEST' });
+    await expect(submit({ ...baseSubmit, tripId: TRIP, departureId: DEP_ACC, email: `c3-${stamp}@test.com` }, verifiedCtx(adminId, `c3-${stamp}@test.com`))).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 
   it('statuts fermés draft/closed/cancelled/completed -> APPLICATION_CLOSED + deadline passée', async () => {
     for (const suffix of ['closed', 'draft', 'cancelled', 'completed']) {
       await expect(
-        submit({ ...baseSubmit, tripId: TRIP, departureId: `${DEP}-${suffix}`, email: `${suffix}-${stamp}@test.com` }, publicCtx()),
+        submit({ ...baseSubmit, tripId: TRIP, departureId: `${DEP}-${suffix}`, email: `${suffix}-${stamp}@test.com` }, verifiedCtx(adminId, `${suffix}-${stamp}@test.com`)),
       ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
     }
     await expect(
-      submit({ ...baseSubmit, tripId: TRIP, departureId: `${DEP}-past`, email: `past-${stamp}@test.com` }, publicCtx()),
+      submit({ ...baseSubmit, tripId: TRIP, departureId: `${DEP}-past`, email: `past-${stamp}@test.com` }, verifiedCtx(adminId, `past-${stamp}@test.com`)),
     ).rejects.toMatchObject({ code: 'BAD_REQUEST' });
   });
 
-  it('compte obligatoire : UNAUTHORIZED sans session, FORBIDDEN email différent', async () => {
+  it('compte exigé pour tout voyage : UNAUTHORIZED sans session, FORBIDDEN email différent', async () => {
+    // Inconditionnel depuis 2026-09-21 : valable sur un voyage SANS requireAccount.
     await expect(
-      submit({ ...baseSubmit, tripId: TRIP_ACC, departureId: DEP_ACC, email: `acc-${stamp}@test.com` }, publicCtx()),
+      submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email: `acc-${stamp}@test.com` }, publicCtx()),
     ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
-    const ctx = {
-      locals: { user: { id: 'u1', email: 'verified@test.com', emailVerified: true, banned: false } },
-      request: { headers: new Headers(), url: 'http://x/' }, clientAddress: '10.1.2.3',
-    } as never;
     await expect(
-      submit({ ...baseSubmit, tripId: TRIP_ACC, departureId: DEP_ACC, email: `other-${stamp}@test.com` }, ctx),
+      submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email: `other-${stamp}@test.com` }, verifiedCtx(adminId, 'verified@test.com')),
     ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 
   it('doublon actif -> CONFLICT, après withdraw -> nouvelle candidature OK', async () => {
     const email = `dup-${stamp}@test.com`;
-    const first = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, publicCtx());
+    const first = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email));
     expect(first.id).toBeTypeOf('string');
     // non vérifié : le conflit email répond d'abord (règle anti-spam préexistante)
-    const errMail = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, publicCtx()).catch((e: unknown) => e);
+    const errMail = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email)).catch((e: unknown) => e);
     expect((errMail as { code: string }).code).toBe('CONFLICT');
     expect((errMail as Error).message).toContain('APPLICATION_EMAIL_CONFLICT');
     await db.update(travelers).set({ emailVerifiedAt: new Date() }).where(eq(travelers.email, email));
     // vérifié : la déduplication dossier répond
-    const errDup = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, publicCtx()).catch((e: unknown) => e);
+    const errDup = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email)).catch((e: unknown) => e);
     expect((errDup as { code: string }).code).toBe('CONFLICT');
     expect((errDup as Error).message).toContain('APPLICATION_DUPLICATE');
     await withdraw({ id: first.id, email }, publicCtx());
-    const second = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, publicCtx());
+    const second = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email));
     expect(second.id).toBeTypeOf('string');
     expect(second.id).not.toBe(first.id);
   });
 
   it('deux candidatures simultanées même email -> une passe, une EMAIL_CONFLICT', async () => {
     const email = `race-${stamp}@test.com`;
-    const ctxA = publicCtx();
-    const ctxB = publicCtx();
+    const ctxA = verifiedCtx(adminId, email);
+    const ctxB = verifiedCtx(adminId, email);
     const [one, two] = await Promise.allSettled([
       submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, ctxA),
       submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, ctxB),
@@ -260,8 +266,8 @@ describe('submitApplication — fermetures, délais, comptes, rate-limit', () =>
     const [t] = await db.insert(travelers).values({ email, locale: 'en', emailVerifiedAt: new Date() }).returning({ id: travelers.id });
     void t;
     const [one, two] = await Promise.allSettled([
-      submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, publicCtx()),
-      submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, publicCtx()),
+      submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email)),
+      submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email)),
     ]);
     const ok = [one, two].filter((s) => s.status === 'fulfilled');
     const ko = [one, two].filter((s) => s.status === 'rejected');

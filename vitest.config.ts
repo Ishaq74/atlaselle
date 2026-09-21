@@ -4,13 +4,13 @@ import { resolve } from 'node:path';
 export default defineConfig({
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
-      '@i18n': resolve(__dirname, 'src/i18n'),
-      '@components': resolve(__dirname, 'src/components'),
-      '@lib': resolve(__dirname, 'src/lib'),
-      '@database': resolve(__dirname, 'src/database'),
-      '@smtp': resolve(__dirname, 'src/smtp'),
-      '@media': resolve(__dirname, 'src/media'),
+      '@': resolve(import.meta.dirname, 'src'),
+      '@i18n': resolve(import.meta.dirname, 'src/i18n'),
+      '@components': resolve(import.meta.dirname, 'src/components'),
+      '@lib': resolve(import.meta.dirname, 'src/lib'),
+      '@database': resolve(import.meta.dirname, 'src/database'),
+      '@smtp': resolve(import.meta.dirname, 'src/smtp'),
+      '@media': resolve(import.meta.dirname, 'src/media'),
     },
   },
   test: {

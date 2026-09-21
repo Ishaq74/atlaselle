@@ -42,6 +42,9 @@ export async function purgeVoyageTestFixtures(): Promise<void> {
   await db.execute(sql`DELETE FROM travelers WHERE email LIKE '%@test.com'`);
   await db.execute(sql`DELETE FROM trips WHERE id LIKE 'test-%' OR id LIKE 'e2e-%'`);
   await db.execute(sql`DELETE FROM outbox_events WHERE aggregate_id LIKE 'test-%' OR aggregate_id LIKE 'e2e-%'`);
+  // Heros insérés par tests/helpers/trip-factory.ts (trips supprimés d'abord,
+  // FK hero_media_id en ON DELETE SET NULL de toute façon).
+  await db.execute(sql`DELETE FROM media_files WHERE id LIKE 'test-media-%'`);
 }
 
 /**

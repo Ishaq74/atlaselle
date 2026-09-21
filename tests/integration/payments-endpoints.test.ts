@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { createHmac } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '@database/drizzle';
+import { insertTestTrip } from '../helpers/trip-factory';
 import { invalidateCache } from '@database/cache';
 import { trips, tripTranslations } from '@database/schemas/trips.schema';
 import { departures, seatHolds } from '@database/schemas/departures.schema';
@@ -47,7 +48,7 @@ describe('Payments endpoints (mock provider by default)', () => {
   beforeAll(async () => {
     delete process.env.PAYMENT_PROVIDER;
     await cleanup();
-    await db.insert(trips).values({
+    await insertTestTrip(db, {
       id: TRIP_ID, status: 'published', countryCode: 'FR', defaultCurrency: 'EUR',
       durationDays: 4, durationNights: 3, groupMin: 1, groupMax: 5, difficulty: 'easy', difficultyLevel: 1,
       publishedAt: new Date(),

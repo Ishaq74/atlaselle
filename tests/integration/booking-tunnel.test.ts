@@ -14,6 +14,7 @@ vi.mock('astro:actions', () => {
 
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '@database/drizzle';
+import { insertTestTrip } from '../helpers/trip-factory';
 import { invalidateCache } from '@database/cache';
 import { trips } from '@database/schemas/trips.schema';
 import { departures, seatHolds } from '@database/schemas/departures.schema';
@@ -46,6 +47,15 @@ const DEP_ID = `test-tunnel-dep-${stamp}`;
 const publicCtx = (origin = 'http://localhost:4321') => ({
   locals: { user: null },
   request: { headers: new Headers(), url: `${origin}/en/checkout/x` },
+  clientAddress: '127.0.0.1',
+}) as any;
+
+// Candidature = compte vérifié obligatoire (inconditionnel) : ctx dont
+// locals.user.email matche input.email. L'id doit exister en base (FK travelers.userId).
+let applicantId = '';
+const applicantCtx = (email: string) => ({
+  locals: { user: { id: applicantId, email, emailVerified: true, banned: false } },
+  request: { headers: new Headers(), url: 'http://localhost:4321/en/apply/x' },
   clientAddress: '127.0.0.1',
 }) as any;
 
@@ -91,9 +101,9 @@ async function approveFlow(email: string) {
     {
       tripId: TRIP_ID, departureId: DEP_ID, legalName: 'Tunnel User', email, phone: null,
       roomPreference: 'shared', dietaryRequirements: null, accessibilityNeeds: null,
-      activityAcknowledgement: true, motivation: null, expectations: null, consent: true, locale: 'en',
+      activityAcknowledgement: true, motivation: null, expectations: null, consent: true, termsAccepted: true, locale: 'en',
     },
-    publicCtx(),
+    applicantCtx(email),
   );
   await review({ id: sub.id, decision: 'approved' }, (globalThis as any).__adminCtx);
   const [checkout] = await db.select().from(checkoutSessions).where(eq(checkoutSessions.applicationId, sub.id));
@@ -111,9 +121,10 @@ describe('Booking tunnel — mock provider (real DB)', () => {
     adminId = saved.id;
     await db.update(user).set({ role: 'admin' }).where(eq(user.id, adminId));
     (globalThis as any).__adminCtx = adminCtx(adminId);
+    applicantId = (await helpers.saveUser(helpers.createUser({ email: `tunnel-cand-${stamp}@test.com`, name: 'Tunnel Candidate', emailVerified: true }))).id;
 
     await cleanup();
-    await db.insert(trips).values({
+    await insertTestTrip(db, {
       id: TRIP_ID, status: 'published', countryCode: 'FR', defaultCurrency: 'EUR',
       durationDays: 4, durationNights: 3, groupMin: 1, groupMax: 5, difficulty: 'easy', difficultyLevel: 1,
       publishedAt: new Date(),
@@ -122,13 +133,14 @@ describe('Booking tunnel — mock provider (real DB)', () => {
       id: DEP_ID, tripId: TRIP_ID,
       startDate: new Date('2027-10-01T08:00:00.000Z'), endDate: new Date('2027-10-04T18:00:00.000Z'),
       status: 'open', capacityMin: 1, capacityMax: 5, priceAmount: 100000, currency: 'EUR', pricingRules: {},
-      bookingDeadline: new Date('2027-12-31T23:59:00.000Z'),
+      bookingDeadline: new Date('2027-09-15T23:59:00.000Z'),
     });
   });
 
   afterAll(async () => {
     await cleanup();
     await helpers.deleteUser(adminId).catch(() => {});
+    await helpers.deleteUser(applicantId).catch(() => {});
     delete (globalThis as any).__adminCtx;
   });
 
@@ -249,16 +261,16 @@ describe('Booking tunnel — mock provider (real DB)', () => {
       startDate: new Date('2027-11-01T08:00:00.000Z'), endDate: new Date('2027-11-04T18:00:00.000Z'),
       status: 'open', capacityMin: 1, capacityMax: 5, priceAmount: 100000, currency: 'EUR',
       depositType: 'fixed', depositAmount: 20000, pricingRules: {},
-      bookingDeadline: new Date('2027-12-31T23:59:00.000Z'),
+      bookingDeadline: new Date('2027-10-15T23:59:00.000Z'),
     });
     const email = `tunneldep-${stamp}@test.com`;
     const sub = await submit(
       {
         tripId: TRIP_ID, departureId: depId, legalName: 'Tunnel User', email, phone: null,
         roomPreference: 'shared', dietaryRequirements: null, accessibilityNeeds: null,
-        activityAcknowledgement: true, motivation: null, expectations: null, consent: true, locale: 'en',
+        activityAcknowledgement: true, motivation: null, expectations: null, consent: true, termsAccepted: true, locale: 'en',
       },
-      publicCtx(),
+      applicantCtx(email),
     );
     await review({ id: sub.id, decision: 'approved' }, (globalThis as any).__adminCtx);
     const [checkout] = await db.select().from(checkoutSessions).where(eq(checkoutSessions.applicationId, sub.id));

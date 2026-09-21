@@ -994,7 +994,7 @@ export async function getBlogPostStats(postId: string, days = 30) {
  * caller can attach media to each gallery without an N+1 loop.
  */
 export async function getBlogGalleriesWithMedia(galleryIds: string[]) {
-  const result = new Map<string, Array<{ mediaId: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string } }>>();
+  const result = new Map<string, Array<{ mediaId: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string; width: number | null; height: number | null } }>>();
   if (galleryIds.length === 0) return result;
 
   const db = getDrizzle();
@@ -1005,7 +1005,7 @@ export async function getBlogGalleriesWithMedia(galleryIds: string[]) {
       altText: blogPostGalleryMedia.altText,
       caption: blogPostGalleryMedia.caption,
       sortOrder: blogPostGalleryMedia.sortOrder,
-      file: { id: mediaFiles.id, url: mediaFiles.url },
+      file: { id: mediaFiles.id, url: mediaFiles.url, width: mediaFiles.width, height: mediaFiles.height },
     })
     .from(blogPostGalleryMedia)
     .innerJoin(mediaFiles, eq(blogPostGalleryMedia.mediaId, mediaFiles.id))

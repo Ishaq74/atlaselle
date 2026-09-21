@@ -303,8 +303,6 @@ data/
   08-theme.data.ts
   09-legal-pages.data.ts
   09b-legal-sections.data.ts
-  09c-travel-legal-pages.data.ts
-  09d-travel-legal-sections.data.ts
   10-consent-settings.data.ts
   11-blog-categories.data.ts
   11b-blog-category-translations.data.ts
@@ -399,10 +397,11 @@ loaders/
 migrations/
   0000_tranquil_toad.sql
   0001_steady_meteorite.sql
-  0001_trip_engagement.sql
+  0002_trip_engagement.sql
   meta/
     0000_snapshot.json
     0001_snapshot.json
+    0002_snapshot.json
     _journal.json
 schemas/
   applications.schema.ts
@@ -586,7 +585,7 @@ schemas.ts
 
 - `0000_tranquil_toad.sql`
 - `0001_steady_meteorite.sql`
-- `0001_trip_engagement.sql`
+- `0002_trip_engagement.sql`
 
 ### Commandes
 
@@ -963,6 +962,8 @@ trips/
   module.ts
   repositories/
     trip.repository.ts
+  search/
+    index.ts
   validation/
     index.ts
 src/pages/

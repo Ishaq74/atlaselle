@@ -14,6 +14,7 @@ vi.mock('astro:actions', () => {
 
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '@database/drizzle';
+import { insertTestTrip } from '../helpers/trip-factory';
 import { purgeOutboxForTrips } from '../helpers/voyage';
 import { invalidateCache } from '@database/cache';
 import { trips } from '@database/schemas/trips.schema';
@@ -74,7 +75,7 @@ async function cleanup() {
 
 beforeAll(async () => {
   await cleanup();
-  await db.insert(trips).values({
+  await insertTestTrip(db, {
     id: TRIP, status: 'published', countryCode: 'FR', defaultCurrency: 'EUR',
     durationDays: 4, durationNights: 3, groupMin: 1, groupMax: 2, difficulty: 'easy', difficultyLevel: 1,
     publishedAt: new Date(),
@@ -184,7 +185,7 @@ describe('initiateCheckout — double appel, échec provider, outbox', () => {
     const trip2 = `test-pay-cache2-${stamp}`;
     const slug = `cache2-${stamp}`;
     const depId = `${DEP}-cache2`;
-    await db.insert(trips).values({
+    await insertTestTrip(db, {
       id: trip2, status: 'published', countryCode: 'FR', defaultCurrency: 'EUR',
       durationDays: 4, durationNights: 3, groupMin: 1, groupMax: 1, difficulty: 'easy', difficultyLevel: 1,
       publishedAt: new Date(),

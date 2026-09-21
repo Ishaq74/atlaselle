@@ -13,6 +13,7 @@ vi.mock('astro:actions', () => {
 
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '@database/drizzle';
+import { insertTestTrip } from '../helpers/trip-factory';
 import { invalidateCache } from '@database/cache';
 import { trips, tripTranslations } from '@database/schemas/trips.schema';
 import { itineraryDays, itineraryDayTranslations } from '@database/schemas/itinerary.schema';
@@ -75,7 +76,7 @@ async function cleanup() {
 
 beforeAll(async () => {
   await cleanup();
-  await db.insert(trips).values({
+  await insertTestTrip(db, {
     id: TRIP, status: 'published', countryCode: 'FR', defaultCurrency: 'EUR',
     durationDays: 4, durationNights: 3, groupMin: 2, groupMax: 8, difficulty: 'easy', difficultyLevel: 2,
     publishedAt: new Date(),

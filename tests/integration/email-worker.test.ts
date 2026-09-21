@@ -13,6 +13,7 @@ vi.mock('astro:actions', () => {
 });
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '@database/drizzle';
+import { insertTestTrip } from '../helpers/trip-factory';
 import { invalidateCache } from '@database/cache';
 import { trips, tripTranslations } from '@database/schemas/trips.schema';
 import { departures } from '@database/schemas/departures.schema';
@@ -77,7 +78,7 @@ describe('Email worker — outbox → deliveries (real DB, stubbed SMTP)', () =>
   beforeAll(async () => {
     await cleanup();
     sent.length = 0;
-    await db.insert(trips).values({
+    await insertTestTrip(db, {
       id: TRIP_ID, status: 'published', countryCode: 'FR', defaultCurrency: 'EUR',
       durationDays: 4, durationNights: 3, groupMin: 1, groupMax: 5, difficulty: 'easy', difficultyLevel: 1,
       publishedAt: new Date(),

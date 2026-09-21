@@ -15,8 +15,9 @@ vi.mock('astro:actions', () => {
 });
 
 import { getDrizzle } from '@database/drizzle';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { blogPosts, blogReports, blogPostRevisions, blogPostTranslations, blogPostViewStats, user } from '@database/schemas';
+import { publishedScope } from '@database/loaders/blog.loader';
 import { listBlogPostRevisions } from '@/actions/blog/post';
 import { updateBlogReport, getBlogModerationQueue } from '@/actions/blog/moderation';
 import { resolveBlogInternalLink } from '@/actions/blog/internal-link';
@@ -53,6 +54,7 @@ const db = getDrizzle();
 describe('blog actions — integration (real DB)', () => {
   let globalPostId: string;
   let globalPostSlug: string;
+  let globalPostTitle: string;
   let realUserId: string;
   let pendingReportId: string;
   let seededPostId: string | null = null;
@@ -78,15 +80,18 @@ describe('blog actions — integration (real DB)', () => {
     await db.update(user).set({ role: "admin" }).where(eq(user.id, realUserId));
 
     // Prefer a seeded FR post; otherwise create a deterministic one (always runs).
+    // Restricted to PUBLISHED posts so the internal-link search (publishedScope)
+    // can always find the chosen post.
     const [seeded] = await db
-      .select({ id: blogPosts.id, slug: blogPostTranslations.slug })
+      .select({ id: blogPosts.id, slug: blogPostTranslations.slug, title: blogPostTranslations.title })
       .from(blogPosts)
       .innerJoin(blogPostTranslations, eq(blogPostTranslations.postId, blogPosts.id))
-      .where(eq(blogPostTranslations.locale, 'fr'))
+      .where(and(eq(blogPostTranslations.locale, 'fr'), publishedScope(blogPosts)))
       .limit(1);
     if (seeded) {
       globalPostId = seeded.id;
       globalPostSlug = seeded.slug;
+      globalPostTitle = seeded.title;
     } else {
       const now = new Date();
       await db.insert(blogPosts).values({
@@ -106,6 +111,7 @@ describe('blog actions — integration (real DB)', () => {
       }).onConflictDoNothing();
       globalPostId = SEED_POST_ID;
       globalPostSlug = SEED_POST_SLUG;
+      globalPostTitle = 'Blog actions seed post';
       seededPostId = SEED_POST_ID;
     }
 
@@ -196,8 +202,15 @@ describe('blog actions — integration (real DB)', () => {
   });
 
   it('resolveBlogInternalLink searches posts', async () => {
+    // Derive the query from the seeded post title: the search is a
+    // case-insensitive ILIKE '%query%' on the title, so any contiguous
+    // substring of the RAW title is guaranteed to match the chosen post.
+    // Do NOT strip punctuation when deriving the query: removing an
+    // apostrophe or hyphen would break contiguity (e.g. "l'été" -> "lété"
+    // would no longer match ILIKE '%lété%'), so we keep the raw slice.
+    const query = globalPostTitle.slice(0, Math.min(globalPostTitle.length, 24));
     const res = await resolveLink(
-      { target: '', mode: 'search', query: 'Annecy', locale: 'fr' as Locale },
+      { target: '', mode: 'search', query, locale: 'fr' as Locale },
       adminCtx(realUserId),
     );
     expect(Array.isArray(res.results)).toBe(true);
