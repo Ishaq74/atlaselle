@@ -2,15 +2,29 @@
 > atlaselle@0.0.1 check C:\Users\Utilisateur\Documents\t3code\atlaselle
 > astro check
 
-[2m07:04:49[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
-[2m07:04:50[22m [34m[vite][39m Re-optimizing dependencies because vite config has changed
-[2m07:04:51[22m [34m[vite][39m [optimizer] bundling dependencies...
-[2m07:04:53[22m [34m[content][39m Syncing content
-[2m07:04:53[22m [34m[content][39m Synced content
-[2m07:04:53[22m [34m[types][39m Generated [2m4.17s[22m
-[2m07:04:53[22m [34m[check][39m Getting diagnostics for Astro files in C:\Users\Utilisateur\Documents\t3code\atlaselle...
-Result (1098 files): 
-- 0 errors
-- 0 warnings
-- 0 hints
+[2m17:13:07[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
+[2m17:13:08[22m [34m[content][39m Syncing content
+[2m17:13:08[22m [34m[content][39m Synced content
+[2m17:13:08[22m [34m[types][39m Generated [2m409ms[22m
+[2m17:13:08[22m [34m[check][39m Getting diagnostics for Astro files in C:\Users\Utilisateur\Documents\t3code\atlaselle...
+[96mplaywright.config.ts[0m:[93m42[0m:[93m3[0m - [91merror[0m[90m ts(2769): [0mNo overload matches this call.
+  The last overload gave the following error.
+    Type '{ command: string; url: string; reuseExistingServer: false; timeout: number; stdout: "inherit"; stderr: "inherit"; env: { NODE_ENV: string; ASTRO_PREVIEW_BACKGROUND: string; }; }' is not assignable to type 'TestConfigWebServer | TestConfigWebServer[] | undefined'.
+      Types of property 'stdout' are incompatible.
+        Type '"inherit"' is not assignable to type '"pipe" | "ignore" | undefined'.
 
+[7m42[0m   webServer: {
+[7m  [0m [91m  ~~~~~~~~~[0m
+
+[96msrc/pages/index.astro[0m:[93m2[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'DEFAULT_LOCALE' is declared but its value is never read.
+
+[7m2[0m import { DEFAULT_LOCALE } from '@/i18n/config';
+[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+Result (1102 files): 
+- 1 error
+- 0 warnings
+- 1 hint
+
+ ELIFECYCLE  Command failed with exit code 1.
+[ASTRO] SITE_URL is not set — using http://localhost:4321 fallback. Set SITE_URL for production builds.

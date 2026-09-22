@@ -1,12 +1,13 @@
 import { test, expect } from '@playwright/test';
+import { DEFAULT_LOCALE } from '../../src/i18n/config';
 
 // ─── Public pages ───────────────────────────────────────────────────
 
 test.describe('Homepage & i18n', () => {
-  test('homepage redirects to default locale /fr/', async ({ page }) => {
+  test('homepage redirects to default locale', async ({ page }) => {
     const response = await page.goto('/', { waitUntil: 'networkidle' });
     expect(response?.ok()).toBeTruthy();
-    await expect(page).toHaveURL(/\/fr\/?/);
+    await expect(page).toHaveURL(new RegExp(`/${DEFAULT_LOCALE}/?`));
   });
 
   test('French page has lang="fr" and dir="ltr"', async ({ page }) => {

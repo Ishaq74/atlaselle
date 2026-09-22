@@ -40,7 +40,17 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm run build && pnpm preview --host localhost --port 4322',
+    // scripts/e2e-server.mjs spawns the astro CLI DIRECTLY
+    // (`node node_modules/astro/bin/astro.mjs preview ...`) instead of going
+    // through the pnpm script chain. Root cause: Astro >= 7.2 auto-detects
+    // "agentic" terminals (am-i-vibing) and forks `astro preview` into a
+    // DETACHED background daemon unless ASTRO_PREVIEW_BACKGROUND is set — and
+    // that variable does not reliably reach astro through the pnpm shim
+    // (`pnpm preview`), so the webServer process "exited early" while an
+    // orphaned daemon kept port 4322. The script forces the env var straight
+    // into the child process and pre-cleans stale locks/listeners.
+    // See the header comment in scripts/e2e-server.mjs for the full analysis.
+    command: 'pnpm run build && node scripts/e2e-server.mjs',
     url: 'http://localhost:4322',
     // Always start a FRESH server built from the current source. Reusing a
     // pre-existing preview (e.g. one started manually in another terminal)
@@ -51,6 +61,18 @@ export default defineConfig({
     // for the same determinism. Ensure port 4322 is free before running.
     reuseExistingServer: false,
     timeout: 180_000,
-    env: { NODE_ENV: 'test' },
+    // DIAGNOSTIC: surface the preview server's own logs (build errors, boot crashes).
+    // Playwright pipes them by default, hiding why the probe never gets a response.
+    stdout: 'inherit',
+    stderr: 'inherit',
+    env: {
+      NODE_ENV: 'test',
+      // Kept as belt-and-suspenders documentation of the official opt-out,
+      // but the effective enforcement happens inside scripts/e2e-server.mjs,
+      // which forces ASTRO_PREVIEW_BACKGROUND='0' directly into the spawned
+      // astro child process (this env block does not reliably cross the pnpm
+      // shim chain on Windows).
+      ASTRO_PREVIEW_BACKGROUND: '0',
+    },
   },
 });

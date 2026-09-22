@@ -1,0 +1,11 @@
+Ôùç injected env (13) from .env // tip: Ôùê secrets for agents [www.dotenvx.com]
+
+Running 1 test using 1 worker
+
+[1/1] [chromium] ÔÇ║ tests\e2e\app.spec.ts:7:3 ÔÇ║ Homepage & i18n ÔÇ║ homepage redirects to default locale
+  1 passed (1.1m)
+
+To open last HTML report run:
+[36m[39m
+[36m  pnpm exec playwright show-report tests\reports\playwright[39m
+[36m[39m

@@ -3,474 +3,489 @@
 > vitest run "--" "--coverage"
 
 
-[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90mC:/Users/Utilisateur/Documents/t3code/atlaselle[39m
+ RUN  v4.1.11 C:/Users/Utilisateur/Documents/t3code/atlaselle
 
 ◇ injected env (13) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
-[90mstdout[2m | tests/unit/voyage/middleware.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
-
- [32m✓[39m tests/unit/voyage/smtp-dead-letter.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 4242[2mms[22m[39m
-     [33m[2m✓[22m[39m enregistre le MESSAGE (pas seulement le nom) + tentatives [33m 4239[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/middleware.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 5082[2mms[22m[39m
-     [33m[2m✓[22m[39m 503 quand la session dépasse 5s (et rejet orphelin absorbé) [33m 5008[2mms[22m[39m
-[90mstdout[2m | tests/integration/voyage-actions2.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
-
-[90mstdout[2m | tests/integration/audit.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
-[90mstdout[2m | tests/integration/auth-advanced.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-
- [32m✓[39m tests/integration/auth-advanced.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 3116[2mms[22m[39m
-     [33m[2m✓[22m[39m changePassword updates credentials [33m 774[2mms[22m[39m
-     [33m[2m✓[22m[39m changePassword rejects wrong current password [33m 362[2mms[22m[39m
-[90mstdout[2m | tests/integration/email-worker.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
-[90mstdout[2m | tests/integration/email-worker.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
- [32m✓[39m tests/integration/audit.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 4810[2mms[22m[39m
-     [33m[2m✓[22m[39m logs SIGN_UP when a user signs up [33m 909[2mms[22m[39m
-     [33m[2m✓[22m[39m logs USER_BAN when admin bans a user [33m 566[2mms[22m[39m
-     [33m[2m✓[22m[39m logs USER_ROLE_CHANGE when admin changes role [33m 545[2mms[22m[39m
-     [33m[2m✓[22m[39m does not log passwords in metadata [33m 1046[2mms[22m[39m
-     [33m[2m✓[22m[39m logs SIGN_IN_FAILED for bad credentials [33m 713[2mms[22m[39m
-     [33m[2m✓[22m[39m filters metadata to SAFE_FIELDS only (no password in metadata) [33m 702[2mms[22m[39m
-[90mstdout[2m | tests/integration/blog-actions.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
-
- [32m✓[39m tests/integration/email-worker.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 2832[2mms[22m[39m
-     [33m[2m✓[22m[39m requeues dead-letter events via action [33m 2196[2mms[22m[39m
-[90mstdout[2m | tests/integration/voyage-completeness.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
-
- [32m✓[39m tests/integration/voyage-completeness.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 1064[2mms[22m[39m
-     [33m[2m✓[22m[39m compte under_review seul, open seul, unpublished = trads invisibles [33m 339[2mms[22m[39m
- [32m✓[39m tests/unit/database/seed-data-contract.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 3527[2mms[22m[39m
-     [33m[2m✓[22m[39m maps every manifest entry to an existing non-empty dataset and schema table [33m 3523[2mms[22m[39m
-[90mstdout[2m | tests/unit/voyage/helpers.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-
- [32m✓[39m tests/unit/voyage/helpers.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 2133[2mms[22m[39m
-     [33m[2m✓[22m[39m hasVoyagePermission false quand auth jette [33m 2096[2mms[22m[39m
-[90mstdout[2m | tests/integration/voyage-services.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
-
-[90mstdout[2m | tests/integration/voyage-services.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
-
- [32m✓[39m tests/integration/voyage-services.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 1299[2mms[22m[39m
- [32m✓[39m tests/integration/blog-actions.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2675[2mms[22m[39m
-[90mstdout[2m | tests/integration/booking-tunnel.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
-
- [32m✓[39m tests/integration/voyage-actions2.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 1541[2mms[22m[39m
-[90mstdout[2m | tests/integration/voyage-action-errors.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
-
-[90mstdout[2m | tests/integration/voyage-pages.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
-[90mstdout[2m | tests/integration/voyage-pages.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
-
- [32m✓[39m tests/integration/voyage-pages.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 1173[2mms[22m[39m
-     [33m[2m✓[22m[39m chaque compteur égale sa requête directe (stable après retries) [33m 321[2mms[22m[39m
- [32m✓[39m tests/integration/booking-tunnel.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1078[2mms[22m[39m
-[90mstdout[2m | tests/integration/auth-flow.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
-
- [32m✓[39m tests/integration/voyage-action-errors.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 917[2mms[22m[39m
-[90mstdout[2m | tests/integration/voyage-actions3.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
- [32m✓[39m tests/integration/auth-flow.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1298[2mms[22m[39m
-     [33m[2m✓[22m[39m signUpEmail creates a new user (no session when emailVerification required) [33m 478[2mms[22m[39m
-[90mstdout[2m | tests/integration/sitemap.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
-
-[90mstdout[2m | tests/integration/voyage-actions-missing.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
-
- [32m✓[39m tests/integration/sitemap.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 1223[2mms[22m[39m
-     [33m[2m✓[22m[39m lists published trips with localized detail URLs [33m 1168[2mms[22m[39m
- [32m✓[39m tests/integration/voyage-actions3.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1165[2mms[22m[39m
-[90mstdout[2m | tests/integration/voyage-loaders2.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
-[90mstdout[2m | tests/integration/itinerary-contents-faq.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-
- [32m✓[39m tests/integration/voyage-actions-missing.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 1094[2mms[22m[39m
- [32m✓[39m tests/integration/voyage-loaders2.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 1205[2mms[22m[39m
-[90mstdout[2m | tests/integration/admin-voyage-loaders.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
-
- [32m✓[39m tests/integration/itinerary-contents-faq.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 992[2mms[22m[39m
-     [33m[2m✓[22m[39m creates, translates, locks and deletes itinerary days [33m 311[2mms[22m[39m
- [32m✓[39m tests/integration/admin-voyage-loaders.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 790[2mms[22m[39m
-     [33m[2m✓[22m[39m computes voyage health counters [33m 412[2mms[22m[39m
-[90mstdout[2m | tests/integration/auth.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-
-[90mstdout[2m | tests/integration/voyage-payments.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
-
-[90mstdout[2m | tests/integration/applications.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
- [32m✓[39m tests/integration/auth.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 910[2mms[22m[39m
- [32m✓[39m tests/integration/voyage-payments.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 1005[2mms[22m[39m
-[90mstdout[2m | tests/integration/admin-voyage-actions.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-
-[90mstdout[2m | tests/integration/cancellation.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
- [32m✓[39m tests/integration/admin-voyage-actions.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 731[2mms[22m[39m
- [32m✓[39m tests/integration/cancellation.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 671[2mms[22m[39m
- [32m✓[39m tests/unit/export-data.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 557[2mms[22m[39m
-     [33m[2m✓[22m[39m returns 401 when not authenticated [33m 541[2mms[22m[39m
- [32m✓[39m tests/integration/applications.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 664[2mms[22m[39m
- [32m✓[39m tests/unit/i18n-translations.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 662[2mms[22m[39m
-     [33m[2m✓[22m[39m loads fr and has required keys [33m 386[2mms[22m[39m
-[90mstdout[2m | tests/integration/voyage-finition.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
-
-[90mstdout[2m | tests/integration/voyage-finition.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
-[90mstdout[2m | tests/integration/apply-page.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-
- [32m✓[39m tests/integration/voyage-finition.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 432[2mms[22m[39m
- [32m✓[39m tests/integration/apply-page.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 418[2mms[22m[39m
-     [33m[2m✓[22m[39m chaque voyage publié expose un slug par locale pour getApplyPath [33m 328[2mms[22m[39m
-[90mstdout[2m | tests/integration/voyage-refund-passthrough.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
-
-[90mstdout[2m | tests/integration/payments-endpoints.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
-[90mstdout[2m | tests/integration/middleware.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
-[90mstdout[2m | tests/integration/payments-endpoints.test.ts[2m > [22m[2mPayments endpoints (mock provider by default)[2m > [22m[2mprocesses unknown Stripe events as 200 without side effects
-[22m[39m[payments] Unhandled Stripe event (ignored): customer.created
-
- [32m✓[39m tests/integration/payments-endpoints.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 387[2mms[22m[39m
- [32m✓[39m tests/integration/middleware.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 504[2mms[22m[39m
-[90mstdout[2m | tests/integration/voyage-endpoints.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+stdout | tests/unit/voyage/middleware.test.ts
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+
+stdout | tests/integration/email-worker.test.ts
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+
+stdout | tests/integration/email-worker.test.ts
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+stdout | tests/integration/audit.test.ts
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+
+ ✓ tests/integration/email-worker.test.ts (7 tests) 3449ms
+     ✓ requeues dead-letter events via action  2359ms
+ ✓ tests/unit/voyage/middleware.test.ts (11 tests) 5113ms
+     ✓ 503 quand la session dépasse 5s (et rejet orphelin absorbé)  5038ms
+ ✓ tests/integration/audit.test.ts (8 tests) 4608ms
+     ✓ logs SIGN_UP when a user signs up  921ms
+     ✓ logs USER_BAN when admin bans a user  596ms
+     ✓ logs USER_ROLE_CHANGE when admin changes role  550ms
+     ✓ does not log passwords in metadata  922ms
+     ✓ logs SIGN_IN_FAILED for bad credentials  699ms
+     ✓ filters metadata to SAFE_FIELDS only (no password in metadata)  718ms
+ ✓ tests/unit/voyage/smtp-dead-letter.test.ts (1 test) 3873ms
+     ✓ enregistre le MESSAGE (pas seulement le nom) + tentatives  3870ms
+stdout | tests/integration/auth-advanced.test.ts
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+
+stdout | tests/integration/blog-actions.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+ ✓ tests/unit/database/seed-data-contract.test.ts (2 tests) 2967ms
+     ✓ maps every manifest entry to an existing non-empty dataset and schema table  2962ms
+stdout | tests/unit/voyage/helpers.test.ts
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+
+ ✓ tests/integration/auth-advanced.test.ts (10 tests) 4579ms
+     ✓ changePassword updates credentials  872ms
+     ✓ changePassword rejects wrong current password  421ms
+ ✓ tests/unit/voyage/helpers.test.ts (11 tests) 2322ms
+     ✓ hasVoyagePermission false quand auth jette  2287ms
+stdout | tests/integration/voyage-loaders2.test.ts
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+
+stdout | tests/integration/voyage-actions2.test.ts
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+
+ ✓ tests/integration/blog-actions.test.ts (8 tests) 2629ms
+ ✓ tests/integration/voyage-loaders2.test.ts (13 tests) 1624ms
+     ✓ status, pagination, asc/desc, montants, payments desc, tripTitle fallback  486ms
+stdout | tests/integration/voyage-services.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+stdout | tests/integration/voyage-services.test.ts
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+
+ ✓ tests/integration/voyage-services.test.ts (16 tests) 1510ms
+stdout | tests/integration/auth-flow.test.ts
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+
+stdout | tests/integration/voyage-pages.test.ts
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+
+stdout | tests/integration/voyage-pages.test.ts
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+ ✓ tests/integration/auth-flow.test.ts (5 tests) 1589ms
+     ✓ signUpEmail creates a new user (no session when emailVerification required)  574ms
+     ✓ signInEmail rejects invalid password  328ms
+ ✓ tests/integration/voyage-pages.test.ts (9 tests) 1337ms
+     ✓ chaque compteur égale sa requête directe (stable après retries)  418ms
+ ✓ tests/integration/voyage-actions2.test.ts (15 tests) 1986ms
+     ✓ deux candidatures simultanées même email -> une passe, une EMAIL_CONFLICT  372ms
+stdout | tests/integration/voyage-actions-missing.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+stdout | tests/integration/voyage-actions3.test.ts
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+
+ ✓ tests/unit/admin-media.test.ts (26 tests) 2030ms
+     ✓ uploads a file to root folder  1950ms
+ ✓ tests/integration/voyage-actions-missing.test.ts (6 tests) 1101ms
+stdout | tests/integration/sitemap.test.ts
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+ ✓ tests/integration/voyage-actions3.test.ts (14 tests) 1184ms
+ ✓ tests/integration/sitemap.test.ts (2 tests) 1177ms
+     ✓ lists published trips with localized detail URLs  1101ms
+stdout | tests/integration/voyage-completeness.test.ts
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+
+stdout | tests/integration/booking-tunnel.test.ts
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+
+stdout | tests/integration/admin-voyage-loaders.test.ts
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+
+ ✓ tests/integration/voyage-completeness.test.ts (17 tests) 1242ms
+     ✓ compte under_review seul, open seul, unpublished = trads invisibles  455ms
+ ✓ tests/integration/admin-voyage-loaders.test.ts (10 tests) 690ms
+     ✓ computes voyage health counters  308ms
+stdout | tests/integration/voyage-action-errors.test.ts
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+stdout | tests/integration/auth.test.ts
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+ ✓ tests/integration/auth.test.ts (11 tests) 956ms
+ ✓ tests/integration/booking-tunnel.test.ts (5 tests) 1121ms
+stdout | tests/integration/itinerary-contents-faq.test.ts
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+
+stdout | tests/integration/admin-voyage-actions.test.ts
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+
+ ✓ tests/integration/voyage-action-errors.test.ts (17 tests) 975ms
+stdout | tests/integration/cancellation.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+ ✓ tests/integration/itinerary-contents-faq.test.ts (4 tests) 1199ms
+     ✓ creates, translates, locks and deletes itinerary days  346ms
+ ✓ tests/integration/admin-voyage-actions.test.ts (7 tests) 1146ms
+stdout | tests/integration/applications.test.ts
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+stdout | tests/integration/voyage-payments.test.ts
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+
+ ✓ tests/integration/cancellation.test.ts (5 tests) 784ms
+ ✓ tests/integration/voyage-payments.test.ts (16 tests) 777ms
+stdout | tests/integration/voyage-engagement.test.ts
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+
+stdout | tests/integration/voyage-moderation.test.ts
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+ ✓ tests/integration/applications.test.ts (5 tests) 917ms
+ ✓ tests/unit/export-data.test.ts (4 tests) 525ms
+     ✓ returns 401 when not authenticated  508ms
+ ✓ tests/integration/voyage-engagement.test.ts (7 tests) 619ms
+ ✓ tests/integration/voyage-moderation.test.ts (8 tests) 601ms
+ ✓ tests/unit/i18n-translations.test.ts (12 tests) 895ms
+     ✓ loads fr and has required keys  438ms
+stdout | tests/integration/voyage-endpoints.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+stdout | tests/integration/voyage-refund-passthrough.test.ts
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+ ✓ tests/integration/voyage-endpoints.test.ts (3 tests) 451ms
+stdout | tests/integration/middleware.test.ts
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+
+stdout | tests/integration/availability.test.ts
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+ ✓ tests/integration/availability.test.ts (3 tests) 452ms
+ ✓ tests/integration/middleware.test.ts (4 tests) 618ms
+ ✓ tests/integration/voyage-refund-passthrough.test.ts (1 test) 503ms
+stdout | tests/integration/trip-loader.test.ts
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+
+stdout | tests/integration/payments-endpoints.test.ts
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
 
- [32m✓[39m tests/integration/voyage-refund-passthrough.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 478[2mms[22m[39m
- [32m✓[39m tests/integration/voyage-endpoints.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 438[2mms[22m[39m
-[90mstdout[2m | tests/integration/availability.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+stdout | tests/integration/apply-page.test.ts
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
 
-[90mstdout[2m | tests/integration/export.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+stdout | tests/integration/payments-endpoints.test.ts > Payments endpoints (mock provider by default) > processes unknown Stripe events as 200 without side effects
+[payments] Unhandled Stripe event (ignored): customer.created
 
-[90mstdout[2m | tests/integration/trip-loader.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+ ✓ tests/integration/trip-loader.test.ts (3 tests) 476ms
+ ✓ tests/integration/apply-page.test.ts (2 tests) 485ms
+     ✓ chaque voyage publié expose un slug par locale pour getApplyPath  371ms
+ ✓ tests/integration/payments-endpoints.test.ts (5 tests) 759ms
+     ✓ runs the mock callback end to end (302 + confirmed)  342ms
+stdout | tests/integration/voyage-finition.test.ts
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
 
- [32m✓[39m tests/integration/availability.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 362[2mms[22m[39m
- [32m✓[39m tests/integration/trip-loader.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 365[2mms[22m[39m
- [32m✓[39m tests/integration/export.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 373[2mms[22m[39m
-[90mstdout[2m | tests/integration/cms-admin.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+stdout | tests/integration/voyage-finition.test.ts
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
 
- [32m✓[39m tests/integration/cms-admin.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 397[2mms[22m[39m
-[90mstdout[2m | tests/integration/blog-internal-link.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+stdout | tests/integration/cms-admin.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
 
-[90mstdout[2m | tests/unit/production-hardening.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+stdout | tests/integration/consent-cms.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
 
- [32m✓[39m tests/unit/production-hardening.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 327[2mms[22m[39m
-[90mstdout[2m | tests/integration/contact-api.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+ ✓ tests/integration/consent-cms.test.ts (25 tests) 433ms
+ ✓ tests/integration/voyage-finition.test.ts (10 tests) 537ms
+ ✓ tests/integration/cms-admin.test.ts (14 tests) 755ms
+     ✓ creates a page  453ms
+stdout | tests/integration/blog-internal-link.test.ts
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
 
- [32m✓[39m tests/integration/blog-internal-link.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 343[2mms[22m[39m
- [32m✓[39m tests/unit/admin-media.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 1937[2mms[22m[39m
-     [33m[2m✓[22m[39m uploads a file to root folder [33m 1835[2mms[22m[39m
-[90mstdout[2m | tests/integration/cms-content.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+stdout | tests/unit/production-hardening.test.ts
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
 
- [32m✓[39m tests/integration/contact-api.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 267[2mms[22m[39m
-[90mstdout[2m | tests/integration/legal-cms.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+stdout | tests/integration/contact-api.test.ts
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
 
- [32m✓[39m tests/integration/cms-content.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 408[2mms[22m[39m
- [32m✓[39m tests/integration/legal-cms.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 215[2mms[22m[39m
-[90mstdout[2m | tests/integration/navigation-cycle.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
-
-[90mstdout[2m | tests/integration/consent-cms.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
-[90mstdout[2m | tests/integration/repositories.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
-
- [32m✓[39m tests/integration/navigation-cycle.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 321[2mms[22m[39m
- [32m✓[39m tests/integration/consent-cms.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 271[2mms[22m[39m
- [32m✓[39m tests/integration/repositories.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 284[2mms[22m[39m
- [32m✓[39m tests/unit/i18n-urls.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 201[2mms[22m[39m
-[90mstdout[2m | tests/integration/admin-trips.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
-
-[90mstdout[2m | tests/unit/voyage/loaders-edge.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-
- [32m✓[39m tests/unit/voyage/loaders-edge.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 198[2mms[22m[39m
- [32m✓[39m tests/integration/admin-trips.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 249[2mms[22m[39m
-[90mstdout[2m | tests/integration/db-health.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-
- [32m✓[39m tests/unit/database/services-data-shape.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 172[2mms[22m[39m
- [32m✓[39m tests/integration/db-health.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 150[2mms[22m[39m
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetSmtpFrom — header injection defense[2m > [22m[2mrejects email with \n character
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetSmtpFrom — header injection defense[2m > [22m[2mrejects email with \r character
-[22m[39m◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetSmtpFrom — header injection defense[2m > [22m[2mrejects invalid email format
-[22m[39m◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetSmtpFrom — header injection defense[2m > [22m[2maccepts valid email address
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetSmtpFrom — header injection defense[2m > [22m[2muses custom SMTP_FROM_NAME when provided
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetNodemailerConfig — port validation[2m > [22m[2mdefaults to port 587
-[22m[39m◇ injected env (1) from .env // tip: ⌘ enable debugging { debug: true }
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetNodemailerConfig — port validation[2m > [22m[2mparses valid port
-[22m[39m◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetNodemailerConfig — port validation[2m > [22m[2mrejects port 0
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetNodemailerConfig — port validation[2m > [22m[2mrejects port > 65535
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetNodemailerConfig — port validation[2m > [22m[2mrejects non-numeric port
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetNodemailerConfig — port validation[2m > [22m[2mreturns secure=true when SMTP_SECURE=true
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetNodemailerConfig — port validation[2m > [22m[2mreturns secure=false when SMTP_SECURE is not "true"
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetBrevoConfig / getResendConfig — missing API key[2m > [22m[2mgetBrevoConfig throws when BREVO_API_KEY is missing
-[22m[39m◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetBrevoConfig / getResendConfig — missing API key[2m > [22m[2mgetBrevoConfig returns key when set
-[22m[39m◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetBrevoConfig / getResendConfig — missing API key[2m > [22m[2mgetResendConfig throws when RESEND_API_KEY is missing
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mgetBrevoConfig / getResendConfig — missing API key[2m > [22m[2mgetResendConfig returns key when set
-[22m[39m◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mSMTP_PROVIDER validation[2m > [22m[2maccepts BREVO as provider
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mSMTP_PROVIDER validation[2m > [22m[2maccepts RESEND as provider
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mSMTP_PROVIDER validation[2m > [22m[2mnormalizes lowercase provider name
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
-[90mstdout[2m | tests/unit/smtp-env.test.ts[2m > [22m[2mSMTP_PROVIDER validation[2m > [22m[2mthrows for invalid provider
-[22m[39m◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-
- [32m✓[39m tests/unit/smtp-env.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 123[2mms[22m[39m
- [32m✓[39m tests/unit/sanitize.test.ts [2m([22m[2m49 tests[22m[2m)[22m[32m 194[2mms[22m[39m
- [32m✓[39m tests/unit/admin-social.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 65[2mms[22m[39m
- [32m✓[39m tests/unit/blog-gallery.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 63[2mms[22m[39m
- [32m✓[39m tests/unit/rate-limit.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 92[2mms[22m[39m
- [32m✓[39m tests/unit/upload.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 235[2mms[22m[39m
- [32m✓[39m tests/unit/admin-pages.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 115[2mms[22m[39m
- [32m✓[39m tests/unit/send-email.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 59[2mms[22m[39m
- [32m✓[39m tests/unit/smtp-providers.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 87[2mms[22m[39m
- [32m✓[39m tests/unit/audit-fallback.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 77[2mms[22m[39m
- [32m✓[39m tests/unit/middleware-timeout.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 138[2mms[22m[39m
- [32m✓[39m tests/unit/blog-engagement-actions.test.ts [2m([22m[2m38 tests[22m[2m)[22m[32m 122[2mms[22m[39m
- [32m✓[39m tests/unit/admin-menus.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 75[2mms[22m[39m
- [32m✓[39m tests/unit/i18n-key-completeness.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 92[2mms[22m[39m
- [32m✓[39m tests/unit/db-env.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 82[2mms[22m[39m
- [32m✓[39m tests/unit/admin-versions.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 77[2mms[22m[39m
- [32m✓[39m tests/unit/admin-site.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 66[2mms[22m[39m
- [32m✓[39m tests/unit/database/services-data-invariants.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 82[2mms[22m[39m
-[90mstdout[2m | tests/unit/services-contract.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
-
- [32m✓[39m tests/unit/services-contract.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 69[2mms[22m[39m
- [32m✓[39m tests/unit/admin-navigation-items.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 63[2mms[22m[39m
-[90mstdout[2m | tests/unit/sections-sanitize.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
- [32m✓[39m tests/unit/cms-seeds.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 72[2mms[22m[39m
- [32m✓[39m tests/unit/admin-consent.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 53[2mms[22m[39m
- [32m✓[39m tests/unit/blog-helpers.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 64[2mms[22m[39m
-[90mstdout[2m | tests/unit/blog-subscription.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
-[90mstdout[2m | tests/unit/blog-subscription.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
-
- [32m✓[39m tests/unit/blog-subscription.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 56[2mms[22m[39m
- [32m✓[39m tests/unit/admin-hours.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 66[2mms[22m[39m
- [32m✓[39m tests/unit/sections-sanitize.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 77[2mms[22m[39m
- [32m✓[39m tests/unit/admin-sections.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 80[2mms[22m[39m
- [32m✓[39m tests/unit/database/migration-sql.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 62[2mms[22m[39m
- [32m✓[39m tests/unit/admin-site-social-contact-hours.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 60[2mms[22m[39m
-[90mstdout[2m | tests/integration/analytics-endpoint.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-
- [32m✓[39m tests/integration/analytics-endpoint.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 63[2mms[22m[39m
- [32m✓[39m tests/unit/admin-theme.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 69[2mms[22m[39m
- [32m✓[39m tests/unit/blog-taxonomy-actions.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 81[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/stripe-provider.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 76[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/templates.test.ts [2m([22m[2m50 tests[22m[2m)[22m[32m 47[2mms[22m[39m
- [32m✓[39m tests/unit/content-locking.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 55[2mms[22m[39m
- [32m✓[39m tests/unit/search-fts.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 67[2mms[22m[39m
- [32m✓[39m tests/unit/admin-helpers.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 64[2mms[22m[39m
- [32m✓[39m tests/unit/navigation-menus.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 96[2mms[22m[39m
- [32m✓[39m tests/unit/blog-newsletter-routes.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 62[2mms[22m[39m
- [32m✓[39m tests/unit/admin-pages-theme.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 62[2mms[22m[39m
- [32m✓[39m tests/unit/admin-contact.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 87[2mms[22m[39m
- [32m✓[39m tests/unit/blog-post-actions.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 58[2mms[22m[39m
-[90mstdout[2m | tests/unit/extract-ip.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-
- [32m✓[39m tests/unit/extract-ip.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 59[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/seed-content.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 62[2mms[22m[39m
- [32m✓[39m tests/integration/voyage-cron.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 56[2mms[22m[39m
- [32m✓[39m tests/unit/contact-api.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 74[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/completeness.test.ts [2m([22m[2m35 tests[22m[2m)[22m[32m 44[2mms[22m[39m
- [32m✓[39m tests/unit/blog-profile.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 50[2mms[22m[39m
-[90mstdout[2m | tests/unit/auth-guards.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
- [32m✓[39m tests/unit/auth-guards.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 51[2mms[22m[39m
- [32m✓[39m tests/unit/blog-newsletter-service.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 44[2mms[22m[39m
- [32m✓[39m tests/unit/cms-i18n.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 45[2mms[22m[39m
- [32m✓[39m tests/unit/section-schemas.test.ts [2m([22m[2m48 tests[22m[2m)[22m[32m 46[2mms[22m[39m
- [32m✓[39m tests/unit/blog-loader.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 39[2mms[22m[39m
- [32m✓[39m tests/unit/services/admin-actions.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 50[2mms[22m[39m
- [32m✓[39m tests/unit/theme-tokens.test.ts [2m([22m[2m34 tests[22m[2m)[22m[32m 42[2mms[22m[39m
- [32m✓[39m tests/unit/project-stats.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 31[2mms[22m[39m
- [32m✓[39m tests/unit/media-list.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 34[2mms[22m[39m
-[90mstdout[2m | tests/unit/voyage/action-inputs.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
-
- [32m✓[39m tests/unit/section-content-xss.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 36[2mms[22m[39m
-[90mstdout[2m | tests/unit/voyage/trip-engagement.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
-
- [32m✓[39m tests/unit/voyage/trip-engagement.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 37[2mms[22m[39m
- [32m✓[39m tests/unit/i18n-routes.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 32[2mms[22m[39m
- [32m✓[39m tests/unit/media-loader.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 28[2mms[22m[39m
- [32m✓[39m tests/unit/cache.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 34[2mms[22m[39m
- [32m✓[39m tests/unit/permissions.test.ts [2m([22m[2m35 tests[22m[2m)[22m[32m 32[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/action-inputs.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 43[2mms[22m[39m
- [32m✓[39m tests/unit/services/validation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 36[2mms[22m[39m
- [32m✓[39m tests/unit/content-import-schema.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 27[2mms[22m[39m
- [32m✓[39m tests/unit/blog-link.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 26[2mms[22m[39m
- [32m✓[39m tests/unit/services-validation.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 31[2mms[22m[39m
- [32m✓[39m tests/unit/query-filters.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 22[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/auth-guards.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 25[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/voyage-email.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 38[2mms[22m[39m
- [32m✓[39m tests/unit/site-loader.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 33[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/core-templates.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 22[2mms[22m[39m
- [32m✓[39m tests/unit/cms-schemas.test.ts [2m([22m[2m85 tests[22m[2m)[22m[32m 24[2mms[22m[39m
-[90mstdout[2m | tests/unit/navigation-tree.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-
- [32m✓[39m tests/unit/navigation-tree.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 23[2mms[22m[39m
- [32m✓[39m tests/unit/content-editor-helpers.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 18[2mms[22m[39m
- [32m✓[39m tests/unit/database/seed-manifest.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 22[2mms[22m[39m
- [32m✓[39m tests/unit/seo.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 33[2mms[22m[39m
- [32m✓[39m tests/unit/navigation-loader.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 20[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/transitions.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 17[2mms[22m[39m
- [32m✓[39m tests/unit/blog-validation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 40[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/pricing-availability.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 20[2mms[22m[39m
- [32m✓[39m tests/unit/services/admin-contract.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 18[2mms[22m[39m
- [32m✓[39m tests/unit/blog/status-transitions.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 19[2mms[22m[39m
-[90mstdout[2m | tests/unit/loaders.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-
- [32m✓[39m tests/unit/loaders.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 19[2mms[22m[39m
- [32m✓[39m tests/unit/contact-form-template.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 16[2mms[22m[39m
-[90mstdout[2m | tests/unit/voyage/core-utils.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
-
- [32m✓[39m tests/unit/voyage/core-utils.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 18[2mms[22m[39m
- [32m✓[39m tests/unit/i18n-switch.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 15[2mms[22m[39m
-[90mstdout[2m | tests/unit/services/module-contract.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-
- [32m✓[39m tests/unit/services/module-contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
-[90mstdout[2m | tests/unit/mask-utils.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
-[90mstdout[2m | tests/unit/mask-utils.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
-
- [32m✓[39m tests/unit/mask-utils.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 13[2mms[22m[39m
-[90mstdout[2m | tests/unit/cli-utils.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
-
- [32m✓[39m tests/unit/cli-utils.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 14[2mms[22m[39m
- [32m✓[39m tests/unit/services/workflow.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
- [32m✓[39m tests/unit/cms/capabilities.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
- [32m✓[39m tests/unit/blog-lifecycle.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/admin-resources.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 11[2mms[22m[39m
- [32m✓[39m tests/unit/i18n-utils.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
-[90mstdout[2m | tests/unit/cms/module-boundaries.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-
- [32m✓[39m tests/unit/upload-api.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 12[2mms[22m[39m
- [32m✓[39m tests/unit/cms/resource-contract.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 12[2mms[22m[39m
- [32m✓[39m tests/unit/analytics.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
- [32m✓[39m tests/unit/services-workflow-restore.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
- [32m✓[39m tests/unit/request-id.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 12[2mms[22m[39m
- [32m✓[39m tests/unit/editor-dom-safety.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m tests/unit/schema-validation.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 12[2mms[22m[39m
-[90mstdout[2m | tests/unit/cms/module-contract.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
-
- [32m✓[39m tests/unit/cms/module-contract.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 12[2mms[22m[39m
- [32m✓[39m tests/unit/cms-audit.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 8[2mms[22m[39m
-[90mstdout[2m | tests/unit/cms/module-boundaries.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
- [32m✓[39m tests/unit/cms/module-boundaries.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
- [32m✓[39m tests/unit/blog-public-visibility.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 10[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/admin-resource.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
- [32m✓[39m tests/unit/cms/workflow.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/cancellation.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 13[2mms[22m[39m
- [32m✓[39m tests/unit/cms/admin-module-contract.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
- [32m✓[39m tests/unit/cms/module-registry.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
- [32m✓[39m tests/unit/cms/admin-filter-contract.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m tests/unit/voyage/request-id-fallback.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m tests/unit/services/urls.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
-[90mstdout[2m | tests/unit/services/admin-resource.test.ts
-[22m[39m◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-
- [32m✓[39m tests/unit/services/admin-resource.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m168 passed[39m[22m[90m (168)[39m
-[2m      Tests [22m [1m[32m1782 passed[39m[22m[90m (1782)[39m
-[2m   Start at [22m 07:08:37
-[2m   Duration [22m 146.68s[2m (transform 9.72s, setup 0ms, import 275.38s, tests 63.27s, environment 49ms)[22m
+ ✓ tests/unit/production-hardening.test.ts (9 tests) 363ms
+     ✓ RESERVED_SLUGS rejects known route collisions  305ms
+ ✓ tests/integration/blog-internal-link.test.ts (8 tests) 306ms
+stdout | tests/integration/export.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+ ✓ tests/integration/contact-api.test.ts (13 tests) 304ms
+ ✓ tests/integration/export.test.ts (3 tests) 334ms
+stdout | tests/integration/cms-content.test.ts
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+stdout | tests/unit/voyage/loaders-edge.test.ts
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+
+ ✓ tests/integration/cms-content.test.ts (3 tests) 292ms
+ ✓ tests/unit/voyage/loaders-edge.test.ts (6 tests) 212ms
+stdout | tests/integration/admin-trips.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+ ✓ tests/integration/admin-trips.test.ts (4 tests) 258ms
+stdout | tests/integration/legal-cms.test.ts
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+
+ ✓ tests/integration/legal-cms.test.ts (19 tests) 195ms
+stdout | tests/integration/repositories.test.ts
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+ ✓ tests/integration/repositories.test.ts (4 tests) 239ms
+stdout | tests/integration/navigation-cycle.test.ts
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+ ✓ tests/unit/i18n-urls.test.ts (34 tests) 233ms
+ ✓ tests/integration/navigation-cycle.test.ts (6 tests) 237ms
+stdout | tests/unit/smtp-env.test.ts > getSmtpFrom — header injection defense > rejects email with \n character
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+stdout | tests/unit/smtp-env.test.ts > getSmtpFrom — header injection defense > rejects email with \r character
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+
+stdout | tests/unit/smtp-env.test.ts > getSmtpFrom — header injection defense > rejects invalid email format
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+
+stdout | tests/unit/smtp-env.test.ts > getSmtpFrom — header injection defense > accepts valid email address
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+
+stdout | tests/unit/smtp-env.test.ts > getSmtpFrom — header injection defense > uses custom SMTP_FROM_NAME when provided
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > defaults to port 587
+◇ injected env (1) from .env // tip: ⌘ suppress logs { quiet: true }
+
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > parses valid port
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > rejects port 0
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > rejects port > 65535
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > rejects non-numeric port
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > returns secure=true when SMTP_SECURE=true
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+
+stdout | tests/unit/smtp-env.test.ts > getNodemailerConfig — port validation > returns secure=false when SMTP_SECURE is not "true"
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+stdout | tests/unit/smtp-env.test.ts > getBrevoConfig / getResendConfig — missing API key > getBrevoConfig throws when BREVO_API_KEY is missing
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+stdout | tests/unit/smtp-env.test.ts > getBrevoConfig / getResendConfig — missing API key > getBrevoConfig returns key when set
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+stdout | tests/unit/smtp-env.test.ts > getBrevoConfig / getResendConfig — missing API key > getResendConfig throws when RESEND_API_KEY is missing
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+
+stdout | tests/unit/smtp-env.test.ts > getBrevoConfig / getResendConfig — missing API key > getResendConfig returns key when set
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+
+stdout | tests/unit/smtp-env.test.ts > SMTP_PROVIDER validation > accepts BREVO as provider
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+
+stdout | tests/unit/smtp-env.test.ts > SMTP_PROVIDER validation > accepts RESEND as provider
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+
+stdout | tests/unit/smtp-env.test.ts > SMTP_PROVIDER validation > normalizes lowercase provider name
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+
+stdout | tests/unit/smtp-env.test.ts > SMTP_PROVIDER validation > throws for invalid provider
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+
+ ✓ tests/unit/smtp-env.test.ts (20 tests) 151ms
+ ✓ tests/unit/upload.test.ts (19 tests) 187ms
+ ✓ tests/unit/database/services-data-shape.test.ts (1 test) 179ms
+stdout | tests/integration/db-health.test.ts
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+
+ ✓ tests/integration/db-health.test.ts (4 tests) 176ms
+ ✓ tests/unit/rate-limit.test.ts (10 tests) 116ms
+ ✓ tests/unit/send-email.test.ts (17 tests) 58ms
+ ✓ tests/unit/sanitize.test.ts (49 tests) 188ms
+ ✓ tests/unit/admin-pages.test.ts (26 tests) 107ms
+ ✓ tests/unit/admin-hours.test.ts (13 tests) 81ms
+stdout | tests/integration/analytics-endpoint.test.ts
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+
+ ✓ tests/unit/database/migration-sql.test.ts (13 tests) 72ms
+ ✓ tests/integration/analytics-endpoint.test.ts (2 tests) 70ms
+ ✓ tests/unit/middleware-timeout.test.ts (6 tests) 88ms
+ ✓ tests/unit/audit-fallback.test.ts (1 test) 84ms
+ ✓ tests/unit/database/services-data-invariants.test.ts (5 tests) 122ms
+ ✓ tests/unit/i18n-key-completeness.test.ts (7 tests) 170ms
+ ✓ tests/unit/blog-engagement-actions.test.ts (38 tests) 117ms
+ ✓ tests/unit/smtp-providers.test.ts (11 tests) 123ms
+ ✓ tests/unit/search-fts.test.ts (20 tests) 62ms
+ ✓ tests/unit/admin-sections.test.ts (16 tests) 69ms
+ ✓ tests/unit/admin-versions.test.ts (11 tests) 101ms
+ ✓ tests/unit/db-env.test.ts (16 tests) 82ms
+ ✓ tests/unit/admin-menus.test.ts (13 tests) 69ms
+ ✓ tests/unit/admin-social.test.ts (9 tests) 75ms
+ ✓ tests/unit/cms-seeds.test.ts (12 tests) 68ms
+ ✓ tests/integration/voyage-cron.test.ts (3 tests) 67ms
+stdout | tests/unit/extract-ip.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+ ✓ tests/unit/extract-ip.test.ts (19 tests) 112ms
+ ✓ tests/unit/contact-api.test.ts (12 tests) 142ms
+stdout | tests/unit/services-contract.test.ts
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+ ✓ tests/unit/voyage/stripe-provider.test.ts (8 tests) 65ms
+ ✓ tests/unit/services-contract.test.ts (16 tests) 80ms
+ ✓ tests/unit/admin-helpers.test.ts (7 tests) 68ms
+ ✓ tests/unit/admin-contact.test.ts (10 tests) 68ms
+ ✓ tests/unit/content-locking.test.ts (6 tests) 56ms
+ ✓ tests/unit/blog-taxonomy-actions.test.ts (9 tests) 71ms
+stdout | tests/unit/sections-sanitize.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+ ✓ tests/unit/blog-helpers.test.ts (10 tests) 73ms
+ ✓ tests/unit/voyage/templates.test.ts (50 tests) 45ms
+ ✓ tests/unit/admin-navigation-items.test.ts (11 tests) 81ms
+ ✓ tests/unit/admin-theme.test.ts (10 tests) 71ms
+ ✓ tests/unit/navigation-menus.test.ts (10 tests) 58ms
+ ✓ tests/unit/sections-sanitize.test.ts (10 tests) 90ms
+ ✓ tests/unit/blog-newsletter-routes.test.ts (5 tests) 82ms
+ ✓ tests/unit/blog-gallery.test.ts (7 tests) 77ms
+ ✓ tests/unit/admin-site.test.ts (7 tests) 76ms
+stdout | tests/unit/blog-subscription.test.ts
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+
+stdout | tests/unit/blog-subscription.test.ts
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+ ✓ tests/unit/blog-subscription.test.ts (6 tests) 65ms
+ ✓ tests/unit/voyage/seed-content.test.ts (8 tests) 77ms
+ ✓ tests/unit/admin-pages-theme.test.ts (9 tests) 68ms
+ ✓ tests/unit/admin-site-social-contact-hours.test.ts (10 tests) 65ms
+ ✓ tests/unit/theme-tokens.test.ts (34 tests) 46ms
+ ✓ tests/unit/admin-consent.test.ts (5 tests) 66ms
+stdout | tests/unit/voyage/action-inputs.test.ts
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+
+ ✓ tests/unit/blog-profile.test.ts (3 tests) 49ms
+ ✓ tests/unit/blog-post-actions.test.ts (7 tests) 54ms
+ ✓ tests/unit/section-schemas.test.ts (48 tests) 34ms
+ ✓ tests/unit/voyage/action-inputs.test.ts (11 tests) 42ms
+ ✓ tests/unit/voyage/completeness.test.ts (35 tests) 42ms
+ ✓ tests/unit/cms-i18n.test.ts (16 tests) 42ms
+ ✓ tests/unit/services/admin-actions.test.ts (4 tests) 51ms
+ ✓ tests/unit/project-stats.test.ts (2 tests) 25ms
+ ✓ tests/unit/blog-newsletter-service.test.ts (8 tests) 44ms
+ ✓ tests/unit/site-loader.test.ts (13 tests) 28ms
+stdout | tests/unit/auth-guards.test.ts
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+
+ ✓ tests/unit/auth-guards.test.ts (5 tests) 46ms
+stdout | tests/unit/voyage/trip-engagement.test.ts
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+
+ ✓ tests/unit/voyage/trip-engagement.test.ts (16 tests) 38ms
+ ✓ tests/unit/cache.test.ts (13 tests) 33ms
+ ✓ tests/unit/blog-loader.test.ts (14 tests) 38ms
+ ✓ tests/unit/media-list.test.ts (4 tests) 35ms
+ ✓ tests/unit/services/validation.test.ts (6 tests) 28ms
+ ✓ tests/unit/services-validation.test.ts (7 tests) 34ms
+ ✓ tests/unit/media-loader.test.ts (12 tests) 28ms
+ ✓ tests/unit/permissions.test.ts (35 tests) 33ms
+ ✓ tests/unit/i18n-routes.test.ts (20 tests) 31ms
+ ✓ tests/unit/blog-link.test.ts (6 tests) 27ms
+ ✓ tests/unit/content-import-schema.test.ts (10 tests) 26ms
+ ✓ tests/unit/voyage/auth-guards.test.ts (5 tests) 26ms
+ ✓ tests/unit/voyage/voyage-email.test.ts (12 tests) 29ms
+stdout | tests/unit/loaders.test.ts
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+
+ ✓ tests/unit/loaders.test.ts (9 tests) 19ms
+ ✓ tests/unit/voyage/core-templates.test.ts (20 tests) 23ms
+ ✓ tests/unit/section-content-xss.test.ts (18 tests) 24ms
+ ✓ tests/unit/seo.test.ts (32 tests) 25ms
+ ✓ tests/unit/cms-schemas.test.ts (85 tests) 24ms
+ ✓ tests/unit/query-filters.test.ts (5 tests) 43ms
+ ✓ tests/unit/database/seed-manifest.test.ts (3 tests) 23ms
+stdout | tests/unit/navigation-tree.test.ts
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+
+ ✓ tests/unit/navigation-tree.test.ts (10 tests) 25ms
+ ✓ tests/unit/voyage/pricing-availability.test.ts (11 tests) 20ms
+ ✓ tests/unit/booking-consent-i18n.test.ts (8 tests) 21ms
+ ✓ tests/unit/blog-validation.test.ts (3 tests) 20ms
+ ✓ tests/unit/voyage/transitions.test.ts (11 tests) 18ms
+ ✓ tests/unit/content-editor-helpers.test.ts (14 tests) 25ms
+ ✓ tests/unit/navigation-loader.test.ts (7 tests) 21ms
+ ✓ tests/unit/blog/status-transitions.test.ts (17 tests) 18ms
+ ✓ tests/unit/services/admin-contract.test.ts (2 tests) 20ms
+ ✓ tests/unit/contact-form-template.test.ts (15 tests) 16ms
+stdout | tests/unit/cli-utils.test.ts
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+
+ ✓ tests/unit/i18n-switch.test.ts (11 tests) 15ms
+ ✓ tests/unit/cli-utils.test.ts (12 tests) 14ms
+stdout | tests/unit/voyage/core-utils.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+ ✓ tests/unit/voyage/core-utils.test.ts (7 tests) 19ms
+ ✓ tests/unit/cms/capabilities.test.ts (2 tests) 16ms
+stdout | tests/unit/mask-utils.test.ts
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+
+ ✓ tests/unit/upload-api.test.ts (9 tests) 12ms
+stdout | tests/unit/mask-utils.test.ts
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+
+ ✓ tests/unit/mask-utils.test.ts (10 tests) 13ms
+ ✓ tests/unit/request-id.test.ts (6 tests) 12ms
+ ✓ tests/unit/blog-lifecycle.test.ts (2 tests) 13ms
+stdout | tests/unit/cms/module-boundaries.test.ts
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+ ✓ tests/unit/cms/admin-module-contract.test.ts (3 tests) 17ms
+stdout | tests/unit/services/module-contract.test.ts
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+ ✓ tests/unit/services/module-contract.test.ts (3 tests) 13ms
+stdout | tests/unit/cms/module-contract.test.ts
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+
+ ✓ tests/unit/cms/module-contract.test.ts (4 tests) 13ms
+ ✓ tests/unit/cms/resource-contract.test.ts (6 tests) 14ms
+ ✓ tests/unit/schema-validation.test.ts (9 tests) 12ms
+ ✓ tests/unit/i18n-utils.test.ts (6 tests) 11ms
+stdout | tests/unit/cms/module-boundaries.test.ts
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+
+ ✓ tests/unit/services/workflow.test.ts (3 tests) 12ms
+ ✓ tests/unit/editor-dom-safety.test.ts (4 tests) 13ms
+ ✓ tests/unit/cms/module-boundaries.test.ts (2 tests) 15ms
+ ✓ tests/unit/voyage/cancellation.test.ts (4 tests) 11ms
+ ✓ tests/unit/voyage/admin-resource.test.ts (3 tests) 10ms
+ ✓ tests/unit/voyage/admin-resources.test.ts (7 tests) 11ms
+ ✓ tests/unit/analytics.test.ts (2 tests) 11ms
+ ✓ tests/unit/cms/workflow.test.ts (4 tests) 11ms
+ ✓ tests/unit/cms/module-registry.test.ts (2 tests) 12ms
+ ✓ tests/unit/services-workflow-restore.test.ts (2 tests) 10ms
+stdout | tests/unit/services/admin-resource.test.ts
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+ ✓ tests/unit/services/admin-resource.test.ts (3 tests) 10ms
+ ✓ tests/unit/cms/admin-filter-contract.test.ts (2 tests) 9ms
+ ✓ tests/unit/blog-public-visibility.test.ts (1 test) 10ms
+ ✓ tests/unit/cms-audit.test.ts (1 test) 8ms
+ ✓ tests/unit/services/urls.test.ts (2 tests) 7ms
+ ✓ tests/unit/voyage/request-id-fallback.test.ts (1 test) 6ms
+
+ Test Files  171 passed (171)
+      Tests  1807 passed (1807)
+   Start at  17:16:31
+   Duration  135.79s (transform 10.09s, setup 0ms, import 243.09s, tests 69.96s, environment 47ms)
 
 JSON report written to C:/Users/Utilisateur/Documents/t3code/atlaselle/tests/reports/vitest-results.json

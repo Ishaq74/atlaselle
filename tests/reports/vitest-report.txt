@@ -1,6 +1,6 @@
 ════════════════════════════════════════════════════════════════════════════════
   VITEST UNIT & INTEGRATION TEST REPORT
-  Generated: 2026-09-21 05:11:05
+  Generated: 2026-09-22 15:18:48
 ════════════════════════════════════════════════════════════════════════════════
 
   ✅ tests\integration\admin-trips.test.ts  (4/4 passed)
@@ -33,15 +33,17 @@
   ✅ tests\integration\repositories.test.ts  (4/4 passed)
   ✅ tests\integration\sitemap.test.ts  (2/2 passed)
   ✅ tests\integration\trip-loader.test.ts  (3/3 passed)
-  ✅ tests\integration\voyage-action-errors.test.ts  (15/15 passed)
+  ✅ tests\integration\voyage-action-errors.test.ts  (17/17 passed)
   ✅ tests\integration\voyage-actions-missing.test.ts  (6/6 passed)
   ✅ tests\integration\voyage-actions2.test.ts  (15/15 passed)
   ✅ tests\integration\voyage-actions3.test.ts  (14/14 passed)
   ✅ tests\integration\voyage-completeness.test.ts  (17/17 passed)
   ✅ tests\integration\voyage-cron.test.ts  (3/3 passed)
   ✅ tests\integration\voyage-endpoints.test.ts  (3/3 passed)
+  ✅ tests\integration\voyage-engagement.test.ts  (7/7 passed)
   ✅ tests\integration\voyage-finition.test.ts  (10/10 passed)
   ✅ tests\integration\voyage-loaders2.test.ts  (13/13 passed)
+  ✅ tests\integration\voyage-moderation.test.ts  (8/8 passed)
   ✅ tests\integration\voyage-pages.test.ts  (9/9 passed)
   ✅ tests\integration\voyage-payments.test.ts  (16/16 passed)
   ✅ tests\integration\voyage-refund-passthrough.test.ts  (1/1 passed)
@@ -78,6 +80,7 @@
   ✅ tests\unit\blog-subscription.test.ts  (6/6 passed)
   ✅ tests\unit\blog-taxonomy-actions.test.ts  (9/9 passed)
   ✅ tests\unit\blog-validation.test.ts  (3/3 passed)
+  ✅ tests\unit\booking-consent-i18n.test.ts  (8/8 passed)
   ✅ tests\unit\cache.test.ts  (13/13 passed)
   ✅ tests\unit\cli-utils.test.ts  (12/12 passed)
   ✅ tests\unit\cms-audit.test.ts  (1/1 passed)
@@ -176,11 +179,11 @@
   SUMMARY
 ════════════════════════════════════════════════════════════════════════════════
 
-  Total tests:   1782
-  Passed:        1782  ✅
+  Total tests:   1807
+  Passed:        1807  ✅
   Failed:        0  
-  Duration:      148s
+  Duration:      137s
 
 ════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 1782/1782 passed
+  END OF REPORT — 1807/1807 passed
 ════════════════════════════════════════════════════════════════════════════════

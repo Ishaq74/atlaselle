@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-09-19 10:09:52",
+  "generatedAt": "2026-09-22 17:16:08",
   "overall": "red",
   "reportsAvailable": 6,
   "sections": [
     {
       "key": "check",
       "title": "Type & Template Check (astro check)",
-      "ok": true,
-      "summary": "0 errors, 0 warnings, 0 hints",
+      "ok": false,
+      "summary": "1 errors, 0 warnings, 0 hints",
       "metrics": {
-        "errors": 0,
+        "errors": 1,
         "warnings": 0,
         "hints": 0
       }
@@ -28,10 +28,10 @@
       "key": "vitest",
       "title": "Unit & Integration Tests (Vitest)",
       "ok": true,
-      "summary": "1765/1765 passed",
+      "summary": "1807/1807 passed",
       "metrics": {
-        "total": 1765,
-        "passed": 1765,
+        "total": 1807,
+        "passed": 1807,
         "failed": 0,
         "skipped": 0
       }
@@ -39,35 +39,35 @@
     {
       "key": "playwright",
       "title": "End-to-End Tests (Playwright)",
-      "ok": true,
-      "summary": "0/0 passed",
+      "ok": false,
+      "summary": "90/279 passed, 78 skipped, 111 failed",
       "metrics": {
-        "total": 0,
-        "passed": 0,
-        "failed": 0,
-        "skipped": 0
+        "total": 279,
+        "passed": 90,
+        "failed": 111,
+        "skipped": 78
       }
     },
     {
       "key": "pa11y",
       "title": "Accessibility Audit (Pa11y — WCAG 2.1 AAA)",
-      "ok": true,
-      "summary": "60/60 URLs clean",
+      "ok": false,
+      "summary": "56/60 URLs clean, 4 issue(s) across 1 rule(s)",
       "metrics": {
         "urls": 60,
-        "passes": 60,
-        "errors": 0,
-        "rules": 0
+        "passes": 56,
+        "errors": 4,
+        "rules": 1
       }
     },
     {
       "key": "lighthouse",
       "title": "Performance & Quality Audit (Lighthouse CI)",
       "ok": false,
-      "summary": "36 page(s) audited, 7 below threshold (≥90)",
+      "summary": "51 page(s) audited, 6 below threshold (≥90)",
       "metrics": {
-        "pages": 36,
-        "belowThreshold": 7
+        "pages": 51,
+        "belowThreshold": 6
       }
     }
   ]

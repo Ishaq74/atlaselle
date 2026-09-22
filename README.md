@@ -32,7 +32,7 @@ SSR multi-language web application with complete authentication, organisation ma
 - 📁 **Media** — Upload, Sharp image processing, folder organisation
 - 📧 **SMTP** — Brevo / Resend / Nodemailer + dead-letter queue
 - 🛡️ **Security** — Audit trail, rate limiting, input sanitization
-- ✅ **Testing** — 168 Vitest + 9 E2E Playwright scenarios × 3 browsers
+- ✅ **Testing** — 171 Vitest + 9 E2E Playwright scenarios × 3 browsers
 
 ### Tech Stack
 
@@ -1250,6 +1250,7 @@ All routes are prefixed with the locale: `/fr/`, `/en/`, `/es/`, `/ar/`. Default
 
 ### Tests
 
+- `tests/unit/booking-consent-i18n.test.ts`
 - `tests/unit/cms-i18n.test.ts`
 - `tests/unit/i18n-key-completeness.test.ts`
 - `tests/unit/i18n-routes.test.ts`

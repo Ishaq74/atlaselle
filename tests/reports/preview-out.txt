@@ -1,0 +1,8 @@
+
+> atlaselle@0.0.1 preview C:\Users\Utilisateur\Documents\t3code\atlaselle
+> astro preview "--host" "localhost" "--port" "4322"
+
+[2m14:55:44[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
+[2m14:55:45[22m [34m[@astrojs/node][39m Server listening on http://localhost:4322
+◇ injected env (13) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+ ELIFECYCLE  Command failed with exit code 4294967295.

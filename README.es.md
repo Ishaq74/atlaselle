@@ -32,7 +32,7 @@ Aplicación web SSR multilingüe con autenticación completa, gestión de organi
 - 📁 **Medios** — Upload, procesamiento Sharp, organización en carpetas
 - 📧 **SMTP** — Brevo / Resend / Nodemailer + cola de mensajes muertos
 - 🛡️ **Seguridad** — Audit trail, rate limiting, sanitización de inputs
-- ✅ **Testing** — 168 Vitest + 9 E2E × 3 navegadores
+- ✅ **Testing** — 171 Vitest + 9 E2E × 3 navegadores
 
 ### Stack tecnológico
 
@@ -1250,6 +1250,7 @@ Todas las rutas llevan el prefijo de la locale: `/fr/`, `/en/`, `/es/`, `/ar/`. 
 
 ### Tests
 
+- `tests/unit/booking-consent-i18n.test.ts`
 - `tests/unit/cms-i18n.test.ts`
 - `tests/unit/i18n-key-completeness.test.ts`
 - `tests/unit/i18n-routes.test.ts`

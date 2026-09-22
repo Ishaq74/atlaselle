@@ -32,7 +32,7 @@ _يتم إنشاء هذا الملف تلقائيًا لتوفير سياق شا
 - 📁 **الوسائط** — رفع، معالجة Sharp، تنظيم المجلدات
 - 📧 **SMTP** — Brevo / Resend / Nodemailer + قائمة انتظار الرسائل الميتة
 - 🛡️ **الأمان** — سجل تدقيق، تحديد معدل الطلبات، تطهير المدخلات
-- ✅ **الاختبارات** — 168 Vitest + 9 E2E × 3 متصفحات
+- ✅ **الاختبارات** — 171 Vitest + 9 E2E × 3 متصفحات
 
 ### المجموعة التقنية
 
@@ -1250,6 +1250,7 @@ utils.ts
 
 ### الاختبارات
 
+- `tests/unit/booking-consent-i18n.test.ts`
 - `tests/unit/cms-i18n.test.ts`
 - `tests/unit/i18n-key-completeness.test.ts`
 - `tests/unit/i18n-routes.test.ts`

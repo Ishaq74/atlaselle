@@ -1,4 +1,6 @@
 ---
+import { DEFAULT_LOCALE } from '@/i18n/config';
+
 // Root index: redirect to default locale
-return Astro.redirect('/en/');
+return Astro.redirect(`/${DEFAULT_LOCALE}/`);
 ---

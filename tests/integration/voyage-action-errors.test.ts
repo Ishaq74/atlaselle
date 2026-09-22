@@ -198,6 +198,44 @@ describe('Voyage action error paths (real DB)', () => {
     expect(res.id).toBeTypeOf('string');
   });
 
+  it('submitApplication rejects unverified accounts even with a matching email', async () => {
+    // emailVerified: false => UNAUTHORIZED, y compris si l'email du formulaire
+    // correspond au compte (la vérification d'appartenance vient APRÈS le gate).
+    const email = `unverified-${stamp}@test.com`;
+    const unverifiedCtx = {
+      locals: { user: { id: adminId, email, emailVerified: false, banned: false } },
+      request: { headers: new Headers(), url: 'http://localhost:4321/en/apply/x' },
+      clientAddress: '127.0.0.1',
+    } as any;
+    await expect(
+      submit(
+        {
+          tripId: TRIP_ID, departureId: DEP_ID, legalName: 'Unverified', email, phone: null,
+          roomPreference: 'shared', dietaryRequirements: null, accessibilityNeeds: null,
+          activityAcknowledgement: true, motivation: null, expectations: null, consent: true, termsAccepted: true, locale: 'en',
+        },
+        unverifiedCtx,
+      ),
+    ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+  });
+
+  it('submitApplication accepts a case-different email for the same account (normalizeEmail)', async () => {
+    // User@Test.com vs user@test.com : même compte si normalisation identique
+    // (trim + lowercase) — et l'écriture traveler est normalisée en base.
+    const res = await submit(
+      {
+        tripId: TRIP_ID, departureId: DEP_ID, legalName: 'Case Test', email: `case-${stamp}@test.com`, phone: null,
+        roomPreference: 'shared', dietaryRequirements: null, accessibilityNeeds: null,
+        activityAcknowledgement: true, motivation: null, expectations: null, consent: true, termsAccepted: true, locale: 'en',
+      },
+      verifiedCtx(adminId, `CASE-${stamp}@TEST.COM`),
+    );
+    expect(res.id).toBeTypeOf('string');
+    const [app] = await db.select({ travelerId: applications.travelerId }).from(applications).where(eq(applications.id, res.id));
+    const [t] = await db.select({ email: travelers.email }).from(travelers).where(eq(travelers.id, app.travelerId));
+    expect(t.email).toBe(`case-${stamp}@test.com`);
+  });
+
   it('submitApplication rejects a missing termsAccepted (BAD_REQUEST)', async () => {
     // La validation zod tourne dans l'enrobage astro:actions, avant le handler :
     // un input sans termsAccepted est rejeté BAD_REQUEST sans accès DB.
