@@ -159,10 +159,10 @@ const { t } = Astro.props;
               <div class="flex flex-col gap-1">
                 <Label for="contact-reason">{t.form.reason}</Label>
                 <Select id="contact-reason" name="reason">
-                  <SelectTrigger class="w-full">
+                  <SelectTrigger class="w-full" aria-label={t.form.reason}>
                     <SelectValue placeholder={t.form.reasonPlaceholder} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent aria-label={t.form.reason}>
                     <SelectGroup>
                       {
                         t.reasons.map((reason) => (

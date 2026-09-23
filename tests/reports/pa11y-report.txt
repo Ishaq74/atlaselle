@@ -1,63 +1,20 @@
 ════════════════════════════════════════════════════════════════════════════════
   PA11Y ACCESSIBILITY REPORT — WCAG 2.1 AAA
-  Generated: 2026-09-22 16:44:35
+  Generated: 2026-09-23 16:41:39
 ════════════════════════════════════════════════════════════════════════════════
 
   Total URLs tested:  60
-  Passed:             56/60  ⚠️
-  Failed:             4/60
+  Passed:             60/60  ✅
+  Failed:             0/60
 
 ────────────────────────────────────────────────────────────────────────────────
-
-  ISSUES BY RULE:
-────────────────────────────────────────────────────────────────────────────────
-  aria-input-field-name  (4 occurrences)
-
-════════════════════════════════════════════════════════════════════════════════
-  DETAILED FAILURES
-════════════════════════════════════════════════════════════════════════════════
-
-  URL: http://localhost:4321/fr/contact
-  Issues: 1
-────────────────────────────────────────────────────────────────────────────────
-    Rule:     aria-input-field-name
-    Message:  ARIA input fields must have an accessible name (https://dequeuniversity.com/rules/axe/4.12/aria-input-field-name?application=axeAPI)
-    Selector: #contact-reason > div
-    Context:  <div class="starwind-select-content bg-popover text-popover-foreground absolute z-50 min-w-[8rem] rounded-md border shad
-
-
-  URL: http://localhost:4321/en/contact
-  Issues: 1
-────────────────────────────────────────────────────────────────────────────────
-    Rule:     aria-input-field-name
-    Message:  ARIA input fields must have an accessible name (https://dequeuniversity.com/rules/axe/4.12/aria-input-field-name?application=axeAPI)
-    Selector: #contact-reason > div
-    Context:  <div class="starwind-select-content bg-popover text-popover-foreground absolute z-50 min-w-[8rem] rounded-md border shad
-
-
-  URL: http://localhost:4321/es/contacto
-  Issues: 1
-────────────────────────────────────────────────────────────────────────────────
-    Rule:     aria-input-field-name
-    Message:  ARIA input fields must have an accessible name (https://dequeuniversity.com/rules/axe/4.12/aria-input-field-name?application=axeAPI)
-    Selector: #contact-reason > div
-    Context:  <div class="starwind-select-content bg-popover text-popover-foreground absolute z-50 min-w-[8rem] rounded-md border shad
-
-
-  URL: http://localhost:4321/ar/contact
-  Issues: 1
-────────────────────────────────────────────────────────────────────────────────
-    Rule:     aria-input-field-name
-    Message:  ARIA input fields must have an accessible name (https://dequeuniversity.com/rules/axe/4.12/aria-input-field-name?application=axeAPI)
-    Selector: #contact-reason > div
-    Context:  <div class="starwind-select-content bg-popover text-popover-foreground absolute z-50 min-w-[8rem] rounded-md border shad
-
 
 ════════════════════════════════════════════════════════════════════════════════
   PASSING URLS
 ════════════════════════════════════════════════════════════════════════════════
   ✅ http://localhost:4321/fr/
   ✅ http://localhost:4321/fr/a-propos
+  ✅ http://localhost:4321/fr/contact
   ✅ http://localhost:4321/fr/mentions-legales
   ✅ http://localhost:4321/fr/blog
   ✅ http://localhost:4321/fr/auth/connexion
@@ -65,6 +22,7 @@
   ✅ http://localhost:4321/fr/auth/mot-de-passe-oublie
   ✅ http://localhost:4321/en/
   ✅ http://localhost:4321/en/about
+  ✅ http://localhost:4321/en/contact
   ✅ http://localhost:4321/en/legal-notice
   ✅ http://localhost:4321/en/blog
   ✅ http://localhost:4321/en/auth/sign-in
@@ -72,6 +30,7 @@
   ✅ http://localhost:4321/en/auth/forgot-password
   ✅ http://localhost:4321/es/
   ✅ http://localhost:4321/es/acerca-de
+  ✅ http://localhost:4321/es/contacto
   ✅ http://localhost:4321/es/aviso-legal
   ✅ http://localhost:4321/es/blog
   ✅ http://localhost:4321/es/auth/iniciar-sesion
@@ -79,6 +38,7 @@
   ✅ http://localhost:4321/es/auth/contrasena-olvidada
   ✅ http://localhost:4321/ar/
   ✅ http://localhost:4321/ar/about
+  ✅ http://localhost:4321/ar/contact
   ✅ http://localhost:4321/ar/legal-notice
   ✅ http://localhost:4321/ar/blog
   ✅ http://localhost:4321/ar/auth/sign-in
@@ -114,5 +74,5 @@
   ✅ http://localhost:4321/ar/admin/blog
 
 ════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 56/60 passed
+  END OF REPORT — 60/60 passed
 ════════════════════════════════════════════════════════════════════════════════

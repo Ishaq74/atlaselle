@@ -33,7 +33,8 @@ export const auth = betterAuth({
     schema,
   }),
   rateLimit: {
-    enabled: true,
+    // Disabled in E2E/test runs: shared loopback IP turns the suite flaky (429).
+    enabled: !isTest,
     window: 60,
     max: 100,
     customRules: {

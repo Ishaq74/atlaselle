@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-09-22 17:16:08",
+  "generatedAt": "2026-09-23 17:06:17",
   "overall": "red",
   "reportsAvailable": 6,
   "sections": [
     {
       "key": "check",
       "title": "Type & Template Check (astro check)",
-      "ok": false,
-      "summary": "1 errors, 0 warnings, 0 hints",
+      "ok": true,
+      "summary": "0 errors, 0 warnings, 5 hints",
       "metrics": {
-        "errors": 1,
+        "errors": 0,
         "warnings": 0,
-        "hints": 0
+        "hints": 5
       }
     },
     {
@@ -40,33 +40,33 @@
       "key": "playwright",
       "title": "End-to-End Tests (Playwright)",
       "ok": false,
-      "summary": "90/279 passed, 78 skipped, 111 failed",
+      "summary": "1454/1563 passed, 30 skipped, 79 failed",
       "metrics": {
-        "total": 279,
-        "passed": 90,
-        "failed": 111,
-        "skipped": 78
+        "total": 1563,
+        "passed": 1454,
+        "failed": 79,
+        "skipped": 30
       }
     },
     {
       "key": "pa11y",
       "title": "Accessibility Audit (Pa11y — WCAG 2.1 AAA)",
-      "ok": false,
-      "summary": "56/60 URLs clean, 4 issue(s) across 1 rule(s)",
+      "ok": true,
+      "summary": "60/60 URLs clean",
       "metrics": {
         "urls": 60,
-        "passes": 56,
-        "errors": 4,
-        "rules": 1
+        "passes": 60,
+        "errors": 0,
+        "rules": 0
       }
     },
     {
       "key": "lighthouse",
       "title": "Performance & Quality Audit (Lighthouse CI)",
       "ok": false,
-      "summary": "51 page(s) audited, 6 below threshold (≥90)",
+      "summary": "41 page(s) audited, 6 below threshold (≥90)",
       "metrics": {
-        "pages": 51,
+        "pages": 41,
         "belowThreshold": 6
       }
     }

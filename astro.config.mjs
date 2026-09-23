@@ -93,7 +93,10 @@ export default defineConfig({
       ],
       // Stripe.js autorisé pour le module payments (script tiers éditorial : néant).
       scriptDirective: {
-        resources: ['https://js.stripe.com'],
+        // 'self' is required: without it the CSP blocks every bundled
+        // /_astro/*.js (auth forms, dropdowns, toasts…) — only the Astro-managed
+        // inline-script hashes were allowed.
+        resources: ["'self'", 'https://js.stripe.com'],
       },
     },
   },

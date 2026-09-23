@@ -1,54 +1,209 @@
 ════════════════════════════════════════════════════════════════════════════════
   PLAYWRIGHT E2E TEST REPORT
-  Generated: 2026-09-22 16:39:20
+  Generated: 2026-09-23 16:36:24
 ════════════════════════════════════════════════════════════════════════════════
 
-  ❌ admin-pages.spec.ts  (3/51 tests passed)
+  ❌ actions-admin.spec.ts  (102/108 tests passed)
+  ✅ actions-blog.spec.ts  (75/75 tests passed)
+  ✅ actions-matrix.spec.ts  (540/540 tests passed)
+  ✅ actions-services.spec.ts  (63/63 tests passed)
+  ❌ actions-voyage.spec.ts  (90/96 tests passed)
+  ✅ admin-extended.spec.ts  (30/30 tests passed)
+  ❌ admin-pages.spec.ts  (29/51 tests passed)
+  ✅ admin-trips-crud.spec.ts  (15/15 tests passed)
+  ✅ api-endpoints.spec.ts  (66/66 tests passed)
   ✅ app.spec.ts  (42/42 tests passed)
-  ❌ auth.spec.ts  (24/45 tests passed)
-  ❌ blog.spec.ts  (3/30 tests passed)
-  ❌ cms-admin.spec.ts  (3/24 tests passed)
-  ❌ contact.spec.ts  (15/24 tests passed)
+  ❌ auth-account.spec.ts  (21/27 tests passed)
+  ❌ auth.spec.ts  (38/45 tests passed)
+  ✅ blog-deep.spec.ts  (24/24 tests passed)
+  ❌ blog.spec.ts  (9/30 tests passed)
+  ❌ cms-admin.spec.ts  (17/24 tests passed)
+  ❌ cms-deep.spec.ts  (30/33 tests passed)
+  ✅ contact.spec.ts  (24/24 tests passed)
+  ✅ guest-journeys.spec.ts  (48/48 tests passed)
+  ✅ i18n-routes.spec.ts  (90/90 tests passed)
+  ✅ public-pages.spec.ts  (36/36 tests passed)
+  ❌ services-deep.spec.ts  (12/18 tests passed)
   ❌ services-lifecycle.spec.ts  (0/3 tests passed)
-  ❌ services.spec.ts  (0/30 tests passed)
-  ❌ voyage.spec.ts  (0/30 tests passed)
+  ❌ services.spec.ts  (15/30 tests passed)
+  ❌ ux-flows.spec.ts  (13/15 tests passed)
+  ❌ voyage.spec.ts  (25/30 tests passed)
 
 ════════════════════════════════════════════════════════════════════════════════
   SUMMARY
 ════════════════════════════════════════════════════════════════════════════════
 
-  Total tests:   279
-  Passed:        90  
-  Failed:        111  ❌
-  Skipped:       78
-  Duration:      4822.3s
+  Total tests:   1563
+  Passed:        1454  
+  Failed:        79  ❌
+  Skipped:       30
+  Duration:      3215.4s
 
 ════════════════════════════════════════════════════════════════════════════════
   FAILURES
 ════════════════════════════════════════════════════════════════════════════════
 
-  Suite: admin-pages.spec.ts > Admin — Stats page
-  Test:  stats page loads successfully
+  Suite: actions-admin.spec.ts > Admin actions — page workflow (DB fixture)
+  Test:  create → publish → lock → unlock → trash → restore → permanent delete
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+  Error: publishPage failed: undefined
+
+[2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32mtrue[39m
+Received: [31mfalse[39m
+
+
+  Suite: actions-admin.spec.ts > Admin actions — page workflow (DB fixture)
+  Test:  createPage with a duplicate slug is rejected
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected value: [32m500[39m
+Received array: [31m[409, 400][39m
+
+
+  Suite: actions-admin.spec.ts > Admin actions — page workflow (DB fixture)
+  Test:  create → publish → lock → unlock → trash → restore → permanent delete
+────────────────────────────────────────────────────────────────────────────────
+  Error: publishPage failed: undefined
+
+[2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32mtrue[39m
+Received: [31mfalse[39m
+
+
+  Suite: actions-admin.spec.ts > Admin actions — page workflow (DB fixture)
+  Test:  createPage with a duplicate slug is rejected
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected value: [32m500[39m
+Received array: [31m[409, 400][39m
+
+
+  Suite: actions-admin.spec.ts > Admin actions — page workflow (DB fixture)
+  Test:  create → publish → lock → unlock → trash → restore → permanent delete
+────────────────────────────────────────────────────────────────────────────────
+  Error: publishPage failed: undefined
+
+[2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32mtrue[39m
+Received: [31mfalse[39m
+
+
+  Suite: actions-admin.spec.ts > Admin actions — page workflow (DB fixture)
+  Test:  createPage with a duplicate slug is rejected
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected value: [32m500[39m
+Received array: [31m[409, 400][39m
+
+
+  Suite: actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture)
+  Test:  draft → submitForReview → approve → publish → unpublish → archive → restore
+────────────────────────────────────────────────────────────────────────────────
+  Error: status after submitTripForReview
+
+status after submitTripForReview
+
+[2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"[7munder_[27mreview"[39m
+Received: [31m"review"[39m
+
+Call Log:
+- Timeout 5000ms exceeded whil
+
+
+  Suite: actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture)
+  Test:  approveTrip from draft is rejected (invalid transition)
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected value: [32m500[39m
+Received array: [31m[400, 409, 422][39m
+
+
+  Suite: actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture)
+  Test:  draft → submitForReview → approve → publish → unpublish → archive → restore
+────────────────────────────────────────────────────────────────────────────────
+  Error: status after submitTripForReview
+
+status after submitTripForReview
+
+[2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"[7munder_[27mreview"[39m
+Received: [31m"review"[39m
+
+Call Log:
+- Timeout 5000ms exceeded whil
+
+
+  Suite: actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture)
+  Test:  approveTrip from draft is rejected (invalid transition)
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected value: [32m500[39m
+Received array: [31m[400, 409, 422][39m
+
+
+  Suite: actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture)
+  Test:  draft → submitForReview → approve → publish → unpublish → archive → restore
+────────────────────────────────────────────────────────────────────────────────
+  Error: status after submitTripForReview
+
+status after submitTripForReview
+
+[2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"[7munder_[27mreview"[39m
+Received: [31m"review"[39m
+
+Call Log:
+- Timeout 5000ms exceeded whil
+
+
+  Suite: actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture)
+  Test:  approveTrip from draft is rejected (invalid transition)
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected value: [32m500[39m
+Received array: [31m[400, 409, 422][39m
 
 
   Suite: admin-pages.spec.ts > Admin — Stats page
   Test:  stats page displays dashboard content
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
 
+Locator: locator('h1')
+Expected pattern: [32m/Stats|Tableau de bord/i[39m
+Timeout: 5000ms
+Error: element(s) not found
 
-  Suite: admin-pages.spec.ts > Admin — Stats page
-  Test:  stats page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+Call log:
+[2m  - Expect "toContainText" locator('h1') with timeout 
 
 
   Suite: admin-pages.spec.ts > Admin — Stats page
   Test:  stats page displays dashboard content
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+Locator: locator('h1')
+Expected pattern: [32m/Stats|Tableau de bord/i[39m
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+[2m  - Expect "toContainText" locator('h1') with timeout 
 
 
   Suite: admin-pages.spec.ts > Admin — Stats page
@@ -70,27 +225,37 @@ waiting for navigation until "load"
 
 
   Suite: admin-pages.spec.ts > Admin — Media page
-  Test:  media page loads successfully
+  Test:  media page has upload UI
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+  TypeError: [2mexpect([22m[31mAller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E Seed Usere2e-seed@test.com[39m
+[31m  [39m
+[31m  [39m
+[31m  [39m
+[31m  [39m
+[31m  [39m
+[31mTableau de bord[39m
+[31m  [39m
+[31m  [39m
+[31mAdministration[39m
+[31m  [39m
+[31m 
 
 
   Suite: admin-pages.spec.ts > Admin — Media page
   Test:  media page has upload UI
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Media page
-  Test:  media page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Media page
-  Test:  media page has upload UI
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+  TypeError: [2mexpect([22m[31mAller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E Seed Usere2e-seed@test.com[39m
+[31m  [39m
+[31m  [39m
+[31m  [39m
+[31m  [39m
+[31m  [39m
+[31mTableau de bord[39m
+[31m  [39m
+[31m  [39m
+[31mAdministration[39m
+[31m  [39m
+[31m 
 
 
   Suite: admin-pages.spec.ts > Admin — Media page
@@ -114,34 +279,10 @@ waiting for navigation until "load"
   Suite: admin-pages.spec.ts > Admin — Roles page
   Test:  roles page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Roles page
-  Test:  roles page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Roles page
-  Test:  roles page loads successfully
-────────────────────────────────────────────────────────────────────────────────
   Error: page.waitForURL: SSL connect error
 =========================== logs ===========================
 waiting for navigation until "load"
 ============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Users page
-  Test:  users page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Users page
-  Test:  users page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
 
 
   Suite: admin-pages.spec.ts > Admin — Users page
@@ -156,46 +297,44 @@ waiting for navigation until "load"
   Suite: admin-pages.spec.ts > Admin — Pages page
   Test:  pages page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Pages page
-  Test:  pages page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Pages page
-  Test:  pages page loads successfully
-────────────────────────────────────────────────────────────────────────────────
   Error: page.waitForURL: SSL connect error
 =========================== logs ===========================
 waiting for navigation until "load"
 ============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Audit log page
-  Test:  audit page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
 
 
   Suite: admin-pages.spec.ts > Admin — Audit log page
   Test:  audit page shows audit log table
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Audit log page
-  Test:  audit page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+  TypeError: [2mexpect([22m[31mAller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E Seed Usere2e-seed@test.com[39m
+[31m  [39m
+[31m  [39m
+[31m  [39m
+[31m  [39m
+[31m  [39m
+[31mTableau de bord[39m
+[31m  [39m
+[31m  [39m
+[31mAdministration[39m
+[31m  [39m
+[31m 
 
 
   Suite: admin-pages.spec.ts > Admin — Audit log page
   Test:  audit page shows audit log table
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+  TypeError: [2mexpect([22m[31mAller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E Seed Usere2e-seed@test.com[39m
+[31m  [39m
+[31m  [39m
+[31m  [39m
+[31m  [39m
+[31m  [39m
+[31mTableau de bord[39m
+[31m  [39m
+[31m  [39m
+[31mAdministration[39m
+[31m  [39m
+[31m 
 
 
   Suite: admin-pages.spec.ts > Admin — Audit log page
@@ -219,34 +358,10 @@ waiting for navigation until "load"
   Suite: admin-pages.spec.ts > Admin — Emails page
   Test:  emails page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Emails page
-  Test:  emails page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Emails page
-  Test:  emails page loads successfully
-────────────────────────────────────────────────────────────────────────────────
   Error: page.waitForURL: SSL connect error
 =========================== logs ===========================
 waiting for navigation until "load"
 ============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Policies page
-  Test:  policies page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Policies page
-  Test:  policies page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
 
 
   Suite: admin-pages.spec.ts > Admin — Policies page
@@ -261,34 +376,10 @@ waiting for navigation until "load"
   Suite: admin-pages.spec.ts > Admin — Travelers page
   Test:  travelers page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Travelers page
-  Test:  travelers page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Travelers page
-  Test:  travelers page loads successfully
-────────────────────────────────────────────────────────────────────────────────
   Error: page.waitForURL: SSL connect error
 =========================== logs ===========================
 waiting for navigation until "load"
 ============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Applications page
-  Test:  applications page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Applications page
-  Test:  applications page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
 
 
   Suite: admin-pages.spec.ts > Admin — Applications page
@@ -303,34 +394,10 @@ waiting for navigation until "load"
   Suite: admin-pages.spec.ts > Admin — Reservations page
   Test:  reservations page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Reservations page
-  Test:  reservations page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Reservations page
-  Test:  reservations page loads successfully
-────────────────────────────────────────────────────────────────────────────────
   Error: page.waitForURL: SSL connect error
 =========================== logs ===========================
 waiting for navigation until "load"
 ============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Payments page
-  Test:  payments page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Payments page
-  Test:  payments page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
 
 
   Suite: admin-pages.spec.ts > Admin — Payments page
@@ -345,46 +412,64 @@ waiting for navigation until "load"
   Suite: admin-pages.spec.ts > Admin — Blog edit page
   Test:  blog new post page loads
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Blog edit page
-  Test:  blog new post page loads
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Blog edit page
-  Test:  blog new post page loads
-────────────────────────────────────────────────────────────────────────────────
   Error: page.waitForURL: SSL connect error
 =========================== logs ===========================
 waiting for navigation until "load"
 ============================================================
 
 
-  Suite: auth.spec.ts > Sign-up flow
-  Test:  sign-up form submits and redirects to sign-in page
+  Suite: auth-account.spec.ts > Auth — sign-out
+  Test:  sign-out clears the session
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected value: [32m415[39m
+Received array: [31m[200, 302][39m
 
 
-  Suite: auth.spec.ts > Sign-up flow
-  Test:  sign-in form rejects unverified email
+  Suite: auth-account.spec.ts > Auth — sign-out
+  Test:  sign-out clears the session
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected value: [32m415[39m
+Received array: [31m[200, 302][39m
 
 
-  Suite: auth.spec.ts > Sign-up flow
-  Test:  sign-up form submits and redirects to sign-in page
+  Suite: auth-account.spec.ts > Auth — sign-out
+  Test:  sign-out clears the session
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected value: [32m415[39m
+Received array: [31m[200, 302][39m
 
 
-  Suite: auth.spec.ts > Sign-up flow
-  Test:  sign-in form rejects unverified email
+  Suite: auth-account.spec.ts > Auth — export-data endpoint
+  Test:  authenticated user can export their data (RGPD)
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m200[39m
+Received: [31m500[39m
+
+
+  Suite: auth-account.spec.ts > Auth — export-data endpoint
+  Test:  authenticated user can export their data (RGPD)
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m200[39m
+Received: [31m500[39m
+
+
+  Suite: auth-account.spec.ts > Auth — export-data endpoint
+  Test:  authenticated user can export their data (RGPD)
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m200[39m
+Received: [31m500[39m
 
 
   Suite: auth.spec.ts > Sign-up flow
@@ -408,30 +493,6 @@ waiting for navigation until "load"
   Suite: auth.spec.ts > Authenticated flow
   Test:  verified user can sign in and reach dashboard
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
-
-
-  Suite: auth.spec.ts > Authenticated flow
-  Test:  authenticated user can access profile page
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
-
-
-  Suite: auth.spec.ts > Authenticated flow
-  Test:  verified user can sign in and reach dashboard
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
-
-
-  Suite: auth.spec.ts > Authenticated flow
-  Test:  authenticated user can access profile page
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
-
-
-  Suite: auth.spec.ts > Authenticated flow
-  Test:  verified user can sign in and reach dashboard
-────────────────────────────────────────────────────────────────────────────────
   Error: page.waitForURL: SSL connect error
 =========================== logs ===========================
 waiting for navigation until "load"
@@ -445,46 +506,6 @@ waiting for navigation until "load"
 =========================== logs ===========================
 waiting for navigation until "load"
 ============================================================
-
-
-  Suite: auth.spec.ts > Enter key submission
-  Test:  sign-in form submits on Enter key
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
-
-
-  Suite: auth.spec.ts > Enter key submission
-  Test:  sign-up form submits on Enter key
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
-
-
-  Suite: auth.spec.ts > Enter key submission
-  Test:  forgot-password form submits on Enter key
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
-
-Received: [31mfalse[39m
-
-
-  Suite: auth.spec.ts > Enter key submission
-  Test:  sign-in form submits on Enter key
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
-
-
-  Suite: auth.spec.ts > Enter key submission
-  Test:  sign-up form submits on Enter key
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
-
-
-  Suite: auth.spec.ts > Enter key submission
-  Test:  forgot-password form submits on Enter key
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
-
-Received: [31mfalse[39m
 
 
   Suite: auth.spec.ts > Enter key submission
@@ -508,72 +529,34 @@ waiting for navigation until "load"
   Suite: auth.spec.ts > Enter key submission
   Test:  forgot-password form submits on Enter key
 ────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
 
-Received: [31mfalse[39m
+Locator:  locator('#forgot-password-success')
+Expected: visible
+Received: hidden
+Timeout:  20000ms
+
+Call log:
+[2m  - Expect "toBeVisible" locator('#forgot-password-success') with timeout 20000ms[22m
+[2m  - 
 
 
   Suite: blog.spec.ts > Blog surfaces
-  Test:  global public blog post detail redirects to the canonical category URL
+  Test:  global admin can create and edit a draft workflow post
 ────────────────────────────────────────────────────────────────────────────────
-  Error: page.goto: net::ERR_TOO_MANY_REDIRECTS at http://localhost:4322/fr/blog/e2e-global-post-8d4c408b
-Call log:
-[2m  - navigating to "http://localhost:4322/fr/blog/e2e-global-post-8d4c408b", waiting until "networkidle"[22m
-
+  [31mTest timeout of 90000ms exceeded.[39m
 
 
   Suite: blog.spec.ts > Blog surfaces
-  Test:  global public blog post detail redirects to the canonical category URL
+  Test:  global admin can create and edit a draft workflow post
 ────────────────────────────────────────────────────────────────────────────────
-  Error: page.goto: NS_ERROR_REDIRECT_LOOP
-Call log:
-[2m  - navigating to "http://localhost:4322/fr/blog/e2e-global-post-3f815b6f", waiting until "networkidle"[22m
-
+  [31mTest timeout of 90000ms exceeded.[39m
 
 
   Suite: blog.spec.ts > Blog surfaces
-  Test:  global public blog post detail redirects to the canonical category URL
+  Test:  global admin can create and edit a draft workflow post
 ────────────────────────────────────────────────────────────────────────────────
-  Error: page.goto: Load cannot follow more than 20 redirections
-Call log:
-[2m  - navigating to "http://localhost:4322/fr/blog/e2e-global-post-6785b958", waiting until "networkidle"[22m
-
-
-
-  Suite: cms-admin.spec.ts > CMS Site settings page
-  Test:  site page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Site settings page
-  Test:  site page contains settings form
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Site settings page
-  Test:  site page has tabs for settings and hours
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Site settings page
-  Test:  site page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Site settings page
-  Test:  site page contains settings form
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Site settings page
-  Test:  site page has tabs for settings and hours
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+  [31mTest timeout of 90000ms exceeded.[39m
 
 
   Suite: cms-admin.spec.ts > CMS Site settings page
@@ -597,30 +580,6 @@ Call log:
   Suite: cms-admin.spec.ts > CMS Navigation page
   Test:  navigation page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Navigation page
-  Test:  navigation page contains management UI
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Navigation page
-  Test:  navigation page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Navigation page
-  Test:  navigation page contains management UI
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Navigation page
-  Test:  navigation page loads successfully
-────────────────────────────────────────────────────────────────────────────────
   Error: Sign-in failed after 2 attempts
 
 
@@ -628,30 +587,6 @@ Call log:
   Test:  navigation page contains management UI
 ────────────────────────────────────────────────────────────────────────────────
   Error: Sign-in failed after 2 attempts
-
-
-  Suite: cms-admin.spec.ts > CMS Theme page
-  Test:  theme page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Theme page
-  Test:  theme page contains form
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Theme page
-  Test:  theme page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Theme page
-  Test:  theme page contains form
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
 
 
   Suite: cms-admin.spec.ts > CMS Theme page
@@ -666,53 +601,44 @@ Call log:
   Error: Sign-in failed after 2 attempts
 
 
-  Suite: contact.spec.ts > Contact page
-  Test:  contact page has form fields
+  Suite: cms-deep.spec.ts > CMS — pages & sections
+  Test:  pages admin lists pages and exposes create action
 ────────────────────────────────────────────────────────────────────────────────
   Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
 
-Locator: locator('input[name="reason"]')
+Locator: locator('main')
 Expected: visible
-Timeout: 5000ms
-Error: element(s) not found
-
-Call log:
-[2m  - Expect "toBeVisible" locator('input[name="reason"]') with timeout 5000ms[22m
-[2m  - w
+Error: strict mode violation: locator('main') resolved to 2 elements:
+    1) <main class="flex-1" id="main-content">…</main> aka locator('#main-content')
+    2) <main
 
 
-  Suite: contact.spec.ts > Contact page
-  Test:  contact page has form fields
+  Suite: cms-deep.spec.ts > CMS — pages & sections
+  Test:  pages admin lists pages and exposes create action
 ────────────────────────────────────────────────────────────────────────────────
   Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
 
-Locator: locator('input[name="reason"]')
+Locator: locator('main')
 Expected: visible
-Timeout: 5000ms
-Error: element(s) not found
-
-Call log:
-[2m  - Expect "toBeVisible" locator('input[name="reason"]') with timeout 5000ms[22m
-[2m  - w
+Error: strict mode violation: locator('main') resolved to 2 elements:
+    1) <main class="flex-1" id="main-content">…</main> aka locator('#main-content')
+    2) <main
 
 
-  Suite: contact.spec.ts > Contact page
-  Test:  contact page has form fields
+  Suite: cms-deep.spec.ts > CMS — pages & sections
+  Test:  pages admin lists pages and exposes create action
 ────────────────────────────────────────────────────────────────────────────────
   Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
 
-Locator: locator('input[name="reason"]')
+Locator: locator('main')
 Expected: visible
-Timeout: 5000ms
-Error: element(s) not found
-
-Call log:
-[2m  - Expect "toBeVisible" locator('input[name="reason"]') with timeout 5000ms[22m
-[2m  - w
+Error: strict mode violation: locator('main') resolved to 2 elements:
+    1) <main class="flex-1" id="main-content">…</main> aka locator('#main-content')
+    2) <main
 
 
-  Suite: contact.spec.ts > Contact API
-  Test:  POST /api/contact submits a valid form
+  Suite: services-deep.spec.ts > Services — admin CRUD & editor
+  Test:  services admin supports search + status + sort query params
 ────────────────────────────────────────────────────────────────────────────────
   Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
 
@@ -720,17 +646,8 @@ Expected: [32m200[39m
 Received: [31m500[39m
 
 
-  Suite: contact.spec.ts > Contact API
-  Test:  POST /api/contact rejects invalid email
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m400[39m
-Received: [31m429[39m
-
-
-  Suite: contact.spec.ts > Contact API
-  Test:  POST /api/contact submits a valid form
+  Suite: services-deep.spec.ts > Services — admin CRUD & editor
+  Test:  services admin supports search + status + sort query params
 ────────────────────────────────────────────────────────────────────────────────
   Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
 
@@ -738,17 +655,8 @@ Expected: [32m200[39m
 Received: [31m500[39m
 
 
-  Suite: contact.spec.ts > Contact API
-  Test:  POST /api/contact rejects invalid email
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m400[39m
-Received: [31m429[39m
-
-
-  Suite: contact.spec.ts > Contact API
-  Test:  POST /api/contact submits a valid form
+  Suite: services-deep.spec.ts > Services — admin CRUD & editor
+  Test:  services admin supports search + status + sort query params
 ────────────────────────────────────────────────────────────────────────────────
   Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
 
@@ -756,102 +664,166 @@ Expected: [32m200[39m
 Received: [31m500[39m
 
 
-  Suite: contact.spec.ts > Contact API
-  Test:  POST /api/contact rejects invalid email
+  Suite: services-deep.spec.ts > Services — public surfaces
+  Test:  services list responds to search query
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+Locator: locator('main')
+Expected: visible
+Error: strict mode violation: locator('main') resolved to 2 elements:
+    1) <main class="flex-1" id="main-content">…</main> aka locator('#main-content')
+    2) <main
+
+
+  Suite: services-deep.spec.ts > Services — public surfaces
+  Test:  services list responds to search query
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+Locator: locator('main')
+Expected: visible
+Error: strict mode violation: locator('main') resolved to 2 elements:
+    1) <main class="flex-1" id="main-content">…</main> aka locator('#main-content')
+    2) <main
+
+
+  Suite: services-deep.spec.ts > Services — public surfaces
+  Test:  services list responds to search query
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+Locator: locator('main')
+Expected: visible
+Error: strict mode violation: locator('main') resolved to 2 elements:
+    1) <main class="flex-1" id="main-content">…</main> aka locator('#main-content')
+    2) <main
+
+
+  Suite: services-lifecycle.spec.ts
+  Test:  services admin lifecycle follows the explicit state machine
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+Locator:  locator('tr:has([data-id="ea3275ce-9b20-4d69-b01c-27b0413e61dc"])')
+Expected: [32m1[39m
+Received: [31m0[39m
+Timeout:  15000ms
+
+Call log:
+[2m  - Expect "toHaveCount" locator('tr
+
+
+  Suite: services-lifecycle.spec.ts
+  Test:  services admin lifecycle follows the explicit state machine
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+Locator:  locator('tr:has([data-id="7dd2bb62-5dda-4699-8ffc-8c1f26170727"])')
+Expected: [32m1[39m
+Received: [31m0[39m
+Timeout:  15000ms
+
+Call log:
+[2m  - Expect "toHaveCount" locator('tr
+
+
+  Suite: services-lifecycle.spec.ts
+  Test:  services admin lifecycle follows the explicit state machine
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+Locator:  locator('tr:has([data-id="88facc0d-c3f7-48ba-a6e0-19c22ddc8033"])')
+Expected: [32m1[39m
+Received: [31m0[39m
+Timeout:  15000ms
+
+Call log:
+[2m  - Expect "toHaveCount" locator('tr
+
+
+  Suite: services.spec.ts > Services surfaces
+  Test:  global admin exposes the resource grammar
 ────────────────────────────────────────────────────────────────────────────────
   Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
 
-Expected: [32m400[39m
-Received: [31m429[39m
-
-
-  Suite: services-lifecycle.spec.ts
-  Test:  services admin lifecycle follows the explicit state machine
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
-
-Locator:  locator('tr:has([data-id="aeed432e-2148-4c14-a27b-91d91f6785ce"])')
-Expected: [32m1[39m
-Received: [31m0[39m
-Timeout:  5000ms
-
-Call log:
-[2m  - Expect "toHaveCount" locator('tr:
-
-
-  Suite: services-lifecycle.spec.ts
-  Test:  services admin lifecycle follows the explicit state machine
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
-
-Locator:  locator('tr:has([data-id="1ad65bd8-dd25-4a34-9d11-1e20b9a3fffe"])')
-Expected: [32m1[39m
-Received: [31m0[39m
-Timeout:  5000ms
-
-Call log:
-[2m  - Expect "toHaveCount" locator('tr:
-
-
-  Suite: services-lifecycle.spec.ts
-  Test:  services admin lifecycle follows the explicit state machine
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
-
-Locator:  locator('tr:has([data-id="a5ed778a-2a23-418f-ac1e-326e7bcd49a6"])')
-Expected: [32m1[39m
-Received: [31m0[39m
-Timeout:  5000ms
-
-Call log:
-[2m  - Expect "toHaveCount" locator('tr:
+Expected: [32m200[39m
+Received: [31m500[39m
 
 
   Suite: services.spec.ts > Services surfaces
-  Test:  global public list, category and detail stay canonical
+  Test:  global admin exposes the resource grammar
 ────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
 
-Expected: >= [32m300[39m
-Received:    [31m200[39m
+Expected: [32m200[39m
+Received: [31m500[39m
 
 
   Suite: services.spec.ts > Services surfaces
-  Test:  global public list, category and detail stay canonical
+  Test:  global admin exposes the resource grammar
 ────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
 
-Expected: >= [32m300[39m
-Received:    [31m200[39m
+Expected: [32m200[39m
+Received: [31m500[39m
 
 
-  Suite: services.spec.ts > Services surfaces
-  Test:  global public list, category and detail stay canonical
+  Suite: ux-flows.spec.ts > Contact form — UI submission
+  Test:  contact form submits successfully through the UI
 ────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
-
-Expected: >= [32m300[39m
-Received:    [31m200[39m
+  [31mTest timeout of 30000ms exceeded.[39m
 
 
-  Suite: voyage.spec.ts > Voyage public — liste et fiche
-  Test:  list loads in EN and FR (localized segment rewritten)
+  Suite: ux-flows.spec.ts > Locale switcher
+  Test:  the locale switcher exposes all 4 locales
 ────────────────────────────────────────────────────────────────────────────────
-  Error: Failed query: insert into "trips" ("id", "status", "country_code", "default_currency", "hero_media_id", "duration_days", "duration_nights", "group_min", "group_max", "difficulty", "difficulty_level", "arrival_airport", "departure_airport", "accommodation_style", "require_account", "comment_st
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+Locator: getByRole('button', { name: /switch language|changer de langue|language/i })
+Expected: visible
+Error: strict mode violation: getByRole('button', { name: /switch language|changer de langue|language/i }
 
 
-  Suite: voyage.spec.ts > Voyage public — liste et fiche
-  Test:  list loads in EN and FR (localized segment rewritten)
+  Suite: voyage.spec.ts > Voyage — candidature
+  Test:  authenticated flow submits an application
 ────────────────────────────────────────────────────────────────────────────────
-  Error: Failed query: insert into "trips" ("id", "status", "country_code", "default_currency", "hero_media_id", "duration_days", "duration_nights", "group_min", "group_max", "difficulty", "difficulty_level", "arrival_airport", "departure_airport", "accommodation_style", "require_account", "comment_st
+  [31mTest timeout of 90000ms exceeded.[39m
 
 
-  Suite: voyage.spec.ts > Voyage public — liste et fiche
-  Test:  list loads in EN and FR (localized segment rewritten)
+  Suite: voyage.spec.ts > Voyage — candidature
+  Test:  authenticated flow submits an application
 ────────────────────────────────────────────────────────────────────────────────
-  Error: Failed query: insert into "trips" ("id", "status", "country_code", "default_currency", "hero_media_id", "duration_days", "duration_nights", "group_min", "group_max", "difficulty", "difficulty_level", "arrival_airport", "departure_airport", "accommodation_style", "require_account", "comment_st
+  [31mTest timeout of 90000ms exceeded.[39m
+
+
+  Suite: voyage.spec.ts > Voyage — candidature
+  Test:  authenticated flow submits an application
+────────────────────────────────────────────────────────────────────────────────
+  Error: page.waitForURL: SSL connect error
+=========================== logs ===========================
+waiting for navigation until "load"
+============================================================
+
+
+  Suite: voyage.spec.ts > Voyage — admin trips
+  Test:  admin trips list loads
+────────────────────────────────────────────────────────────────────────────────
+  Error: page.waitForURL: SSL connect error
+=========================== logs ===========================
+waiting for navigation until "load"
+============================================================
+
+
+  Suite: voyage.spec.ts > Voyage — admin trips
+  Test:  admin applications, reservations, payments and emails load
+────────────────────────────────────────────────────────────────────────────────
+  Error: page.waitForURL: SSL connect error
+=========================== logs ===========================
+waiting for navigation until "load"
+============================================================
 
 
 ════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 90/279 passed
+  END OF REPORT — 1454/1563 passed
 ════════════════════════════════════════════════════════════════════════════════

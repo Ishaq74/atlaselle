@@ -59,6 +59,9 @@ async function signIn(page: import('@playwright/test').Page) {
 // ─── Sign-up form flow ──────────────────────────────────────────────
 
 test.describe('Sign-up flow', () => {
+  // better-auth rate-limits sign-in attempts per IP; shared across specs.
+  test.setTimeout(60000);
+
   test('sign-up form submits and redirects to sign-in page', async ({ page }) => {
     await signUp(page, createFreshEmail());
   });
@@ -141,12 +144,10 @@ test.describe('Enter key submission', () => {
 
     // Press Enter — should show success message (always shows success even if email unknown)
     await page.locator('input[name="email"], input[type="email"]').first().press('Enter');
-    await page.waitForTimeout(3000);
 
-    // The success block should become visible or the form should be hidden
-    const successVisible = await page.locator('#forgot-password-success').isVisible().catch(() => false);
-    const formHidden = await page.locator('#forgot-password-form').isHidden().catch(() => false);
-    expect(successVisible || formHidden).toBeTruthy();
+    // The page always shows the success state (even on SMTP failure) â€”
+    // wait deterministically instead of a fixed 3 s timeout.
+    await expect(page.locator('#forgot-password-success')).toBeVisible({ timeout: 20000 });
   });
 });
 

@@ -1,12 +1,10 @@
 ══════════════════════════════════════════════════════════════════════════════════
   ATOMIC — GLOBAL QA REPORT
-  Generated: 2026-09-22 17:16:08
+  Generated: 2026-09-23 17:06:17
 ══════════════════════════════════════════════════════════════════════════════════
 
-  ❌ Type & Template Check (astro check)
-     1 errors, 0 warnings, 0 hints
-
-  • See tests/reports/check-report.txt for details
+  ✅ Type & Template Check (astro check)
+     0 errors, 0 warnings, 5 hints
 
   ✅ Lint (ESLint)
      0 errors, 0 warnings
@@ -15,164 +13,108 @@
      1807/1807 passed
 
   ❌ End-to-End Tests (Playwright)
-     90/279 passed, 78 skipped, 111 failed
+     1454/1563 passed, 30 skipped, 79 failed
 
-  • admin-pages.spec.ts > Admin — Stats page › stats page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+  • actions-admin.spec.ts > Admin actions — page workflow (DB fixture) › create → publish → lock → unlock → trash → restore → permanent delete
+    Error: publishPage failed: undefined
+  • actions-admin.spec.ts > Admin actions — page workflow (DB fixture) › createPage with a duplicate slug is rejected
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+  • actions-admin.spec.ts > Admin actions — page workflow (DB fixture) › create → publish → lock → unlock → trash → restore → permanent delete
+    Error: publishPage failed: undefined
+  • actions-admin.spec.ts > Admin actions — page workflow (DB fixture) › createPage with a duplicate slug is rejected
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+  • actions-admin.spec.ts > Admin actions — page workflow (DB fixture) › create → publish → lock → unlock → trash → restore → permanent delete
+    Error: publishPage failed: undefined
+  • actions-admin.spec.ts > Admin actions — page workflow (DB fixture) › createPage with a duplicate slug is rejected
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+  • actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture) › draft → submitForReview → approve → publish → unpublish → archive → restore
+    Error: status after submitTripForReview
+  • actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture) › approveTrip from draft is rejected (invalid transition)
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+  • actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture) › draft → submitForReview → approve → publish → unpublish → archive → restore
+    Error: status after submitTripForReview
+  • actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture) › approveTrip from draft is rejected (invalid transition)
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+  • actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture) › draft → submitForReview → approve → publish → unpublish → archive → restore
+    Error: status after submitTripForReview
+  • actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture) › approveTrip from draft is rejected (invalid transition)
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
   • admin-pages.spec.ts > Admin — Stats page › stats page displays dashboard content
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Stats page › stats page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
   • admin-pages.spec.ts > Admin — Stats page › stats page displays dashboard content
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
   • admin-pages.spec.ts > Admin — Stats page › stats page loads successfully
     Error: page.waitForURL: SSL connect error
   • admin-pages.spec.ts > Admin — Stats page › stats page displays dashboard content
     Error: page.waitForURL: SSL connect error
-  • admin-pages.spec.ts > Admin — Media page › media page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
   • admin-pages.spec.ts > Admin — Media page › media page has upload UI
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Media page › media page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+    TypeError: [2mexpect([22m[31mAller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E Seed Usere2e-seed@test.com[39m
   • admin-pages.spec.ts > Admin — Media page › media page has upload UI
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+    TypeError: [2mexpect([22m[31mAller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E Seed Usere2e-seed@test.com[39m
   • admin-pages.spec.ts > Admin — Media page › media page loads successfully
     Error: page.waitForURL: SSL connect error
   • admin-pages.spec.ts > Admin — Media page › media page has upload UI
     Error: page.waitForURL: SSL connect error
   • admin-pages.spec.ts > Admin — Roles page › roles page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Roles page › roles page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Roles page › roles page loads successfully
     Error: page.waitForURL: SSL connect error
-  • admin-pages.spec.ts > Admin — Users page › users page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Users page › users page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
   • admin-pages.spec.ts > Admin — Users page › users page loads successfully
     Error: page.waitForURL: SSL connect error
   • admin-pages.spec.ts > Admin — Pages page › pages page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Pages page › pages page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Pages page › pages page loads successfully
     Error: page.waitForURL: SSL connect error
-  • admin-pages.spec.ts > Admin — Audit log page › audit page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
   • admin-pages.spec.ts > Admin — Audit log page › audit page shows audit log table
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Audit log page › audit page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+    TypeError: [2mexpect([22m[31mAller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E Seed Usere2e-seed@test.com[39m
   • admin-pages.spec.ts > Admin — Audit log page › audit page shows audit log table
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+    TypeError: [2mexpect([22m[31mAller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E Seed Usere2e-seed@test.com[39m
   • admin-pages.spec.ts > Admin — Audit log page › audit page loads successfully
     Error: page.waitForURL: SSL connect error
   • admin-pages.spec.ts > Admin — Audit log page › audit page shows audit log table
     Error: page.waitForURL: SSL connect error
   • admin-pages.spec.ts > Admin — Emails page › emails page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Emails page › emails page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Emails page › emails page loads successfully
     Error: page.waitForURL: SSL connect error
-  • admin-pages.spec.ts > Admin — Policies page › policies page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Policies page › policies page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
   • admin-pages.spec.ts > Admin — Policies page › policies page loads successfully
     Error: page.waitForURL: SSL connect error
   • admin-pages.spec.ts > Admin — Travelers page › travelers page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Travelers page › travelers page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Travelers page › travelers page loads successfully
     Error: page.waitForURL: SSL connect error
-  • admin-pages.spec.ts > Admin — Applications page › applications page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Applications page › applications page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
   • admin-pages.spec.ts > Admin — Applications page › applications page loads successfully
     Error: page.waitForURL: SSL connect error
   • admin-pages.spec.ts > Admin — Reservations page › reservations page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Reservations page › reservations page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Reservations page › reservations page loads successfully
     Error: page.waitForURL: SSL connect error
-  • admin-pages.spec.ts > Admin — Payments page › payments page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Payments page › payments page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
   • admin-pages.spec.ts > Admin — Payments page › payments page loads successfully
     Error: page.waitForURL: SSL connect error
   • admin-pages.spec.ts > Admin — Blog edit page › blog new post page loads
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Blog edit page › blog new post page loads
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • admin-pages.spec.ts > Admin — Blog edit page › blog new post page loads
     Error: page.waitForURL: SSL connect error
-  • auth.spec.ts > Sign-up flow › sign-up form submits and redirects to sign-in page
-    [31mTest timeout of 30000ms exceeded.[39m
-  • auth.spec.ts > Sign-up flow › sign-in form rejects unverified email
-    [31mTest timeout of 30000ms exceeded.[39m
-  • auth.spec.ts > Sign-up flow › sign-up form submits and redirects to sign-in page
-    [31mTest timeout of 30000ms exceeded.[39m
-  • auth.spec.ts > Sign-up flow › sign-in form rejects unverified email
-    [31mTest timeout of 30000ms exceeded.[39m
+  • auth-account.spec.ts > Auth — sign-out › sign-out clears the session
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+  • auth-account.spec.ts > Auth — sign-out › sign-out clears the session
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+  • auth-account.spec.ts > Auth — sign-out › sign-out clears the session
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+  • auth-account.spec.ts > Auth — export-data endpoint › authenticated user can export their data (RGPD)
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+  • auth-account.spec.ts > Auth — export-data endpoint › authenticated user can export their data (RGPD)
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+  • auth-account.spec.ts > Auth — export-data endpoint › authenticated user can export their data (RGPD)
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
   • auth.spec.ts > Sign-up flow › sign-up form submits and redirects to sign-in page
     Error: page.waitForURL: SSL connect error
   • auth.spec.ts > Sign-up flow › sign-in form rejects unverified email
     Error: page.waitForURL: SSL connect error
   • auth.spec.ts > Authenticated flow › verified user can sign in and reach dashboard
-    [31mTest timeout of 30000ms exceeded.[39m
-  • auth.spec.ts > Authenticated flow › authenticated user can access profile page
-    [31mTest timeout of 30000ms exceeded.[39m
-  • auth.spec.ts > Authenticated flow › verified user can sign in and reach dashboard
-    [31mTest timeout of 30000ms exceeded.[39m
-  • auth.spec.ts > Authenticated flow › authenticated user can access profile page
-    [31mTest timeout of 30000ms exceeded.[39m
-  • auth.spec.ts > Authenticated flow › verified user can sign in and reach dashboard
     Error: page.waitForURL: SSL connect error
   • auth.spec.ts > Authenticated flow › authenticated user can access profile page
     Error: page.waitForURL: SSL connect error
-  • auth.spec.ts > Enter key submission › sign-in form submits on Enter key
-    [31mTest timeout of 30000ms exceeded.[39m
-  • auth.spec.ts > Enter key submission › sign-up form submits on Enter key
-    [31mTest timeout of 30000ms exceeded.[39m
-  • auth.spec.ts > Enter key submission › forgot-password form submits on Enter key
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
-  • auth.spec.ts > Enter key submission › sign-in form submits on Enter key
-    [31mTest timeout of 30000ms exceeded.[39m
-  • auth.spec.ts > Enter key submission › sign-up form submits on Enter key
-    [31mTest timeout of 30000ms exceeded.[39m
-  • auth.spec.ts > Enter key submission › forgot-password form submits on Enter key
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
   • auth.spec.ts > Enter key submission › sign-in form submits on Enter key
     Error: page.waitForURL: SSL connect error
   • auth.spec.ts > Enter key submission › sign-up form submits on Enter key
     Error: page.waitForURL: SSL connect error
   • auth.spec.ts > Enter key submission › forgot-password form submits on Enter key
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
-  • blog.spec.ts > Blog surfaces › global public blog post detail redirects to the canonical category URL
-    Error: page.goto: net::ERR_TOO_MANY_REDIRECTS at http://localhost:4322/fr/blog/e2e-global-post-8d4c408b
-  • blog.spec.ts > Blog surfaces › global public blog post detail redirects to the canonical category URL
-    Error: page.goto: NS_ERROR_REDIRECT_LOOP
-  • blog.spec.ts > Blog surfaces › global public blog post detail redirects to the canonical category URL
-    Error: page.goto: Load cannot follow more than 20 redirections
-  • cms-admin.spec.ts > CMS Site settings page › site page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Site settings page › site page contains settings form
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Site settings page › site page has tabs for settings and hours
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Site settings page › site page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Site settings page › site page contains settings form
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Site settings page › site page has tabs for settings and hours
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+  • blog.spec.ts > Blog surfaces › global admin can create and edit a draft workflow post
+    [31mTest timeout of 90000ms exceeded.[39m
+  • blog.spec.ts > Blog surfaces › global admin can create and edit a draft workflow post
+    [31mTest timeout of 90000ms exceeded.[39m
+  • blog.spec.ts > Blog surfaces › global admin can create and edit a draft workflow post
+    [31mTest timeout of 90000ms exceeded.[39m
   • cms-admin.spec.ts > CMS Site settings page › site page loads successfully
     Error: Sign-in failed after 2 attempts
   • cms-admin.spec.ts > CMS Site settings page › site page contains settings form
@@ -180,73 +122,63 @@
   • cms-admin.spec.ts > CMS Site settings page › site page has tabs for settings and hours
     Error: Sign-in failed after 2 attempts
   • cms-admin.spec.ts > CMS Navigation page › navigation page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Navigation page › navigation page contains management UI
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Navigation page › navigation page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Navigation page › navigation page contains management UI
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Navigation page › navigation page loads successfully
     Error: Sign-in failed after 2 attempts
   • cms-admin.spec.ts > CMS Navigation page › navigation page contains management UI
     Error: Sign-in failed after 2 attempts
   • cms-admin.spec.ts > CMS Theme page › theme page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Theme page › theme page contains form
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Theme page › theme page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Theme page › theme page contains form
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • cms-admin.spec.ts > CMS Theme page › theme page loads successfully
     Error: Sign-in failed after 2 attempts
   • cms-admin.spec.ts > CMS Theme page › theme page contains form
     Error: Sign-in failed after 2 attempts
-  • contact.spec.ts > Contact page › contact page has form fields
+  • cms-deep.spec.ts > CMS — pages & sections › pages admin lists pages and exposes create action
     Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-  • contact.spec.ts > Contact page › contact page has form fields
+  • cms-deep.spec.ts > CMS — pages & sections › pages admin lists pages and exposes create action
     Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-  • contact.spec.ts > Contact page › contact page has form fields
+  • cms-deep.spec.ts > CMS — pages & sections › pages admin lists pages and exposes create action
     Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-  • contact.spec.ts > Contact API › POST /api/contact submits a valid form
+  • services-deep.spec.ts > Services — admin CRUD & editor › services admin supports search + status + sort query params
     Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-  • contact.spec.ts > Contact API › POST /api/contact rejects invalid email
+  • services-deep.spec.ts > Services — admin CRUD & editor › services admin supports search + status + sort query params
     Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-  • contact.spec.ts > Contact API › POST /api/contact submits a valid form
+  • services-deep.spec.ts > Services — admin CRUD & editor › services admin supports search + status + sort query params
     Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-  • contact.spec.ts > Contact API › POST /api/contact rejects invalid email
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-  • contact.spec.ts > Contact API › POST /api/contact submits a valid form
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-  • contact.spec.ts > Contact API › POST /api/contact rejects invalid email
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+  • services-deep.spec.ts > Services — public surfaces › services list responds to search query
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+  • services-deep.spec.ts > Services — public surfaces › services list responds to search query
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+  • services-deep.spec.ts > Services — public surfaces › services list responds to search query
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
   • services-lifecycle.spec.ts › services admin lifecycle follows the explicit state machine
     Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
   • services-lifecycle.spec.ts › services admin lifecycle follows the explicit state machine
     Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
   • services-lifecycle.spec.ts › services admin lifecycle follows the explicit state machine
     Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
-  • services.spec.ts > Services surfaces › global public list, category and detail stay canonical
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
-  • services.spec.ts > Services surfaces › global public list, category and detail stay canonical
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
-  • services.spec.ts > Services surfaces › global public list, category and detail stay canonical
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
-  • voyage.spec.ts > Voyage public — liste et fiche › list loads in EN and FR (localized segment rewritten)
-    Error: Failed query: insert into "trips" ("id", "status", "country_code", "default_currency", "hero_media_id", "duration_days", "duration_nights", "group_min", "group_max", "difficulty", "difficulty_l
-  • voyage.spec.ts > Voyage public — liste et fiche › list loads in EN and FR (localized segment rewritten)
-    Error: Failed query: insert into "trips" ("id", "status", "country_code", "default_currency", "hero_media_id", "duration_days", "duration_nights", "group_min", "group_max", "difficulty", "difficulty_l
-  • voyage.spec.ts > Voyage public — liste et fiche › list loads in EN and FR (localized segment rewritten)
-    Error: Failed query: insert into "trips" ("id", "status", "country_code", "default_currency", "hero_media_id", "duration_days", "duration_nights", "group_min", "group_max", "difficulty", "difficulty_l
+  • services.spec.ts > Services surfaces › global admin exposes the resource grammar
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+  • services.spec.ts > Services surfaces › global admin exposes the resource grammar
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+  • services.spec.ts > Services surfaces › global admin exposes the resource grammar
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+  • ux-flows.spec.ts > Contact form — UI submission › contact form submits successfully through the UI
+    [31mTest timeout of 30000ms exceeded.[39m
+  • ux-flows.spec.ts > Locale switcher › the locale switcher exposes all 4 locales
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+  • voyage.spec.ts > Voyage — candidature › authenticated flow submits an application
+    [31mTest timeout of 90000ms exceeded.[39m
+  • voyage.spec.ts > Voyage — candidature › authenticated flow submits an application
+    [31mTest timeout of 90000ms exceeded.[39m
+  • voyage.spec.ts > Voyage — candidature › authenticated flow submits an application
+    Error: page.waitForURL: SSL connect error
+  • voyage.spec.ts > Voyage — admin trips › admin trips list loads
+    Error: page.waitForURL: SSL connect error
+  • voyage.spec.ts > Voyage — admin trips › admin applications, reservations, payments and emails load
+    Error: page.waitForURL: SSL connect error
 
-  ❌ Accessibility Audit (Pa11y — WCAG 2.1 AAA)
-     56/60 URLs clean, 4 issue(s) across 1 rule(s)
-
-  • aria-input-field-name: 4 occurrence(s)
+  ✅ Accessibility Audit (Pa11y — WCAG 2.1 AAA)
+     60/60 URLs clean
 
   ❌ Performance & Quality Audit (Lighthouse CI)
-     51 page(s) audited, 6 below threshold (≥90)
+     41 page(s) audited, 6 below threshold (≥90)
 
   • 6 page(s) scored below the 90 threshold (see lighthouse-report.txt for detail)
 
@@ -260,12 +192,12 @@
   ┌─────────────────────────────────────────────┬──────────────┬─────────┐
   │ Report                                      │ Status       │ Result  │
   ├─────────────────────────────────────────────┼──────────────┼─────────┤
-  │ Astro check                                 │ RED          │ 1 error │
+  │ Astro check                                 │ GREEN        │ 0 error │
   │ ESLint                                      │ GREEN        │ 0 error │
   │ Vitest (unit/integration)                   │ GREEN        │ 1807/18 │
-  │ Playwright (e2e)                            │ RED          │ 90/279  │
-  │ Pa11y (a11y)                                │ RED          │ 56/60 U │
-  │ Lighthouse (perf)                           │ RED          │ 51 page │
+  │ Playwright (e2e)                            │ RED          │ 1454/15 │
+  │ Pa11y (a11y)                                │ GREEN        │ 60/60 U │
+  │ Lighthouse (perf)                           │ RED          │ 41 page │
   └─────────────────────────────────────────────┴──────────────┴─────────┘
 
 ══════════════════════════════════════════════════════════════════════════════════

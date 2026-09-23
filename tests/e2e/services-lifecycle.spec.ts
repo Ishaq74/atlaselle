@@ -42,14 +42,17 @@ test("services admin lifecycle follows the explicit state machine", async ({ bro
     const state = await authState(browser);
     const context = await browser.newContext({ storageState: state });
     const page = await context.newPage();
+    // Archive/delete actions open window.confirm â€” auto-accept so clicks go through.
+    page.on('dialog', (dialog) => dialog.accept());
     const readStatus = async () => {
       const [row] = await db.select({ status: schema.services.status }).from(schema.services).where(eq(schema.services.id, serviceId)).limit(1);
       return row?.status;
     };
 
-    await page.goto("/fr/admin/services", { waitUntil: "networkidle" });
+    // ?search= narrows the paginated list so the fixture row is always present.
+    await page.goto(`/fr/admin/services?search=${slug}`, { waitUntil: "networkidle" });
     const row = page.locator(`tr:has([data-id="${serviceId}"])`);
-    await expect(row).toHaveCount(1);
+    await expect(row).toHaveCount(1, { timeout: 15000 });
 
     await row.locator(`[data-action="publish"][data-id="${serviceId}"]`).click();
     await page.waitForLoadState("networkidle");

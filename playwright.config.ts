@@ -61,12 +61,11 @@ export default defineConfig({
     // for the same determinism. Ensure port 4322 is free before running.
     reuseExistingServer: false,
     timeout: 180_000,
-    // DIAGNOSTIC: surface the preview server's own logs (build errors, boot crashes).
-    // Playwright pipes them by default, hiding why the probe never gets a response.
-    stdout: 'inherit',
-    stderr: 'inherit',
     env: {
       NODE_ENV: 'test',
+      // Lets API endpoints rate-limit per real client IP (E2E specs send
+      // unique X-Forwarded-For values to isolate their buckets).
+      TRUST_PROXY: 'true',
       // Kept as belt-and-suspenders documentation of the official opt-out,
       // but the effective enforcement happens inside scripts/e2e-server.mjs,
       // which forces ASTRO_PREVIEW_BACKGROUND='0' directly into the spawned

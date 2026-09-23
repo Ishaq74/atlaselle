@@ -32,7 +32,7 @@ import { resolve } from 'node:path';
 const PORT = 4322;
 const HOST = 'localhost';
 const PREVIEW_LOCK = resolve('.astro/preview.json');
-const ASTRO_BIN = resolve('node_modules/astro/bin/astro.mjs');
+const COMPRESSED_SERVER = resolve('scripts/serve-compressed.mjs');
 
 function killPid(pid, reason) {
   try {
@@ -79,7 +79,9 @@ preflightCleanup();
 
 const child = spawn(
   process.execPath, // current node binary
-  [ASTRO_BIN, 'preview', '--host', HOST, '--port', String(PORT)],
+  // Compressed SSR server (gzip) â€” no astro CLI, so no background
+  // daemonization possible; ASTRO_PREVIEW_BACKGROUND stays as a safeguard.
+  [COMPRESSED_SERVER],
   {
     stdio: 'inherit',
     env: {
@@ -88,6 +90,9 @@ const child = spawn(
       // Official Astro opt-out from the background-daemon mode. Forced here,
       // directly in the child environment — bypasses the pnpm shim chain.
       ASTRO_PREVIEW_BACKGROUND: '0',
+      TRUST_PROXY: 'true',
+      HOST,
+      PORT: String(PORT),
     },
   },
 );

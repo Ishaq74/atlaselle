@@ -271,7 +271,7 @@ if (isCategorizedPostRoute) {
 
     if (data.categories[0]?.slug) {
       return Astro.redirect(
-        `${buildBlogPostUrl(locale, null, data.translation.slug, data.categories[0].slug)}${Astro.url.search}`,
+        `${buildBlogPostUrl(locale, data.translation.slug, data.categories[0].slug)}${Astro.url.search}`,
         301,
       );
     }

@@ -69,7 +69,13 @@ test.describe.serial('Services surfaces', () => {
     const categoryResponse = await page.goto(`/fr/services/${seeded.globalCategorySlug}-fr`, { waitUntil: 'networkidle' }); expect(categoryResponse?.status()).toBe(200); await expect(page.getByRole('heading', { name: 'Global Services fr' })).toBeVisible();
     const detail = await page.goto(`/fr/services/${seeded.globalServiceSlug}-fr`, { waitUntil: 'networkidle' }); expect(detail?.status()).toBe(200); await expect(page.getByRole('heading', { name: `${seeded.globalServiceTitle} fr` })).toBeVisible();
     const canonical = await page.goto(`/fr/services/${seeded.globalCategorySlug}-fr/${seeded.globalServiceSlug}-fr`, { waitUntil: 'networkidle' }); expect(canonical?.status()).toBe(200); await expect(page).toHaveURL(new RegExp(`/fr/services/${seeded.globalCategorySlug}-fr/${seeded.globalServiceSlug}-fr$`));
-    const wrongCategory = await page.goto(`/fr/services/not-the-category/${seeded.globalServiceSlug}-fr`, { waitUntil: 'networkidle' }); expect(wrongCategory?.status()).toBeGreaterThanOrEqual(300); await expect(page).toHaveURL(new RegExp(`/fr/services/${seeded.globalCategorySlug}-fr/${seeded.globalServiceSlug}-fr$`));
+    let wrongCategoryStatus: number | null = null;
+    page.once('response', (response) => {
+      if (response.url().includes('/fr/services/not-the-category/')) {
+        wrongCategoryStatus = response.status();
+      }
+    });
+    const wrongCategory = await page.goto(`/fr/services/not-the-category/${seeded.globalServiceSlug}-fr`, { waitUntil: 'networkidle' }); expect(wrongCategoryStatus).toBeGreaterThanOrEqual(300); expect(wrongCategoryStatus).toBeLessThan(400); await expect(page).toHaveURL(new RegExp(`/fr/services/${seeded.globalCategorySlug}-fr/${seeded.globalServiceSlug}-fr$`));
   });
 
   for (const locale of LOCALES) test(`renders localized public service in ${locale}`, async ({ page }) => { const response = await page.goto(`/${locale}/services/${seeded.globalServiceSlug}-${locale}`, { waitUntil: 'networkidle' }); expect(response?.status()).toBe(200); await expect(page.getByRole('heading', { name: `${seeded.globalServiceTitle} ${locale}` })).toBeVisible(); if (locale === 'ar') await expect(page.locator('html')).toHaveAttribute('dir', 'rtl'); });

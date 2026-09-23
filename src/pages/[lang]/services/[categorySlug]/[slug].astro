@@ -11,7 +11,19 @@ const locale = (Astro.params.lang ?? "fr") as Locale;
 const categorySlug = Astro.params.categorySlug!;
 const slug = Astro.params.slug!;
 const item = await getServiceBySlug(slug, locale, categorySlug);
-if (!item) return Astro.redirect(`/${locale}/services`);
+if (!item) {
+  // Wrong category in the URL? Redirect to the canonical category URL
+  // (301) instead of the generic list — same contract as the blog routes.
+  const unscoped = await getServiceBySlug(slug, locale);
+  const canonicalCategorySlug = unscoped?.categories[0]?.slug;
+  if (unscoped && canonicalCategorySlug && canonicalCategorySlug !== categorySlug) {
+    return Astro.redirect(
+      `${buildServiceUrl(locale, unscoped.translation?.slug ?? unscoped.service.slug, canonicalCategorySlug)}${Astro.url.search}`,
+      301,
+    );
+  }
+  return Astro.redirect(`/${locale}/services`);
+}
 const t = getServiceTranslations(locale);
 const title = item.translation?.title ?? t.labels.service;
 const description = item.translation?.excerpt ?? t.meta.description;

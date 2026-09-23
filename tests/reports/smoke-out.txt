@@ -1,0 +1,2 @@
+[serve] Astro SSR + text compression listening on http://0.0.0.0:4399
+◇ injected env (13) from .env // tip: ⌘ override existing { override: true }

@@ -334,6 +334,9 @@ test.describe.serial('Blog surfaces', () => {
   });
 
   test('global admin can create and edit a draft workflow post', async ({ browser }) => {
+    // Create → redirect → assign category → reload → edit: multiple SSR
+    // round-trips on the shared 1-worker server need more than 30 s.
+    test.setTimeout(90000);
     const { context, page } = await createAuthenticatedPage(browser);
 
     try {
