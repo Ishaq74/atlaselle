@@ -85,7 +85,7 @@
     "@types/nodemailer": "^7.0.12",
     "@types/pg": "^8.23.1",
     "@typescript-eslint/parser": "^8.70.0",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/coverage-v8": "^5.0.1",
     "compression": "^1.8.2",
     "drizzle-kit": "^0.31.10",
     "eslint": "^10.10.0",
@@ -93,7 +93,7 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "pa11y-ci": "^4.1.1",
     "tsx": "^4.23.13",
-    "vitest": "^4.1.11",
+    "vitest": "^5.0.1",
     "wait-on": "^9.1.0"
   },
   "pnpm": {
