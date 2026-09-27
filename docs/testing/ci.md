@@ -13,25 +13,71 @@ push/PR → main
     │
     ├── [1] lint-and-check ──────────────────────────┐
     │       Security Audit + ESLint + astro check     │
+    │       SITE_URL = http://localhost:4321          │
     │                                                 │
     ├── [2] unit-tests ──────────────────────────────┐│
     │       Vitest (unit + integration)               ││
+    │       SITE_URL = BETTER_AUTH_URL = :4321        ││
     │       PostgreSQL 16 service container          ││
-    │       Migrations + tests + coverage            ││
+    │       Migrations + infra + seeds + tests       ││
     │                                                ├┤
     ├── [3] e2e-tests (needs: [lint-and-check, unit-tests]) ─┘│
-    │       Playwright (6 specs x 3 browsers)         │
+    │       Playwright (28 specs x 3 browsers)        │
+    │       SITE_URL = BETTER_AUTH_URL = :4322        │
     │       PostgreSQL 16 service container           │
-    │       Build + preview + 3 navigateurs           │
+    │       Build + e2e-server.mjs (PORT 4322)        │
     │                                                 │
     └── [4] a11y-perf (needs: [lint-and-check, unit-tests]) ─┘
             Pa11y-ci (WCAG2AAA non strict, 60 URLs)
             Lighthouse CI (60 URLs : 32 + 8 + 20, ≥0.9 gates)
+            SITE_URL = BETTER_AUTH_URL = :4321
             PostgreSQL 16 service container
-            Build + preview + chromium
+            Build + serve-compressed.mjs (défaut 4321)
 
-  Puis : `deploy` (needs: [unit-tests, e2e-tests, a11y-perf], push sur `main` uniquement) + `ci-summary`.
+  Puis : `deploy` (needs: [unit-tests, e2e-tests, a11y-perf], push sur `main` uniquement)
+        + `ci-summary`.
 ```
+
+### Une job, une origine servie — `SITE_URL` fail-closed
+
+`astro.config.mjs` et `vitest.config.ts` sont tous deux **fail-closed** sur `SITE_URL` : variable absente, invalide, portant un chemin, ou en `http:` sur un hôte non local → **échec du chargement de la configuration**, avant tout travail. `astro.config.mjs` dérive de cette variable `site`, `security.allowedDomains` et l'index de sitemap ; Astro la gèle dans `import.meta.env.SITE`, que `src/pages/sitemap-cms.xml.ts` refuse de deviner.
+
+| Job | `SITE_URL` | `BETTER_AUTH_URL` | Port réellement écouté | Justification |
+| :-- | :-- | :-- | :-- | :-- |
+| `lint-and-check` | `http://localhost:4321` | — | aucun | Le job ne démarre rien : l'origine est **inerte**, mais elle ne peut plus être vide (`astro check` charge la config) |
+| `unit-tests` | `http://localhost:4321` | `http://localhost:4321` | aucun | La suite construit ses requêtes sur `http://localhost:4321` ; les deux variables sont épinglées ensemble |
+| `e2e-tests` | `http://localhost:4322` | `http://localhost:4322` | **4322** | `scripts/e2e-server.mjs` : `PORT = 4322`, `HOST = 'localhost'` (constantes). `playwright.config.ts` `baseURL` et `webServer.url` valent `http://localhost:4322`, et `tests/e2e/api-endpoints.spec.ts` envoie `Origin: http://localhost:4322` |
+| `a11y-perf` | `http://localhost:4321` | `http://localhost:4321` | **4321** | `pnpm preview` = `node scripts/serve-compressed.mjs` **sans** `HOST`/`PORT` dans ce job → défauts `0.0.0.0:4321`. `npx wait-on http://localhost:4321`, `.pa11yci.cjs` et `lighthouserc.cjs` (via `A11Y_BASE_URL`) et `tests/a11y/setup.ts` visent tous cette origine |
+| `deploy` | `${{ vars.SITE_URL }}` | `${{ vars.BETTER_AUTH_URL }}` | — | Seul job à produire un artefact déployable : il garde l'**origine publique** |
+
+> **Correction apportée** : deux jobs avaient des origines divergentes, dont **aucune n'était celle réellement testée**. `e2e-tests` portait `BETTER_AUTH_URL: http://localhost:4321` — le port de preview du job a11y — pendant que `SITE_URL` valait l'origine publique, alors que le serveur testé écoute sur 4322. `a11y-perf` et `unit-tests` pouvaient résoudre `SITE_URL` vers autre chose que la page auditée ou testée. Chaque job sert désormais une origine locale correspondant au port qu'il écoute réellement, `SITE_URL` et `BETTER_AUTH_URL` étant épinglées ensemble pour qu'un job ne puisse plus décrire deux origines différentes.
+>
+> `http:` est **accepté** par `astro.config.mjs` sur un hôte loopback uniquement — c'est ce qui rend ces valeurs locales légales. Les valeurs ne sont pas lues depuis un fichier `.env` : ni le chargeur de config d'Astro ni Vitest ne le consultent pour `SITE_URL`, qui doit être dans l'environnement du processus.
+
+### Le job `deploy` refuse un artefact figé sur une origine locale
+
+`deploy` est le seul job qui produit un artefact déployable, donc le seul à garder l'origine publique. Il est protégé par **deux gardes**, l'une **avant** le build, l'autre **après**.
+
+**Garde 1 — `Guard - public origin is resolvable (fail-closed)`**, exécutée **avant** `pnpm build`. Échoue explicitement (`::error::` + `exit 1`) si :
+
+| Condition | Raison du refus |
+| :-- | :-- |
+| `SITE_URL` vide | La variable de dépôt `vars.SITE_URL` s'expande en chaîne vide quand elle n'est pas définie — et elle a été observée vide dans `tests/reports/qa-full.log` |
+| `SITE_URL` n'est pas une URL absolue | — |
+| `SITE_URL` pointe sur un hôte loopback | *« A deployable artifact must never be frozen from a dev origin. »* |
+| `SITE_URL` n'est pas en `https:` | — |
+| `SITE_URL` porte un chemin | — |
+| `BETTER_AUTH_URL` vide / non absolue / protocole autre que http(s) / portant un chemin | better-auth n'a pas d'URL de base pour construire les liens de vérification, de reset et d'invitation |
+
+Aucune étape n'est exécutée avant ces vérifications : **rien n'est construit, aucun artefact n'est uploadé**.
+
+**Garde 2 — `Guard - artifact is frozen on the public origin`**, exécutée **après** `pnpm build` :
+
+1. exige que `dist/client/sitemap-index.xml` existe — sans lui, l'origine figée dans l'artefact est invérifiable, et l'upload est refusé ;
+2. exige que cet index référence l'origine publique validée par la garde 1 ;
+3. refuse tout `dist/client/sitemap*.xml` contenant une origine loopback (`localhost`, `127.x`, `0.0.0.0`, `[::1]`).
+
+> La recherche de loopback est **volontairement limitée aux XML de sitemap générés**. `dist/server/chunks/` contient un repli de niveau source (`src/modules/email-voyage/domain/voyage-email-worker.ts` lit `process.env.SITE_URL ?? "http://localhost:4321"`), donc une recherche sur l'ensemble du bundle signalerait une origine de dev sur **tout** build de production légitime. Les fichiers `sitemap*.xml` sont générés depuis `site` seul.
 
 ### Variable globale
 
@@ -65,7 +111,12 @@ env:
 
 ```yaml
 env:
-  SITE_URL: ${{ vars.SITE_URL }}
+  # Pas de serveur dans ce job : l'origine est inerte. Mais `npx astro check`
+  # charge astro.config.mjs, qui est fail-closed, et ni le chargeur de config
+  # d'Astro ni .env ne sont consultés avant cette évaluation. La variable de
+  # dépôt vars.SITE_URL a été observée vide, ce qui ferait échouer le job au
+  # chargement de la config. Valeur épinglée, donc plus jamais vide.
+  SITE_URL: http://localhost:4321
 ```
 
 **Runtime estimé** : ~1 min
@@ -100,12 +151,14 @@ env:
   DB_ENV: LOCAL
   NODE_ENV: test
   BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-  BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
-  SITE_URL: ${{ vars.SITE_URL }}
+  BETTER_AUTH_URL: http://localhost:4321
+  SITE_URL: http://localhost:4321
   SMTP_PROVIDER: NODEMAILER
   SMTP_FROM_EMAIL: ci@test.local
   SMTP_HOST: localhost
 ```
+
+> `vitest.config.ts` impose le même contrat fail-closed qu'`astro.config.mjs` : `src/pages/sitemap-cms.xml.ts` lit `import.meta.env.SITE` (gelé par Astro depuis `site`) et refuse de publier sans origine. `SITE_URL` doit donc être dans l'environnement du processus **avant** que Vitest n'évalue sa config. La suite conduit ses requêtes sur `http://localhost:4321` : `SITE_URL` et `BETTER_AUTH_URL` sont épinglées ensemble à cette origine, pour qu'aucune variable de dépôt ne puisse en laisser une vide et que les deux ne puissent plus décrire deux origines différentes dans un même job.
 
 ### Étapes
 
@@ -115,6 +168,8 @@ env:
 | pnpm + Node | Setup toolchain | pnpm 10, Node 22 |
 | Install | `pnpm install --frozen-lockfile` | Dépendances |
 | Migrations | `pnpm db:migrate` | Applique les migrations sur la DB de test |
+| Infra SQL | `pnpm db:infra` | Indexes et triggers |
+| Seeds | `pnpm db:seed` | Données de test (idempotent, requis par l'intégration) |
 | Vitest | `pnpm test -- --coverage` | Tests unit + intégration + coverage |
 | Generate Report | `pnpm test:report` | Génère `tests/reports/vitest-report.txt` depuis le JSON |
 | Artifact | `actions/upload-artifact@v7` | Upload `tests/reports/vitest-*` (7 jours) |
@@ -123,7 +178,7 @@ env:
 
 ### Ce qui est testé
 
-- 102 fichiers unitaires + 15 fichiers d'intégration sur disque (auth, audit, export, middleware, org, DB health, CMS, navigation, contact, blog, services…)
+- **129 fichiers unitaires + 45 fichiers d'intégration** sur disque (auth, audit, export, middleware, DB health, CMS, navigation, contact, blog, services, voyage…) — **1 907 tests** au total
 - `NODE_ENV=test` → aucun email SMTP envoyé
 
 ---
@@ -153,12 +208,14 @@ env:
   DB_ENV: LOCAL
   NODE_ENV: test
   BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-  BETTER_AUTH_URL: http://localhost:4321
-  SITE_URL: ${{ vars.SITE_URL }}
+  BETTER_AUTH_URL: http://localhost:4322
+  SITE_URL: http://localhost:4322
   SMTP_PROVIDER: NODEMAILER
   SMTP_FROM_EMAIL: ci@test.local
   SMTP_HOST: localhost
 ```
+
+> **Port 4322, pas 4321.** Le serveur testé est `scripts/e2e-server.mjs`, lancé par `playwright.config.ts` (`webServer.command`) avec `HOST=localhost`, `PORT=4322`. `playwright.config.ts` `baseURL` et `webServer.url`, `tests/helpers/actions.ts` et chaque `tests/e2e/*.spec.ts` visent `http://localhost:4322`, et `tests/e2e/api-endpoints.spec.ts` envoie `Origin: http://localhost:4322` sur ses requêtes mutantes. Les deux variables sont donc épinglées à l'origine que ce job sert réellement. `BETTER_AUTH_URL` valait auparavant `http://localhost:4321` (le port de preview du job a11y) pendant que `SITE_URL` valait l'origine publique : deux origines dans un même job, dont aucune n'était celle sous test.
 
 ### Étapes — Job 3
 
@@ -169,8 +226,10 @@ env:
 | Install | `pnpm install --frozen-lockfile` | Dépendances |
 | Playwright | `npx playwright install --with-deps chromium firefox webkit` | Installe les 3 navigateurs déclarés dans `playwright.config.ts` |
 | Migrations | `pnpm db:migrate` | Migrations sur `atlaselle_e2e` |
+| Infra SQL | `pnpm db:infra` | Indexes et triggers |
+| Seeds | `pnpm db:seed` | Données de test (idempotent) |
 | Build | `pnpm build` | Build Astro SSR complet |
-| E2E | `pnpm test:e2e` | 6 specs Playwright sur Chromium + Firefox + WebKit |
+| E2E | `pnpm test:e2e` | **28 specs** Playwright sur Chromium + Firefox + WebKit |
 | Generate Report | `pnpm test:e2e:report` | Génère `tests/reports/playwright-report.txt` depuis le JSON |
 | Artifact | `actions/upload-artifact@v7` | Upload `tests/reports/playwright/` (7 jours) |
 
@@ -210,13 +269,13 @@ env:
   NODE_ENV: test
   BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
   BETTER_AUTH_URL: http://localhost:4321
-  SITE_URL: ${{ vars.SITE_URL }}
+  SITE_URL: http://localhost:4321
   SMTP_PROVIDER: NODEMAILER
   SMTP_FROM_EMAIL: ci@test.local
   SMTP_HOST: localhost
 ```
 
-> Note : `BETTER_AUTH_URL` est hardcodé à `http://localhost:4321` car le serveur preview tourne sur la même machine CI.
+> **Une job, une origine.** `pnpm preview` est `node scripts/serve-compressed.mjs` **sans** `HOST`/`PORT` dans ce job, donc il écoute sur ses défauts (`0.0.0.0:4321`). `npx wait-on http://localhost:4321` attend exactement cela ; `.pa11yci.cjs` et `lighthouserc.cjs` construisent leurs listes d'URL depuis `A11Y_BASE_URL` (défaut `http://localhost:4321`), et `tests/a11y/setup.ts` s'authentifie contre `BETTER_AUTH_URL`. `SITE_URL` et `BETTER_AUTH_URL` sont épinglées à cette même origine loopback. Auparavant, les deux pouvaient résoudre à autre chose (vide ou publique) **pour les pages mêmes que ce job audite**.
 
 ### Étapes — Job 4
 
@@ -227,6 +286,8 @@ env:
 | Install | `pnpm install --frozen-lockfile` | Dépendances |
 | Chrome | `npx playwright install --with-deps chromium` | Installe Chromium (utilisé par Pa11y + LHCI) |
 | Migrations | `pnpm db:migrate` | Applique les migrations |
+| Infra SQL | `pnpm db:infra` | Indexes et triggers |
+| Seeds | `pnpm db:seed` | Contenus de test (idempotent, requis par les pages auditées) |
 | Build | `pnpm build` | Build Astro SSR complet |
 | Start Server | `pnpm preview &` | Lance le serveur en arrière-plan |
 | Wait | `npx wait-on http://localhost:4321 --timeout 30000` | Attend que le serveur soit prêt |
@@ -264,21 +325,54 @@ env:
 
 ---
 
+## Job 5 : `deploy`
+
+**Dépendances** : `needs: [unit-tests, e2e-tests, a11y-perf]`. Condition : `github.ref == 'refs/heads/main' && github.event_name == 'push'`.
+
+### Variables d'environnement — Job 5
+
+```yaml
+env:
+  SITE_URL: ${{ vars.SITE_URL }}          # origine PUBLIQUE
+  BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+  BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
+```
+
+> Seul job à produire un artefact déployable, donc seul job à garder l'**origine publique** : les autres ne font que servir et auditer un site local. Les deux gardes (§ « Une job, une origine servie ») transforment une variable de dépôt vide — GitHub l'expande en chaîne vide, et elle a été observée vide — en **échec nommé et explicite**, plutôt qu'en trace d'exécution au build, ou pire, en `dist/` dont les canoniques, sitemaps et emails portent une origine de dev.
+
+### Étapes — Job 5
+
+| Étape | Ce qu'elle fait |
+| :-- | :-- |
+| Checkout + pnpm + Node + Install | Toolchain |
+| **Guard 1** — `public origin is resolvable (fail-closed)` | Refuse origine vide, non absolue, loopback, non-`https:`, ou portant un chemin ; refuse `BETTER_AUTH_URL` vide / invalide. **Avant** le build : rien n'est construit, rien n'est uploadé. |
+| Production Build | `pnpm build` |
+| **Guard 2** — `artifact is frozen on the public origin` | Exige `dist/client/sitemap-index.xml`, exige qu'il référence l'origine validée, refuse tout `sitemap*.xml` contenant une origine loopback. **Après** le build, avant l'upload. |
+| Upload Build Artifact | `actions/upload-artifact@v7`, `dist/`, 14 jours |
+| Deploy | **Placeholder commented** — la livraison vers un hébergeur reste à configurer |
+
+---
+
 ## Résumé des compteurs CI
 
 | Métrique | Valeur |
 | :-- | :-- |
-| Jobs | 6 (4 qualité + deploy + summary) |
-| Tests Vitest | 102 fichiers unit + 15 fichiers integ sur disque |
-| Tests Playwright | 6 specs × 3 navigateurs |
+| Jobs | 6 (4 qualité + deploy + ci-summary) |
+| Fichiers de tests Vitest | **129 unit + 45 integration = 174** sur disque |
+| Tests Vitest | **1 907**, 100 % verts |
+| Specs Playwright | **28** × 3 navigateurs |
+| Tests E2E (blocs `test()`) | **269** blocs de test, joués sur les 3 navigateurs selon `playwright.config.ts` |
 | URLs Pa11y | 60 (WCAG2AAA non strict) |
 | URLs Lighthouse | 60 (32 public + 8 authed + 20 admin) |
-| **Total validations CI** | **Vitest + E2E (6 specs × 3) + 120 audits a11y/perf** |
-| PostgreSQL | v16 (3 DBs : `atlaselle_test` ×2 + `atlaselle_e2e`) |
+| **Total validations CI** | **Vitest (1 907) + E2E (28 specs × 3 navigateurs) + 120 audits a11y/perf** |
+| PostgreSQL | v16 (3 services : `atlaselle_test` ×2 + `atlaselle_e2e`) |
 | Node | v22 |
 | pnpm | v10 |
 | Navigateur | Chromium (Playwright managed) |
 | Rapports | Vitest (txt+JSON, 7j) + Playwright HTML+JSON (7j) + Lighthouse HTML (7j) + A11y Reports (7j) |
+| Artefact de production | `dist/`, 14 j, **jamais** figé sur une origine loopback (Guard 2) |
+
+> Les compteurs de fichiers et de tests sont recomptés à partir de `tests/**`, pas repris d'un autre document.
 
 ---
 
@@ -288,24 +382,34 @@ env:
 
 | Secret | Valeur | Usage |
 | :-- | :-- | :-- |
-| `BETTER_AUTH_SECRET` | Clé ≥32 caractères pour better-auth | Jobs 2, 3, 4 |
+| `BETTER_AUTH_SECRET` | Clé ≥32 caractères pour better-auth | Jobs 2, 3, 4, 5 |
 
-### Variables (Settings → Variables → Actions)
+### Variables de dépôt (Settings → Variables → Actions)
 
-| Variable | Valeur | Usage |
+| Variable | Usage | Valeur attendue |
 | :-- | :-- | :-- |
-| `BETTER_AUTH_URL` | `http://localhost:4321` | Job 2 uniquement |
-| `SITE_URL` | `http://localhost:4321` | Jobs 1, 2, 3, 4 |
+| `vars.SITE_URL` | **Job `deploy` uniquement** | Origine publique `https://`, sans chemin, **non loopback** |
+| `vars.BETTER_AUTH_URL` | **Job `deploy` uniquement** | URL absolue `http(s)`, sans chemin |
 
-### Valeurs non sensibles (hardcodées dans ci.yml)
+### Variables épinglées dans `ci.yml` (aucune variable de dépôt)
+
+| Variable | Valeur | Jobs | Raison |
+| :-- | :-- | :-- | :-- |
+| `SITE_URL` | `http://localhost:4321` | 1, 2, 4 | Origine inerte (job 1) ou origine réellement servie (jobs 2 et 4) |
+| `SITE_URL` | `http://localhost:4322` | 3 | Port réellement écouté par `e2e-server.mjs` |
+| `BETTER_AUTH_URL` | `http://localhost:4321` | 2, 4 | Idem `SITE_URL` |
+| `BETTER_AUTH_URL` | `http://localhost:4322` | 3 | Idem `SITE_URL` |
+
+### Valeurs non sensibles (hardcodées dans `ci.yml`)
 
 | Variable | Source | Sensible ? |
 | :-- | :-- | :-- |
 | `DATABASE_URL_LOCAL` | Hardcodé dans `ci.yml` | Non (DB éphémère) |
+| `DB_ENV` | `LOCAL` | Non |
 | `NODE_ENV` | `test` | Non |
 | `SMTP_PROVIDER` / `SMTP_FROM_EMAIL` / `SMTP_HOST` | Hardcodés | Non (SMTP ignoré en mode test) |
 
-> **1 secret GitHub** (`BETTER_AUTH_SECRET`) et **2 variables** (`BETTER_AUTH_URL`, `SITE_URL`) sont nécessaires. Les jobs preview (`e2e-tests`, `a11y-perf`) forcent néanmoins `BETTER_AUTH_URL=http://localhost:4321` pour rester cohérents avec le serveur lancé dans la CI.
+> **1 secret GitHub** et **2 variables de dépôt**, ces deux dernières **uniquement pour le job `deploy`**. Les quatre jobs de qualité n'utilisent aucune variable de dépôt pour leur origine : elle est épinglée dans `ci.yml` au port que le job sert réellement, précisément parce qu'une variable de dépôt a été observée vide et que les deux configs (`astro.config.mjs`, `vitest.config.ts`) sont fail-closed.
 
 ---
 

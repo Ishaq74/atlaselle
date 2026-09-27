@@ -6,6 +6,79 @@ import sitemap from '@astrojs/sitemap';
 
 import node from '@astrojs/node';
 
+import { config as loadDotenv } from 'dotenv';
+import path from 'node:path';
+
+// Charge `.env` en fallback (même pattern que src/database/env.ts et
+// src/smtp/env.ts). `process.env` reste prioritaire (override: false par
+// défaut) : les jobs CI qui pinnent SITE_URL par job gardent leur origine,
+// le dev local lit simplement son `.env` sans export manuel.
+loadDotenv({ path: path.resolve(process.cwd(), '.env') });
+
+// Single source of truth for the public origin: `site`, `security.allowedDomains`
+// and `customSitemaps` are all derived from it. It is fail-closed on purpose — a
+// missing or malformed SITE_URL is an infrastructure error, and degrading it to
+// http://localhost:4321 silently ships localhost absolute URLs in the sitemaps,
+// canonicals and emails, and pins every mutating form to a 403 in production.
+const SITE_URL_ENV = 'SITE_URL';
+const LOOPBACK_HOSTNAMES = new Set(['localhost', '::1', '[::1]', '0:0:0:0:0:0:0:1']);
+
+function isLoopbackHostname(hostname) {
+  const host = hostname.toLowerCase();
+  if (LOOPBACK_HOSTNAMES.has(host)) return true;
+  if (host.endsWith('.localhost')) return true;
+  if (!/^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)) return false;
+  return host.split('.').every((octet) => Number(octet) <= 255);
+}
+
+function resolveSiteUrl() {
+  const raw = process.env[SITE_URL_ENV];
+  if (typeof raw !== 'string' || raw.trim() === '') {
+    throw new Error(
+      `[ASTRO] ${SITE_URL_ENV} is required but is not set (received: ${raw === undefined ? 'undefined' : 'an empty string'}). ` +
+      `Set ${SITE_URL_ENV} to the public origin of the site (e.g. ${SITE_URL_ENV}="https://example.com") for builds, ` +
+      `or to an explicit loopback origin (e.g. ${SITE_URL_ENV}="http://localhost:4321") for local development. ` +
+      `It is resolved once and drives "site", "security.allowedDomains" and the sitemap index.`
+    );
+  }
+
+  const value = raw.trim();
+  let parsed;
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new Error(
+      `[ASTRO] ${SITE_URL_ENV} is invalid: "${value}". Expected an absolute http(s) origin such as "https://example.com".`
+    );
+  }
+
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new Error(
+      `[ASTRO] ${SITE_URL_ENV} uses an unsupported protocol: "${value}" (parsed protocol: "${parsed.protocol}"). ` +
+      `Only "https:" and "http:" are accepted.`
+    );
+  }
+
+  if (parsed.protocol === 'http:' && !isLoopbackHostname(parsed.hostname)) {
+    throw new Error(
+      `[ASTRO] ${SITE_URL_ENV} must use https: for a non-loopback host: "${value}" (host: "${parsed.hostname}"). ` +
+      `Plain http is only accepted for loopback hosts (localhost, *.localhost, 127.0.0.0/8, ::1) because the CSP is ` +
+      `served over TLS: an http origin here would emit http absolute URLs and downgrade the canonical origin.`
+    );
+  }
+
+  if (parsed.pathname !== '/') {
+    throw new Error(
+      `[ASTRO] ${SITE_URL_ENV} must be a bare origin without a path: "${value}" (path: "${parsed.pathname}"). ` +
+      `Serve the site from the root and use the Astro "base" option for a sub-path deployment.`
+    );
+  }
+
+  return parsed;
+}
+
+const siteUrl = resolveSiteUrl();
+
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
@@ -16,22 +89,7 @@ export default defineConfig({
     },
   },
 
-  site: (() => {
-    const url = process.env.SITE_URL;
-    if (!url) {
-      // Warn but don't crash — hard-fail only when building for deployment (CI sets SITE_URL).
-      // Vite statically replaces process.env.NODE_ENV, so we can't gate on it here.
-      console.warn('[ASTRO] SITE_URL is not set — using http://localhost:4321 fallback. Set SITE_URL for production builds.');
-      return 'http://localhost:4321';
-    }
-    try {
-      const parsed = new URL(url);
-      if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error();
-      return parsed.origin;
-    } catch {
-      throw new Error(`[ASTRO] SITE_URL is invalid: "${url}". Must be a valid http(s) URL.`);
-    }
-  })(),
+  site: siteUrl.origin,
 
   i18n: {
     locales: ['fr', 'en', 'es', 'ar'],
@@ -55,7 +113,7 @@ export default defineConfig({
       // All public URLs live in /sitemap-cms.xml (runtime endpoint).
       // customSitemaps adds it to the generated sitemap-index.xml.
       customSitemaps: [
-        `${process.env.SITE_URL || 'http://localhost:4321'}/sitemap-cms.xml`,
+        `${siteUrl.origin}/sitemap-cms.xml`,
       ],
       i18n: {
         defaultLocale: 'en',
@@ -78,6 +136,15 @@ export default defineConfig({
   // providing CSRF protection for all API endpoints and Astro Actions.
   security: {
     checkOrigin: true,
+    // Only the hostname, never `protocol` and never `port`:
+    // - `protocol` is matched against the socket protocol (http: behind a TLS
+    //   reverse proxy), so pinning "https" makes validateHost() return undefined
+    //   and clientAddress collapses to the proxy IP for every request, which
+    //   breaks the audit trail and all six IP-keyed rate limits.
+    // - `port` is matched by strict string equality against X-Forwarded-Port, and
+    //   new URL("https://host:443").port is "", so a port in the pattern breaks
+    //   forwarded-header validation silently.
+    allowedDomains: [{ hostname: siteUrl.hostname }],
     csp: {
       directives: [
         "default-src 'self'",
@@ -89,7 +156,6 @@ export default defineConfig({
         "base-uri 'self'",
         "form-action 'self'",
         "object-src 'none'",
-        'upgrade-insecure-requests',
       ],
       // Stripe.js autorisé pour le module payments (script tiers éditorial : néant).
       scriptDirective: {

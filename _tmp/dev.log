@@ -1,0 +1,5 @@
+
+> atlaselle@0.0.1 dev C:\Users\Utilisateur\Documents\t3code\atlaselle
+> astro dev
+
+{"message":"Dev server running at http://localhost:4321 (pid 7280)\n  Stop:   astro dev stop\n  Status: astro dev status\n  Logs:   astro dev logs","label":"SKIP_FORMAT","level":"info"}

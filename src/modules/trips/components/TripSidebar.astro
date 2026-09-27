@@ -1,0 +1,207 @@
+---
+import { Icon } from "astro-icon/components";
+import type { Locale } from "@i18n/config";
+import type { TripSummaryDTO } from "@/modules/trips/loaders/trip.loader";
+import { getTripPath } from "@i18n/routes";
+import { Card, CardContent } from "@atoms/card";
+import { Button } from "@atoms/button";
+import TripFilterCard from "@/modules/trips/components/TripFilterCard.astro";
+
+interface Props {
+  locale: Locale;
+  trips: TripSummaryDTO[];
+  servicesUrl: string;
+  contactUrl: string;
+  baseUrl: string;
+  hrefFor: (key: string, value: string) => string;
+  active: { availability: string; difficulty: string; duration: string; price: string; month: string };
+  months: { value: string; label: string }[];
+}
+
+const { locale, trips, servicesUrl, contactUrl, baseUrl, hrefFor, active, months } = Astro.props as Props;
+
+const t = {
+  fr: {
+    next: "Prochain départ",
+    nextEmpty: "Aucune date ouverte pour le moment.",
+    openList: "Rejoindre la liste d'intérêt",
+    steps: "Comment ça se passe",
+    stepTitles: ["Vous déposez votre candidature", "Nous confirmons la disponibilité", "L'acompte de 500 € vous est demandé", "Vous partez, accompagnée"],
+    stepTexts: [
+      "Une page par voyage, sans engagement.",
+      "Aucun paiement avant notre réponse.",
+      "Solde dû 28 jours avant le départ.",
+      "Groupe de 6 à 14, hébergement choisi sur place.",
+    ],
+    insurance: "Assurance voyage",
+    insuranceText: "Obligatoire : 100 000 € de frais médicaux et 250 000 € d'évacuation minimum. Notre service la met en place en cinq minutes.",
+    insuranceCta: "Voir le service",
+    contact: "Une question ?",
+    contactText: "Écrivez-nous, on répond personnellement.",
+    contactCta: "Nous écrire",
+  },
+  en: {
+    next: "Next departure",
+    nextEmpty: "No open date for now.",
+    openList: "Join the interest list",
+    steps: "How it works",
+    stepTitles: ["You submit your application", "We confirm availability", "The €500 deposit is requested", "You travel, hosted"],
+    stepTexts: [
+      "One page per journey, no commitment.",
+      "No payment before our answer.",
+      "Balance due 28 days before departure.",
+      "Group of 6 to 14, stays chosen on site.",
+    ],
+    insurance: "Travel insurance",
+    insuranceText: "Required: at least €100,000 medical and €250,000 evacuation cover. Our service sets it up in five minutes.",
+    insuranceCta: "See the service",
+    contact: "A question?",
+    contactText: "Write to us, we answer personally.",
+    contactCta: "Write to us",
+  },
+  es: {
+    next: "Próxima salida",
+    nextEmpty: "Sin fecha abierta por ahora.",
+    openList: "Unirse a la lista de interés",
+    steps: "Cómo funciona",
+    stepTitles: ["Envías tu candidatura", "Confirmamos la disponibilidad", "Solicitamos el depósito de 500 €", "Viajas, acompañada"],
+    stepTexts: [
+      "Una página por viaje, sin compromiso.",
+      "Ningún pago antes de nuestra respuesta.",
+      "Saldo 28 días antes de la salida.",
+      "Grupo de 6 a 14, alojamiento elegido.",
+    ],
+    insurance: "Seguro de viaje",
+    insuranceText: "Obligatorio: 100 000 € de gastos médicos y 250 000 € de evacuación. Nuestro servicio lo resuelve en cinco minutos.",
+    insuranceCta: "Ver el servicio",
+    contact: "¿Una pregunta?",
+    contactText: "Escríbenos, respondemos personalmente.",
+    contactCta: "Escríbenos",
+  },
+  ar: {
+    next: "المغادرة القادمة",
+    nextEmpty: "لا يوجد موعد مفتوح حالياً.",
+    openList: "انضم إلى قائمة الاهتمام",
+    steps: "كيف تسير الأمور",
+    stepTitles: ["تقدّم طلبك", "نؤكد التوفر", "نطلب الدفعة المقدمة 500 يورو", "تسافرين بمرافقة"],
+    stepTexts: [
+      "صفحة لكل رحلة، دون التزام.",
+      "لا دفع قبل ردّنا.",
+      "الرصيد قبل 28 يوماً من المغادرة.",
+      "مجموعة من 6 إلى 14، إقامة مختارة.",
+    ],
+    insurance: "تأمين السفر",
+    insuranceText: "إلزامي: 100 000 يورو نفقات طبية و250 000 يورو إخلاء. تُجهّزه خدمتنا في خمس دقائق.",
+    insuranceCta: "اطّلع على الخدمة",
+    contact: "سؤال؟",
+    contactText: "راسلينا، نردّ عليك شخصياً.",
+    contactCta: "راسلينا",
+  },
+}[locale];
+
+// Prochain départ = le plus proche dans le temps, toutes destinations confondues.
+const upcoming = trips
+  .filter((trip) => trip.startDate && trip.startDate.getTime() > Date.now())
+  .sort((a, b) => a.startDate!.getTime() - b.startDate!.getTime())[0] ?? null;
+
+const dayFormat = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long" });
+const dateFormat = new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" });
+const daysUntil = upcoming?.startDate
+  ? Math.max(0, Math.ceil((upcoming.startDate.getTime() - Date.now()) / 86_400_000))
+  : null;
+---
+
+<aside class="flex flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
+  {/* Filtres — l'outil de navigation principal de la page */}
+  <TripFilterCard
+    locale={locale}
+    trips={trips}
+    hrefFor={hrefFor}
+    active={active}
+    baseUrl={baseUrl}
+    months={months}
+  />
+
+  {/* Prochain départ — l'information la plus utile de la page */}
+  <Card>
+    <CardContent>
+      <p class="font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">{t.next}</p>
+      {upcoming ? (
+        <>
+          <p class="font-heading mt-2 text-lg font-bold leading-tight">
+            <a href={getTripPath(locale, upcoming.slug)} class="hover:text-primary transition-colors">{upcoming.title}</a>
+          </p>
+          {upcoming.startDate && (
+            <p class="mt-1 text-sm text-muted-foreground"><bdi>{dayFormat.format(upcoming.startDate)}</bdi></p>
+          )}
+          {daysUntil !== null && (
+            <p class="mt-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
+              <Icon name="mdi:timer-sand" class="size-4" />
+              <bdi>{daysUntil}</bdi>&nbsp;{locale === "fr" ? "jours" : locale === "es" ? "días" : locale === "ar" ? "أيام" : "days"}
+            </p>
+          )}
+          <div class="mt-5 border-t border-border/60 pt-4">
+            <p class="text-sm text-muted-foreground">
+              <bdi>{upcoming.durationDays}</bdi>&nbsp;{locale === "fr" ? "jours" : locale === "es" ? "días" : locale === "ar" ? "أيام" : "days"}
+              {" · "}<bdi>{(upcoming.currency === "EUR" ? "€" : upcoming.currency + " ") + upcoming.priceFrom.toLocaleString("en")}</bdi>
+            </p>
+            {upcoming.endDate && (
+              <p class="mt-1 text-xs text-muted-foreground"><bdi>{dateFormat.format(upcoming.endDate)}</bdi></p>
+            )}
+          </div>
+        </>
+      ) : (
+        <p class="mt-2 text-sm text-muted-foreground">{t.nextEmpty}</p>
+      )}
+      <Button href={servicesUrl} variant="outline" size="sm" class="mt-5 w-full">{t.openList}</Button>
+    </CardContent>
+  </Card>
+
+  {/* Comment ça se passe — la réassurance avant la décision */}
+  <Card>
+    <CardContent>
+      <h2 class="font-heading flex items-center gap-2 text-base font-bold">
+        <Icon name="mdi:map-marker-path" class="size-4 text-primary" />
+        {t.steps}
+      </h2>
+      <ol class="mt-4 flex flex-col gap-4">
+        {t.stepTitles.map((title, i) => (
+          <li class="flex gap-3">
+            <span class="grid size-6 shrink-0 place-items-center rounded-full bg-primary/10 font-mono text-[11px] font-bold text-primary">{i + 1}</span>
+            <span class="min-w-0">
+              <span class="block text-sm font-semibold leading-snug">{title}</span>
+              <span class="mt-0.5 block text-xs leading-relaxed text-muted-foreground">{t.stepTexts[i]}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </CardContent>
+  </Card>
+
+  {/* Assurance — l'objection n°1, traitée avant qu'elle ne se pose */}
+  <Card>
+    <CardContent>
+      <h2 class="font-heading flex items-center gap-2 text-base font-bold">
+        <Icon name="mdi:shield-check-outline" class="size-4 text-primary" />
+        {t.insurance}
+      </h2>
+      <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{t.insuranceText}</p>
+      <Button href={servicesUrl} variant="ghost" size="sm" class="mt-4 -ms-3">
+        {t.insuranceCta}
+        <Icon name="mdi:arrow-right" class="size-4 rtl:rotate-180" />
+      </Button>
+    </CardContent>
+  </Card>
+
+  {/* Contact */}
+  <Card>
+    <CardContent>
+      <h2 class="font-heading flex items-center gap-2 text-base font-bold">
+        <Icon name="mdi:message-text-outline" class="size-4 text-primary" />
+        {t.contact}
+      </h2>
+      <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{t.contactText}</p>
+      <Button href={contactUrl} variant="outline" size="sm" class="mt-4 w-full">{t.contactCta}</Button>
+    </CardContent>
+  </Card>
+</aside>

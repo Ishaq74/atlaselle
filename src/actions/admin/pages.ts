@@ -31,6 +31,26 @@ function assertSlugNotReserved(slug: string) {
   }
 }
 
+/** SQLSTATE PostgreSQL : violation d'une contrainte d'unicité. */
+const PG_UNIQUE_VIOLATION = "23505";
+
+/**
+ * `drizzle-orm` enveloppe l'erreur du pilote `pg` dans une `DrizzleQueryError`
+ * qui ne recopie ni `code` ni SQLSTATE : le code de la base n'est publié que
+ * par sa propriété `cause`. Tester `err.code` seul laisse donc la branche de
+ * conflit MORTE — la violation d'unicité remonte en 500 et le corps de la
+ * réponse expose la requête d'insertion au client (fragment SQL, nom de table,
+ * identifiant interne).
+ *
+ * On lit donc le code aux deux niveaux, comme `travelers-service` et
+ * `reservation-service` : le niveau direct pour une erreur déjà dépouillée, le
+ * niveau `cause` pour celle que l'ORM enveloppe.
+ */
+function isUniqueViolation(err: unknown): boolean {
+  const candidate = err as { code?: unknown; cause?: { code?: unknown } | null } | null;
+  return candidate?.code === PG_UNIQUE_VIOLATION || candidate?.cause?.code === PG_UNIQUE_VIOLATION;
+}
+
 export const createPage = defineAction({
   input: z.object({
     locale: localeEnum,
@@ -74,7 +94,7 @@ export const createPage = defineAction({
     try {
       [created] = await db.insert(pages).values({ ...input, sortOrder, updatedBy: user.id }).returning();
     } catch (err: unknown) {
-      if (typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "23505") {
+      if (isUniqueViolation(err)) {
         throw new ActionError({
           code: "CONFLICT",
           message: `Une page avec le slug \u00ab ${input.slug} \u00bb existe d\u00e9j\u00e0 pour la locale \u00ab ${input.locale} \u00bb.`,
@@ -143,7 +163,7 @@ export const updatePage = defineAction({
         .where(whereClause)
         .returning();
     } catch (err: unknown) {
-      if (typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "23505") {
+      if (isUniqueViolation(err)) {
         throw new ActionError({
           code: "CONFLICT",
           message: `Une autre page utilise déjà le slug « ${data.slug} » pour cette locale.`,
@@ -693,7 +713,7 @@ export const clonePage = defineAction({
         })
         .returning();
     } catch (err: unknown) {
-      if (typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "23505") {
+      if (isUniqueViolation(err)) {
         throw new ActionError({
           code: "CONFLICT",
           message: `Une page avec le slug « ${input.slug} » existe déjà pour la locale « ${source.locale} ».`,

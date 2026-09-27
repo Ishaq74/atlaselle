@@ -17,9 +17,10 @@
 8. [SEO & découvrabilité](#8-seo--découvrabilité)
 9. [i18n](#9-i18n)
 10. [Tests](#10-tests)
-11. [Fonctionnalités connues comme incomplètes](#11-fonctionnalités-connues-comme-incomplètes)
-12. [Ajouter une fonctionnalité](#12-ajouter-une-fonctionnalité)
-13. [Audit (clôture)](#13-audit-clôture)
+11. [Éditeur de contenu & liens internes](#11-éditeur-de-contenu--liens-internes)
+12. [Fonctionnalités connues comme incomplètes](#12-fonctionnalités-connues-comme-incomplètes)
+13. [Ajouter une fonctionnalité](#13-ajouter-une-fonctionnalité)
+14. [Audit (suivi)](#14-audit-suivi)
 
 ---
 
@@ -240,7 +241,7 @@ _(Aucune fonctionnalité majeure du blog n'est connue comme incomplète à ce jo
 
 ---
 
-## 12. Ajouter une fonctionnalité
+## 13. Ajouter une fonctionnalité
 
 1. **Nouvelle colonne/table** → `blog.schema.ts`, puis `pnpm db:generate` + `pnpm db:migrate`. Pour un besoin purement SQL (trigger, index, fonction) sans ORM, préférer `src/database/infra/*.sql` + `pnpm db:infra` (voir le pattern `search_vector`).
 2. **Nouvelle action** → fichier dédié dans `src/actions/blog/`, en réutilisant `assertBlogPermission`/`resolveBlogTenant`/`assertPostInTenant` de `_helpers.ts`. Rate-limiter systématiquement (`blogRateLimit` si authentifié, `blogPublicRateLimit` si accessible aux invités). Sanitizer tout contenu HTML utilisateur avant stockage. Exporter depuis `actions/blog/index.ts` **et** `actions/index.ts`.
@@ -249,7 +250,7 @@ _(Aucune fonctionnalité majeure du blog n'est connue comme incomplète à ce jo
 
 ---
 
-## 13. Audit (suivi)
+## 14. Audit (suivi)
 
 > **Statut** : tranche P0 de durcissement en cours de validation — voir [`docs/blog/audit.md`](blog/audit.md):10-14. Ce document ne certifie pas une clôture et les anciens totaux de tests en ont été retirés.
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validatePageSeo, computeSeoScore } from '@/lib/seo';
+import { validatePageSeo, computeSeoScore, type SeoIssue } from '@/lib/seo';
 
 describe('validatePageSeo', () => {
   // ── Title ─────────────────────────────────────────────────────────
@@ -136,21 +136,29 @@ describe('validatePageSeo', () => {
     expect(issues.some(i => i.field === 'metaTitle' && i.message.includes('identique'))).toBe(true);
   });
 
-  // ── Duplicate h1 from hero sections ───────────────────────────────
-  it('warns when multiple hero sections detected', () => {
-    const issues = validatePageSeo(
+  // ── The sections parameter is gone, and must stay gone ────────────
+  // The duplicate <h1> warning used to be raised from a `sections` argument by
+  // counting hero sections. No section type renders a level 1 heading any more —
+  // SectionRenderer.astro emits `h2` for the hero title, and the editorial body
+  // of a `text` or `custom` section is demoted at render time by
+  // renderEditorialHtml — so the number of hero sections cannot produce a
+  // duplicate heading and the argument is dead. The contract checked here is
+  // therefore a negative one, and it has to hold at runtime as well as in the
+  // types: legacy data still carrying several hero sections must not resurrect
+  // the warning, and no issue may be reported against a `sections` field.
+  it('reports nothing about sections for legacy data still carrying several hero sections', () => {
+    const validateWithLegacySections = validatePageSeo as unknown as (
+      page: { title?: string },
+      sections: { type: string }[],
+    ) => SeoIssue[];
+
+    const issues = validateWithLegacySections(
       { title: 'A Valid Title' },
       [{ type: 'hero' }, { type: 'text' }, { type: 'hero' }],
     );
-    expect(issues.some(i => i.field === 'sections' && i.message.includes('hero'))).toBe(true);
-  });
 
-  it('no warning for single hero section', () => {
-    const issues = validatePageSeo(
-      { title: 'A Valid Title' },
-      [{ type: 'hero' }, { type: 'text' }],
-    );
     expect(issues.filter(i => i.field === 'sections')).toEqual([]);
+    expect(issues.some(i => i.message.includes('hero'))).toBe(false);
   });
 
   // ── Sorting ───────────────────────────────────────────────────────

@@ -1183,6 +1183,7 @@ export interface BlogTranslations {
   >;
   errors: {
     slugReserved: string;
+    ratingRequired: string;
     titleRequired: string;
     contentRequired: string;
     commentDisabled: string;

@@ -30,7 +30,15 @@ const safeNext = nextParam && nextParam.startsWith('/') && !nextParam.startsWith
       <CardDescription>{t.signIn.description}</CardDescription>
     </CardHeader>
     <CardContent>
-      <form id="sign-in-form" class="grid gap-4"
+      {/* method="post" + action explicite : première barrière structurelle.
+          Sans eux, le HTML normatif est method="get" vers l'URL courante et une
+          soumission native (script bloqué, <noscript>, extension, réseau lent)
+          place email + password dans la chaîne de requête. Le preventDefault
+          ci-dessous reste la seconde barrière ; l'attribut method est la
+          troisième. Repli serveur : /api/auth/sign-in/email accepte
+          application/x-www-form-urlencoded (better-auth) — donc même une
+          soumission sans JS traite les identifiants côté serveur, jamais en URL. */}
+      <form id="sign-in-form" name="sign-in-form" method="post" action="/api/auth/sign-in/email" class="grid gap-4"
         data-success={t.signIn.success}
         data-errors={JSON.stringify(t.errors)}
         data-redirect={safeNext ?? getAuthUrl(locale, 'dashboard', t)}

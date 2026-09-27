@@ -88,17 +88,28 @@ test.describe('Auth — token pages handle invalid tokens gracefully', () => {
 test.describe('Auth — sign-out', () => {
   test('sign-out clears the session', async ({ browser }) => {
     const context = await browser.newContext({ storageState: await userState(browser) });
-    const page = await context.newPage();
 
     // Verify session works first
     const sessionBefore = await context.request.get(`${BASE_URL}/api/auth/get-session`);
     expect((await sessionBefore.json())?.user?.email).toBe(SEED_EMAIL);
 
-    // Sign out via the API (what the UI button calls)
+    // Sign out via the API (what the UI button calls).
+    // better-auth's sign-out route declares
+    // allowedMediaTypes: ["application/x-www-form-urlencoded", "application/json"]
+    // and answers 415 when the Content-Type is absent. The previous version of
+    // this test sent a bodyless POST with no Content-Type, so it got a 415 —
+    // and then asserted `200 | 302`, which no longer described any reachable
+    // branch, leaving the real contract (200 `{success:true}`) unverified. The
+    // body and its type are now explicit.
     const signOut = await context.request.post(`${BASE_URL}/api/auth/sign-out`, {
-      headers: { Origin: BASE_URL },
+      headers: { 'Content-Type': 'application/json', Origin: BASE_URL },
+      data: {},
     });
-    expect([200, 302]).toContain(signOut.status());
+    expect(signOut.status()).toBe(200);
+    expect(await signOut.json()).toEqual({ success: true });
+    // The session cookie must be cleared server-side, not merely ignored.
+    const cleared = signOut.headers()['set-cookie'] ?? '';
+    expect(cleared, 'sign-out must clear the session cookie').toMatch(/^[^=]+=;/);
 
     const sessionAfter = await context.request.get(`${BASE_URL}/api/auth/get-session`);
     expect(await sessionAfter.json()).toBeNull();

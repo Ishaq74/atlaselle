@@ -1,58 +1,166 @@
 ---
-import { toLocale } from "@i18n/utils";
-import { LOCALES, type Locale } from "@i18n/config";
-import { getTripsBasePath } from "@i18n/routes";
-import { loadTripsList } from "@/modules/trips/loaders/trip.loader";
-import BaseLayout from "@layouts/BaseLayout.astro";
-import TripCard from "@/modules/trips/components/TripCard.astro";
+import { toLocale, getCommonTranslations } from '@i18n/utils';
+import { LOCALES, type Locale } from '@i18n/config';
+import { getTripsBasePath, getContactPath } from '@i18n/routes';
+import { loadTripsList, type TripSummaryDTO } from '@/modules/trips/loaders/trip.loader';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import TripSearchBar from '@/modules/trips/components/TripSearchBar.astro';
+import TripResults from '@/modules/trips/components/TripResults.astro';
+import TripSidebar from '@/modules/trips/components/TripSidebar.astro';
+import HomeAmbient from '@pages/HomePage/HomeAmbient.astro';
 
 export const prerender = false;
 
-const locale = toLocale(Astro.params.lang);
-const difficulty = Astro.url.searchParams.get("difficulty");
-const availability = Astro.url.searchParams.get("availability");
+const locale: Locale = toLocale(Astro.params.lang);
+const sp = Astro.url.searchParams;
+const filters = {
+  q: (sp.get('q') ?? '').trim(),
+  availability: sp.get('availability') ?? '',
+  difficulty: sp.get('difficulty') ?? '',
+  duration: sp.get('duration') ?? '',
+  price: sp.get('price') ?? '',
+  month: sp.get('month') ?? '',
+  sort: sp.get('sort') ?? '',
+};
+
+const baseUrl = getTripsBasePath(locale);
+const servicesUrl = `/${locale}/services`;
+
+/**
+ * Construit l'URL d'un filtre en conservant tous les autres : changer la
+ * disponibilité ne doit pas effacer le prix, le mois ou la recherche.
+ * Chaque pastille est un lien, donc l'état est partageable et sans JS.
+ */
+const FILTER_KEYS = ['q', 'availability', 'difficulty', 'duration', 'price', 'month', 'sort'] as const;
+const hrefFor = (key: string, value: string): string => {
+  const params = new URLSearchParams();
+  for (const existing of FILTER_KEYS) {
+    const current = filters[existing];
+    if (!current) continue;
+    params.set(existing, existing === key ? value : current);
+  }
+  if (value) params.set(key, value);
+  const query = params.toString();
+  return query ? `${baseUrl}?${query}` : baseUrl;
+};
 
 const all = await loadTripsList(locale);
-const trips = all.filter((t) => {
-  if (difficulty && String(t.difficultyLevel) !== difficulty) return false;
-  if (availability === "open" && t.status !== "open") return false;
+
+const toNumber = (value: string) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
+const q = filters.q.toLowerCase();
+
+// Filtres appliqués côté serveur : l'URL est l'état, donc partageable,
+// indexable et fonctionnel sans JavaScript.
+const filtered = all.filter((trip: TripSummaryDTO) => {
+  if (q && !`${trip.title} ${trip.summary}`.toLowerCase().includes(q)) return false;
+  if (filters.availability === 'open' && trip.status !== 'open') return false;
+  if (filters.availability === 'interest' && trip.status !== 'interest-list') return false;
+  const level = toNumber(filters.difficulty);
+  if (level && trip.difficultyLevel !== level) return false;
+  const duration = toNumber(filters.duration);
+  if (duration && trip.durationDays < duration) return false;
+  const price = toNumber(filters.price);
+  if (price && trip.priceFrom > price) return false;
+  if (filters.month && (!trip.startDate || !trip.startDate.toISOString().startsWith(filters.month))) return false;
   return true;
 });
 
-const copy =
-  locale === "fr"
-    ? { title: "Nos voyages", description: "Voyages en petits groupes, départs et disponibilités.", all: "Tous", open: "Disponibles", difficulty: "Difficulté" }
-    : locale === "es"
-      ? { title: "Nuestros viajes", description: "Viajes en grupos pequeños, salidas y disponibilidad.", all: "Todos", open: "Disponibles", difficulty: "Dificultad" }
-      : locale === "ar"
-        ? { title: "رحلاتنا", description: "رحلات بمجموعات صغيرة ومواعيد وتوفر.", all: "الكل", open: "متاح", difficulty: "المستوى" }
-        : { title: "Our journeys", description: "Small-group journeys, departures and availability.", all: "All", open: "Available", difficulty: "Difficulty" };
+const sorted = [...filtered].sort((a, b) => {
+  switch (filters.sort) {
+    case 'price-asc':
+      return a.priceFrom - b.priceFrom;
+    case 'price-desc':
+      return b.priceFrom - a.priceFrom;
+    case 'duration':
+      return a.durationDays - b.durationDays;
+    default: {
+      // Par défaut : le départ le plus proche. Sans date, en fin de liste.
+      const at = a.startDate?.getTime() ?? Number.POSITIVE_INFINITY;
+      const bt = b.startDate?.getTime() ?? Number.POSITIVE_INFINITY;
+      return at - bt;
+    }
+  }
+});
 
-const canonicalPath = getTripsBasePath(locale);
-const alternateUrls = Object.fromEntries(LOCALES.map((loc: Locale) => [loc, getTripsBasePath(loc)]));
-const base = getTripsBasePath(locale);
+// Mois de départ disponibles, pour n proposer que ce qui existe réellement.
+const monthFormatter = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' });
+const months = Array.from(
+  new Set(
+    all
+      .map((trip) => trip.startDate?.toISOString().slice(0, 7))
+      .filter((value): value is string => Boolean(value)),
+  ),
+)
+  .sort()
+  .map((value) => ({
+    value,
+    label: monthFormatter.format(new Date(`${value}-01T00:00:00Z`)),
+  }));
+
+const copy =
+  locale === 'fr'
+    ? { title: 'Nos voyages', description: "Voyages culturels en petits groupes : dates, disponibilités et prix à jour.", empty: 'Aucun voyage ne correspond à ces filtres.', reset: 'Voir tous les voyages' }
+    : locale === 'es'
+      ? { title: 'Nuestros viajes', description: 'Viajes culturales en grupos pequeños: fechas, disponibilidad y precios al día.', empty: 'Ningún viaje coincide con estos filtros.', reset: 'Ver todos los viajes' }
+      : locale === 'ar'
+        ? { title: 'رحلاتنا', description: 'رحلات ثقافية بمجموعات صغيرة: المواعيد والتوفر والأسعار محدّثة.', empty: 'لا رحلة تطابق هذه المرشحات.', reset: 'عرض كل الرحلات' }
+        : { title: 'Our journeys', description: 'Cultural journeys in small groups: dates, availability and prices up to date.', empty: 'No journey matches these filters.', reset: 'See all journeys' };
+
+const alternateUrls = Object.fromEntries(LOCALES.map((loc) => [loc, getTripsBasePath(loc)]));
+const currentView = (Astro.cookies.get('trips-view')?.value ?? 'grid') as 'grid' | 'list';
+const commonT = await getCommonTranslations(locale);
 ---
-<BaseLayout title={`${copy.title} — ATLASELLE`} description={copy.description} canonicalPath={canonicalPath} alternateUrls={alternateUrls}>
-  <section class="mx-auto max-w-6xl px-6 py-14">
-    <h1 class="text-4xl font-bold">{copy.title}</h1>
-    <p class="mt-3 text-muted-foreground">{copy.description}</p>
-    <form method="get" class="mt-8 flex flex-wrap items-center gap-4 text-sm">
-      <a class:list={["rounded-full border px-4 py-1.5", !availability && "bg-primary text-primary-foreground"]} href={base}>{copy.all}</a>
-      <a class:list={["rounded-full border px-4 py-1.5", availability === "open" && "bg-primary text-primary-foreground"]} href={`${base}?availability=open`}>{copy.open}</a>
-      <label class="ml-2 inline-flex items-center gap-2">{copy.difficulty}
-        <select name="difficulty" class="rounded-md border bg-background px-2 py-1.5" onchange="this.form.submit()">
-          <option value="">—</option>
-          {[1, 2, 3, 4, 5].map((n) => (
-            <option value={String(n)} selected={difficulty === String(n)}>{n}/5</option>
-          ))}
-        </select>
-      </label>
-      {availability === "open" ? <input type="hidden" name="availability" value="open" /> : null}
-    </form>
-    <div class="mt-10 grid gap-8 md:grid-cols-2">
-      {trips.map((trip) => (
-        <TripCard trip={trip} locale={locale} />
-      ))}
+
+<BaseLayout
+  title={`${copy.title} — ATLASELLE`}
+  description={copy.description}
+  canonicalPath={baseUrl}
+  alternateUrls={alternateUrls}
+>
+  <section class="relative isolate overflow-hidden border-b border-border/60 bg-background">
+    <HomeAmbient />
+    <div class="relative mx-auto flex max-w-7xl flex-col gap-6 px-4 py-12 md:px-6 md:py-16 lg:flex-row lg:items-start lg:justify-between">
+      <div class="max-w-xl">
+        <p class="font-mono text-[11px] uppercase tracking-[.3em] text-muted-foreground">
+          <span class="text-primary">{commonT.meta.title}</span>
+        </p>
+        <h1 class="font-heading mt-4 text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl">
+          {copy.title}
+        </h1>
+        <p class="mt-3 text-base leading-relaxed text-muted-foreground md:text-lg">
+          {copy.description}
+        </p>
+      </div>
+      <TripSearchBar locale={locale} active={filters} baseUrl={baseUrl} />
     </div>
   </section>
+
+  {/* Deux colonnes comme la page blog : liste + sidebar collante */}
+  <div class="mx-auto grid max-w-7xl gap-10 px-4 py-8 md:px-6 md:py-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div class="min-w-0">
+      <TripResults
+        locale={locale}
+        trips={sorted}
+        total={sorted.length}
+        variant={currentView}
+        emptyLabel={copy.empty}
+        resetLabel={copy.reset}
+        baseUrl={baseUrl}
+      />
+    </div>
+
+    <TripSidebar
+      locale={locale}
+      trips={all}
+      servicesUrl={servicesUrl}
+      contactUrl={getContactPath(locale)}
+      baseUrl={baseUrl}
+      hrefFor={hrefFor}
+      active={filters}
+      months={months}
+    />
+  </div>
 </BaseLayout>

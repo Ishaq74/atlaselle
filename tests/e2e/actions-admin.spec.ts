@@ -90,11 +90,51 @@ test.describe('Admin actions — page workflow (DB fixture)', () => {
     expect(page).toBeTruthy();
     const pageId = page!.id;
 
+    // État de publication relu EN BASE à chaque étape. `publishPage` renvoie la
+    // ligne mise à jour, mais seule la colonne persistée prouve la bascule : une
+    // absence d'erreur ne dit rien de l'état réel de la page.
+    const readPublication = async () => {
+      const [row] = await db
+        .select({ isPublished: pages.isPublished, publishedAt: pages.publishedAt })
+        .from(pages)
+        .where(eq(pages.id, pageId))
+        .limit(1);
+      return {
+        isPublished: row?.isPublished ?? null,
+        publishedAt: row?.publishedAt ? row.publishedAt.toISOString() : null,
+      };
+    };
+
+    // `createPage` laisse la page non publiée : l'état de départ est asserted,
+    // sinon « la page est publiée » ne distinguerait pas la bascule d'un défaut.
+    expect(await readPublication()).toEqual({ isPublished: false, publishedAt: null });
+
     try {
-      // Publish
-      const published = await callAction(req, 'publishPage', { id: pageId });
-      expect(published.ok, `publishPage failed: ${published.errorCode}`).toBe(true);
-      await expect.poll(async () => (await db.select({ p: pages.isPublished }).from(pages).where(eq(pages.id, pageId)).limit(1))[0]?.p).toBe(true);
+      // publishPage est une BASCULE publication/dépublication : le booléen
+      // `isPublished` est requis par le schéma d'entrée. L'omettre est un bad
+      // request ET ne modifie rien — la publication ne peut plus être implicite.
+      const implicit = await callAction(req, 'publishPage', { id: pageId });
+      expect(implicit.status, 'publishPage must refuse a payload without the isPublished toggle').toBe(400);
+      expect(implicit.ok).toBe(false);
+      expect(await readPublication(), 'a refused publish must leave the page unpublished').toEqual({ isPublished: false, publishedAt: null });
+
+      // Branche « publier » : isPublished=true. La garantie est que la page EST
+      // publiée — `publishedAt` est daté, comme l'impose la contrainte
+      // `pages_publish_consistency`. On l'assert, on ne se contente pas du 2xx.
+      const published = await callAction(req, 'publishPage', { id: pageId, isPublished: true });
+      expect(published.ok, `publishPage failed: ${published.status} ${published.errorCode ?? ''} ${published.errorMessage ?? ''}`.trim()).toBe(true);
+      await expect
+        .poll(readPublication, { message: 'publishPage({ isPublished: true }) must actually publish the page' })
+        .toEqual({ isPublished: true, publishedAt: expect.any(String) });
+
+      // Branche « dépublier » : c'est la seconde moitié de la même bascule.
+      // Sans elle, un produit qui ignorant `isPublished` et publierait toujours
+      // passerait ce test.
+      const unpublished = await callAction(req, 'publishPage', { id: pageId, isPublished: false });
+      expect(unpublished.ok, `publishPage({ isPublished: false }) failed: ${unpublished.status} ${unpublished.errorCode ?? ''} ${unpublished.errorMessage ?? ''}`.trim()).toBe(true);
+      await expect
+        .poll(readPublication, { message: 'publishPage({ isPublished: false }) must actually unpublish the page' })
+        .toEqual({ isPublished: false, publishedAt: null });
 
       // Lock → Unlock
       const locked = await callAction(req, 'lockPage', { id: pageId });

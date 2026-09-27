@@ -27,7 +27,18 @@ const t = locale === "fr"
             {LOCALES.map((loc: Locale) => {
               const tr = byLocale.get(loc);
               return (
-                <form data-faq-tr data-id={faq.id} data-locale={loc} class="grid gap-2 rounded-lg bg-muted/40 p-3 text-sm">
+                /* method="post" + action explicite : première barrière structurelle contre
+                   la soumission native en GET vers l'URL courante — c'est ce GET qui
+                   exposait la question et la réponse de chaque couple FAQ × locale dans la
+                   chaîne de requête, donc dans l'historique de navigation, dans l'en-tête
+                   Referer des navigations suivantes et dans le journal d'accès du serveur.
+                   Le traitement réel est un appel astro:actions (upsertFaqTranslation), sans
+                   route serveur de repli : l'action pointe vers la page courante, qui
+                   n'exporte aucun POST, donc une soumission native y est rejetée sans
+                   mutation. preventDefault (script) = seconde barrière. L'identifiant
+                   compose l'id de la FAQ et la locale : un id statique dupliquerait le même
+                   nom sur chaque couple FAQ × locale. */
+                <form id={`faq-translation-form-${faq.id}-${loc}`} name={`faq-translation-form-${faq.id}-${loc}`} method="post" action={Astro.url.pathname} data-faq-tr data-id={faq.id} data-locale={loc} class="grid gap-2 rounded-lg bg-muted/40 p-3 text-sm">
                   <h4 class="font-bold uppercase">{loc}</h4>
                   <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt instanceof Date ? tr.updatedAt.toISOString() : ""} />
                   <input name="question" value={tr?.question ?? ""} required maxlength="500" placeholder="question" class="rounded-md border bg-background p-2" />
@@ -47,7 +58,15 @@ const t = locale === "fr"
   })}
   {canUpdate ? (
     <div class="grid gap-4 md:grid-cols-2">
-      <form data-faq-link class="space-y-2 rounded-xl border p-4 text-sm">
+      {/* method="post" + action explicite : première barrière structurelle contre la
+          soumission native en GET vers l'URL courante — c'est ce GET qui exposait l'id de
+          la FAQ à lier dans la chaîne de requête, donc dans l'historique de navigation,
+          dans l'en-tête Referer des navigations suivantes et dans le journal d'accès du
+          serveur. Le traitement réel est un appel astro:actions (linkFaqToTrip), sans route
+          serveur de repli : l'action pointe vers la page courante, qui n'exporte aucun POST,
+          donc une soumission native y est rejetée sans mutation. preventDefault (script) =
+          seconde barrière. */}
+      <form id="faq-link-form" name="faq-link-form" method="post" action={Astro.url.pathname} data-faq-link class="space-y-2 rounded-xl border p-4 text-sm">
         <h3 class="font-semibold">{t.link}</h3>
         <select name="faqId" class="w-full rounded-md border bg-background p-2">
           {faqs.all.map((f) => (
@@ -56,7 +75,15 @@ const t = locale === "fr"
         </select>
         <button type="submit" class="rounded-md bg-primary px-3 py-1.5 font-semibold text-primary-foreground">{t.save}</button>
       </form>
-      <form data-faq-create class="space-y-2 rounded-xl border p-4 text-sm">
+      {/* method="post" + action explicite : première barrière structurelle contre la
+          soumission native en GET vers l'URL courante — c'est ce GET qui exposait la
+          question, la réponse et la locale de la nouvelle FAQ dans la chaîne de requête,
+          donc dans l'historique de navigation, dans l'en-tête Referer des navigations
+          suivantes et dans le journal d'accès du serveur. Le traitement réel est un appel
+          astro:actions (createFaq), sans route serveur de repli : l'action pointe vers la
+          page courante, qui n'exporte aucun POST, donc une soumission native y est rejetée
+          sans mutation. preventDefault (script) = seconde barrière. */}
+      <form id="faq-create-form" name="faq-create-form" method="post" action={Astro.url.pathname} data-faq-create class="space-y-2 rounded-xl border p-4 text-sm">
         <h3 class="font-semibold">{t.create}</h3>
         <select name="locale" class="w-full rounded-md border bg-background p-2">
           {LOCALES.map((loc: Locale) => (

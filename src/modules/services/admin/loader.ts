@@ -23,7 +23,7 @@ export async function getServiceAdminData(locale: Locale, input: Partial<Service
   if (filters.featured !== undefined) conditions.push(eq(services.isFeatured, filters.featured));
   if (filters.mobile !== undefined) conditions.push(eq(services.isMobile, filters.mobile));
   const translatedConditions = [eq(serviceTranslations.locale, queryLocale)];
-  const searchCondition = filters.search ? sql`(${serviceTranslations.searchVector} @@ websearch_to_tsquery(locale_to_regconfig(${queryLocale}), ${filters.search}) OR services.slug ILIKE ${`%${filters.search}%`} OR serviceTranslations.slug ILIKE ${`%${filters.search}%`})` : null;
+  const searchCondition = filters.search ? sql`(${serviceTranslations.searchVector} @@ websearch_to_tsquery(locale_to_regconfig(${queryLocale}), ${filters.search}) OR ${services.slug} ILIKE ${`%${filters.search}%`} OR ${serviceTranslations.slug} ILIKE ${`%${filters.search}%`})` : null;
   if (searchCondition) conditions.push(searchCondition);
   const orderColumn = filters.sortBy === "title" ? serviceTranslations.title : filters.sortBy === "priceMinor" ? services.priceMinor : filters.sortBy === "ratingAverage100" ? services.ratingAverage100 : filters.sortBy === "viewCount" ? services.viewCount : filters.sortBy === "publishedAt" ? services.publishedAt : filters.sortBy === "createdAt" ? services.createdAt : services.updatedAt;
   const orderBy = filters.sortOrder === "asc" ? asc(orderColumn) : desc(orderColumn);
@@ -74,7 +74,7 @@ export async function getServiceAdminStats() {
     db.select({ count: count() }).from(serviceComments).innerJoin(services, eq(services.id, serviceComments.serviceId)).where(eq(serviceComments.status, "PENDING")),
     db.select({ count: count() }).from(serviceReports).innerJoin(services, eq(services.id, serviceReports.serviceId)).where(eq(serviceReports.status, "PENDING")),
     db.select({ count: count() }).from(serviceReports).innerJoin(serviceComments, eq(serviceComments.id, serviceReports.commentId)).innerJoin(services, eq(services.id, serviceComments.serviceId)).where(eq(serviceReports.status, "PENDING")),
-    db.select({ count: count() }).from(serviceReviews).innerJoin(serviceReviews, eq(serviceReviews.id, serviceReports.reviewId)).innerJoin(services, eq(services.id, serviceReviews.serviceId)).where(eq(serviceReports.status, "PENDING")),
+    db.select({ count: count() }).from(serviceReports).innerJoin(serviceReviews, eq(serviceReviews.id, serviceReports.reviewId)).innerJoin(services, eq(services.id, serviceReviews.serviceId)).where(eq(serviceReports.status, "PENDING")),
   ]);
   return {
     total: Number(total[0]?.count ?? 0), published: Number(published[0]?.count ?? 0), draft: Number(draft[0]?.count ?? 0), archived: Number(archived[0]?.count ?? 0), deleted: Number(deleted[0]?.count ?? 0), featured: Number(featured[0]?.count ?? 0), views: Number(views[0]?.total ?? 0), reviews: Number(reviews[0]?.count ?? 0), comments: Number(comments[0]?.count ?? 0), moderation: Number(pendingReviews[0]?.count ?? 0) + Number(pendingComments[0]?.count ?? 0) + Number(pendingDirectReports[0]?.count ?? 0) + Number(pendingCommentReports[0]?.count ?? 0) + Number(pendingReviewReports[0]?.count ?? 0),

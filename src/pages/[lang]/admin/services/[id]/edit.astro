@@ -27,9 +27,9 @@ const t = getServiceTranslations(locale);
 <BaseLayout title={t.admin.editService} description={t.meta.description}>
   <AuthLayout title={t.admin.editService}>
     <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="services" />
-    <main class="mx-auto w-full max-w-5xl space-y-4 px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto w-full max-w-5xl space-y-4 px-4 py-8 sm:px-6 lg:px-8">
       <ServiceLocaleSwitcher locale={locale} service={item} availableLocales={item.availableLocales} />
       <AdminServiceForm locale={locale} service={item} baseAdminUrl={`/${locale}/admin/services`} canUpdate={canUpdate} canPublish={canPublish} canDelete={canDelete} canCreate={canCreate} />
-    </main>
+    </div>
   </AuthLayout>
 </BaseLayout>

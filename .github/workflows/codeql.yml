@@ -22,14 +22,49 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # This job extracts and queries source; it never compiles anything.
+      #
+      # javascript-typescript is a "scanned" language, not a "traced" one. The
+      # CodeQL action decides that with a filesystem probe, not with a table:
+      # codeql.ts#isTracedLanguage resolves the language's extractor and returns
+      # fs.existsSync(<extractor>/tools/tracing-config.lua). That file ships with
+      # the compiled-language extractors (github/codeql: csharp/tools/tracing-config.lua
+      # is 11336 bytes) and the JavaScript extractor has no tools/ directory at all,
+      # so the probe answers false. autobuild#determineAutobuildLanguages filters
+      # config.languages through that probe, gets an empty list, logs "None of the
+      # languages in this project require extra build steps" and returns undefined -
+      # which is what makes autobuild-action.ts skip runAutobuild entirely. For this
+      # repository the autobuild step was therefore already a no-op that never spawned
+      # a build command, never ran pnpm build, and never evaluated astro.config.mjs.
+      #
+      # That no-op depended entirely on the internal behaviour above: a change in the
+      # action could have made this job run a build, and astro.config.mjs is
+      # fail-closed on SITE_URL, so the job would have died while loading its config
+      # before a single alert was produced - a failure attributed to the scanner whose
+      # real cause was the project's origin configuration. Two independent guarantees
+      # remove that possibility:
+      #
+      #   1. `build-mode: none` declares the contract instead of inferring it. It is
+      #      passed verbatim to the CLI as `--build-mode=none` when the database is
+      #      created (codeql.ts#databaseInitCluster), and it also makes
+      #      determineAutobuildLanguages return on its *first* branch rather than on
+      #      the traced-language probe. Documented build-mode support is the same:
+      #      "none" is the mode for interpreted languages, and autobuild is only
+      #      supported for C/C++, C#, Go, Java, Kotlin and Swift.
+      #   2. The autobuild step is removed, so no step left in this job can start a
+      #      build. Extraction happens in `init` and the queries run in `analyze`.
+      #
+      # `none` is a literal, not derived from a repository variable, so this job
+      # behaves identically in every repository or fork it runs in. SITE_URL is
+      # deliberately NOT declared here: nothing in this job reads it, and pinning it
+      # would misrepresent the origin as an input of code scanning. Any failure in
+      # this job is now attributable to code scanning itself.
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: javascript-typescript
           queries: security-extended
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v4
+          build-mode: none
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4

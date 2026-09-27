@@ -3,19 +3,47 @@ import { Icon } from "astro-icon/components";
 import type { BlogTranslations } from "@i18n/config";
 import { Button } from "@atoms/button";
 
+/**
+ * Libellés du partage. Repris du blog par défaut, mais surchargeables pour
+ * qu'un autre domaine (fiche voyage) réutilise le même composant sans copier
+ * le design.
+ */
+export interface ShareLabels {
+  share: string;
+  shareOnX: string;
+  shareOnFacebook: string;
+  shareOnLinkedIn: string;
+  copyLink: string;
+  linkCopied: string;
+  copyLinkError: string;
+}
+
 interface Props {
-  blogT: BlogTranslations;
+  /** Rétrocompatible : le blog passe ses traductions. */
+  blogT?: BlogTranslations;
+  labels?: Partial<ShareLabels>;
   url: string;
   title: string;
 }
 
-const { blogT, url, title } = Astro.props;
+const { blogT, labels: labelOverrides, url, title } = Astro.props as Props;
+
+const l: ShareLabels = {
+  share: labelOverrides?.share ?? blogT?.labels.share ?? "Partager",
+  shareOnX: labelOverrides?.shareOnX ?? blogT?.labels.shareOnX ?? "Partager sur X",
+  shareOnFacebook: labelOverrides?.shareOnFacebook ?? blogT?.labels.shareOnFacebook ?? "Partager sur Facebook",
+  shareOnLinkedIn: labelOverrides?.shareOnLinkedIn ?? blogT?.labels.shareOnLinkedIn ?? "Partager sur LinkedIn",
+  copyLink: labelOverrides?.copyLink ?? blogT?.labels.copyLink ?? "Copier le lien",
+  linkCopied: labelOverrides?.linkCopied ?? blogT?.labels.linkCopied ?? "Lien copié.",
+  copyLinkError: labelOverrides?.copyLinkError ?? blogT?.labels.copyLinkError ?? "Impossible de copier le lien.",
+};
+
 const encodedUrl = encodeURIComponent(url);
 const encodedTitle = encodeURIComponent(title);
 ---
 
-<div class="flex flex-wrap items-center gap-2" data-share-bar data-t-copied={blogT.labels.linkCopied} data-t-copy-error={blogT.labels.copyLinkError}>
-  <span class="me-2 text-sm font-medium text-muted-foreground">{blogT.labels.share}</span>
+<div class="flex flex-wrap items-center gap-2" data-share-bar data-t-copied={l.linkCopied} data-t-copy-error={l.copyLinkError}>
+  <span class="me-2 text-sm font-medium text-muted-foreground">{l.share}</span>
   <Button
     type="button"
     variant="outline"
@@ -23,7 +51,7 @@ const encodedTitle = encodeURIComponent(title);
     href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`}
     target="_blank"
     rel="noopener noreferrer"
-    aria-label={blogT.labels.shareOnX}
+    aria-label={l.shareOnX}
   >
     <Icon name="mdi:twitter" class="size-4" />
   </Button>
@@ -34,7 +62,7 @@ const encodedTitle = encodeURIComponent(title);
     href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
     target="_blank"
     rel="noopener noreferrer"
-    aria-label={blogT.labels.shareOnFacebook}
+    aria-label={l.shareOnFacebook}
   >
     <Icon name="mdi:facebook" class="size-4" />
   </Button>
@@ -45,7 +73,7 @@ const encodedTitle = encodeURIComponent(title);
     href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
     target="_blank"
     rel="noopener noreferrer"
-    aria-label={blogT.labels.shareOnLinkedIn}
+    aria-label={l.shareOnLinkedIn}
   >
     <Icon name="mdi:linkedin" class="size-4" />
   </Button>
@@ -54,7 +82,7 @@ const encodedTitle = encodeURIComponent(title);
     variant="outline"
     size="icon-sm"
     id="copy-link-btn"
-    aria-label={blogT.labels.copyLink}
+    aria-label={l.copyLink}
   >
     <Icon name="mdi:link" class="size-4" />
   </Button>

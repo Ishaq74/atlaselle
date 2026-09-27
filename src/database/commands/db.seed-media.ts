@@ -10,8 +10,18 @@
 import { readdirSync, statSync, mkdirSync, copyFileSync, existsSync } from 'node:fs';
 import { join, extname, relative, dirname } from 'node:path';
 import { getDrizzle, shutdownDb } from '../drizzle';
-import { mediaFolders, mediaFiles } from '../schemas';
-import { eq } from 'drizzle-orm';
+import {
+  mediaFolders,
+  mediaFiles,
+  mediaFileAlts,
+  blogPostGalleryMedia,
+  blogPostGalleryMediaCaptions,
+  tripMedia,
+  tripMediaCaptions,
+  trips,
+} from '../schemas';
+import { LOCALES, type Locale } from '../../i18n/config';
+import { eq, and, ne, asc, isNotNull } from 'drizzle-orm';
 import { c, logTarget, confirmProd } from './_utils';
 
 // ─── MIME detection from extension ───────────────────────────────────
@@ -95,8 +105,33 @@ function scanUploads(baseDir: string, currentDir: string = baseDir): ScanResult[
  * - media/trips/* → Voyages (dossier parent, enfants créés via seed 00)
  * - everything else (images/site, images/test, media, ...) → Médias
  */
-function resolveFolder(subfolder: string | null): string {
-  if (!subfolder) return 'Médias';
+/**
+ * Légende par défaut d'une photo de voyage, par locale.
+ *
+ * Les textes alternatifs sont déjà rédigés par locale dans `media_file_alts`
+ * (« Remparts de Mdina à Malte », « Ramparts of Mdina, Malta »). On s'en sert
+ * comme légende : le nom de fichier (« Mdina - MALTA ») est une étiquette
+ * technique, pas une description, et la légende suit alors la langue affichée.
+ */
+async function describeTripMedia(
+  db: ReturnType<typeof getDrizzle>,
+  mediaId: string,
+  filename: string,
+): Promise<{ alt: string; captions: { locale: Locale; caption: string }[] }> {
+  const alts = await db
+    .select({ locale: mediaFileAlts.locale, alt: mediaFileAlts.alt })
+    .from(mediaFileAlts)
+    .where(eq(mediaFileAlts.fileId, mediaId));
+  const fallback = filename.replace(/\.[a-z0-9]+$/i, '').trim() || 'Photographie du voyage';
+  const forLocale = (target: Locale) =>
+    alts.find((a) => a.locale === target)?.alt?.trim() || fallback;
+  return {
+    alt: forLocale('fr'),
+    captions: LOCALES.map((locale) => ({ locale, caption: forLocale(locale) })),
+  };
+}
+
+function resolveFolder(subfolder: string | null): string {  if (!subfolder) return 'Médias';
   if (subfolder === 'images/avatars') return 'Avatars';
   if (subfolder === 'images/logos' || subfolder === 'images/brand') return 'Brand';
   if (subfolder.startsWith('media/trips')) return 'Voyages';
@@ -252,6 +287,144 @@ async function seedMedia() {
     console.log(`  ${c.dim(`${filesSkipped} fichier${filesSkipped !== 1 ? 's' : ''} déjà indexé${filesSkipped !== 1 ? 's' : ''} (ignoré${filesSkipped !== 1 ? 's' : ''})`)}`);
   }
   console.log(c.cyan(c.bold(`═══════════════════════════════════════════════════════\n`)));
+
+  // ── 3. Lien voyage → galerie (trip_media) ──────────────────────────────
+  // Le dossier d'un voyage est déduit de l'emplacement de sa couverture : pas
+  // de table de correspondance « dossier → voyage » à maintenir, donc aucune
+  // dérive possible quand un sous-dossier est ajouté.
+  const tripRows = await db
+    .select({ id: trips.id, heroMediaId: trips.heroMediaId })
+    .from(trips)
+    .where(isNotNull(trips.heroMediaId));
+
+  let linksCreated = 0;
+  let linksSkipped = 0;
+
+  for (const trip of tripRows) {
+    if (!trip.heroMediaId) continue;
+    const [hero] = await db
+      .select({ folderId: mediaFiles.folderId })
+      .from(mediaFiles)
+      .where(eq(mediaFiles.id, trip.heroMediaId))
+      .limit(1);
+    if (!hero?.folderId) continue;
+
+    // Même dossier que la couverture ⇒ même voyage. La couverture est exclue :
+    // elle est déjà en en-tête de fiche, la répéter serait redondant.
+    const siblings = await db
+      .select({ id: mediaFiles.id, filename: mediaFiles.filename, mimeType: mediaFiles.mimeType })
+      .from(mediaFiles)
+      .where(and(eq(mediaFiles.folderId, hero.folderId), ne(mediaFiles.id, trip.heroMediaId)))
+      .orderBy(asc(mediaFiles.filename));
+
+    const raster = siblings.filter((file) => file.mimeType.startsWith('image/'));
+    if (raster.length === 0) continue;
+
+    const [linked] = await db
+      .select({ mediaId: tripMedia.mediaId })
+      .from(tripMedia)
+      .where(eq(tripMedia.tripId, trip.id))
+      .limit(1);
+    if (linked) {
+      linksSkipped++;
+      // Première passe : on remplit la colonne de repli et les 4 légendes
+      // localisées, sans écraser une alt éventuellement corrigée à la main.
+      for (const file of raster) {
+        const described = await describeTripMedia(db, file.id, file.filename);
+        await db
+          .update(tripMedia)
+          .set({ caption: described.captions.find((c) => c.locale === 'fr')?.caption ?? described.alt })
+          .where(and(eq(tripMedia.tripId, trip.id), eq(tripMedia.mediaId, file.id)));
+        await db
+          .insert(tripMediaCaptions)
+          .values(
+            described.captions.map((entry) => ({
+              tripId: trip.id,
+              mediaId: file.id,
+              locale: entry.locale,
+              caption: entry.caption,
+            })),
+          )
+          .onConflictDoNothing();
+      }
+      continue;
+    }
+
+    await db.insert(tripMedia).values(
+      await Promise.all(
+        raster.map(async (file, index) => {
+          const described = await describeTripMedia(db, file.id, file.filename);
+          return {
+            tripId: trip.id,
+            mediaId: file.id,
+            kind: "GALLERY" as const,
+            // L'alt est résolu par locale à la lecture (media_file_alts) ; la
+            // valeur ici n'est qu'un filet si cette locale n'existe pas.
+            altText: described.alt,
+            caption: described.captions.find((c) => c.locale === 'fr')?.caption ?? described.alt,
+            sortOrder: index,
+          };
+        }),
+      ),
+    );
+
+    // Légendes localisées, alignées sur les alts déjà rédigés.
+    for (const file of raster) {
+      const described = await describeTripMedia(db, file.id, file.filename);
+      await db
+        .insert(tripMediaCaptions)
+        .values(
+          described.captions.map((entry) => ({
+            tripId: trip.id,
+            mediaId: file.id,
+            locale: entry.locale,
+            caption: entry.caption,
+          })),
+        )
+        .onConflictDoNothing();
+    }
+    linksCreated += raster.length;
+    console.log(`  ${c.green("✔")} ${raster.length} image(s) → galerie du voyage ${trip.id.slice(0, 8)}`);
+  }
+
+  if (linksCreated > 0 || linksSkipped > 0) {
+    console.log(`\n${c.cyan(c.bold(`═══════════════════════════════════════════════════════`))}`);
+    console.log(`  ${c.green(`${linksCreated} image(s) liée(s) à une galerie`)}`);
+    if (linksSkipped > 0) {
+      console.log(`  ${c.dim(`${linksSkipped} voyage(s) déjà doté${linksSkipped !== 1 ? "s" : ""} d'une galerie (ignoré${linksSkipped !== 1 ? "s" : ""})`)}`);
+    }
+    console.log(c.cyan(c.bold(`═══════════════════════════════════════════════════════\n`)));
+  }
+
+  // ── 4. Légendes de galerie du blog, localisées ──────────────────────────
+  // Même défaut que les voyages avant cette étape : `caption` restait dans la
+  // langue de saisie sur les 4 locales. On rattache chaque légende existante
+  // aux alts par locale du même média.
+  const blogGalleries = await db
+    .select({ galleryId: blogPostGalleryMedia.galleryId, mediaId: blogPostGalleryMedia.mediaId })
+    .from(blogPostGalleryMedia);
+
+  let blogCaptions = 0;
+  for (const item of blogGalleries) {
+    const described = await describeTripMedia(db, item.mediaId, item.mediaId);
+    const inserted = await db
+      .insert(blogPostGalleryMediaCaptions)
+      .values(
+        described.captions.map((entry) => ({
+          galleryId: item.galleryId,
+          mediaId: item.mediaId,
+          locale: entry.locale,
+          caption: entry.caption,
+        })),
+      )
+      .onConflictDoNothing()
+      .returning({ locale: blogPostGalleryMediaCaptions.locale });
+    blogCaptions += inserted.length;
+  }
+
+  if (blogCaptions > 0) {
+    console.log(`  ${c.green(`✔ ${blogCaptions} légende(s) de galerie blog localisée(s)`)}\n`);
+  }
 
   await shutdownDb();
 }

@@ -27,7 +27,19 @@ test.describe('CMS — pages & sections', () => {
     const page = await context.newPage();
     const response = await page.goto('/fr/admin/pages', { waitUntil: 'networkidle' });
     expect(response?.status()).toBe(200);
-    await expect(page.locator('main')).toBeVisible();
+    // Structure as it stands: exactly ONE main landmark, supplied by the
+    // template — `<main id="main-content">` (src/layouts/BaseLayout.astro:169).
+    // The admin shell's content column is a content REGION, not a second
+    // landmark: `SidebarInset` (src/components/atoms/sidebar/SidebarInset.astro:24)
+    // renders `<section data-slot="sidebar-inset">`, and AuthLayout names it with
+    // `aria-labelledby="auth-layout-title"`
+    // (src/components/organisms/AuthLayout/AuthLayout.astro:15) so it is exposed
+    // as a region. This test therefore targets the template's landmark on
+    // purpose: `#main-content` is the document's single point of entry for
+    // content, it is the target of the skip link
+    // (`<a href="#main-content">`, BaseLayout.astro:141), and asserting it proves
+    // the admin page rendered inside that landmark rather than beside it.
+    await expect(page.locator('#main-content')).toBeVisible();
     await context.close();
   });
 

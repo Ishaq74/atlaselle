@@ -1,8 +1,7 @@
 ---
-import { Icon } from "astro-icon/components";
 import type { BlogTranslations } from "@i18n/config";
 import type { BlogReactionType } from "@/lib/blog/constants";
-import { Button } from "@atoms/button";
+import ReactionButtons from "@/components/molecules/Engagement/ReactionButtons.astro";
 
 interface Props {
   blogT: BlogTranslations;
@@ -11,44 +10,29 @@ interface Props {
   userReaction?: BlogReactionType | null;
 }
 
-const REACTION_ICONS: Record<BlogReactionType, string> = {
-  LIKE: "mdi:thumb-up",
-  LOVE: "mdi:heart",
-  FIRE: "mdi:fire",
-  CLAP: "mdi:hand-clap",
-  LAUGH: "mdi:emoticon-lol",
-  SAD: "mdi:emoticon-sad",
-};
-
 const { blogT, postId, reactionCounts, userReaction } = Astro.props;
 ---
 
+{/* Le markup vient du cœur partagé : le blog et la fiche voyage sont donc
+    identiques par construction, seul le script d'action diffère. */}
 <div
-  class="flex flex-wrap items-center gap-2"
   data-reaction-bar
   data-post-id={postId}
   data-t-error={blogT.labels.genericError}
   data-t-updated={blogT.labels.reactionUpdated}
 >
-  <span class="me-2 text-sm font-medium text-muted-foreground">{blogT.labels.reactions}</span>
-  {Object.entries(REACTION_ICONS).map(([type, icon]) => {
-    const count = reactionCounts[type as BlogReactionType] ?? 0;
-    const isActive = userReaction === type;
-    return (
-      <Button
-        type="button"
-        variant={isActive ? "primary" : "outline"}
-        size="sm"
-        class="reaction-btn gap-1.5"
-        data-reaction-type={type}
-        aria-label={`${blogT.labels.reactions} : ${type} (${count})`}
-        aria-pressed={isActive ? "true" : "false"}
-      >
-        <Icon name={icon} class="size-4" />
-        <span>{count}</span>
-      </Button>
-    );
-  })}
+  <ReactionButtons
+    activeReaction={userReaction ?? null}
+    counts={reactionCounts as unknown as Record<string, number>}
+    showFavorite={false}
+    isSignedIn={true}
+    labels={{
+      favorite: "",
+      unfavorite: "",
+      reactions: blogT.labels.reactions,
+      reaction: blogT.labels.reactions,
+    }}
+  />
 </div>
 
 <script>
@@ -61,11 +45,11 @@ const { blogT, postId, reactionCounts, userReaction } = Astro.props;
   }
 
   function init() {
-    document.querySelectorAll<HTMLButtonElement>('.reaction-btn').forEach((btn) => {
+    document.querySelectorAll<HTMLButtonElement>('[data-engagement-reaction]').forEach((btn) => {
       btn.addEventListener('click', async () => {
         const bar = btn.closest('[data-reaction-bar]') as HTMLElement | null;
         const postId = bar?.dataset.postId;
-        const reactionType = btn.dataset.reactionType;
+        const reactionType = btn.dataset.engagementReaction;
         const errorText = bar?.dataset.tError ?? 'Error';
         const updatedText = bar?.dataset.tUpdated ?? 'Reaction updated';
 
@@ -80,9 +64,8 @@ const { blogT, postId, reactionCounts, userReaction } = Astro.props;
           toast.error(error.message ?? errorText);
         } else {
           toast.success(updatedText);
-          // Update the button state locally instead of reloading the whole
-          // page (preserves scroll, avoids re-downloading JS/CSS and a second
-          // view-count hit). Toggle active styling and adjust the count.
+          // Mise à jour locale : on évite un rechargement complet (scroll
+          // préservé, pas de second téléchargement JS/CSS ni second comptage).
           const wasActive = btn.getAttribute('aria-pressed') === 'true';
           btn.setAttribute('aria-pressed', wasActive ? 'false' : 'true');
           btn.classList.toggle('variant-primary', !wasActive);

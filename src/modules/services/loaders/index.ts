@@ -53,7 +53,13 @@ export async function getServices(input: unknown = {}, locale: Locale = "fr", pu
   const resolvedLocale = filters.locale ?? locale;
   const db = getDrizzle(); const conditions = [eq(serviceTranslations.locale, resolvedLocale)];
   if (publicOnly) conditions.push(eq(services.status, "PUBLISHED")); else if (filters.status) conditions.push(eq(services.status, filters.status));
-  const searchQuery = filters.search ? sql`websearch_to_tsquery("atlaselle_service_locale_regconfig"(${resolvedLocale}), ${filters.search})` : null;
+  // `locale_to_regconfig` is the only regconfig mapper the repo provisions
+  // (src/database/infra/00-functions.sql) and is the exact function used by
+  // refresh_service_search_vector() to build service_translations.search_vector.
+  // The previously called quoted identifier resolved to a function that exists
+  // in no repo file: unquoted, it would fold-case resolve; quoted, it is
+  // case-sensitive and can never fold onto `locale_to_regconfig`.
+  const searchQuery = filters.search ? sql`websearch_to_tsquery(locale_to_regconfig(${resolvedLocale}), ${filters.search})` : null;
   if (searchQuery) conditions.push(sql`${serviceTranslations.searchVector} @@ ${searchQuery}`);
   if (filters.providerId) conditions.push(eq(services.providerId, filters.providerId)); if (filters.featured !== undefined) conditions.push(eq(services.isFeatured, filters.featured)); if (filters.mobile !== undefined) conditions.push(eq(services.isMobile, filters.mobile));
   if (filters.categoryId) conditions.push(inArray(services.id, db.select({ serviceId: serviceCategoryLinks.serviceId }).from(serviceCategoryLinks).innerJoin(serviceCategories, eq(serviceCategories.id, serviceCategoryLinks.categoryId)).where(eq(serviceCategoryLinks.categoryId, filters.categoryId))));

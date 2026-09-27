@@ -1,0 +1,51 @@
+---
+import { Icon } from "astro-icon/components";
+import type { Locale } from "@i18n/config";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props as Props;
+
+// Le cookie décide de la vue active côté serveur : pas de décalage au
+// chargement, et la préférence survit à la navigation. Même mécanisme que
+// `PostGridToggle` côté blog.
+const currentView = (Astro.cookies.get("trips-view")?.value ?? "grid") as "grid" | "list";
+
+const views = [
+  { key: "grid", icon: "mdi:view-grid", label: { fr: "Vue grille", en: "Grid view", es: "Vista de cuadrícula", ar: "عرض شبكي" } },
+  { key: "list", icon: "mdi:view-headline", label: { fr: "Vue liste", en: "List view", es: "Vista de lista", ar: "عرض قائمة" } },
+] as const;
+
+const groupLabel = { fr: "Mode d'affichage", en: "Display mode", es: "Modo de visualización", ar: "وضع العرض" }[locale];
+---
+
+{/* eslint-disable-next-line astro/jsx-a11y/prefer-tag-over-role -- WAI-ARIA "group" est le rôle correct pour une barre de boutons icônes hors <form> ; <fieldset> serait sémantiquement faux ici */}
+<div class="flex items-center gap-0.5 rounded-lg border bg-card p-1 shadow-sm" role="group" aria-label={groupLabel}>
+  {views.map(({ key, icon, label }) => (
+    <button
+      type="button"
+      data-trip-view={key}
+      aria-label={label[locale]}
+      aria-pressed={currentView === key ? "true" : "false"}
+      class:list={[
+        "inline-flex items-center justify-center rounded-md p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        {"bg-primary text-primary-foreground shadow-sm": currentView === key, "text-muted-foreground hover:bg-muted hover:text-foreground": currentView !== key},
+      ]}
+    >
+      <Icon name={icon} class="size-4" />
+    </button>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-trip-view]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      // Cookie 1 an, même origine, pas de paramètre d'URL : la vue ne doit pas
+      // canoniser une seconde URL pour la même liste.
+      document.cookie = `trips-view=${btn.dataset.tripView}; path=/; max-age=31536000; SameSite=Lax`;
+      window.location.reload();
+    });
+  });
+</script>

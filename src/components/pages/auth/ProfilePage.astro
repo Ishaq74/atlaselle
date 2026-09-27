@@ -71,7 +71,11 @@ const initials = user?.name
 
         <Separator class="mb-6" />
 
-        <form id="identity-form" class="grid gap-4">
+        {/* method="post" + action explicite : première barrière structurelle contre
+            la soumission native en GET vers l'URL courante. Repli serveur :
+            better-auth n'autorise que application/json sur /update-user — une
+            soumission native est rejetée en 415 avant la mutation. */}
+        <form id="identity-form" name="identity-form" method="post" action="/api/auth/update-user" class="grid gap-4">
           <div class="grid gap-2">
             <Label for="profile-name">{t.profile.identity.name}</Label>
             <Input id="profile-name" name="name" value={user?.name ?? ''} placeholder={t.profile.identity.namePlaceholder} />
@@ -101,7 +105,13 @@ const initials = user?.name
       </CardHeader>
       <CardContent>
         <p class="text-sm text-muted-foreground mb-4">{t.profile.security.description}</p>
-        <form id="security-form" class="grid gap-4">
+        {/* method="post" + action explicite : première barrière structurelle contre
+            la soumission native en GET vers l'URL courante — c'est ce GET qui
+            exposait currentPassword / newPassword / confirmPassword dans la
+            chaîne de requête. Repli serveur : better-auth n'autorise que
+            application/json sur /change-password, donc une soumission native est
+            rejetée en 415 avant toute vérification ni mutation. */}
+        <form id="security-form" name="security-form" method="post" action="/api/auth/change-password" class="grid gap-4">
           <div class="grid gap-2">
             <Label for="current-password">{t.profile.security.currentPassword}</Label>
             <Input id="current-password" name="currentPassword" type="password" placeholder={t.profile.security.currentPasswordPlaceholder} autocomplete="current-password" />

@@ -1,4 +1,5 @@
 import type { ReservationStatus } from "@database/schemas/reservations.schema";
+import { transitionRefused } from "@/modules/state-machines/domain/transition-refusal";
 
 // TODO §12.1 — le prix confirmé est immuable (snapshot).
 export const RESERVATION_TRANSITIONS: Record<ReservationStatus, ReservationStatus[]> = {
@@ -17,6 +18,6 @@ export function canTransitionReservation(from: ReservationStatus, to: Reservatio
 
 export function assertTransitionReservation(from: ReservationStatus, to: ReservationStatus): void {
   if (!canTransitionReservation(from, to)) {
-    throw new Error(`Invalid reservation transition: ${from} → ${to}`);
+    throw transitionRefused("réservation", from, to);
   }
 }

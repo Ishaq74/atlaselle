@@ -1,13 +1,13 @@
 ---
-import { Icon } from "astro-icon/components";
-import type { Locale } from "@i18n/config";
-import type { BlogTranslations } from "@i18n/config";
+import type { BlogTranslations, Locale } from "@i18n/config";
 import type { BlogCommentWithAuthor } from "@/lib/blog/types";
-import type { AppUser } from "@/lib/types";
+import type { AppUser } from "@lib/types";
 import { Card, CardContent } from "@atoms/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@atoms/tabs";
+import EngagementTabs from "@/components/molecules/Engagement/EngagementTabs.astro";
+import EngagementCommentThread, {
+  type EngagementCommentItem,
+} from "@/components/molecules/Engagement/CommentThread.astro";
 import CommentForm from "./CommentForm.astro";
-import CommentThreadItem from "./CommentThreadItem.astro";
 
 interface Props {
   locale: Locale;
@@ -22,6 +22,22 @@ const { locale, blogT, postId, comments, user, commentStatus } = Astro.props;
 
 const hasComments = comments.length > 0;
 const defaultTab = hasComments ? "list" : "write";
+
+/** Adapte le modèle blog au cœur présentationnel partagé. */
+const threadLabels = {
+  reply: blogT.labels.writeComment,
+  pending: blogT.labels.pending,
+  anonymous: "Anonymous",
+};
+const toItem = (comment: BlogCommentWithAuthor): EngagementCommentItem => ({
+  id: comment.id,
+  content: comment.content,
+  createdAt: comment.createdAt,
+  authorName: comment.author?.name ?? comment.guestName ?? threadLabels.anonymous,
+  authorImage: comment.author?.image ?? null,
+  status: comment.status,
+  replies: (comment.replies ?? []).map(toItem),
+});
 ---
 
 <section id="comments-section" data-post-id={postId}>
@@ -33,18 +49,17 @@ const defaultTab = hasComments ? "list" : "write";
     </Card>
   ) : commentStatus === "CLOSED" ? (
     <div class="flex flex-col gap-4">
-      <h2 class="flex items-center gap-2 font-heading text-lg font-semibold">
-        <Icon name="mdi:comment-outline" class="size-5 text-muted-foreground" />
+      <h2 class="font-heading flex items-center gap-2 text-lg font-semibold">
         {blogT.labels.comments} ({comments.length})
       </h2>
       {hasComments ? (
         <div class="flex flex-col gap-6">
           {comments.map((comment) => (
-            <CommentThreadItem
+            <EngagementCommentThread
               locale={locale}
-              blogT={blogT}
-              comment={comment}
-              commentStatus={commentStatus}
+              comment={toItem(comment)}
+              canReply={false}
+              labels={threadLabels}
             />
           ))}
         </div>
@@ -57,30 +72,22 @@ const defaultTab = hasComments ? "list" : "write";
       )}
     </div>
   ) : (
-    <Tabs defaultValue={defaultTab}>
-      <TabsList>
-        <TabsTrigger value="list" defaultActive={defaultTab === "list"}>
-          <Icon name="mdi:comment-multiple-outline" class="size-4" />
-          {blogT.labels.comments} ({comments.length})
-        </TabsTrigger>
-        <TabsTrigger value="write" defaultActive={defaultTab === "write"}>
-          <Icon name="mdi:pencil-outline" class="size-4" />
-          {blogT.labels.writeComment}
-        </TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="list" defaultActive={defaultTab === "list"}>
+    <EngagementTabs
+      defaultTab={defaultTab}
+      listLabel={blogT.labels.comments}
+      listCount={comments.length}
+      writeLabel={blogT.labels.writeComment}
+    >
+      <div slot="list" class="flex flex-col gap-6">
         {hasComments ? (
-          <div class="flex flex-col gap-6">
-            {comments.map((comment) => (
-              <CommentThreadItem
-                locale={locale}
-                blogT={blogT}
-                comment={comment}
-                commentStatus={commentStatus}
-              />
-            ))}
-          </div>
+          comments.map((comment) => (
+            <EngagementCommentThread
+              locale={locale}
+              comment={toItem(comment)}
+              canReply={commentStatus === "OPEN"}
+              labels={threadLabels}
+            />
+          ))
         ) : (
           <Card>
             <CardContent class="py-8 text-center text-sm text-muted-foreground">
@@ -88,17 +95,12 @@ const defaultTab = hasComments ? "list" : "write";
             </CardContent>
           </Card>
         )}
-      </TabsContent>
+      </div>
 
-      <TabsContent value="write" defaultActive={defaultTab === "write"}>
-        <CommentForm
-          locale={locale}
-          blogT={blogT}
-          postId={postId}
-          user={user}
-        />
-      </TabsContent>
-    </Tabs>
+      <div slot="write">
+        <CommentForm locale={locale} blogT={blogT} postId={postId} user={user} />
+      </div>
+    </EngagementTabs>
   )}
 </section>
 

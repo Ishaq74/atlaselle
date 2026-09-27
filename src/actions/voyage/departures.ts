@@ -7,6 +7,7 @@ import { pricingRulesSchema } from "@/modules/pricing/domain/pricing";
 import { assertTransitionDeparture } from "@/modules/departures/domain/departure-transitions";
 import type { DepartureStatus } from "@database/schemas/departures.schema";
 import { assertVoyagePermission, assertTripExists, assertFresh, auditVoyage, invalidateVoyageCache } from "./_helpers";
+import { assertStateTransition } from "./transition-errors";
 
 const amountField = z.number().int().min(0).optional();
 const amountTypeField = z.enum(["fixed", "percent", "none"]).optional();
@@ -91,7 +92,7 @@ export const setDepartureStatus = defineAction({
     const user = await assertVoyagePermission(context, { departure: ["update"] });
     const [current] = await getDrizzle().select().from(departures).where(eq(departures.id, input.id)).limit(1);
     if (!current) throw new ActionError({ code: "NOT_FOUND", message: "Départ introuvable." });
-    assertTransitionDeparture(current.status as DepartureStatus, input.to);
+    assertStateTransition(() => assertTransitionDeparture(current.status as DepartureStatus, input.to));
     await getDrizzle().update(departures).set({ status: input.to }).where(eq(departures.id, input.id));
     auditVoyage(context, user.id, "DEPARTURE_STATUS", {
       resource: "departures",

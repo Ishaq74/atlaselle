@@ -1,3 +1,5 @@
+import { transitionRefused } from "@/modules/state-machines/domain/transition-refusal";
+
 export type TripEngagementWorkflowState = "PENDING" | "APPROVED" | "REJECTED" | "SPAM" | "TRASH" | "REVIEWED" | "RESOLVED";
 
 export const TRIP_COMMENT_WORKFLOW: Record<string, string[]> = {
@@ -28,6 +30,6 @@ export function canTransitionEngagement(workflow: Record<string, string[]>, from
 
 export function assertEngagementTransition(workflow: Record<string, string[]>, from: string, to: string): void {
   if (!canTransitionEngagement(workflow, from, to)) {
-    throw new Error(`Invalid engagement transition: ${from} → ${to}`);
+    throw transitionRefused("engagement voyage", from, to);
   }
 }

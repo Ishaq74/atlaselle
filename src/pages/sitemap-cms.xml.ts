@@ -14,8 +14,19 @@ export const prerender = false;
 function escapeXml(s: string): string { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;"); }
 function urlEntry(baseUrl: string, path: string, lastmod?: Date | null): string { const loc = `    <loc>${escapeXml(baseUrl)}${escapeXml(path)}</loc>`; const mod = lastmod ? `\n    <lastmod>${lastmod.toISOString()}</lastmod>` : ""; return `  <url>\n${loc}${mod}\n  </url>`; }
 
-export const GET: APIRoute = async ({ site }) => {
-  const baseUrl = site?.origin ?? "http://localhost:4321";
+export const GET: APIRoute = async () => {
+  // import.meta.env.SITE is the build-time constant Astro derives from the `site`
+  // entry of astro.config.mjs — the exact value that also drives
+  // `security.allowedDomains` and the sitemap index. Reading it here keeps one
+  // single source of truth: there is no runtime env lookup and no fallback, so a
+  // misconfigured origin fails loudly instead of publishing localhost URLs.
+  const baseUrl = import.meta.env.SITE;
+  if (!baseUrl) {
+    throw new Error(
+      '[sitemap] import.meta.env.SITE is undefined: `site` is missing from astro.config.mjs. ' +
+      'SITE_URL must be set and resolvable for the build (it defines `site`, `security.allowedDomains` and the sitemap index).'
+    );
+  }
   const urls: string[] = [];
   for (const locale of LOCALES) urls.push(`  <url>\n    <loc>${escapeXml(baseUrl)}/${locale}/</loc>\n  </url>`);
   for (const locale of LOCALES) { const commonT = await getCommonTranslations(locale as Locale); for (const slug of Object.values(commonT.pageRoutes)) urls.push(`  <url>\n    <loc>${escapeXml(baseUrl)}/${locale}/${escapeXml(slug)}</loc>\n  </url>`); }

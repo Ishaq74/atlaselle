@@ -1,0 +1,76 @@
+---
+/**
+ * TripSearchBar — recherche libre et tri, dans l'en-tête de la page.
+ *
+ * Un formulaire GET : l'URL est l'état. Les filtres déjà posés voyagent en
+ * champs cachés, sinon taper une recherche effacerait le prix, le mois, etc.
+ * Le bouton « Appliquer » est visible et non décoratif — sans JavaScript,
+ * c'est lui qui rend le formulaire exploitable.
+ */
+import { Icon } from "astro-icon/components";
+import type { Locale } from "@i18n/config";
+
+interface Props {
+  locale: Locale;
+  active: { q: string; availability: string; difficulty: string; duration: string; price: string; month: string; sort: string };
+  baseUrl: string;
+}
+
+const { locale, active, baseUrl } = Astro.props as Props;
+
+const t = {
+  fr: { placeholder: "Rechercher un voyage", label: "Rechercher", sort: "Trier", date: "Départ le plus proche", priceAsc: "Prix croissant", priceDesc: "Prix décroissant", duration: "Durée croissante", apply: "Appliquer" },
+  en: { placeholder: "Search a journey", label: "Search", sort: "Sort", date: "Soonest departure", priceAsc: "Price, low to high", priceDesc: "Price, high to low", duration: "Shortest first", apply: "Apply" },
+  es: { placeholder: "Buscar un viaje", label: "Buscar", sort: "Ordenar", date: "Salida más próxima", priceAsc: "Precio ascendente", priceDesc: "Precio descendente", duration: "Duración ascendente", apply: "Aplicar" },
+  ar: { placeholder: "ابحث عن رحلة", label: "بحث", sort: "ترتيب", date: "أقرب مغادرة", priceAsc: "السعر تصاعدياً", priceDesc: "السعر تنازلياً", duration: "المدة تصاعدية", apply: "تطبيق" },
+}[locale];
+---
+
+<form method="get" action={baseUrl} class="flex w-full flex-col gap-2 sm:flex-row sm:items-center lg:w-96">
+  {active.availability && <input type="hidden" name="availability" value={active.availability} />}
+  {active.difficulty && <input type="hidden" name="difficulty" value={active.difficulty} />}
+  {active.duration && <input type="hidden" name="duration" value={active.duration} />}
+  {active.price && <input type="hidden" name="price" value={active.price} />}
+  {active.month && <input type="hidden" name="month" value={active.month} />}
+
+  <div class="relative min-w-0 flex-1">
+    <Icon name="mdi:magnify" class="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+    <label for="trips-q" class="sr-only">{t.label}</label>
+    <input
+      type="search"
+      id="trips-q"
+      name="q"
+      value={active.q}
+      placeholder={t.placeholder}
+      class="h-11 w-full rounded-md border bg-background/80 ps-9 pe-3 text-sm backdrop-blur outline-none transition focus-visible:border-outline focus-visible:ring-3 focus-visible:ring-ring/50"
+    />
+  </div>
+
+  <div class="flex items-center gap-2">
+    <label for="trips-sort" class="sr-only">{t.sort}</label>
+    <select
+      id="trips-sort"
+      name="sort"
+      data-auto-submit
+      class="h-11 min-w-40 rounded-md border bg-background/80 px-3 text-sm backdrop-blur outline-none transition focus-visible:border-outline focus-visible:ring-3 focus-visible:ring-ring/50"
+    >
+      <option value="" selected={!active.sort}>{t.date}</option>
+      <option value="price-asc" selected={active.sort === "price-asc"}>{t.priceAsc}</option>
+      <option value="price-desc" selected={active.sort === "price-desc"}>{t.priceDesc}</option>
+      <option value="duration" selected={active.sort === "duration"}>{t.duration}</option>
+    </select>
+    <button type="submit" class="h-11 shrink-0 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+      {t.apply}
+    </button>
+  </div>
+</form>
+
+<script>
+  // Enhancement : le tri s'applique sans cliquer. Le formulaire reste
+  // fonctionnel sans JS grâce au bouton « Appliquer ».
+  document.querySelectorAll<HTMLSelectElement>("[data-auto-submit]").forEach((select) => {
+    if (select.dataset.bound === "true") return;
+    select.dataset.bound = "true";
+    select.addEventListener("change", () => select.form?.requestSubmit());
+  });
+</script>

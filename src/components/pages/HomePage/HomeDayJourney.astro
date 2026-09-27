@@ -1,0 +1,153 @@
+---
+import type { TripDaySample } from "@/modules/trips/loaders/trip.loader";
+import HomeAmbient from "@pages/HomePage/HomeAmbient.astro";
+
+interface Props {
+  tripTitle: string | null;
+  tripHref: string | null;
+  ctaLabel: string;
+  days: TripDaySample[];
+  eyebrow: string;
+  title: string;
+  intro: string;
+  phases: { key: "morning" | "afternoon" | "evening"; label: string; time: string; note: string }[];
+  metaLabels: { distance: string; altitude: string; meal: string; night: string };
+  fallback: { morning: string; afternoon: string; evening: string };
+}
+
+const {
+  tripTitle,
+  tripHref,
+  ctaLabel,
+  days,
+  eyebrow,
+  title,
+  intro,
+  phases,
+  metaLabels,
+  fallback,
+} = Astro.props as Props;
+
+const first = days[0] ?? null;
+
+/** Faits du programme — repli silencieux si l'itinéraire n'est pas rempli. */
+const facts = first
+  ? [
+      first.distanceKm ? { label: metaLabels.distance, value: `${first.distanceKm} km` } : null,
+      first.maxAltitudeM ? { label: metaLabels.altitude, value: `${first.maxAltitudeM} m` } : null,
+      first.accommodation ? { label: metaLabels.night, value: first.accommodation } : null,
+    ].filter(Boolean)
+  : [];
+---
+
+{/*
+  Chapitre 02 — « une journée type ».
+
+  Lisibilité : la surface va de `background` à `muted` au maximum. Ces deux
+  tokens sont conçus pour porter `--foreground` (≈17:1 en clair, ≈12:1 en
+  sombre), donc le texte reste AAA même si le voile est au plus fort. Le doré
+  `--primary` est réservé aux accents (fil, points, heures) posés sur cette
+  surface, jamais comme aplat derrière le texte : en thème sombre `--primary`
+  reste un jaune clair (oklch 0.88) et éclaircirait le fond.
+*/}
+<section
+  class="home-day relative isolate overflow-hidden border-y border-border/60 bg-background text-foreground"
+  aria-labelledby="home-day"
+  data-day-root
+>
+  <HomeAmbient scrub />
+
+  <div class="mx-auto max-w-6xl px-6 py-20 sm:py-24 lg:py-28">
+    <div class="grid gap-14 lg:grid-cols-[1fr_0.9fr] lg:gap-20">
+      {/* Colonne éditoriale : la promesse */}
+      <div data-home-reveal>
+        <p class="font-mono text-[11px] uppercase tracking-[.3em] text-foreground">
+          <span class="text-primary">{eyebrow}</span>
+        </p>
+        <h2
+          id="home-day"
+          class="mt-5 text-balance text-[clamp(1.875rem,4.4vw,3.5rem)] font-bold leading-[1.05] tracking-[-0.02em]"
+          data-split="lines"
+        >
+          {title}
+        </h2>
+        <p class="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">{intro}</p>
+
+        {tripTitle && (
+          <div class="mt-9 border-s-2 border-primary ps-5">
+            <p class="font-mono text-[11px] uppercase tracking-[.18em] text-muted-foreground">{tripTitle}</p>
+            {first?.location && <p class="mt-1 text-xl font-bold tracking-tight">{first.location}</p>}
+            {first?.route && <p class="mt-1 text-sm leading-relaxed text-muted-foreground">{first.route}</p>}
+          </div>
+        )}
+
+        {facts.length > 0 && (
+          <dl class="mt-9 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-border/70 pt-6 sm:grid-cols-3">
+            {facts.map((fact) => (
+              <div class="min-w-0">
+                <dt class="font-mono text-[10px] uppercase tracking-[.16em] text-muted-foreground">{fact!.label}</dt>
+                <dd class="mt-1.5 text-sm font-semibold leading-snug"><bdi>{fact!.value}</bdi></dd>
+              </div>
+            ))}
+          </dl>
+        )}
+
+        {tripHref && (
+          <a href={tripHref} class="mt-9 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+            {ctaLabel} <span aria-hidden="true">→</span>
+          </a>
+        )}
+      </div>
+
+      {/* Colonne du carnet : la journée qui se déroule */}
+      <div class="relative">
+        <ol class="relative flex flex-col gap-10 ps-9 sm:gap-12 sm:ps-12" data-day-track>
+          <svg
+            class="home-day-line pointer-events-none absolute inset-y-0 start-0 w-[2px] overflow-visible"
+            viewBox="0 0 2 1000"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path d="M1 0 V1000" fill="none" stroke="var(--border)" stroke-width="2" />
+            <path
+              class="home-day-line-fill"
+              d="M1 0 V1000"
+              fill="none"
+              stroke="var(--primary)"
+              stroke-width="2"
+              data-day-progress
+            />
+          </svg>
+
+          {phases.map((phase, i) => (
+            <li class="home-day-moment relative" data-day-moment={i}>
+              <span class="home-day-dot absolute -start-9 top-1.5 size-2.5 sm:-start-12" aria-hidden="true"></span>
+              <p class="font-mono text-[11px] uppercase tracking-[.26em] text-primary">{phase.time}</p>
+              <h3 class="mt-1.5 text-2xl font-bold tracking-tight">{phase.label}</h3>
+              <p class="mt-2.5 leading-relaxed text-muted-foreground">{first?.[phase.key] || fallback[phase.key]}</p>
+              <p class="mt-2.5 font-mono text-[10px] uppercase leading-relaxed tracking-[.14em] text-muted-foreground">
+                {phase.note}
+              </p>
+            </li>
+          ))}
+        </ol>
+
+        {first?.meals && (
+          <p class="mt-9 border-s-2 border-border ps-5 text-sm leading-relaxed text-muted-foreground">
+            <span class="font-semibold text-foreground">{metaLabels.meal}</span> — <bdi>{first.meals}</bdi>
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .home-day-dot {
+    background: var(--primary);
+    border-radius: 9999px;
+    box-shadow: 0 0 0 4px var(--background);
+  }
+  /* L'opacité des moments est pilotée par GSAP : sans JS la journée reste
+     intégralement lisible (aucun état masqué dans le CSS). */
+</style>

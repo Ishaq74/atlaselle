@@ -58,7 +58,16 @@ const t = locale === "fr"
   ) : null}
 
   {canUpdate ? (
-    <form data-facts-form class="space-y-4 rounded-xl border p-6">
+    /* method="post" + action explicite : première barrière structurelle contre la
+       soumission native en GET vers l'URL courante — c'est ce GET qui exposait la fiche
+       complète du voyage (code pays, devise, difficulté, durées, bornes de groupe,
+       aéroports, style d'hébergement) dans la chaîne de requête, donc dans l'historique
+       de navigation, dans l'en-tête Referer des navigations suivantes et dans le
+       journal d'accès du serveur. Le traitement réel est un appel astro:actions
+       (updateTrip), sans route serveur de repli : l'action pointe vers la page courante,
+       qui n'exporte aucun POST, donc une soumission native y est rejetée sans mutation.
+       preventDefault (script) = seconde barrière. */
+    <form id="trip-facts-form" name="trip-facts-form" method="post" action={Astro.url.pathname} data-facts-form class="space-y-4 rounded-xl border p-6">
       <h2 class="text-xl font-bold">{t.facts}</h2>
       <input type="hidden" name="expectedUpdatedAt" value={trip.updatedAt.toISOString()} />
       <div class="grid gap-4 sm:grid-cols-3">
@@ -80,7 +89,15 @@ const t = locale === "fr"
   ) : null}
 
   {canUpdate ? (
-    <form data-engagement-form class="space-y-4 rounded-xl border p-6">
+    /* method="post" + action explicite : première barrière structurelle contre la
+       soumission native en GET vers l'URL courante — c'est ce GET qui exposait le statut
+       des commentaires et l'autorisation d'avis dans la chaîne de requête, donc dans
+       l'historique de navigation, dans l'en-tête Referer des navigations suivantes et
+       dans le journal d'accès du serveur. Le traitement réel est un appel astro:actions
+       (updateTripEngagementSettings), sans route serveur de repli : l'action pointe vers
+       la page courante, qui n'exporte aucun POST, donc une soumission native y est
+       rejetée sans mutation. preventDefault (script) = seconde barrière. */
+    <form id="trip-engagement-form" name="trip-engagement-form" method="post" action={Astro.url.pathname} data-engagement-form class="space-y-4 rounded-xl border p-6">
       <h2 class="text-xl font-bold">Engagement — avis & commentaires</h2>
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="block text-sm">commentStatus
@@ -100,10 +117,20 @@ const t = locale === "fr"
 
   <div class="space-y-6">
     <h2 class="text-xl font-bold">{t.translations}</h2>
+    {/* method="post" + action explicite : première barrière structurelle contre la
+        soumission native en GET vers l'URL courante — c'est ce GET qui exposait le
+        contenu éditorial de chaque locale (slug, titres, résumé, aperçu, champs meta) dans
+        la chaîne de requête, donc dans l'historique de navigation, dans l'en-tête Referer
+        des navigations suivantes et dans le journal d'accès du serveur. Le traitement
+        réel est un appel astro:actions (upsertTripTranslation), sans route serveur de
+        repli : l'action pointe vers la page courante, qui n'exporte aucun POST, donc une
+        soumission native y est rejetée sans mutation. preventDefault (script) = seconde
+        barrière. L'identifiant compose la locale : un id statique dupliquerait le même
+        nom sur les quatre blocs de traduction. */}
     {LOCALES.map((loc: Locale) => {
       const tr = trByLocale.get(loc);
       return (
-        <form data-translation-form={loc} class="space-y-3 rounded-xl border p-6">
+        <form id={`trip-translation-form-${loc}`} name={`trip-translation-form-${loc}`} method="post" action={Astro.url.pathname} data-translation-form={loc} class="space-y-3 rounded-xl border p-6">
           <h3 class="font-bold uppercase">{loc}{tr?.localeVisible ? " · visible" : ""}</h3>
           <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt.toISOString() ?? ""} />
           <div class="grid gap-4 sm:grid-cols-2">
@@ -158,7 +185,18 @@ const t = locale === "fr"
           ) : d.status}
         </div>
         {canUpdate ? (
-          <form data-departure-edit class="mt-4 grid gap-3 text-sm sm:grid-cols-3">
+          /* method="post" + action explicite : première barrière structurelle contre la
+             soumission native en GET vers l'URL courante — c'est ce GET qui exposait le
+             tarif, les bornes de capacité, les acomptes, suppléments, taxes, frais,
+             remises et dates limites de chaque départ dans la chaîne de requête, donc dans
+             l'historique de navigation, dans l'en-tête Referer des navigations suivantes
+             et dans le journal d'accès du serveur. Le traitement réel est un appel
+             astro:actions (updateDeparture), sans route serveur de repli : l'action pointe
+             vers la page courante, qui n'exporte aucun POST, donc une soumission native y
+             est rejetée sans mutation. preventDefault (script) = seconde barrière.
+             L'identifiant compose l'id du départ : un id statique dupliquerait le même
+             nom sur chaque bloc de la liste. */
+          <form id={`trip-departure-edit-form-${d.id}`} name={`trip-departure-edit-form-${d.id}`} method="post" action={Astro.url.pathname} data-departure-edit class="mt-4 grid gap-3 text-sm sm:grid-cols-3">
             <input type="hidden" name="expectedUpdatedAt" value={d.updatedAt.toISOString()} />
             <label class="block">{t.start}<input name="startDate" type="date" value={d.startDate.toISOString().slice(0, 10)} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
             <label class="block">{t.end}<input name="endDate" type="date" value={d.endDate.toISOString().slice(0, 10)} class="mt-1 w-full rounded-md border bg-background p-2" /></label>
@@ -188,7 +226,15 @@ const t = locale === "fr"
       </details>
     ))}
     {canUpdate ? (
-      <form data-departure-form class="grid gap-4 rounded-xl border p-6 sm:grid-cols-3">
+      /* method="post" + action explicite : première barrière structurelle contre la
+         soumission native en GET vers l'URL courante — c'est ce GET qui exposait les
+         dates, le tarif et la capacité du nouveau départ dans la chaîne de requête, donc
+         dans l'historique de navigation, dans l'en-tête Referer des navigations suivantes
+         et dans le journal d'accès du serveur. Le traitement réel est un appel
+         astro:actions (createDeparture), sans route serveur de repli : l'action pointe
+         vers la page courante, qui n'exporte aucun POST, donc une soumission native y est
+         rejetée sans mutation. preventDefault (script) = seconde barrière. */
+      <form id="trip-departure-create-form" name="trip-departure-create-form" method="post" action={Astro.url.pathname} data-departure-form class="grid gap-4 rounded-xl border p-6 sm:grid-cols-3">
         <h3 class="font-bold sm:col-span-3">{t.newDeparture}</h3>
         <label class="block text-sm">{t.start}<input name="startDate" type="date" required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
         <label class="block text-sm">{t.end}<input name="endDate" type="date" required class="mt-1 w-full rounded-md border bg-background p-2" /></label>

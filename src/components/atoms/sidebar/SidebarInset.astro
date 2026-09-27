@@ -2,7 +2,7 @@
 import type { HTMLAttributes } from "astro/types";
 import { tv } from "tailwind-variants";
 
-type Props = HTMLAttributes<"main">;
+type Props = HTMLAttributes<"section">;
 
 export const sidebarInset = tv({
   base: [
@@ -16,6 +16,11 @@ export const sidebarInset = tv({
 const { class: className, ...rest } = Astro.props;
 ---
 
-<main class={sidebarInset({ class: className })} {...rest} data-slot="sidebar-inset">
+{/* Zone de contenu, pas point d'entrée du document : le <main id="main-content">
+    du layout est déjà le seul repère principal de la page, et le HTML interdit
+    d'imbriquer deux <main>. L'inset est donc une région, que le consommateur
+    nomme (aria-label / aria-labelledby) pour qu'elle soit exposée comme
+    repère ; sans nom accessible, une <section> reste un conteneur générique. */}
+<section class={sidebarInset({ class: className })} {...rest} data-slot="sidebar-inset">
   <slot />
-</main>
+</section>

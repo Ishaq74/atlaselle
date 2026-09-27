@@ -5,6 +5,7 @@ import { getDrizzle } from "@database/drizzle";
 import { trips, tripTranslations, tripRevisions } from "@database/schemas";
 import { LOCALES, type Locale } from "@i18n/config";
 import { assertVoyagePermission, assertTripExists, assertFresh, auditVoyage, invalidateVoyageCache } from "./_helpers";
+import { assertStateTransition } from "./transition-errors";
 import { assertTransitionTrip } from "@/modules/trips/domain/trip-transitions";
 import type { TripStatus } from "@database/schemas/trips.schema";
 
@@ -40,7 +41,7 @@ async function transitionTrip(id: string, to: TripTransition, context: ActionAPI
   const user = await assertVoyagePermission(context, { trip: [TRANSITION_PERMISSION[to]] });
   const current = await assertTripExists(id);
   const target = TRANSITION_TARGET[to];
-  assertTransitionTrip(current.status as TripStatus, target);
+  assertStateTransition(() => assertTransitionTrip(current.status as TripStatus, target));
   const db = getDrizzle();
   await db.transaction(async (tx) => {
     await tx

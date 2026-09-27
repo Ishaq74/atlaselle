@@ -2,8 +2,10 @@
 
 > **Projet** : Atlaselle  
 > **Stack** : Astro 7.3.1 + better-auth + Drizzle/PostgreSQL + Vitest + Playwright + Pa11y + Lighthouse  
-> **Couverture globale** : **102 fichiers unit + 15 fichiers integration + 6 specs e2e** · **60 URLs a11y** · **60 URLs Lighthouse** · **5 générateurs de rapports**  
-> **Dernière mise à jour** : 31/03/2026
+> **Couverture globale** : **129 fichiers unit + 45 fichiers integration = 174 fichiers Vitest, 1 907 tests** · **28 specs e2e** (269 blocs de test × 3 navigateurs) · **60 URLs a11y** · **60 URLs Lighthouse** (32 + 8 + 20) · **28 URLs de sitemap** hors contenu · **5 générateurs de rapports**  
+> **Dernière mise à jour** : 26/09/2026
+
+> **Compteurs** : tous recomptés à partir des fichiers, jamais repris d'un autre document. Un compteur qui apparaît dans deux documents est un **défaut**, pas une recopie : chaque document porte le sien, et l'en-tête comme le corps de ce fichier disent la même chose. Historique des valeurs périmées, citées ici **pour mémoire et uniquement ici** : `102 / 15 fichiers`, `6 specs`, `165 fichiers`, `1 763 tests`, `128 fichiers unit`, `173 fichiers`, `1 861 tests`, `27 specs`, `404 blocs`. Aucune de ces valeurs ne doit réapparaître ailleurs.
 
 ---
 
@@ -25,13 +27,43 @@
 
 ### Par type de test
 
-| Type | Fichiers | Status |
-| :-- | :-- | :-- |
-| Unit | 102 | ✅ |
-| Integration | 15 | ✅ |
-| E2E (Playwright) | 6 specs (app, auth, blog, cms-admin, services, services-lifecycle) ×3 browsers | ✅ Chromium + Firefox + WebKit |
-| A11y — Pa11y-ci (WCAG2AAA non strict) | 1 config | ✅ 60 URLs |
-| A11y — Lighthouse CI | 3 batches | ✅ 60 URLs (32 + 8 + 20) |
+| Type | Fichiers | Tests | Status |
+| :-- | --: | --: | :-- |
+| Unit | **129** | — | ✅ |
+| Integration | **45** | — | ✅ |
+| **Vitest (total)** | **174** | **1 907** | ✅ 100 % verts |
+| E2E (Playwright) | **28 specs** × 3 navigateurs | **269** blocs `test()` | ✅ Chromium + Firefox + WebKit |
+| A11y — Pa11y-ci (WCAG2AAA non strict) | 1 config | **60 URLs** (32 publiques + 8 authentifiées + 20 admin) | ✅ |
+| A11y — Lighthouse CI | 3 batches | **60 URLs** (32 + 8 + 20) | ✅ |
+| Sitemap — `GET /sitemap-cms.xml` | 1 endpoint | **28 URLs** hors contenu | ✅ |
+
+### Les 28 specs E2E
+
+`actions-admin`, `actions-blog`, `actions-matrix`, `actions-services`, `actions-voyage`, `admin-extended`, `admin-pages`, `admin-trips-crud`, `api-endpoints`, `app`, `auth`, `auth-account`, `blog`, `blog-deep`, **`blog-review-rating-a11y`**, `cms-admin`, `cms-deep`, `contact`, **`credential-url-leak`**, **`error-paths-security`**, `guest-journeys`, `i18n-routes`, `public-pages`, `services`, `services-deep`, `services-lifecycle`, `ux-flows`, `voyage` — plus `global-setup.ts` et `global-teardown.ts`, qui ne sont pas des specs.
+
+> **269 blocs `test()`** : décompte des déclarations `test(` et `test.skip(` dans `tests/e2e/*.spec.ts`. Les 111 `test.describe(` et les 26 crochets (`beforeEach`, `beforeAll`, `afterAll`) ne sont pas des tests et ne sont pas comptés. Chaque bloc est joué sur les 3 navigateurs.
+>
+> **`credential-url-leak.spec.ts`** porte l'invariant « les identifiants n'atteignent jamais une URL » : URL finale, `location.href`, `document.referrer`, requête soumise, cible, corps, Referer, et soumission **sans JavaScript**. Voir [security.md](../security.md) §11.
+>
+> **`error-paths-security.spec.ts`** couvre les sorties précoces du middleware et leurs en-têtes.
+>
+> **`blog-review-rating-a11y.spec.ts`** couvre la notation d'avis et le rendu du résumé accessible. Il porte le `test.setTimeout(120_000)` le plus long de la suite (`blog-review-rating-a11y.spec.ts:176`).
+
+### Le nombre d'URL de sitemap — 28 hors contenu, plus le contenu
+
+`src/pages/sitemap-cms.xml.ts` est un endpoint d'exécution (`prerender = false`) : son volume dépend de ce qui est en base. Seul le squelette est déterministe.
+
+| Bloc | URLs | Dérivation |
+| :-- | --: | :-- |
+| Accueil | **4** | une par locale (`LOCALES`, 4 locales) |
+| Routes communes | **12** | 4 locales × `Object.values(commonT.pageRoutes)` = 4 × 3 (`about`, `contact`, `legal`) |
+| Listes blog / services / voyages | **12** | 4 locales × 3 (listing blog, listing services, base voyages) |
+| **Squelette déterministe** | **28** | indépendant du contenu |
+| Pages CMS, catégories/tags/articles de blog, catégories/tags/services, voyages | **variable** | une URL par enregistrement publié, par locale |
+
+**Formule** : `URLs = 28 + (pages CMS + articles + catégories + tags + services + voyages) × 4 locales`.
+
+> Ne pas citer un total de sitemap sans préciser qu'il dépend du contenu en base. **28** est le seul chiffre reproductible à partir du code ; c'est lui qui est employé dans les gates CI, où la seule présence de `dist/client/sitemap-index.xml` et son origine sont vérifiées (voir [security.md](../security.md) §10).
 
 ### Coverage v8 (seuils vitest.config.ts)
 
@@ -79,11 +111,14 @@
 
 | Fonction | Fichier source | Type | Test | Status |
 | :-- | :-- | :-- | :-- | :-- |
-| `checkRateLimit(key, opts)` | `src/lib/rate-limit.ts` | Pure | `tests/unit/rate-limit.test.ts` | ✅ 8 tests |
-| `extractIp(headers)` | `src/lib/audit.ts` | Pure | `tests/unit/extract-ip.test.ts` | ✅ 8 tests |
-| `logAuditEvent(input)` | `src/lib/audit.ts` | Side-effect (DB) | `tests/integration/audit.test.ts` + `tests/unit/audit-fallback.test.ts` | ✅ 6+1 tests |
-| `auth` (instance) | `src/lib/auth.ts` | Config | `tests/integration/auth.test.ts` + `auth-advanced.test.ts` + `auth-org.test.ts` | ✅ 42 tests |
-| `authClient` | `src/lib/auth-client.ts` | Client-side | — | ❌ Non testé |
+| `checkRateLimit(key, opts)` | `src/lib/rate-limit.ts` | Pure | `tests/unit/rate-limit.test.ts` | ✅ 10 tests |
+| `extractIp(headers, clientAddress?)` | `src/lib/audit.ts` | Pure | `tests/unit/extract-ip.test.ts` | ✅ 19 tests |
+| `logAuditEvent(input)` | `src/lib/audit.ts` | Side-effect (DB) | `tests/integration/audit.test.ts` (8) + `tests/unit/audit-fallback.test.ts` (1) | ✅ 9 tests |
+| `INFRA_PROXY_HEADER_REJECTED` | `src/middleware.ts` | Effet de bord | `tests/unit/voyage/middleware-forwarded-audit.test.ts` | ✅ 21 tests |
+| `onRequest` (garde locale, session, en-têtes) | `src/middleware.ts` | Middleware | `tests/unit/voyage/middleware.test.ts` | ✅ 17 tests |
+| `GET /api/health` (authentification) | `src/pages/api/health.ts` | Endpoint | `tests/unit/api-health-auth.test.ts` | ✅ 21 tests |
+| `auth` (instance) | `src/lib/auth.ts` | Config | `tests/integration/auth.test.ts` (11) + `auth-flow.test.ts` (5) + `auth-advanced.test.ts` (10) | ✅ 26 tests |
+| `authClient` | `src/lib/auth-client.ts` | Client-side | — | ❌ Non testé directement (invariant Instead couvert par `tests/e2e/credential-url-leak.spec.ts`) |
 
 ### `src/i18n/` — Internationalisation
 
@@ -152,7 +187,12 @@
 
 | Fonction | Fichier source | Type | Test | Status |
 | :-- | :-- | :-- | :-- | :-- |
-| `onRequest` (session + locale guard + security headers) | `src/middleware.ts` | Middleware | `tests/integration/middleware.test.ts` (via `getSession`, 4 cas headers) | ⚠️ Indirect — `onRequest` lui-même non testé directement |
+| `onRequest` — garde locale 404 / 301, rewrite, session, timeout 503, SVG | `src/middleware.ts` | Middleware | `tests/unit/voyage/middleware.test.ts` (17) | ✅ Importe `onRequest` |
+| `onRequest` — point d'application unique des 10 en-têtes, y compris sur les 3 sorties précoces | `src/middleware.ts` | Middleware | `tests/unit/voyage/middleware.test.ts` | ✅ Valeurs exactes lues sur la `Response` réellement produite |
+| `onRequest` — 301 construite (en-têtes mutables) | `src/middleware.ts` | Middleware | `tests/unit/voyage/middleware.test.ts` | ✅ Verrou explicite |
+| `onRequest` — `reportRejectedForwardedHeaders()` | `src/middleware.ts` | Middleware | `tests/unit/voyage/middleware-forwarded-audit.test.ts` (21) | ✅ Ligne d'audit observée à la frontière de persistance |
+| `auth.api.getSession({ headers })` | `src/lib/auth.ts` | Intégration DB | `tests/integration/middleware.test.ts` (4) | ⚠️ Teste la dépendance better-auth, **pas** le middleware — ne l'importe pas |
+| — | — | — | `tests/unit/middleware-timeout.test.ts` (6) | ❌ **Couverture illusoire** — n'importe pas le middleware, assert des littéraux locaux dont un `max-age` HSTS divergent du produit. Voir [middleware.md](../middleware.md) §Tests |
 | `getDbEnv()` / `isProd()` / `isTest()` / `isLocal()` / `getDbUrl()` / `getPoolConfig()` | `src/database/env.ts` | Env readers | — | ❌ Non testé |
 | Schemas (8 tables) | `src/database/schemas/` | Déclaratif | — | ❌ Non testé |
 | CLI: `db.check`, `db.migrate`, etc. | `src/database/commands/` | Scripts | — | ❌ Non testé |
@@ -202,12 +242,15 @@
 ## Score global
 
 ```text
- Vitest (unit + intégration) :  102 + 15 fichiers sur disque
+ Vitest (unit + intégration) :  129 + 45 = 174 fichiers sur disque, 1 907 tests
  Coverage v8 :                  seuils 80/75/75/80 (vitest.config.ts)
- Playwright E2E :               6 specs × 3 navigateurs
- Pa11y WCAG2AAA non strict :    60 URLs (ignore color-contrast + hideElements)
+ Playwright E2E :               28 specs, 269 blocs test() × 3 navigateurs
+ Pa11y WCAG2AAA non strict :    60 URLs (32 publiques + 8 authentifiées + 20 admin)
  Lighthouse CI :                60 URLs (32 + 8 + 20) — configuration durcie pour CI (NO_NAVSTART corrigé)
+ Sitemap :                      28 URLs hors contenu (déterministe) + contenu en base
 ```
+
+> Les valeurs `102 + 15 fichiers` et `6 specs` qui figuraient dans ce bloc sont **périmées** et ne doivent pas y revenir : l'en-tête de ce document les déclare périmées, et les réemployer ici rendrait le document contradictoire avec lui-même. Les compteurs ci-dessus sont ceux de la section « Par type de test », recomptés depuis les fichiers.
 
 > **Chemins critiques couverts** : auth (sign-up/sign-in/sign-out), admin CRUD (handlers + Zod validation), RGPD (export, suppression user), audit (hooks + insert), upload (validation, sécurité), i18n (URLs, slugs, translations), accessibilité (60 URLs Pa11y + 60 Lighthouse).
 
@@ -390,7 +433,7 @@ tests/reports/
 
 ```md
 tests/
-├── unit/                          # 102 fichiers sur disque (extraits ci-dessous)
+├── unit/                          # 129 fichiers sur disque (extraits ci-dessous)
 │   ├── admin-contact.test.ts      # updateContactInfo (handler + Zod)
 │   ├── admin-hours.test.ts        # updateOpeningHours (handler + Zod)
 │   ├── admin-navigation-items.test.ts  # CRUD navigation
@@ -404,23 +447,32 @@ tests/
 │   ├── theme-tokens.test.ts       # OKLCH parser + CSS generation
 │   ├── ... (voir dossier tests/unit/)
 │
-├── integration/                   # 15 fichiers sur disque (extraits ci-dessous)
+├── integration/                   # 45 fichiers sur disque (extraits ci-dessous)
 │   ├── auth.test.ts               # Sign-up/sign-in/sessions
 │   ├── auth-advanced.test.ts      # Ban/unban, rôles, password
-│   ├── auth-org.test.ts           # Organisations
 │   ├── audit.test.ts              # Insertion audit_log
-│   ├── middleware.test.ts         # getSession (4 cas headers)
+│   ├── middleware.test.ts         # getSession (4 cas headers) — n'importe PAS src/middleware.ts
+│   ├── voyage-*.test.ts           # Tunnel complet (actions, loaders, pages, paiements, concurrence)
 │   ├── ... (voir dossier tests/integration/)
 │
-├── e2e/                           # 6 specs ×3 browsers
+├── e2e/                           # 28 specs × 3 browsers (269 blocs test())
 │   ├── app.spec.ts                # Homepage, i18n, security headers
 │   ├── auth.spec.ts               # Sign-up/sign-in, guards, session
 │   ├── blog.spec.ts               # Blog + workflow (seed admin)
+│   ├── blog-review-rating-a11y.spec.ts # Notation d'avis + résumé accessible
 │   ├── cms-admin.spec.ts          # Admin pages (site, nav, theme)
 │   ├── services.spec.ts           # Services public + admin (seed admin)
 │   ├── services-lifecycle.spec.ts # Lifecycle services (seed admin)
-│   ├── global-setup.ts            # Seed user vérifié admin
-│   └── global-teardown.ts         # Cleanup
+│   ├── credential-url-leak.spec.ts    # Invariant : les identifiants n'atteignent jamais une URL
+│   ├── error-paths-security.spec.ts   # Sorties précoces du middleware + en-têtes
+│   ├── actions-*.spec.ts          # Matrice d'actions (admin, blog, services, voyage)
+│   ├── admin-*.spec.ts            # Admin étendu, pages, trips CRUD
+│   ├── guest-journeys.spec.ts     # Parcours visiteur
+│   ├── i18n-routes.spec.ts        # Routage et redirections de locale
+│   ├── public-pages.spec.ts       # Pages publiques
+│   ├── ux-flows.spec.ts           # Parcours UX
+│   ├── global-setup.ts            # Seed user vérifié admin (pas une spec)
+│   └── global-teardown.ts         # Cleanup (pas une spec)
 │
 ├── a11y/                          # Orchestration accessibilité
 │   ├── run.cjs                    # Orchestrateur complet (build → audit → teardown)

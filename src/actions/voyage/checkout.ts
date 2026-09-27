@@ -7,7 +7,7 @@ import { policyVersions } from "@database/schemas";
 import { initiateCheckout as runCheckoutTunnel } from "@/modules/payments/domain/payment-service";
 import { getValidCheckoutSession } from "@/modules/payments/domain/checkout-service";
 import { normalizeEmail } from "@/modules/travelers/domain/traveler-email";
-import { toActionError } from "@/lib/voyage-errors";
+import { toVoyageActionError } from "./transition-errors";
 import { cancelReservation as cancelReservationService } from "@/modules/reservations/domain/reservation-service";
 import { refundReservationPayments } from "@/modules/payments/domain/refund-service";
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
@@ -53,7 +53,7 @@ export const initiateCheckout = defineAction({
       });
       return result;
     } catch (err) {
-      throw toActionError(err);
+      throw toVoyageActionError(err);
     }
   },
 });
@@ -73,7 +73,7 @@ export const cancelReservation = defineAction({
       if (err instanceof Error && err.message.includes("introuvable")) {
         throw new ActionError({ code: "NOT_FOUND", message: "Réservation introuvable." });
       }
-      throw toActionError(err);
+      throw toVoyageActionError(err);
     }
     const { reservation, refundAmount } = cancelled;
     if (!reservation) throw new ActionError({ code: "NOT_FOUND", message: "Réservation introuvable." });

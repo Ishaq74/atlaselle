@@ -1,4 +1,5 @@
 import type { TripStatus } from "@database/schemas/trips.schema";
+import { transitionRefused } from "@/modules/state-machines/domain/transition-refusal";
 
 // TODO §8.3 — transitions explicites uniquement (jamais updateTrip({ status })).
 export const TRIP_TRANSITIONS: Record<TripStatus, TripStatus[]> = {
@@ -16,6 +17,6 @@ export function canTransitionTrip(from: TripStatus, to: TripStatus): boolean {
 
 export function assertTransitionTrip(from: TripStatus, to: TripStatus): void {
   if (!canTransitionTrip(from, to)) {
-    throw new Error(`Invalid trip transition: ${from} → ${to}`);
+    throw transitionRefused("voyage", from, to);
   }
 }

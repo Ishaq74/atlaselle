@@ -256,6 +256,7 @@ export default {
   },
   errors: {
     slugReserved: "Ce slug est réservé.",
+    ratingRequired: "La note est requise.",
     titleRequired: "Le titre est requis.",
     contentRequired: "Le contenu est requis.",
     commentDisabled: "Les commentaires sont désactivés.",

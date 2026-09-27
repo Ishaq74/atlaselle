@@ -75,7 +75,7 @@ test.describe.serial('Services surfaces', () => {
         wrongCategoryStatus = response.status();
       }
     });
-    const wrongCategory = await page.goto(`/fr/services/not-the-category/${seeded.globalServiceSlug}-fr`, { waitUntil: 'networkidle' }); expect(wrongCategoryStatus).toBeGreaterThanOrEqual(300); expect(wrongCategoryStatus).toBeLessThan(400); await expect(page).toHaveURL(new RegExp(`/fr/services/${seeded.globalCategorySlug}-fr/${seeded.globalServiceSlug}-fr$`));
+    await page.goto(`/fr/services/not-the-category/${seeded.globalServiceSlug}-fr`, { waitUntil: 'networkidle' }); expect(wrongCategoryStatus).toBeGreaterThanOrEqual(300); expect(wrongCategoryStatus).toBeLessThan(400); await expect(page).toHaveURL(new RegExp(`/fr/services/${seeded.globalCategorySlug}-fr/${seeded.globalServiceSlug}-fr$`));
   });
 
   for (const locale of LOCALES) test(`renders localized public service in ${locale}`, async ({ page }) => { const response = await page.goto(`/${locale}/services/${seeded.globalServiceSlug}-${locale}`, { waitUntil: 'networkidle' }); expect(response?.status()).toBe(200); await expect(page.getByRole('heading', { name: `${seeded.globalServiceTitle} ${locale}` })).toBeVisible(); if (locale === 'ar') await expect(page.locator('html')).toHaveAttribute('dir', 'rtl'); });
@@ -83,7 +83,22 @@ test.describe.serial('Services surfaces', () => {
   test('global admin exposes the resource grammar', async ({ browser }) => {
     const context = await browser.newContext({ storageState: adminStorageState ?? undefined }); const page = await context.newPage();
     const globalResponse = await page.goto('/fr/admin/services', { waitUntil: 'networkidle' }); expect(globalResponse?.status()).toBe(200); await expect(page.getByRole('heading', { name: /Services/i }).first()).toBeVisible(); await expect(page.getByRole('link', { name: `${seeded.globalServiceTitle} fr` }).first()).toBeVisible();
-    await expect(page.locator('[data-services-admin-workspace]')).toHaveAttribute('data-organization-id', ''); await context.close();
+    // Single-tenant : la migration vers le modèle à organisation unique a supprimé
+    // `data-organization-id`, que le produit n'émet plus nulle part. L'état réel de
+    // l'espace de travail se lit dans le balisage rendu par ServicesAdminPage.astro
+    // (`<div data-services-admin-workspace data-locale=… data-confirm-taxonomy-delete=…>`) :
+    //   1. la locale demandée est liée sur l'élément — l'espace de travail est bien
+    //      celui de /fr, pas un shell sans locale ;
+    //   2. la grammaire de confirmation de la taxonomie y est localisée en français —
+    //      c'est la valeur que le script de l'espace de travail lit pour construire
+    //      ses confirmations ; une chaîne vide ou codée en dur la casse ;
+    //   3. aucun attribut de portée organisationnelle ne réapparaît : le retour
+    //     d'un modèle multi-organisation échouerait ici.
+    const workspace = page.locator('[data-services-admin-workspace]');
+    await expect(workspace).toHaveAttribute('data-locale', 'fr');
+    await expect(workspace).toHaveAttribute('data-confirm-taxonomy-delete', 'Supprimer ce service ?');
+    await expect(workspace).not.toHaveAttribute('data-organization-id');
+    await context.close();
   });
 
   test('global admin create surface and localized editor are reachable', async ({ browser }) => {
@@ -100,7 +115,13 @@ test.describe.serial('Services surfaces', () => {
 
   test('admin taxonomy and moderation workspace are exposed', async ({ browser }) => {
     const context = await browser.newContext({ storageState: adminStorageState ?? undefined }); const page = await context.newPage(); await page.goto('/fr/admin/services', { waitUntil: 'networkidle' });
-    await expect(page.getByRole('tab', { name: /catég|categor|categoría|الفئات/i }).first()).toBeVisible(); await expect(page.getByRole('tab', { name: /modér|moder|moderación|الإشراف/i }).first()).toBeVisible(); await expect(page.getByRole('tab', { name: /stat|stats|إحصاء/i }).first()).toBeVisible(); await context.close();
+    // Les onglets sont nommés EXACTEMENT comme ServicesAdminPage.astro les rend :
+    // « Catégories » et « Modération » viennent de la grammaire d'engagement
+    // (et.admin.*). L'onglet de statistiques porte le libellé « Vues »
+    // (t.labels.views) — et NON « Statistiques », absent des quatre locales
+    // (« Views » / « Vistas » / « المشاهدات »). Un nom exact, cas-sensible, est
+    // plus exigeant que le motif large que cette assertion contenait.
+    await expect(page.getByRole('tab', { name: /catég|categor|categoría|الفئات/i }).first()).toBeVisible(); await expect(page.getByRole('tab', { name: /modér|moder|moderación|الإشراف/i }).first()).toBeVisible(); await expect(page.getByRole('tab', { name: 'Vues', exact: true })).toBeVisible(); await context.close();
   });
 
   test('admin lifecycle preserves the explicit state machine', async ({ browser }) => {

@@ -256,6 +256,7 @@ export default {
   },
   errors: {
     slugReserved: "This slug is reserved.",
+    ratingRequired: "Rating is required.",
     titleRequired: "Title is required.",
     contentRequired: "Content is required.",
     commentDisabled: "Comments are disabled.",

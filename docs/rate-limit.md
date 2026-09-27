@@ -2,7 +2,7 @@
 
 > **Fichier** : `src/lib/rate-limit.ts`  
 > **Store** : `src/lib/store.ts` (`MemoryRateLimitStore`, `getRateLimitStore()`, `setStores()`)  
-> **Tests** : `tests/unit/rate-limit.test.ts` (9 tests)
+> **Tests** : `tests/unit/rate-limit.test.ts` (10 tests)
 
 ---
 
@@ -62,7 +62,7 @@ if (!rl.allowed) {
 | `GET /api/content-export` | `content-export:{userId}` | 60s | 5 | `src/pages/api/content-export.ts` |
 | `POST /api/content-import` | `content-import:{userId}` | 60s | 3 | `src/pages/api/content-import.ts` |
 | `GET /api/audit-export` | `audit-export:{userId}` | 60s | 5 | `src/pages/api/audit-export.ts` |
-| `GET /api/search` | `search_<clientAddress>` | 60s | 60 | `src/pages/api/search.ts` |
+| `GET /api/search` | `search:{ip}` (repli `search:unknown`) | 60s | 60 | `src/pages/api/search.ts` |
 | `POST /api/contact` | `contact:{ip}` (fallback `contact:__global__`) | 300s | 3 (10 en global) | `src/pages/api/contact.ts` |
 | `GET /api/preview` | `preview:{userId}` | 60s | 30 | `src/pages/api/preview.ts` |
 | Admin actions (toutes) | `admin-{scope}:{userId}` | 60s | 30 | `src/actions/admin/_helpers.ts` |
@@ -77,6 +77,30 @@ adminRateLimit(context, user.id, "nav");   // clé: admin-nav:{userId}
 adminRateLimit(context, user.id, "site");  // clé: admin-site:{userId}
 adminRateLimit(context, user.id, "pages"); // clé: admin-pages:{userId}
 ```
+
+### Identité réseau de la recherche — pourquoi pas `clientAddress`
+
+`GET /api/search` est le **seul** endpoint public indexé sur une identité réseau plutôt que sur un `userId`. Sa clé est :
+
+```typescript
+// src/pages/api/search.ts
+const clientKey = extractIp(request.headers, clientAddress) ?? "unknown";
+const rl = checkRateLimit(`search:${clientKey}`, { window: 60, max: 60 });
+```
+
+La limite était auparavant indexée sur `clientAddress` **seul**. Derrière un reverse proxy, `context.clientAddress` vaut l'adresse du proxy pour **toutes** les requêtes : tous les visiteurs partageaient alors un seul compartiment, et la recherche devenait inaccessible par saturation pour tous, sans qu'aucun client ne soit fautif.
+
+`extractIp()` (`src/lib/audit.ts`) applique la résolution d'identité réseau standard du projet :
+
+1. si `TRUST_PROXY === "true"` : premier IP de `x-forwarded-for`, puis `x-real-ip` ;
+2. sinon, ou en repli : `clientAddress` ;
+3. validation IPv4/IPv6 via `net.isIP()`, sinon `null`.
+
+Le repli `"unknown"` (bucket global partagé) est **conservé tel quel** : il borne le débit quand aucune adresse exploitable n'est disponible, au prix d'un partage de compartiment dans ce cas précis. Compromis assumé, pas oubli.
+
+> `TRUST_PROXY` doit valoir `"true"` en production derrière un proxy. Sans lui, `extractIp()` ignore les en-têtes transférés et la clé retombe sur `clientAddress` — c'est-à-dire sur l'adresse du proxy, donc sur le compartiment unique qu'on voulait précisément éviter. Voir `docs/security.md` §10.
+
+Autres limites indexées sur une IP : `upload:{ip}`, `contact:{ip}` (avec repli `contact:__global__`). Les limites d'actions et d'exports sont indexées sur `{userId}`.
 
 ---
 
@@ -124,14 +148,17 @@ export async function checkRateLimit(key: string, opts: RateLimitOptions) {
 
 ## Tests
 
-`tests/unit/rate-limit.test.ts` — 9 tests :
+`tests/unit/rate-limit.test.ts` — **10 tests** :
 
-- Autorise les requêtes sous le seuil
-- Bloque au-delà du max
-- Reset après expiration de la fenêtre
-- Clés indépendantes (pas de cross-contamination)
-- Retourne `remaining` correct
-- `resetAt` est dans le futur
-- Requêtes successives décrémentent `remaining`
-- Rejet fail-closed quand `MAX_ENTRIES` (10000) est atteint avec des entrées actives
-- `resetAt` avec jitter toujours ≥1s dans le futur
+1. `allows requests within the limit`
+2. `decrements remaining on each call`
+3. `blocks requests when limit is exceeded`
+4. `returns a valid resetAt timestamp in the future`
+5. `uses different counters for different keys`
+6. `resets counter after window expires`
+7. `provides fresh remaining count after window resets`
+8. `rejects when MAX_ENTRIES is reached with active entries (fail-closed)`
+9. `jittered resetAt is always at least 1 second in the future`
+10. `purges expired entries to make room when full`
+
+`tests/unit/extract-ip.test.ts` — **19 tests** : couvre la résolution d'identité réseau utilisée comme clé de limite par `upload`, `contact` et `search`.

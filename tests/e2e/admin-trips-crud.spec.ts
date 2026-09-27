@@ -27,7 +27,6 @@ test.describe('Admin trips — CRUD & lifecycle', () => {
   test('full trip lifecycle via direct DB + admin pages render', async ({ browser }) => {
     const { getDrizzle } = await import('../../src/database/drizzle');
     const { trips, tripTranslations } = await import('../../src/database/schemas/trips.schema');
-    const { mediaFiles } = await import('../../src/database/schemas/media.schema');
     const { insertTestTrip } = await import('../helpers/trip-factory');
     const { eq } = await import('drizzle-orm');
 

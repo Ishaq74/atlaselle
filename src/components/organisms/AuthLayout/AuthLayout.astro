@@ -12,13 +12,13 @@ const { title } = Astro.props;
 <div class="auth-layout">
   <SidebarProvider>
     <slot name="sidebar" />
-    <SidebarInset>
+    <SidebarInset aria-labelledby={title ? "auth-layout-title" : undefined}>
       <header class="flex h-12 shrink-0 items-center gap-2 border-b px-4 sticky top-16 z-10 bg-background">
         <SidebarTrigger />
         {title && (
           <>
             <Separator orientation="vertical" class="mx-2 h-4" />
-            <span class="text-muted-foreground text-sm font-medium truncate">{title}</span>
+            <span id="auth-layout-title" class="text-muted-foreground text-sm font-medium truncate">{title}</span>
           </>
         )}
       </header>

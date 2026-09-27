@@ -90,6 +90,8 @@ const parsedSections = sections
     ← {cms.title}
   </a>
 
+  <h1 class="font-heading mb-6 text-2xl font-semibold">{cms.editPage} — {page.title}</h1>
+
   <!-- Autocomplete dropdown (positioned absolutely, hidden by default) -->
   {/* eslint-disable-next-line astro/jsx-a11y/prefer-tag-over-role -- WAI-ARIA "listbox" is the correct role for a combobox-autocomplete popup that inserts {{variable}} tokens at the cursor position inside a textarea; native <select>/<datalist> cannot do that */}
   <div
@@ -110,7 +112,16 @@ const parsedSections = sections
       <CardTitle>{cms.editPage} — {page.title}</CardTitle>
     </CardHeader>
     <CardContent>
-      <form id="page-meta-form" class="grid gap-4 sm:grid-cols-2">
+      {/* method="post" + action explicite : première barrière structurelle contre la
+          soumission native en GET vers l'URL courante — c'est ce GET qui exposait le
+          titre, le slug et les champs meta de la page dans la chaîne de requête, donc
+          dans l'historique de navigation, dans l'en-tête Referer des navigations
+          suivantes et dans le journal d'accès du serveur. Le traitement réel est un
+          appel astro:actions (updatePage), sans route serveur de repli : l'action
+          pointe vers la page courante, qui n'exporte aucun POST, donc une soumission
+          native y est rejetée sans mutation. preventDefault (script) = seconde
+          barrière. */}
+      <form id="page-meta-form" name="page-meta-form" method="post" action={Astro.url.pathname} class="grid gap-4 sm:grid-cols-2">
         <div>
           <Label htmlFor="page-title">{cms.pageTitle}</Label>
           <Input id="page-title" name="title" value={page.title} required />

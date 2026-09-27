@@ -14,9 +14,6 @@ export interface SeoIssue {
 /**
  * Validate SEO fields for a CMS page.
  * Returns a list of issues sorted by severity (error → warning → info).
- *
- * Optionally accepts `sections` to detect structural SEO problems
- * (e.g. multiple h1 headings from hero sections).
  */
 export function validatePageSeo(page: {
   title?: string;
@@ -26,7 +23,7 @@ export function validatePageSeo(page: {
   ogImage?: string | null;
   canonical?: string | null;
   robots?: string | null;
-}, sections?: { type: string }[]): SeoIssue[] {
+}): SeoIssue[] {
   const issues: SeoIssue[] = [];
   const displayTitle = page.metaTitle || page.title || '';
 
@@ -116,14 +113,6 @@ export function validatePageSeo(page: {
   // ── Meta Title vs Title ──────────────────────────────────────────
   if (page.metaTitle && page.title && page.metaTitle === page.title) {
     issues.push({ field: 'metaTitle', severity: 'info', message: 'Le meta title est identique au titre. Personnalisez-le pour optimiser le CTR.' });
-  }
-
-  // ── Duplicate <h1> detection ─────────────────────────────────────
-  if (sections) {
-    const heroCount = sections.filter(s => s.type === 'hero').length;
-    if (heroCount > 1) {
-      issues.push({ field: 'sections', severity: 'warning', message: `${heroCount} sections hero détectées. Une seule balise <h1> par page est recommandée pour le SEO.` });
-    }
   }
 
   // Sort by severity: error > warning > info

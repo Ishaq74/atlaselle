@@ -117,7 +117,12 @@ export async function withDbActorContext<T>(
 
   try {
     await client.query('BEGIN');
-    await client.query(`SET LOCAL statement_timeout = $1`, [`${timeout}`]);
+    // `SET LOCAL` is a utility command: the parser stops at the parameter token
+    // (SQLSTATE 42601) because utility statements do not accept bind parameters.
+    // set_config(..., is_local => true) is the parameterizable equivalent of
+    // SET LOCAL: the setting lives only for the current transaction and never
+    // leaks back to the pool once the client is released. The value stays bound.
+    await client.query('SELECT set_config($1, $2, true)', ['statement_timeout', `${timeout}`]);
     await client.query('SELECT set_config($1, $2, true)', ['app.current_user_id', actor.userId ?? '']);
     await client.query('SELECT set_config($1, $2, true)', ['app.is_admin', actor.isAdmin ? 'true' : 'false']);
 

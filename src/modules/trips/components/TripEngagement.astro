@@ -1,300 +1,346 @@
 ---
-import { getDrizzle } from "@database/drizzle";
-import { eq, and, desc, inArray } from "drizzle-orm";
-import { user } from "@database/schemas/auth.schema";
-import { tripComments, tripFavorites, tripReactions, tripReviews, tripReviewHelpful } from "@database/schemas/trips.schema";
+/**
+ * TripEngagement — avis et questions sur un voyage.
+ *
+ * MÊME design que l'article du blog, par construction : les onglets, le
+ * résumé de note, les cartes d'avis et les fils de discussion sont les
+ * composants partagés de `components/molecules/Engagement`. Seul le script
+ * d'action diffère (`createTripReview` / `createTripComment`).
+ *
+ * Le composant reste présentationnel : les données viennent du loader
+ * `loadTripEngagement`.
+ */
+import { Icon } from "astro-icon/components";
 import type { Locale } from "@i18n/config";
+import type { TripEngagementDTO } from "@/modules/trips/loaders/trip-engagement.loader";
 import { getTripEngagementTranslations } from "@/modules/trips/i18n/engagement";
+import { Card, CardContent } from "@atoms/card";
+import EngagementTabs from "@/components/molecules/Engagement/EngagementTabs.astro";
+import EngagementReviewStats from "@/components/molecules/Engagement/ReviewStats.astro";
+import EngagementReviewCard, {
+  type EngagementReviewItem,
+} from "@/components/molecules/Engagement/ReviewCard.astro";
+import EngagementCommentThread, {
+  type EngagementCommentItem,
+} from "@/components/molecules/Engagement/CommentThread.astro";
+import ReviewFormCard from "@/components/molecules/Engagement/ReviewFormCard.astro";
+import CommentFormCard from "@/components/molecules/Engagement/CommentFormCard.astro";
 
-const { tripId, locale, commentStatus, allowReviews } = Astro.props as {
+interface Props {
   tripId: string;
   locale: Locale;
   commentStatus: "OPEN" | "CLOSED" | "DISABLED";
   allowReviews: boolean;
-};
+  engagement: TripEngagementDTO;
+  isSignedIn: boolean;
+}
 
-const db = getDrizzle();
-const currentUserId = Astro.locals.user?.id ?? null;
-
-const [reviewsRaw, commentsRaw, favoriteRaw, reactionRaw] = await Promise.all([
-  db.select({ review: tripReviews, author: { id: user.id, name: user.name } }).from(tripReviews).leftJoin(user, eq(user.id, tripReviews.authorId)).where(and(eq(tripReviews.tripId, tripId), eq(tripReviews.status, "APPROVED"))).orderBy(desc(tripReviews.createdAt)).limit(50),
-  db.select({ comment: tripComments, author: { id: user.id, name: user.name } }).from(tripComments).leftJoin(user, eq(user.id, tripComments.authorId)).where(and(eq(tripComments.tripId, tripId), eq(tripComments.status, "APPROVED"))).orderBy(desc(tripComments.createdAt)).limit(100),
-  currentUserId ? db.select().from(tripFavorites).where(and(eq(tripFavorites.tripId, tripId), eq(tripFavorites.userId, currentUserId))).limit(1) : Promise.resolve([]),
-  currentUserId ? db.select({ reactionType: tripReactions.reactionType }).from(tripReactions).where(and(eq(tripReactions.tripId, tripId), eq(tripReactions.userId, currentUserId))).limit(1) : Promise.resolve([]),
-]);
-
-const helpfulVotes =
-  currentUserId && reviewsRaw.length > 0
-    ? await db.select({ reviewId: tripReviewHelpful.reviewId, isHelpful: tripReviewHelpful.isHelpful }).from(tripReviewHelpful).where(and(eq(tripReviewHelpful.userId, currentUserId), inArray(tripReviewHelpful.reviewId, reviewsRaw.map((r) => r.review.id))))
-    : [];
-const helpfulByReview = new Map(helpfulVotes.map((v) => [v.reviewId, v.isHelpful]));
+const { tripId, locale, commentStatus, allowReviews, engagement, isSignedIn } = Astro.props as Props;
 
 const t = getTripEngagementTranslations(locale);
-const favoriteActive = favoriteRaw.length > 0;
-const currentReaction = reactionRaw[0]?.reactionType ?? null;
-const reactionTypes = ["LIKE", "LOVE", "FIRE", "CLAP"] as const;
+const { ratingAverage, ratingCount, distribution, reviews, comments } = engagement;
 
-const total = reviewsRaw.length;
-const sum = reviewsRaw.reduce((n, r) => n + r.review.rating, 0);
-const average = total > 0 ? Math.round((sum / total) * 10) / 10 : 0;
-const distribution = [5, 4, 3, 2, 1].map((rating) => ({ rating, count: reviewsRaw.filter((r) => r.review.rating === rating).length }));
+const hasReviews = reviews.length > 0;
+const hasComments = comments.length > 0;
+const reviewTab = hasReviews ? "list" : "write";
+const commentTab = hasComments ? "list" : "write";
 
-interface TripCommentNode {
-  id: string;
-  parentId: string | null;
-  content: string;
-  createdAt: Date;
-  authorName: string | null;
-  guestName: string | null;
-  replies: TripCommentReply[];
-}
+const reviewLabels = {
+  recommended: t.recommended,
+  notRecommended: t.notRecommended,
+  helpful: t.helpful,
+  helpfulMark: t.helpfulMark,
+  helpfulUnmark: t.helpfulUnmark,
+  report: t.report,
+  reply: t.reply,
+};
+const threadLabels = { reply: t.reply, pending: "…", anonymous: "—" };
 
-interface TripCommentReply {
-  id: string;
-  content: string;
-  createdAt: Date;
-  authorName: string | null;
-  guestName: string | null;
-}
+const toReviewItem = (review: TripEngagementDTO["reviews"][number]): EngagementReviewItem => ({
+  id: review.id,
+  rating: review.rating,
+  title: review.title,
+  content: review.content,
+  isRecommended: review.isRecommended,
+  helpfulCount: review.helpfulCount,
+  createdAt: review.createdAt,
+  authorName: review.authorName ?? threadLabels.anonymous,
+  authorImage: null,
+  viewerHelpful: review.viewerHelpful,
+});
 
-const commentsById = new Map<string, TripCommentNode>();
-for (const { comment, author } of [...commentsRaw].sort((a, b) => a.comment.createdAt.getTime() - b.comment.createdAt.getTime())) {
-  commentsById.set(comment.id, {
-    id: comment.id,
-    parentId: comment.parentId,
-    content: comment.content,
-    createdAt: comment.createdAt,
-    authorName: author?.name ?? null,
-    guestName: comment.guestName,
-    replies: [],
-  });
-}
-const rootComments: TripCommentNode[] = [];
-for (const node of commentsById.values()) {
-  const parent = node.parentId ? commentsById.get(node.parentId) : undefined;
-  if (parent) {
-    parent.replies.push({ id: node.id, content: node.content, createdAt: node.createdAt, authorName: node.authorName, guestName: node.guestName });
-  } else {
-    rootComments.push(node);
-  }
-}
-rootComments.reverse();
-
-function formatDate(d: Date): string {
-  return new Date(d).toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" });
-}
+const toCommentItem = (comment: TripEngagementDTO["comments"][number]): EngagementCommentItem => ({
+  id: comment.id,
+  content: comment.content,
+  createdAt: comment.createdAt,
+  authorName: comment.authorName ?? comment.guestName ?? threadLabels.anonymous,
+  authorImage: null,
+  status: "APPROVED",
+  replies: (comment.replies ?? []).map(toCommentItem),
+});
 ---
-<section class="mt-14 space-y-10" data-trip-engagement data-trip-id={tripId} data-locale={locale} data-pending-label={t.pendingModeration} data-error-label={t.error} data-success-label={t.success} data-report-sent-label={t.reportSent} data-signin-label={t.signInRequired} data-favorite-active={favoriteActive ? "true" : "false"} data-reaction={currentReaction ?? ""} aria-label={t.reviewTitle}>
-  <div class="flex flex-wrap items-center gap-3">
-    {currentUserId && <button type="button" class="rounded-md border px-4 py-2 text-sm hover:bg-muted" data-trip-favorite>{favoriteActive ? t.unfavorite : t.favorite}</button>}
-    <span class="text-sm font-medium">{t.reactionLabel}</span>
-    {currentUserId && reactionTypes.map((type) => <button type="button" class:list={["rounded-full border px-3 py-1.5 text-sm transition", { "bg-primary text-primary-foreground": currentReaction === type }]} data-trip-reaction={type} aria-pressed={currentReaction === type}>{t.reactionTypes[type]}</button>)}
-    <p data-trip-engagement-status class="text-sm" aria-live="polite"></p>
-  </div>
 
-  <section aria-labelledby="trip-reviews-title" class="space-y-5">
-    <h2 id="trip-reviews-title" class="text-2xl font-semibold">{t.reviewTitle} <span class="text-base font-normal text-muted-foreground">(<bdi>{total}</bdi>{total > 0 && <> · <bdi>{average}/5</bdi></>})</span></h2>
+<section
+  class="flex flex-col gap-10"
+  id="trip-engagement"
+  data-trip-engagement
+  data-trip-id={tripId}
+  data-t-pending={t.pendingModeration}
+  data-t-success={t.success}
+  data-t-error={t.error}
+>
+  {/* ── Avis ─────────────────────────────────────────────────────────────── */}
+  <section class="flex flex-col gap-6" aria-labelledby="trip-reviews-title">
+    <h2 id="trip-reviews-title" class="font-heading flex items-center gap-2 text-lg font-semibold">
+      <Icon name="mdi:star-outline" class="size-5 text-muted-foreground" />
+      {t.reviewTitle} ({reviews.length})
+    </h2>
+
     {!allowReviews ? (
-      <p class="rounded-xl border p-5 text-sm text-muted-foreground">{t.reviewsDisabled}</p>
+      <Card>
+        <CardContent class="py-8 text-center text-sm text-muted-foreground">{t.reviewsDisabled}</CardContent>
+      </Card>
     ) : (
       <>
-        {total > 0 && (
-          <div class="grid gap-4 rounded-xl border p-5 sm:grid-cols-[auto_1fr] sm:items-center">
-            <div class="text-center">
-              <p class="text-5xl font-bold"><bdi>{average}</bdi></p>
-              <p class="mt-1 text-sm text-muted-foreground" aria-label={`${t.ratingLabel} ${average}/5`}>{"★".repeat(Math.round(average))}{"☆".repeat(5 - Math.round(average))}</p>
-              <p class="mt-1 text-xs text-muted-foreground"><bdi>{total}</bdi></p>
-            </div>
-            <div class="space-y-2">
-              {distribution.map((row) => {
-                const percent = total > 0 ? (row.count / total) * 100 : 0;
-                return (
-                  <div class="flex items-center gap-2 text-sm">
-                    <span class="w-3"><bdi>{row.rating}</bdi></span>
-                    <span aria-hidden="true">★</span>
-                    <progress class="h-2 flex-1" value={Math.round(percent)} max={100} aria-label={`${row.rating}/5`}>{Math.round(percent)}%</progress>
-                    <span class="w-8 text-end text-xs text-muted-foreground"><bdi>{row.count}</bdi></span>
-                  </div>
-                );
-              })}
-            </div>
+        <EngagementReviewStats
+          average={ratingAverage}
+          total={ratingCount}
+          distribution={distribution}
+          ratingLabel={t.ratingLabel}
+        />
+
+        <EngagementTabs
+          defaultTab={reviewTab}
+          listLabel={t.reviewTitle}
+          listCount={reviews.length}
+          writeLabel={t.writeReview}
+          listIcon="mdi:message-star-outline"
+          id="trip-reviews-tabs"
+        >
+          <div slot="list" class="flex flex-col gap-4">
+            {hasReviews ? (
+              reviews.map((review) => (
+                <EngagementReviewCard
+                  locale={locale}
+                  review={toReviewItem(review)}
+                  isSignedIn={isSignedIn}
+                  labels={reviewLabels}
+                />
+              ))
+            ) : (
+              <Card>
+                <CardContent class="py-8 text-center text-sm text-muted-foreground">{t.noReviews}</CardContent>
+              </Card>
+            )}
           </div>
-        )}
-        {reviewsRaw.length ? (
-          <div class="space-y-4">
-            {reviewsRaw.map(({ review, author }) => {
-              const helpful = helpfulByReview.get(review.id) === true;
-              return (
-                <article class="rounded-xl border p-5" data-review-id={review.id}>
-                  <header class="flex flex-wrap items-center justify-between gap-2">
-                    <div class="font-medium">{author?.name ?? review.title ?? ""}</div>
-                    <div class="text-sm" aria-label={`${review.rating}/5`}>{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</div>
-                  </header>
-                  {review.title && <h3 class="mt-2 font-semibold">{review.title}</h3>}
-                  <p class="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{review.content}</p>
-                  <p class="mt-2 text-xs text-muted-foreground">{formatDate(review.createdAt)} · {review.isRecommended ? "✓" : "—"}</p>
-                  <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                    <span data-helpful-count={review.id}><bdi>{review.helpfulCount}</bdi> {t.helpful}</span>
-                    {currentUserId && <button type="button" class="rounded-md border px-2.5 py-1.5 text-xs" data-helpful-review={review.id} data-helpful={helpful ? "true" : "false"} aria-pressed={helpful}>{helpful ? t.helpfulUnmark : t.helpfulMark}</button>}
-                    {currentUserId && <button type="button" class="rounded-md border px-2.5 py-1.5 text-xs" data-report-review={review.id}>{t.report}</button>}
-                  </div>
-                </article>
-              );
-            })}
+
+          <div slot="write">
+            {isSignedIn ? (
+              <ReviewFormCard
+                formId="trip-review-form"
+                action={Astro.url.pathname}
+                labels={{
+                  title: t.submitReview,
+                  yourRating: t.reviewRating,
+                  titlePlaceholder: t.reviewTitleLabel,
+                  content: t.reviewContent,
+                  recommend: t.reviewRecommended,
+                  submit: t.submitReview,
+                  error: t.error,
+                  submitted: t.success,
+                }}
+              >
+                <input type="hidden" name="tripId" value={tripId} slot="hidden" />
+              </ReviewFormCard>
+            ) : (
+              <Card>
+                <CardContent class="py-8 text-center text-sm text-muted-foreground">
+                  {t.signInRequired}
+                </CardContent>
+              </Card>
+            )}
           </div>
-        ) : (
-          <p class="text-sm text-muted-foreground">{t.noReviews}</p>
-        )}
-        {currentUserId ? (
-          <form data-trip-review-form class="space-y-3 rounded-xl border p-5">
-            <div class="grid gap-3 sm:grid-cols-2">
-              <label class="space-y-1.5 text-sm"><span>{t.reviewRating}</span>
-                <select name="rating" class="h-10 w-full rounded-md border bg-background px-3">
-                  <option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option>
-                </select>
-              </label>
-              <label class="space-y-1.5 text-sm"><span>{t.reviewTitleLabel}</span><input name="title" maxlength="180" class="h-10 w-full rounded-md border bg-background px-3" /></label>
-            </div>
-            <label class="flex items-center gap-2 text-sm"><input name="recommended" type="checkbox" checked />{t.reviewRecommended}</label>
-            <label class="block space-y-1.5 text-sm"><span>{t.reviewContent}</span><textarea name="content" required rows={4} maxlength="3000" class="w-full rounded-md border bg-background px-3 py-2"></textarea></label>
-            <button type="submit" class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground">{t.submitReview}</button>
-            <p data-trip-review-status class="text-sm" aria-live="polite"></p>
-          </form>
-        ) : (
-          <p class="text-sm text-muted-foreground">{t.signInRequired}</p>
-        )}
+        </EngagementTabs>
       </>
     )}
   </section>
 
-  <section aria-labelledby="trip-comments-title" class="space-y-5">
-    <h2 id="trip-comments-title" class="text-2xl font-semibold">{t.commentTitle} (<bdi>{commentsRaw.length}</bdi>)</h2>
+  {/* ── Questions ─────────────────────────────────────────────────────────── */}
+  <section class="flex flex-col gap-6" aria-labelledby="trip-comments-title">
+    <h2 id="trip-comments-title" class="font-heading flex items-center gap-2 text-lg font-semibold">
+      <Icon name="mdi:comment-outline" class="size-5 text-muted-foreground" />
+      {t.commentTitle} ({comments.length})
+    </h2>
+
     {commentStatus === "DISABLED" ? (
-      <p class="rounded-xl border p-5 text-sm text-muted-foreground">{t.commentsDisabled}</p>
+      <Card>
+        <CardContent class="py-8 text-center text-sm text-muted-foreground">{t.commentsDisabled}</CardContent>
+      </Card>
+    ) : commentStatus === "CLOSED" ? (
+      hasComments ? (
+        <div class="flex flex-col gap-6">
+          {comments.map((comment) => (
+            <EngagementCommentThread
+              locale={locale}
+              comment={toCommentItem(comment)}
+              canReply={false}
+              labels={threadLabels}
+            />
+          ))}
+        </div>
+      ) : (
+        <Card>
+          <CardContent class="py-8 text-center text-sm text-muted-foreground">{t.noComments}</CardContent>
+        </Card>
+      )
     ) : (
-      <>
-        {rootComments.length ? (
-          <div class="space-y-4">
-            {rootComments.map((comment) => (
-              <article class="rounded-xl border p-5">
-                <div class="text-sm font-medium">{comment.authorName ?? comment.guestName ?? ""}</div>
-                <p class="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{comment.content}</p>
-                <p class="mt-1 text-xs text-muted-foreground">{formatDate(comment.createdAt)}</p>
-                <div class="mt-3 flex flex-wrap gap-2">
-                  {commentStatus === "OPEN" && currentUserId && <button type="button" class="rounded-md border px-2.5 py-1.5 text-xs" data-reply-to={comment.id}>{t.reply}</button>}
-                  {currentUserId && <button type="button" class="rounded-md border px-2.5 py-1.5 text-xs" data-report-comment={comment.id}>{t.report}</button>}
-                </div>
-                {comment.replies.length > 0 && (
-                  <div class="mt-4 space-y-3 border-s-2 border-muted ps-4">
-                    {comment.replies.map((reply) => (
-                      <div class="rounded-lg bg-muted/40 p-3">
-                        <div class="text-xs font-medium">{reply.authorName ?? reply.guestName ?? ""}</div>
-                        <p class="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{reply.content}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p class="text-sm text-muted-foreground">{t.noComments}</p>
-        )}
-        {commentStatus === "CLOSED" ? (
-          <p class="rounded-xl border p-5 text-sm text-muted-foreground">{t.commentsClosed}</p>
-        ) : currentUserId ? (
-          <form data-trip-comment-form class="space-y-3 rounded-xl border p-5">
-            <label class="block space-y-1.5 text-sm"><span>{t.commentContent}</span><textarea name="content" required rows={4} maxlength="5000" class="w-full rounded-md border bg-background px-3 py-2"></textarea></label>
-            <button type="submit" class="rounded-md border px-4 py-2 text-sm">{t.submitComment}</button>
-            <p data-trip-comment-status class="text-sm" aria-live="polite"></p>
-          </form>
-        ) : (
-          <p class="text-sm text-muted-foreground">{t.signInRequired}</p>
-        )}
-      </>
+      <EngagementTabs
+        defaultTab={commentTab}
+        listLabel={t.commentTitle}
+        listCount={comments.length}
+        writeLabel={t.writeComment}
+        id="trip-comments-tabs"
+      >
+        <div slot="list" class="flex flex-col gap-6">
+          {hasComments ? (
+            comments.map((comment) => (
+              <EngagementCommentThread
+                locale={locale}
+                comment={toCommentItem(comment)}
+                canReply={commentStatus === "OPEN"}
+                labels={threadLabels}
+              />
+            ))
+          ) : (
+            <Card>
+              <CardContent class="py-8 text-center text-sm text-muted-foreground">{t.noComments}</CardContent>
+            </Card>
+          )}
+        </div>
+
+        <div slot="write">
+          {isSignedIn ? (
+            <CommentFormCard
+              formId="trip-comment-form"
+              action={Astro.url.pathname}
+              showGuestFields={false}
+              labels={{
+                title: t.writeComment,
+                content: t.commentContent,
+                submit: t.submitComment,
+                guestName: "",
+                guestEmail: "",
+                error: t.error,
+                submitted: t.success,
+              }}
+            >
+              <input type="hidden" name="tripId" value={tripId} slot="hidden" />
+            </CommentFormCard>
+          ) : (
+            <Card>
+              <CardContent class="py-8 text-center text-sm text-muted-foreground">
+                {t.signInRequired}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </EngagementTabs>
     )}
   </section>
 </section>
 
 <script>
   import { actions } from "astro:actions";
-  for (const root of document.querySelectorAll<HTMLElement>("[data-trip-engagement]")) {
-    const el = root;
-    const tripId = el.getAttribute("data-trip-id");
-    if (!tripId) continue;
-    const pendingLabel = el.getAttribute("data-pending-label") ?? "";
-    const successLabel = el.getAttribute("data-success-label") ?? "";
-    const reportSentLabel = el.getAttribute("data-report-sent-label") ?? "";
-    const status = el.querySelector<HTMLElement>("[data-trip-engagement-status]");
-    const showStatus = (msg: string): void => { if (status) status.textContent = msg; };
-    const favBtn = el.querySelector<HTMLButtonElement>("[data-trip-favorite]");
-    favBtn?.addEventListener("click", async () => {
-      if (!favBtn) return;
-      favBtn.disabled = true;
-      const result = await actions.toggleTripFavorite({ tripId });
-      favBtn.disabled = false;
-      if (result.error) showStatus(result.error.message);
-      else { favBtn.textContent = result.data?.active ? el.getAttribute("data-unfavorite-label") ?? "" : el.getAttribute("data-favorite-label") ?? ""; showStatus(""); }
+  import { toast } from "@atoms/toast";
+
+  /**
+   * Les avis et questions d'un voyage passent par les actions voyage. Le
+   * markup, lui, vient des composants partagés — seule cette couche change.
+   */
+  function initTripEngagement(root: HTMLElement): void {
+    if (root.dataset.bound === "true") return;
+    root.dataset.bound = "true";
+
+    const tripId = root.getAttribute("data-trip-id");
+    if (!tripId) return;
+    const label = (name: string) => root.getAttribute(`data-t-${name}`) ?? "";
+
+    root.querySelectorAll<HTMLButtonElement>("[data-engagement-helpful]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const reviewId = btn.dataset.engagementHelpful;
+        if (!reviewId) return;
+        const isHelpful = btn.dataset.value !== "true";
+        const { error } = await actions.voteTripReviewHelpful({ reviewId, isHelpful });
+        if (error) {
+          toast.error(error.message ?? label("error"));
+          return;
+        }
+        btn.dataset.value = String(isHelpful);
+        btn.setAttribute("aria-pressed", String(isHelpful));
+        toast.success(label("success"));
+      });
     });
-    el.querySelectorAll<HTMLButtonElement>("[data-trip-reaction]").forEach((btn) => btn.addEventListener("click", async () => {
-      const reactionType = btn.getAttribute("data-trip-reaction") as "LIKE" | "LOVE" | "FIRE" | "CLAP" | null;
-      if (!reactionType) return;
-      btn.disabled = true;
-      const result = await actions.toggleTripReaction({ tripId, reactionType });
-      btn.disabled = false;
-      if (result.error) showStatus(result.error.message);
-      else showStatus("");
-    }));
-    el.querySelectorAll<HTMLButtonElement>("[data-helpful-review]").forEach((btn) => btn.addEventListener("click", async () => {
-      const reviewId = btn.getAttribute("data-helpful-review");
-      if (!reviewId) return;
-      const currentlyHelpful = btn.getAttribute("data-helpful") === "true";
-      btn.disabled = true;
-      const result = await actions.voteTripReviewHelpful({ reviewId, isHelpful: !currentlyHelpful });
-      btn.disabled = false;
-      if (result.error) showStatus(result.error.message);
-      else { btn.setAttribute("data-helpful", String(!currentlyHelpful)); showStatus(successLabel); }
-    }));
-    el.querySelectorAll<HTMLButtonElement>("[data-report-review], [data-report-comment]").forEach((btn) => btn.addEventListener("click", async () => {
-      const reviewId = btn.getAttribute("data-report-review") ?? undefined;
-      const commentId = btn.getAttribute("data-report-comment") ?? undefined;
-      btn.disabled = true;
-      const result = await actions.createTripReport({ tripId, reviewId, commentId, reason: "OTHER" });
-      btn.disabled = false;
-      if (result.error) showStatus(result.error.message);
-      else showStatus(reportSentLabel);
-    }));
-    const reviewForm = el.querySelector<HTMLFormElement>("[data-trip-review-form]");
+
+    root.querySelectorAll<HTMLButtonElement>("[data-engagement-report-review]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        const { error } = await actions.createTripReport({
+          tripId,
+          reviewId: btn.dataset.engagementReportReview,
+          reason: "OTHER",
+        });
+        btn.disabled = false;
+        if (error) toast.error(error.message ?? label("error"));
+        else toast.success(label("success"));
+      });
+    });
+
+    const reviewForm = root.querySelector<HTMLFormElement>("#trip-review-form");
     reviewForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const form = reviewForm;
-      const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const submit = reviewForm.querySelector<HTMLButtonElement>('button[type="submit"]');
       if (submit) submit.disabled = true;
-      const data = new FormData(form);
-      const result = await actions.createTripReview({
+      const data = new FormData(reviewForm);
+      const { error } = await actions.createTripReview({
         tripId,
         rating: Number(data.get("rating")),
-        title: String(data.get("title") ?? "") || undefined,
+        title: String(data.get("title") ?? ""),
         content: String(data.get("content") ?? ""),
-        isRecommended: form.querySelector<HTMLInputElement>('input[name="recommended"]')?.checked ?? true,
+        isRecommended: data.get("isRecommended") === "true",
       });
-      const fieldStatus = form.querySelector<HTMLElement>("[data-trip-review-status]");
-      if (fieldStatus) fieldStatus.textContent = result.error ? result.error.message : pendingLabel;
-      if (!result.error) form.reset();
+      const status = reviewForm.querySelector<HTMLElement>("[data-review-status]");
+      if (status) status.textContent = error ? error.message : label("pending");
+      if (!error) {
+        reviewForm.reset();
+        toast.success(label("success"));
+      }
       if (submit) submit.disabled = false;
     });
-    const commentForm = el.querySelector<HTMLFormElement>("[data-trip-comment-form]");
+
+    const commentForm = root.querySelector<HTMLFormElement>("#trip-comment-form");
     commentForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const form = commentForm;
-      const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const submit = commentForm.querySelector<HTMLButtonElement>('button[type="submit"]');
       if (submit) submit.disabled = true;
-      const data = new FormData(form);
-      const result = await actions.createTripComment({ tripId, content: String(data.get("content") ?? "") });
-      const fieldStatus = form.querySelector<HTMLElement>("[data-trip-comment-status]");
-      if (fieldStatus) fieldStatus.textContent = result.error ? result.error.message : pendingLabel;
-      if (!result.error) form.reset();
+      const data = new FormData(commentForm);
+      const { error } = await actions.createTripComment({
+        tripId,
+        content: String(data.get("content") ?? ""),
+      });
+      const status = commentForm.querySelector<HTMLElement>("[data-comment-status]");
+      if (status) status.textContent = error ? error.message : label("pending");
+      if (!error) {
+        commentForm.reset();
+        toast.success(label("success"));
+      }
       if (submit) submit.disabled = false;
     });
   }
+
+  function init() {
+    document.querySelectorAll<HTMLElement>("[data-trip-engagement]").forEach(initTripEngagement);
+  }
+
+  init();
+  document.addEventListener("astro:after-swap", init);
 </script>

@@ -1,0 +1,54 @@
+---
+/**
+ * HomeAmbient — l'ambiance de fond de la page d'accueil.
+ *
+ * Extraite de la « journée type » (HomeDayJourney) pour que tous les
+ * chapitres partagent le même fond au lieu d'alterner avec du blanc plat.
+ *
+ * Lisibilité : la surface va de `background` à `muted` au maximum. Ces deux
+ * tokens portent `--foreground` à ≈17:1 en clair et ≈12:1 en sombre, donc le
+ * texte reste AAA même quand l'ambiance est au plus fort. Le doré
+ * `--primary` est réservé aux accents — en thème sombre il reste un jaune
+ * clair (oklch 0.88) et éclaircirait le fond s'il servait d'aplat.
+ */
+interface Props {
+  /**
+   * Expose le calque de ciel à GSAP (`data-home-sky`) pour un scrub
+   * d'opacité. Réservé à la section qui raconte la progression de la journée.
+   */
+  scrub?: boolean;
+}
+
+const { scrub = false } = Astro.props as Props;
+---
+
+<div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
+  <div
+    class="home-ambient-sky absolute inset-0"
+    data-scrub={scrub ? "true" : undefined}
+    data-home-sky={scrub ? true : undefined}
+  ></div>
+  <div class="home-ambient-grid absolute inset-0"></div>
+</div>
+
+<style>
+  /* Plein dans les sections ordinaires. L'attribut `data-scrub` l'emporte en
+     spécificité (0,2,0 contre 0,1,0) : pas de conflit possible avec une
+     classe utilitaire Tailwind. */
+  .home-ambient-sky {
+    opacity: 1;
+    background:
+      radial-gradient(ellipse 78% 52% at 10% 0%, var(--muted), transparent 68%),
+      radial-gradient(ellipse 66% 58% at 94% 46%, color-mix(in oklch, var(--muted) 70%, transparent), transparent 70%),
+      radial-gradient(ellipse 90% 55% at 50% 106%, color-mix(in oklch, var(--muted) 85%, transparent), transparent 68%);
+  }
+  .home-ambient-sky[data-scrub] { opacity: 0.7; }
+  .home-ambient-grid {
+    opacity: 0.5;
+    background-image:
+      linear-gradient(to right, var(--border) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: linear-gradient(to bottom, transparent, black 30%, transparent 92%);
+  }
+</style>

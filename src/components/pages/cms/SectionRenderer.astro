@@ -4,7 +4,8 @@
  * Content is stored as jsonb in the DB; each type maps to a layout.
  */
 import type { pageSections } from '@database/schemas';
-import { sanitizeHtml, safeUrl, safeEmbedUrl } from '@lib/sanitize';
+import { safeUrl, safeEmbedUrl } from '@lib/sanitize';
+import { renderEditorialHtml } from './demote-level-one-headings';
 import { sectionTypes } from '@/actions/admin/sections';
 
 type SectionRow = typeof pageSections.$inferSelect;
@@ -45,7 +46,10 @@ const galleryImages: GalleryImage[] = Array.isArray(content.images)
 
 {type === 'hero' && (
   <section class="cms-section cms-hero py-16 md:py-24 text-center">
-    {content.title && <h1 class="text-4xl font-bold mb-4">{content.title}</h1>}
+    {/* Le titre de la page est déjà exposé en niveau 1 par CmsPage : le titre de section
+        reste un titre mais passe en niveau 2, sinon la page expose deux titres de niveau 1
+        dès qu'une section hero porte un titre. */}
+    {content.title && <h2 class="text-4xl font-bold mb-4">{content.title}</h2>}
     {content.subtitle && <p class="text-xl text-muted-foreground mb-6">{content.subtitle}</p>}
     {content.ctaText && content.ctaUrl && safeUrl(content.ctaUrl) && (
       <a href={safeUrl(content.ctaUrl)} class="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-6 py-3 font-medium">
@@ -56,9 +60,13 @@ const galleryImages: GalleryImage[] = Array.isArray(content.images)
   </section>
 )}
 
+{/* `text` et `custom` sont les deux types de section au contenu rédactionnel :
+    leur corps peut porter un titre de niveau 1, que `renderEditorialHtml`
+    rétrograde au rendu. Le filtre d'assainissement est partagé avec les articles
+    de blog, où ce niveau doit rester autorisé. */}
 {type === 'text' && (
   <section class="cms-section cms-text prose max-w-none py-8">
-    <Fragment set:html={sanitizeHtml(content.html ?? content.raw ?? '')} />
+    <Fragment set:html={renderEditorialHtml(content.html ?? content.raw ?? '')} />
   </section>
 )}
 
@@ -185,7 +193,7 @@ const galleryImages: GalleryImage[] = Array.isArray(content.images)
 
 {type === 'custom' && (
   <section class="cms-section cms-custom py-8">
-    <Fragment set:html={sanitizeHtml(content.html ?? '')} />
+    <Fragment set:html={renderEditorialHtml(content.html ?? '')} />
   </section>
 )}
 

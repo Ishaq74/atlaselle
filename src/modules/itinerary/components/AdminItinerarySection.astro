@@ -26,7 +26,17 @@ const t = locale === "fr"
         <summary class="cursor-pointer font-semibold">{t.day} {day.dayNumber} — {byLocale.get(locale)?.title ?? day.location ?? `#${day.dayNumber}`}</summary>
         {canUpdate ? (
           <div class="mt-4 space-y-4">
-            <form data-day-form={day.id} class="grid gap-3 text-sm sm:grid-cols-3">
+            /* method="post" + action explicite : première barrière structurelle contre la
+               soumission native en GET vers l'URL courante — c'est ce GET qui exposait le
+               lieu et le trajet de chaque journée dans la chaîne de requête, donc dans
+               l'historique de navigation, dans l'en-tête Referer des navigations suivantes
+               et dans le journal d'accès du serveur. Le traitement réel est un appel
+               astro:actions (updateItineraryDay), sans route serveur de repli : l'action
+               pointe vers la page courante, qui n'exporte aucun POST, donc une soumission
+               native y est rejetée sans mutation. preventDefault (script) = seconde
+               barrière. L'identifiant compose l'id de la journée : un id statique
+               dupliquerait le même nom sur chaque journée de l'itinéraire. */
+            <form id={`itinerary-day-form-${day.id}`} name={`itinerary-day-form-${day.id}`} method="post" action={Astro.url.pathname} data-day-form={day.id} class="grid gap-3 text-sm sm:grid-cols-3">
               <input type="hidden" name="expectedUpdatedAt" value={day.updatedAt.toISOString()} />
               <label class="block">{t.location}<input name="location" value={day.location ?? ""} maxlength="200" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
               <label class="block">{t.route}<input name="route" value={day.route ?? ""} maxlength="300" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
@@ -38,7 +48,19 @@ const t = locale === "fr"
             {LOCALES.map((loc: Locale) => {
               const tr = byLocale.get(loc);
               return (
-                <form data-day-tr-form={day.id} data-locale={loc} class="grid gap-3 rounded-lg bg-muted/40 p-4 text-sm">
+                /* method="post" + action explicite : première barrière structurelle contre
+                   la soumission native en GET vers l'URL courante — c'est ce GET qui
+                   exposait le titre, le matin, l'après-midi et le soir de chaque couple
+                   journée × locale dans la chaîne de requête, donc dans l'historique de
+                   navigation, dans l'en-tête Referer des navigations suivantes et dans le
+                   journal d'accès du serveur. Le traitement réel est un appel astro:actions
+                   (upsertItineraryDayTranslation), sans route serveur de repli : l'action
+                   pointe vers la page courante, qui n'exporte aucun POST, donc une
+                   soumission native y est rejetée sans mutation. preventDefault (script) =
+                   seconde barrière. L'identifiant compose l'id de la journée et la locale :
+                   un id statique dupliquerait le même nom sur chaque couple journée ×
+                   locale. */
+                <form id={`itinerary-day-translation-form-${day.id}-${loc}`} name={`itinerary-day-translation-form-${day.id}-${loc}`} method="post" action={Astro.url.pathname} data-day-tr-form={day.id} data-locale={loc} class="grid gap-3 rounded-lg bg-muted/40 p-4 text-sm">
                   <h4 class="font-bold uppercase">{loc}</h4>
                   <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt.toISOString() ?? ""} />
                   <label class="block">title<input name="title" value={tr?.title ?? ""} required maxlength="300" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
@@ -55,7 +77,15 @@ const t = locale === "fr"
     );
   })}
   {canUpdate ? (
-    <form data-day-add class="grid gap-3 rounded-xl border p-4 text-sm sm:grid-cols-4">
+    /* method="post" + action explicite : première barrière structurelle contre la
+       soumission native en GET vers l'URL courante — c'est ce GET qui exposait le numéro,
+       le lieu et le trajet de la nouvelle journée dans la chaîne de requête, donc dans
+       l'historique de navigation, dans l'en-tête Referer des navigations suivantes et
+       dans le journal d'accès du serveur. Le traitement réel est un appel astro:actions
+       (createItineraryDay), sans route serveur de repli : l'action pointe vers la page
+       courante, qui n'exporte aucun POST, donc une soumission native y est rejetée sans
+       mutation. preventDefault (script) = seconde barrière. */
+    <form id="itinerary-day-add-form" name="itinerary-day-add-form" method="post" action={Astro.url.pathname} data-day-add class="grid gap-3 rounded-xl border p-4 text-sm sm:grid-cols-4">
       <label class="block">{t.day}<input name="dayNumber" type="number" min="1" required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
       <label class="block">{t.location}<input name="location" maxlength="200" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
       <label class="block">{t.route}<input name="route" maxlength="300" class="mt-1 w-full rounded-md border bg-background p-2" /></label>

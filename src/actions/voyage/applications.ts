@@ -11,6 +11,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { extractIp } from "@/lib/audit";
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
+import { assertStateTransition } from "./transition-errors";
 import { findOrCreateTraveler } from "@/modules/travelers/domain/travelers-service";
 import { normalizeEmail } from "@/modules/travelers/domain/traveler-email";
 import { assertTransitionApplication, ACTIVE_APPLICATION_STATUSES } from "@/modules/applications/domain/application-transitions";
@@ -185,9 +186,9 @@ export const reviewApplication = defineAction({
         await tx.update(applications).set({ status: "under_review" }).where(eq(applications.id, input.id));
         await tx.insert(applicationEvents).values({ applicationId: input.id, event: "review_started", actorId: user.id });
       } else {
-        assertTransitionApplication(from, "under_review");
+        assertStateTransition(() => assertTransitionApplication(from, "under_review"));
       }
-      assertTransitionApplication("under_review", target);
+      assertStateTransition(() => assertTransitionApplication("under_review", target));
       await tx.insert(applicationDecisions).values({
         applicationId: input.id,
         decision: input.decision,
@@ -242,7 +243,7 @@ export const withdrawApplication = defineAction({
     if (!traveler || normalizeEmail(traveler.email) !== normalizeEmail(input.email)) {
       throw new ActionError({ code: "FORBIDDEN", message: "Email ne correspondant pas au dossier." });
     }
-    assertTransitionApplication(current.status as ApplicationStatus, "withdrawn");
+    assertStateTransition(() => assertTransitionApplication(current.status as ApplicationStatus, "withdrawn"));
     await db.transaction(async (tx) => {
       await tx.update(applications).set({ status: "withdrawn" }).where(eq(applications.id, input.id));
       await tx.insert(applicationEvents).values({ applicationId: input.id, event: "withdrawn" });

@@ -1,4 +1,5 @@
 import type { ApplicationStatus } from "@database/schemas/applications.schema";
+import { transitionRefused } from "@/modules/state-machines/domain/transition-refusal";
 
 // TODO §11.3 — chaque décision crée un enregistrement (jamais d'écrasement).
 export const APPLICATION_TRANSITIONS: Record<ApplicationStatus, ApplicationStatus[]> = {
@@ -18,7 +19,7 @@ export function canTransitionApplication(from: ApplicationStatus, to: Applicatio
 
 export function assertTransitionApplication(from: ApplicationStatus, to: ApplicationStatus): void {
   if (!canTransitionApplication(from, to)) {
-    throw new Error(`Invalid application transition: ${from} → ${to}`);
+    throw transitionRefused("candidature", from, to);
   }
 }
 

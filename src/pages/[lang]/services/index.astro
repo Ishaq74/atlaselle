@@ -18,7 +18,7 @@ const categories = categoryRows.map((row) => ({ slug: row.translation?.slug ?? r
 ---
 
 <BaseLayout title={t.meta.title} description={t.meta.description}>
-  <main>
+  <div>
     <ServicesListingPage locale={locale} title={t.labels.services} description={t.meta.description} items={data.items} meta={data} baseUrl={`/${locale}/services`} categories={categories} searchQuery={search} />
-  </main>
+  </div>
 </BaseLayout>

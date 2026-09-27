@@ -71,7 +71,19 @@ test.describe('Services — public surfaces', () => {
   test('services list responds to search query', async ({ page }) => {
     const response = await page.goto('/fr/services?search=guide', { waitUntil: 'networkidle' });
     expect(response?.status()).toBe(200);
-    await expect(page.locator('main')).toBeVisible();
+    // Structure as it stands: exactly ONE main landmark, supplied by the
+    // template — `<main id="main-content">` (src/layouts/BaseLayout.astro:169).
+    // This public page has no admin shell; its own content is a plain section,
+    // `<section data-services-listing>`
+    // (src/modules/services/components/lists/ServicesListingPage.astro:60), so
+    // it does not compete for the main role. This test targets the template's
+    // landmark on purpose: `#main-content` is the document's single point of
+    // entry for content and the target of the skip link (`<a
+    // href="#main-content">`, BaseLayout.astro:141), so asserting it proves the
+    // listing rendered inside the main landmark instead of beside it.
+    await expect(page.locator('#main-content')).toBeVisible();
+    // And the searched listing itself is really there, inside that landmark.
+    await expect(page.locator('#main-content')).toContainText(/servic/i);
   });
 
   test('services list renders in all 4 locales', async ({ page }) => {

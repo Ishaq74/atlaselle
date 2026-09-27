@@ -1,0 +1,121 @@
+---
+import { Icon } from "astro-icon/components";
+import type { Locale } from "@i18n/config";
+import HomeAmbient from "@pages/HomePage/HomeAmbient.astro";
+import ScrollReveal from "@wow/ScrollReveal.astro";
+
+interface Props {
+  locale: Locale;
+  chapter: string;
+  aboutHref: string;
+  contactHref: string;
+}
+
+const { locale, chapter, aboutHref, contactHref } = Astro.props as Props;
+
+const copy =
+  locale === "fr"
+    ? {
+        eyebrow: "Pourquoi Atlaselle",
+        title: "Un cadre rassurant pour partir loin.",
+        intro:
+          "Atlaselle est née d'un constat simple : trop de femmes renoncent à partir faute d'un cadre rassurant. Nous composons des groupes de 6 à 14 voyageuses, choisissons chaque hébergement sur place et gardons un rythme qui respecte chacune.",
+        pillars: [
+          ["mdi:heart-outline", "Attention", "Itinéraires testés sur le terrain, rythme posé, temps calmes chaque jour."],
+          ["mdi:shield-check-outline", "Confiance", "Prix transparents, conditions claires, assurance expliquée sans jargon."],
+          ["mdi:account-group-outline", "Rencontre", "Maisons d'hôtes, artisans et tables locales d'abord."],
+          ["mdi:leaf", "Respect", "Petits groupes, espaces de prière identifiés, programmes adaptés pendant le Ramadan."],
+        ] as [string, string, string][],
+        founder: "Oumhani Achour — fondatrice, conçoit et accompagne chaque voyage.",
+        aboutLabel: "Découvrir notre histoire",
+        contactLabel: "Nous écrire",
+      }
+    : locale === "ar"
+      ? {
+          eyebrow: "لماذا أطلسال",
+          title: "إطار مطمئن للسفر بعيداً.",
+          intro:
+            "وُلدت أطلسال من ملاحظة بسيطة: كثير من النساء يتراجعن عن السفر لغياب إطار مطمئن. نكوّن مجموعات من 6 إلى 14 مسافرة، ونختار كل إقامة ميدانياً، ونحافظ على إيقاع يحترم الجميع.",
+          pillars: [
+            ["mdi:heart-outline", "عناية", "مسارات مجربة ميدانياً وإيقاع هادئ وأوقات هادئة كل يوم."],
+            ["mdi:shield-check-outline", "ثقة", "أسعار شفافة وشروط واضحة وتأمين مشروح بلا تعقيد."],
+            ["mdi:account-group-outline", "لقاء", "بيوت الضيافة والحرفيون والموائد المحلية أولاً."],
+            ["mdi:leaf", "احترام", "مجموعات صغيرة وأماكن صلاة محددة وبرامج تتكيف في رمضان."],
+          ] as [string, string, string][],
+          founder: "أمهاني عاشور — المؤسِّسة، تصمم وترافق كل رحلة.",
+          aboutLabel: "اكتشف قصتنا",
+          contactLabel: "راسلينا",
+        }
+      : locale === "es"
+        ? {
+            eyebrow: "Por qué Atlaselle",
+            title: "Un marco que da confianza para llegar lejos.",
+            intro:
+              "Atlaselle nació de una constatación simple: demasiadas mujeres renuncian a viajar por falta de un marco que dé confianza. Componemos grupos de 6 a 14 viajeras, elegimos cada alojamiento sobre el terreno y mantenemos un ritmo que respeta a cada una.",
+            pillars: [
+              ["mdi:heart-outline", "Atención", "Itinerarios probados sobre el terreno, ritmo pausado, calma cada día."],
+              ["mdi:shield-check-outline", "Confianza", "Precios transparentes, condiciones claras, seguro explicado sin jerga."],
+              ["mdi:account-group-outline", "Encuentro", "Casas de huéspedes, artesanos y mesas locales primero."],
+              ["mdi:leaf", "Respeto", "Grupos pequeños, espacios de oración identificados, programas adaptados en Ramadán."],
+            ] as [string, string, string][],
+            founder: "Oumhani Achour — fundadora, diseña y acompaña cada viaje.",
+            aboutLabel: "Descubrir nuestra historia",
+            contactLabel: "Escríbenos",
+          }
+        : {
+            eyebrow: "Why Atlaselle",
+            title: "A reassuring frame for going far.",
+            intro:
+              "Atlaselle was born from a simple observation: too many women give up travelling for lack of a reassuring frame. We assemble groups of 6 to 14 travellers, choose every stay on the ground and keep a rhythm that respects everyone.",
+            pillars: [
+              ["mdi:heart-outline", "Care", "Field-tested itineraries, unhurried rhythm, quiet time every day."],
+              ["mdi:shield-check-outline", "Trust", "Transparent prices, clear terms, insurance explained plainly."],
+              ["mdi:account-group-outline", "Encounter", "Guest houses, artisans and local tables first."],
+              ["mdi:leaf", "Respect", "Small groups, identified prayer spaces, programmes adapted during Ramadan."],
+            ] as [string, string, string][],
+            founder: "Oumhani Achour — founder, designs and hosts every journey.",
+            aboutLabel: "Discover our story",
+            contactLabel: "Write to us",
+          };
+---
+
+<section class="relative isolate overflow-hidden border-y border-border/60 bg-background" aria-labelledby="home-about">
+  <HomeAmbient />
+  <div class="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+    <div class="grid items-start gap-12 lg:grid-cols-[1fr_1.2fr]">
+      <div data-home-reveal>
+        <p class="font-mono text-[11px] uppercase tracking-[.3em] text-muted-foreground">
+          <span class="text-primary">{chapter}</span>
+          <span class="mx-2 opacity-40">—</span>
+          {copy.eyebrow}
+        </p>
+        <h2 id="home-about" class="mt-5 text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl" data-split="lines">
+          {copy.title}
+        </h2>
+        <p class="mt-4 leading-relaxed text-muted-foreground">{copy.intro}</p>
+        <p class="mt-6 border-s-2 border-primary ps-4 text-sm font-medium">{copy.founder}</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={aboutHref} class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            {copy.aboutLabel} <span aria-hidden="true">→</span>
+          </a>
+          <a href={contactHref} class="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5 hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            {copy.contactLabel}
+          </a>
+        </div>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        {copy.pillars.map(([icon, title, text], i) => (
+          <ScrollReveal delay={(i % 2) * 90} distance={24}>
+            <div class="h-full rounded-2xl border bg-card p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+              <div class="mb-4 flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Icon name={icon} class="size-5" aria-hidden="true" />
+              </div>
+              <h3 class="font-heading text-lg font-semibold">{title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{text}</p>
+            </div>
+          </ScrollReveal>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

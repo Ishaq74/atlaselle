@@ -1,0 +1,53 @@
+---
+/**
+ * EngagementTabs — coquille d'onglets « liste / écriture ».
+ *
+ * Partagée par les commentaires et les avis, sur le blog comme sur la fiche
+ * voyage. L'onglet actif est rendu côté serveur (`defaultActive`) pour éviter
+ * tout décalage de mise en page au chargement.
+ */
+import { Icon } from "astro-icon/components";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@atoms/tabs";
+
+interface Props {
+  /** Onglet actif au rendu : "list" s'il y a déjà du contenu, sinon "write". */
+  defaultTab: "list" | "write";
+  listLabel: string;
+  listCount: number;
+  writeLabel: string;
+  listIcon?: string;
+  writeIcon?: string;
+  id?: string;
+}
+
+const {
+  defaultTab,
+  listLabel,
+  listCount,
+  writeLabel,
+  listIcon = "mdi:comment-multiple-outline",
+  writeIcon = "mdi:pencil-outline",
+  id,
+} = Astro.props as Props;
+---
+
+<Tabs defaultValue={defaultTab} id={id}>
+  <TabsList>
+    <TabsTrigger value="list" defaultActive={defaultTab === "list"}>
+      <Icon name={listIcon} class="size-4" />
+      {listLabel} (<bdi>{listCount}</bdi>)
+    </TabsTrigger>
+    <TabsTrigger value="write" defaultActive={defaultTab === "write"}>
+      <Icon name={writeIcon} class="size-4" />
+      {writeLabel}
+    </TabsTrigger>
+  </TabsList>
+
+  <TabsContent value="list" defaultActive={defaultTab === "list"}>
+    <slot name="list" />
+  </TabsContent>
+
+  <TabsContent value="write" defaultActive={defaultTab === "write"}>
+    <slot name="write" />
+  </TabsContent>
+</Tabs>

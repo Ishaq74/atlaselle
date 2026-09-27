@@ -37,7 +37,19 @@ const blocks = [
                   const tr = (item.translations as { locale: string; title?: string | null; description?: string | null; text?: string | null; updatedAt?: Date }[]).find((x) => x.locale === loc);
                   const isHighlight = block.kind === "highlight";
                   return (
-                    <form data-content-tr data-kind={block.kind} data-id={item.id} data-locale={loc} class="grid gap-2 rounded-lg bg-muted/40 p-3 text-sm">
+                    /* method="post" + action explicite : première barrière structurelle
+                       contre la soumission native en GET vers l'URL courante — c'est ce GET
+                       qui exposait le contenu de chaque couple contenu × locale (titre,
+                       description, texte) dans la chaîne de requête, donc dans l'historique
+                       de navigation, dans l'en-tête Referer des navigations suivantes et
+                       dans le journal d'accès du serveur. Le traitement réel est un appel
+                       astro:actions (upsertTripContentTranslation), sans route serveur de
+                       repli : l'action pointe vers la page courante, qui n'exporte aucun POST,
+                       donc une soumission native y est rejetée sans mutation.
+                       preventDefault (script) = seconde barrière. L'identifiant compose
+                       l'id du contenu et la locale : un id statique dupliquerait le même nom
+                       sur chaque couple contenu × locale. */
+                    <form id={`content-translation-form-${item.id}-${loc}`} name={`content-translation-form-${item.id}-${loc}`} method="post" action={Astro.url.pathname} data-content-tr data-kind={block.kind} data-id={item.id} data-locale={loc} class="grid gap-2 rounded-lg bg-muted/40 p-3 text-sm">
                       <h4 class="font-bold uppercase">{loc}</h4>
                       <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt instanceof Date ? tr.updatedAt.toISOString() : ""} />
                       {isHighlight ? (
@@ -59,7 +71,16 @@ const blocks = [
         ))}
       </div>
       {canUpdate ? (
-        <form data-content-add={block.kind} class="mt-3 flex gap-2 text-sm">
+        /* method="post" + action explicite : première barrière structurelle contre la
+           soumission native en GET vers l'URL courante — ce formulaire ne porte aucun
+           champ : sa soumission native ne pouvait exposer aucune donnée, il n'exposait
+           donc que la route courante dans le journal d'accès du serveur. Le traitement
+           réel est un appel astro:actions (createTripContent), sans route serveur de
+           repli : l'action pointe vers la page courante, qui n'exporte aucun POST, donc une
+           soumission native y est rejetée sans mutation. preventDefault (script) = seconde
+           barrière. L'identifiant compose le kind : un id statique dupliquerait le même
+           nom sur les trois blocs. */
+        <form id={`content-add-form-${block.kind}`} name={`content-add-form-${block.kind}`} method="post" action={Astro.url.pathname} data-content-add={block.kind} class="mt-3 flex gap-2 text-sm">
           <button type="submit" class="rounded-md border px-3 py-1.5">+ {t.add}</button>
         </form>
       ) : null}

@@ -66,7 +66,13 @@ const termsLabel =
     {departures.length === 0 ? (
       <p class="mt-6 rounded-xl border p-6 text-muted-foreground">{l.nodate}</p>
     ) : (
-      <form data-apply-form class="mt-8 space-y-5 rounded-xl border p-6">
+      <form name="apply-form" data-apply-form method="post" action={Astro.url.pathname} class="mt-8 space-y-5 rounded-xl border p-6">
+        <!-- method="post" + action explicite : première barrière structurelle contre la
+            soumission native en GET vers l'URL courante — c'est ce GET qui exposait
+            email / legalName / motivation dans la chaîne de requête. Le traitement
+            réel est un appel astro:actions, sans route serveur de repli : l'action
+            pointe vers la page courante, qui n'expose aucun export POST, donc une
+            soumission native y est rejetée sans mutation. -->
         <label class="block font-medium">{l.departure}
           <select name="departureId" required class="mt-2 w-full rounded-md border bg-background p-3">
             {departures.map((d) => (
@@ -92,9 +98,20 @@ const termsLabel =
         <label class="flex items-start gap-2 text-sm"><input required type="checkbox" name="consent" class="mt-1" />{l.consent}</label>
         {/* eslint-disable-next-line astro/no-set-html-directive, astro/jsx-a11y/label-has-associated-control -- termsLabel est construit côté serveur depuis des textes i18n statiques et des slugs DB (aucune entrée utilisateur) ; le texte du label est rendu via set:html, invisible pour l'analyse statique */}
         <label class="flex items-start gap-2 text-sm"><input required type="checkbox" name="termsAccepted" class="mt-1" /><span set:html={termsLabel} /></label>
-        <button class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.submit}</button>
-        <output class="block text-sm" data-form-message></output>
+        <button type="submit" class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.submit}</button>
       </form>
+      <!-- Nœud de retour d'information stable : hors du <form>, jamais détruit, donc
+           addressable ([data-form-message]) et live sur les deux canaux — succès
+           comme erreur. <output> porte implicitement role=status ; aria-live est
+           déclaré explicitement pour figer le contrat d'annonce. Le chemin de
+           succès précédent remplaçait le contenu du formulaire et détruisait ce
+           nœud : retour non annoncé et introuvable. -->
+      <output
+        data-form-message
+        data-form-state="idle"
+        class="mt-4 block rounded-xl border p-6 text-sm empty:hidden"
+        aria-live="polite"
+      ></output>
     )}
   </section>
 </BaseLayout>
@@ -104,18 +121,25 @@ const termsLabel =
   const root = document.querySelector("[data-apply-page]");
   const tripId = root?.getAttribute("data-trip-id") ?? "";
   const sentText = root?.getAttribute("data-sent") ?? "OK";
-  document.querySelector("[data-apply-form]")?.addEventListener("submit", async (e) => {
+  const form = document.querySelector<HTMLFormElement>("[data-apply-form]");
+  // Hors du <form> : survit au chemin de succès, contrairement à l'ancien nœud
+  // placé dans le formulaire et détruit par replaceChildren().
+  const el = root?.querySelector<HTMLElement>("[data-form-message]") ?? null;
+  const report = (text: string, state: "success" | "error"): void => {
+    if (!el) return;
+    el.textContent = text;
+    el.dataset.formState = state;
+  };
+  form?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const form = e.currentTarget as HTMLFormElement | null;
     if (!form) return;
     const data = new FormData(form);
     const opt = (v: FormDataEntryValue | null): string | null => {
       const s = String(v ?? "").trim();
       return s ? s : null;
     };
-    const el = form.querySelector("[data-form-message]");
     if (data.get("activityAcknowledgement") !== "on" || data.get("consent") !== "on" || data.get("termsAccepted") !== "on") {
-      if (el) el.textContent = "Error";
+      report("Error", "error");
       return;
     }
     const { data: result, error } = await actions.submitApplication({
@@ -134,12 +158,10 @@ const termsLabel =
       termsAccepted: true as const,
     });
     if (error) {
-      if (el) el.textContent = error.message;
+      report(error.message, "error");
     } else if (result) {
-      const box = document.createElement("p");
-      box.className = "rounded-xl border p-6";
-      box.textContent = sentText;
-      form.replaceChildren(box);
+      report(sentText, "success");
+      form.hidden = true;
     }
   });
 </script>

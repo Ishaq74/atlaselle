@@ -70,7 +70,7 @@ Les gaps ci-dessous sont de **priorité très basse** (P4) — ils ne bloquent r
 - **WebKit skips supprimés** : les 10 `test.skip(browserName === 'webkit')` ont été retirés de `auth.spec.ts` (3), `cms-admin.spec.ts` (3×2 hooks) et `app.spec.ts`.
 - **Pattern robuste** : tous les sign-in E2E utilisent désormais `Promise.all([page.waitForURL(...), button.click()])` + `page.waitForLoadState('networkidle')` pour éviter les race conditions.
 - **`waitUntil: 'networkidle'`** ajouté à tous les `page.goto()` dans les 3 fichiers de specs E2E.
-- **Timeouts portés à 30 s** sur les navigations critiques (sign-up, sign-in, guards).
+- **Timeouts d'assertion portés à 30 s** sur les navigations critiques (sign-up, sign-in, guards) : ce sont des options **par appel** — `page.waitForURL(…, { timeout: 30000 })` dans `auth.spec.ts:39,53,116,134`, `cms-admin.spec.ts:33`, `admin-pages.spec.ts:66`, `voyage.spec.ts:97`, et la même valeur dans `credential-url-leak.spec.ts:204,293,420`. **Ce n'est pas un délai global ni un délai de configuration** : `playwright.config.ts` ne déclare aucun `timeout` d'exécution, et le délai d'exécution par défaut reste celui de Playwright, 30 s. Voir [setup.md](setup.md) § « Le délai d'exécution n'est pas dans la configuration ».
 
 ### Lighthouse CI — NO_NAVSTART (résolu)
 

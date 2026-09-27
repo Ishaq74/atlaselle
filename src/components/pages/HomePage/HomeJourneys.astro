@@ -1,0 +1,51 @@
+---
+import type { Locale } from "@i18n/config";
+import type { TripSummaryDTO } from "@/modules/trips/loaders/trip.loader";
+import TripCard from "@/modules/trips/components/TripCard.astro";
+import HomeAmbient from "@pages/HomePage/HomeAmbient.astro";
+import ScrollReveal from "@wow/ScrollReveal.astro";
+
+interface Props {
+  locale: Locale;
+  trips: TripSummaryDTO[];
+  chapter: string;
+  eyebrow: string;
+  title: string;
+  intro: string;
+  allLabel: string;
+  allHref: string;
+}
+
+const { locale, trips, chapter, eyebrow, title, intro, allLabel, allHref } = Astro.props as Props;
+---
+
+<section class="relative isolate overflow-hidden bg-background" aria-labelledby="home-journeys">
+  <HomeAmbient />
+  <div class="mx-auto max-w-6xl px-6 py-20 sm:py-28">
+  <div data-home-reveal>
+    <p class="font-mono text-[11px] uppercase tracking-[.3em] text-muted-foreground">
+      <span class="text-primary">{chapter}</span>
+      <span class="mx-2 opacity-40">—</span>
+      {eyebrow}
+    </p>
+    <div class="mt-6 flex flex-wrap items-end justify-between gap-6">
+      <div class="max-w-2xl">
+        <h2 id="home-journeys" class="text-balance text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl" data-split="lines">
+          {title}
+        </h2>
+        <p class="mt-4 text-lg leading-relaxed text-muted-foreground">{intro}</p>
+      </div>
+      <a href={allHref} class="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5 hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+        {allLabel} <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+  <div class="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+    {trips.map((trip, i) => (
+      <ScrollReveal delay={(i % 3) * 90} distance={28}>
+        <TripCard trip={trip} locale={locale} />
+      </ScrollReveal>
+    ))}
+  </div>
+  </div>
+</section>

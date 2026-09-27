@@ -153,6 +153,17 @@ function buildGlobalPostUrl(slug: string) {
   return `/fr/blog/${seeded.globalCategorySlug}/${slug}`;
 }
 
+/**
+ * The blog post body lives in `ContentEditor` (src/components/content/
+ * ContentEditor.astro), which renders `<Textarea id="content-editor-<name>-textarea"
+ * name="<name>">`. For the blog form the name is `content`, so the identifier is
+ * `#content-editor-content-textarea` — the generated id, not `#post-content`,
+ * which exists in no source file. The locator below is keyed on the stable
+ * `name` and scoped to the form, so it survives an id-scheme change in the
+ * editor and cannot match another textarea on the page.
+ */
+const POST_CONTENT = '#blog-post-form textarea[name="content"]';
+
 async function fillPostForm(
   page: import('@playwright/test').Page,
   post: WorkflowPostState,
@@ -161,13 +172,13 @@ async function fillPostForm(
   await page.locator('#post-title').fill(post.initialTitle);
   await page.locator('#post-slug').fill(post.slug);
   await page.locator('#post-excerpt').fill(post.excerpt);
-  await page.locator('#post-content').fill(post.content);
+  await page.locator(POST_CONTENT).fill(post.content);
 }
 
 async function updatePostTitle(page: import('@playwright/test').Page, title: string) {
   await page.getByRole('tab', { name: /contenu|content/i }).click();
   await page.locator('#post-title').fill(title);
-  await page.locator('#post-content').fill(`<p>${title} updated content.</p>`);
+  await page.locator(POST_CONTENT).fill(`<p>${title} updated content.</p>`);
 }
 
 async function submitPostForm(page: import('@playwright/test').Page) {
@@ -458,6 +469,26 @@ test.describe.serial('Blog surfaces', () => {
       await authedPage.locator('#review-form').scrollIntoViewIfNeeded();
       await authedPage.locator('#review-title').fill(seeded.globalReviewTitle);
       await authedPage.locator('#review-content').fill(seeded.globalReviewContent);
+      // The rating is a mandatory control of this form, and picking it is a user
+      // step, not a formality: `ReviewForm` renders `StarRating` with `required`,
+      // so the group holds five required radios and none of them is checked on
+      // arrival. Native form validation therefore refuses the submission while
+      // the group is empty — the submit handler never runs, so
+      // `actions.createBlogReview` is never called and no review row is ever
+      // created. A visitor sees the error message in the rating's live region,
+      // chooses a star, and the submission goes through; this test had skipped
+      // that choice, which is why it failed deterministically on the three
+      // projects. The star is pressed through its label (`for="rating-4"`), the
+      // element the user actually clicks — the radio itself is visually clipped —
+      // and the selector is scoped to `#review-form` like every other control
+      // this test drives. The `toBeChecked` assertion is the guard: without it a
+      // click that stopped selecting would leave the test failing later, on the
+      // review poll, with the real cause a screen away.
+      await authedPage.locator('#review-form label[for="rating-4"]').click();
+      await expect(
+        authedPage.locator('#review-form input[name="rating"][value="4"]'),
+        'the 4th star of the review form must be selected before submitting',
+      ).toBeChecked();
       await authedPage.locator('#review-form button[type="submit"]').click();
 
       await expect.poll(async () => Boolean(await getReviewRecord(seeded.globalWorkflow.id!, seeded.globalReviewTitle))).toBe(true);

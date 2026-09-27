@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import { LabelVariants } from "@atoms/label";
 
 interface Props {
   rating?: number;
@@ -8,34 +9,52 @@ interface Props {
   name?: string;
   required?: boolean;
   showValue?: boolean;
+  legend?: string;
+  invalidText?: string;
 }
 
-const { 
-  rating = 0, 
-  size = "md", 
-  readOnly = false, 
+const {
+  rating = 0,
+  size = "md",
+  readOnly = false,
   name = "rating",
   required = false,
-  showValue = false
+  showValue = false,
+  legend,
+  invalidText,
 } = Astro.props;
 
 const displayRating = Math.round(rating);
 const stars = [1, 2, 3, 4, 5];
+const scale = stars.length;
 
 const sizeClasses = {
   xs: "star-rating--xs",
-  sm: "star-rating--sm", 
+  sm: "star-rating--sm",
   md: "star-rating--md",
   lg: "star-rating--lg"
 };
+
+const errorId = `${name}-error`;
+const errorMessage = invalidText ?? "0/5";
+const legendClass = LabelVariants.label({ size: "md" });
+
+/* The tooltip is built from the label the caller already passes in the page
+   language, plus the value and the scale the component knows: no word is
+   spelled here, so no plural rule has to exist here either. Without a label
+   the tooltip falls back to the value on the scale alone, which is the same
+   numeric form the group already displays. */
+function starTitle(value: number): string {
+  const onScale = `${value}/${scale}`;
+  return legend ? `${legend}, ${onScale}` : onScale;
+}
 ---
 
-<div class:list={["star-rating", sizeClasses[size], { "star-rating--read-only": readOnly }]}>
-  {readOnly ? (
-    /* Display only */
+{readOnly ? (
+  <div class:list={["star-rating", sizeClasses[size], { "star-rating--read-only": readOnly }]}>
     <div class="star-rating__display">
       {stars.map((n) => (
-        <span 
+        <span
           class:list={[
             "star-rating__star",
             { "star-rating__star--filled": n <= displayRating },
@@ -49,41 +68,145 @@ const sizeClasses = {
         <span class="star-rating__value">{displayRating}/5</span>
       )}
     </div>
-  ) : (
-    /* Interactive */
-    <>
-      {[...stars].reverse().map((n) => (
-        <>
-          <input
-            type="radio"
-            id={`${name}-${n}`}
-            name={name}
-            value={n}
-            required={required}
-            class="star-rating__input"
-            checked={n === displayRating}
-          />
-          <label 
-            for={`${name}-${n}`} 
-            class="star-rating__label"
-            title={`${n} ${n > 1 ? 'stars' : 'star'}`}
-          >
-            <Icon name="mdi:star" />
-          </label>
-        </>
-      ))}
-      {showValue && displayRating > 0 && (
-        <span class="star-rating__value">{displayRating}/5</span>
+  </div>
+) : (
+  <>
+    <fieldset
+      class:list={["star-rating-group", sizeClasses[size]]}
+      data-star-rating={required ? "required" : undefined}
+      data-star-rating-error={required ? errorId : undefined}
+    >
+      {legend && (
+        <legend class={legendClass}>
+          {legend}
+          {required && <span class="text-destructive ms-0.5" aria-hidden="true">*</span>}
+        </legend>
       )}
-    </>
-  )}
-</div>
+      {/* The DOM order is the visual order (1 → 5 along the reading direction).
+          The radio group is one tab stop, but its arrow keys walk the DOM, so an
+          order that differs from the display sends the keyboard visually
+          backwards. The focus the group takes on failure is the first radio of
+          the DOM, which is here also the first star the user sees. */}
+      <div class="star-rating">
+        {stars.map((n) => (
+          <>
+            <input
+              type="radio"
+              id={`${name}-${n}`}
+              name={name}
+              value={n}
+              required={required}
+              class="star-rating__input"
+              checked={n === displayRating}
+            />
+            <label
+              for={`${name}-${n}`}
+              class="star-rating__label"
+              title={starTitle(n)}
+            >
+              <Icon name="mdi:star" />
+            </label>
+          </>
+        ))}
+        {showValue && displayRating > 0 && (
+          <span class="star-rating__value">{displayRating}/5</span>
+        )}
+      </div>
+    </fieldset>
+    {/* Feedback region permanently in the document, empty while the group is
+        valid: the announcement is carried by the content change, not by the
+        element appearing. Its spacing is applied only when it holds a message,
+        so an empty region takes no room. */}
+    {required && (
+      <p
+        class:list={[
+          "star-rating__message text-destructive text-sm font-medium",
+          { "star-rating__error-value": !invalidText }
+        ]}
+        id={errorId}
+        role="alert"
+        data-message={errorMessage}
+      ></p>
+    )}
+  </>
+)}
+
+<script>
+  const GROUP = '[data-star-rating="required"]';
+
+  function groupRadios(group: Element): HTMLInputElement[] {
+    return Array.from(group.querySelectorAll<HTMLInputElement>('input[type="radio"]'));
+  }
+
+  function setGroupInvalid(group: Element, invalid: boolean): void {
+    const errorId = group.getAttribute('data-star-rating-error');
+    const error = errorId ? document.getElementById(errorId) : null;
+    for (const radio of groupRadios(group)) {
+      if (invalid) {
+        radio.setAttribute('aria-invalid', 'true');
+        if (errorId) radio.setAttribute('aria-describedby', errorId);
+      } else {
+        radio.removeAttribute('aria-invalid');
+        radio.removeAttribute('aria-describedby');
+      }
+    }
+    // The region is never added nor removed: only its content is written, so
+    // the alert is announced on a text change inside a live region that the
+    // accessibility tree already holds.
+    if (error) error.textContent = invalid ? error.getAttribute('data-message') ?? '' : '';
+  }
+
+  document.addEventListener('invalid', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) || target.type !== 'radio') return;
+    const group = target.closest(GROUP);
+    if (!group) return;
+    event.preventDefault();
+    setGroupInvalid(group, true);
+    groupRadios(group)[0]?.focus();
+  }, true);
+
+  document.addEventListener('change', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) || target.type !== 'radio') return;
+    const group = target.closest(GROUP);
+    if (!group) return;
+    setGroupInvalid(group, false);
+  });
+</script>
 
 <style>
   .star-rating {
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
+  }
+
+  /* Interactive group: fieldset reset (Tailwind preflight does not cover legends) */
+  .star-rating-group {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.375rem;
+    margin: 0;
+    border: 0;
+    padding: 0;
+    min-inline-size: 0;
+  }
+
+  /* Feedback region: present and rendered from the first paint, so the alert
+     does not rely on an element being unhidden. Empty means no message, hence
+     no spacing either. */
+  .star-rating__message:empty {
+    margin-block-start: 0;
+  }
+
+  .star-rating__message:not(:empty) {
+    margin-block-start: 0.375rem;
+  }
+
+  .star-rating__error-value {
+    font-variant-numeric: tabular-nums;
   }
 
   .star-rating__display {
@@ -129,17 +252,39 @@ const sizeClasses = {
     display: inline-flex;
   }
 
-  .star-rating__label:hover,
-  .star-rating__label:hover ~ .star-rating__label {
+  /* Rating fill: the chosen value paints itself and every lower value, so the
+     fill always starts at the first star of the reading direction and reads as
+     "1, 2, 3 out of 5". The general sibling combinator only walks forward, so
+     it cannot express "this value and the ones before it": the state is read
+     from the group with :has(), and the n-th radio of the ascending DOM is the
+     n-th star displayed, hence :nth-of-type(-n + n) on the labels. */
+  .star-rating:has(.star-rating__input[value="1"]:checked) .star-rating__label:nth-of-type(-n + 1),
+  .star-rating:has(.star-rating__input[value="2"]:checked) .star-rating__label:nth-of-type(-n + 2),
+  .star-rating:has(.star-rating__input[value="3"]:checked) .star-rating__label:nth-of-type(-n + 3),
+  .star-rating:has(.star-rating__input[value="4"]:checked) .star-rating__label:nth-of-type(-n + 4),
+  .star-rating:has(.star-rating__input[value="5"]:checked) .star-rating__label:nth-of-type(-n + 5) {
     color: var(--color-warning);
+  }
+
+  /* Pointer preview, same direction as the fill: hovering a star previews the
+     rating that clicking it would select. Declared after the fill so it wins
+     when a value is both selected and hovered. */
+  .star-rating:has(.star-rating__label:nth-of-type(1):hover) .star-rating__label:nth-of-type(-n + 1),
+  .star-rating:has(.star-rating__label:nth-of-type(2):hover) .star-rating__label:nth-of-type(-n + 2),
+  .star-rating:has(.star-rating__label:nth-of-type(3):hover) .star-rating__label:nth-of-type(-n + 3),
+  .star-rating:has(.star-rating__label:nth-of-type(4):hover) .star-rating__label:nth-of-type(-n + 4),
+  .star-rating:has(.star-rating__label:nth-of-type(5):hover) .star-rating__label:nth-of-type(-n + 5) {
+    color: var(--color-warning);
+  }
+
+  .star-rating__label:hover {
     transform: scale(1.15);
   }
 
-  .star-rating__input:checked ~ .star-rating__label {
-    color: var(--color-warning);
-  }
-
-  .star-rating__input:focus-visible ~ .star-rating__label:first-of-type {
+  /* Each input is immediately followed by its own label, so the ring follows the
+     focused radio for all five values (the previous `:first-of-type` sibling rule
+     only ever matched the first input of the group). */
+  .star-rating__input:focus-visible + .star-rating__label {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
     border-radius: var(--radius-sm);

@@ -14,6 +14,7 @@ import {
   blogPostRevisions,
   blogPostGalleries,
   blogPostGalleryMedia,
+  blogPostGalleryMediaCaptions,
   blogPostReviews,
   blogPostReviewHelpful,
   blogReports,
@@ -39,6 +40,7 @@ import type {
 } from "@/lib/blog/types";
 import { BLOG_DEFAULTS, type BlogPostStatus, type BlogReactionType } from "@/lib/blog/constants";
 import { publicBlogPostScope } from "@/lib/blog/public-visibility";
+import { resolveLocalized } from "@/lib/media/resolve-localized";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -280,7 +282,7 @@ export const getBlogPostBySlug = cached(
       .orderBy(asc(blogPostGalleries.sortOrder));
 
     const galleriesWithMedia = await (async () => {
-      const mediaByGallery = await getBlogGalleriesWithMedia(galleries.map((g) => g.id));
+      const mediaByGallery = await getBlogGalleriesWithMedia(galleries.map((g) => g.id), locale);
       return galleries.map((gallery) => ({ ...gallery, media: mediaByGallery.get(gallery.id) ?? [] }));
     })();
 
@@ -993,7 +995,7 @@ export async function getBlogPostStats(postId: string, days = 30) {
  * instead of one query per gallery. Returns a Map keyed by galleryId so the
  * caller can attach media to each gallery without an N+1 loop.
  */
-export async function getBlogGalleriesWithMedia(galleryIds: string[]) {
+export async function getBlogGalleriesWithMedia(galleryIds: string[], locale: Locale = "fr") {
   const result = new Map<string, Array<{ mediaId: string; altText: string; caption: string | null; sortOrder: number; file: { id: string; url: string; width: number | null; height: number | null } }>>();
   if (galleryIds.length === 0) return result;
 
@@ -1008,16 +1010,31 @@ export async function getBlogGalleriesWithMedia(galleryIds: string[]) {
       file: { id: mediaFiles.id, url: mediaFiles.url, width: mediaFiles.width, height: mediaFiles.height },
     })
     .from(blogPostGalleryMedia)
-    .innerJoin(mediaFiles, eq(blogPostGalleryMedia.mediaId, mediaFiles.id))
+    .innerJoin(mediaFiles, eq(mediaFiles.id, blogPostGalleryMedia.mediaId))
     .where(inArray(blogPostGalleryMedia.galleryId, galleryIds))
     .orderBy(asc(blogPostGalleryMedia.sortOrder));
 
+  // Légendes par locale : sans cela la légende restait dans la langue de saisie
+  // (souvent FR) sur les quatre locales, alors que les alt sont traduits.
+  const captionRows = galleryIds.length
+    ? await db
+        .select()
+        .from(blogPostGalleryMediaCaptions)
+        .where(inArray(blogPostGalleryMediaCaptions.galleryId, galleryIds))
+    : [];
+
   for (const row of rows) {
     const list = result.get(row.galleryId) ?? [];
+    const localized = resolveLocalized(
+      captionRows
+        .filter((c) => c.galleryId === row.galleryId && c.mediaId === row.mediaId)
+        .map((c) => ({ locale: c.locale, value: c.caption })),
+      locale,
+    );
     list.push({
       mediaId: row.mediaId,
       altText: row.altText,
-      caption: row.caption,
+      caption: localized ?? row.caption,
       sortOrder: row.sortOrder,
       file: row.file,
     });
@@ -1081,6 +1098,8 @@ export async function getBlogPostForAdmin(postId: string) {
     .orderBy(asc(blogPostGalleries.sortOrder));
 
   const galleriesWithMedia = await (async () => {
+    // Back-office : lecture sur la langue de repli, l'éditeur voit les
+    // légendes telles qu'elles sont stockées.
     const mediaByGallery = await getBlogGalleriesWithMedia(galleries.map((g) => g.id));
     return galleries.map((gallery) => ({ ...gallery, media: mediaByGallery.get(gallery.id) ?? [] }));
   })();

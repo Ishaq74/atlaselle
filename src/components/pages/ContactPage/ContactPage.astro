@@ -37,9 +37,9 @@ const { t } = Astro.props;
   <ScrollReveal direction="up" duration={600}>
     <div class="mb-12 text-center">
       <Badge variant="primary" class="mb-4">{t.badge}</Badge>
-      <h2 class="font-heading text-3xl font-bold tracking-tight @xl:text-4xl @3xl:text-5xl">
+      <h1 class="font-heading text-3xl font-bold tracking-tight @xl:text-4xl @3xl:text-5xl">
         {t.heading}
-      </h2>
+      </h1>
       <p class="text-muted-foreground mx-auto mt-4 max-w-2xl text-lg">
         {t.description}
       </p>
@@ -105,7 +105,13 @@ const { t } = Astro.props;
               {t.form.description}
             </p>
 
-            <form class="space-y-5" id="contact-form" name="contact-form"
+            {/* method="post" + action explicite : première barrière structurelle contre
+                la soumission native en GET vers l'URL courante — c'est ce GET qui
+                exposait email / phone / message dans la chaîne de requête. Repli
+                serveur : /api/contact n'accepte que application/json et renvoie
+                400 INVALID_JSON sur un corps urlencodé — le traitement (schéma,
+                rate-limit, e-mail) n'est jamais atteint. */}
+            <form class="space-y-5" id="contact-form" name="contact-form" method="post" action="/api/contact"
               data-feedback-success={t.feedback.success}
               data-feedback-error={t.feedback.error}
               data-feedback-network={t.feedback.networkError}

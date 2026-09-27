@@ -254,6 +254,7 @@ export default {
   },
   errors: {
     slugReserved: "هذا المسار محجوز.",
+    ratingRequired: "التقييم مطلوب.",
     titleRequired: "العنوان مطلوب.",
     contentRequired: "المحتوى مطلوب.",
     commentDisabled: "التعليقات معطلة.",

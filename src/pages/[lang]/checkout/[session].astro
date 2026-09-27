@@ -59,11 +59,17 @@ const base = `/${locale}/checkout/${data.sessionId}`;
       <div class="flex justify-between text-muted-foreground"><dt>{l.balance}</dt><dd><bdi>{fmt(data.quote.balanceAmount)}</bdi></dd></div>
     </dl>
 
-    <form data-checkout-form class="mt-6 space-y-4 rounded-xl border p-6">
+    {/* method="post" + action explicite : première barrière structurelle contre la
+        soumission native en GET vers l'URL courante — c'est ce GET qui exposait
+        travelerEmail dans la chaîne de requête. Le traitement réel est un appel
+        astro:actions, sans route serveur de repli : l'action pointe vers la page
+        courante, qui n'expose aucun export POST, donc une soumission native y est
+        rejetée sans mutation. */}
+    <form name="checkout-form" data-checkout-form method="post" action={Astro.url.pathname} class="mt-6 space-y-4 rounded-xl border p-6">
       <label class="block font-medium">Email<input required name="travelerEmail" type="email" maxlength="320" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
       {/* eslint-disable-next-line astro/no-set-html-directive, astro/jsx-a11y/label-has-associated-control -- termsLabel est construit côté serveur depuis des textes i18n statiques et des slugs DB (aucune entrée utilisateur) ; le texte du label est rendu via set:html, invisible pour l'analyse statique */}
       <label class="flex items-start gap-2 text-sm"><input required type="checkbox" name="terms" class="mt-1" /><span set:html={termsLabel} /></label>
-      <button class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.pay} · <bdi>{fmt(data.quote.totalAmount)}</bdi></button>
+      <button type="submit" class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.pay} · <bdi>{fmt(data.quote.totalAmount)}</bdi></button>
       <output class="block text-sm" data-form-message></output>
     </form>
   </section>

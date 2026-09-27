@@ -32,6 +32,7 @@ const t = locale === "fr"
   <AuthLayout title={title}>
     <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="trips" />
     <section class="mx-auto max-w-6xl space-y-8 px-6 py-10" data-trip-moderation>
+      <h1 class="font-heading mb-6 text-2xl font-semibold">{title}</h1>
       <div class="flex flex-wrap items-center gap-3 text-sm">
         <span class="rounded-full border px-3 py-1">💬 {counts.pendingComments} {t.comments}</span>
         <span class="rounded-full border px-3 py-1">★ {counts.pendingReviews} {t.reviews}</span>

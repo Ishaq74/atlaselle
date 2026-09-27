@@ -256,6 +256,7 @@ export default {
   },
   errors: {
     slugReserved: "Este slug está reservado.",
+    ratingRequired: "La valoración es obligatoria.",
     titleRequired: "El título es obligatorio.",
     contentRequired: "El contenido es obligatorio.",
     commentDisabled: "Los comentarios están desactivados.",

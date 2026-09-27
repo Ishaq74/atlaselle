@@ -18,7 +18,17 @@ jobs:
     name: Lint & Type Check
     runs-on: ubuntu-latest
     env:
-      SITE_URL: ${{ vars.SITE_URL }}
+      # astro.config.mjs is fail-closed: it throws while the config is being
+      # evaluated when SITE_URL is missing, malformed, non-http(s), path-bearing
+      # or plain http on a non-loopback host. `npx astro check` loads that
+      # config, and neither the Astro config loader nor .env is consulted before
+      # that evaluation, so the value has to exist in the real process
+      # environment. The repository variable vars.SITE_URL has already been
+      # observed empty (tests/reports/qa-full.log), which would fail this job at
+      # config load, before a single check runs. This job starts no server, so
+      # the origin is inert here: it is pinned to the repo's loopback dev origin
+      # and can no longer be empty.
+      SITE_URL: http://localhost:4321
     steps:
       - uses: actions/checkout@v6
 
@@ -64,8 +74,17 @@ jobs:
       DB_ENV: LOCAL
       NODE_ENV: test
       BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-      BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
-      SITE_URL: ${{ vars.SITE_URL }}
+      # vitest.config.ts enforces the same fail-closed contract as
+      # astro.config.mjs (src/pages/sitemap-cms.xml.ts reads import.meta.env.SITE
+      # and refuses to publish without an origin), so SITE_URL must be in the
+      # real process environment before Vitest even evaluates its config.
+      # The suite drives requests built on http://localhost:4321
+      # (tests/integration/*.test.ts) and docs/testing/integration.md documents
+      # that same origin, so SITE_URL and BETTER_AUTH_URL are pinned together to
+      # it: no repository variable can leave one of them empty, and the two can
+      # no longer describe two different origins inside a single job.
+      BETTER_AUTH_URL: http://localhost:4321
+      SITE_URL: http://localhost:4321
       SMTP_PROVIDER: NODEMAILER
       SMTP_FROM_EMAIL: ci@test.local
       SMTP_HOST: localhost
@@ -130,8 +149,21 @@ jobs:
       DB_ENV: LOCAL
       NODE_ENV: test
       BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-      BETTER_AUTH_URL: http://localhost:4321
-      SITE_URL: ${{ vars.SITE_URL }}
+      # The server this job tests is scripts/e2e-server.mjs, spawned by
+      # playwright.config.ts (webServer.command) with HOST=localhost, PORT=4322;
+      # playwright.config.ts baseURL/webServer.url, tests/helpers/actions.ts and
+      # every tests/e2e/*.spec.ts address http://localhost:4322, and
+      # tests/e2e/api-endpoints.spec.ts sends `Origin: http://localhost:4322` on
+      # its mutating requests. Both variables are therefore pinned to the origin
+      # this job really serves. BETTER_AUTH_URL used to be http://localhost:4321
+      # (the preview port of the a11y job) while SITE_URL was the public origin:
+      # two origins in one job, neither of them the one under test. Astro freezes
+      # SITE_URL into `site`, into security.allowedDomains and into the sitemap
+      # index, and both astro.config.mjs and vitest.config.ts are fail-closed, so
+      # the value must be a real loopback origin, never an unsettable repository
+      # variable.
+      BETTER_AUTH_URL: http://localhost:4322
+      SITE_URL: http://localhost:4322
       SMTP_PROVIDER: NODEMAILER
       SMTP_FROM_EMAIL: ci@test.local
       SMTP_HOST: localhost
@@ -202,8 +234,18 @@ jobs:
       DB_ENV: LOCAL
       NODE_ENV: test
       BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+      # One job, one origin. `pnpm preview` is `node scripts/serve-compressed.mjs`
+      # with no HOST/PORT in this job, so it listens on its defaults
+      # (0.0.0.0:4321); `npx wait-on http://localhost:4321` waits for exactly
+      # that, .pa11yci.cjs and lighthouserc.cjs both build their URL lists from
+      # A11Y_BASE_URL (default http://localhost:4321) and tests/a11y/setup.ts
+      # authenticates against BETTER_AUTH_URL. SITE_URL and BETTER_AUTH_URL are
+      # pinned to that same loopback origin: plain http is accepted by
+      # astro.config.mjs on a loopback host, and both values used to be able to
+      # resolve to something else (empty or public) for the very pages this job
+      # audits.
       BETTER_AUTH_URL: http://localhost:4321
-      SITE_URL: ${{ vars.SITE_URL }}
+      SITE_URL: http://localhost:4321
       SMTP_PROVIDER: NODEMAILER
       SMTP_FROM_EMAIL: ci@test.local
       SMTP_HOST: localhost
@@ -293,6 +335,13 @@ jobs:
     needs: [unit-tests, e2e-tests, a11y-perf]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     env:
+      # This is the only job that produces a deployable artifact, so SITE_URL
+      # stays the PUBLIC origin and is never replaced by a loopback literal (the
+      # other jobs only serve and audit a local site). It comes from a repository
+      # variable, which GitHub expands to an empty string when unset - and it has
+      # been observed empty. The two guard steps below turn that into an explicit,
+      # named failure instead of a build-time stack trace or, worse, a dist/ whose
+      # canonicals, sitemaps and emails carry a dev origin.
       SITE_URL: ${{ vars.SITE_URL }}
       BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
       BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
@@ -310,8 +359,92 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Guard - public origin is resolvable (fail-closed)
+        run: |
+          node -e '
+            const LOOPBACK = new Set(["localhost", "::1", "[::1]", "0:0:0:0:0:0:0:1"]);
+            const fail = (message) => {
+              console.error("::error::" + message);
+              process.exit(1);
+            };
+            const isLoopback = (hostname) => {
+              const host = hostname.toLowerCase();
+              if (LOOPBACK.has(host) || host.endsWith(".localhost")) return true;
+              if (!/^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host)) return false;
+              return host.split(".").every((octet) => Number(octet) <= 255);
+            };
+
+            const rawSite = process.env.SITE_URL;
+            if (typeof rawSite !== "string" || rawSite.trim() === "") {
+              fail("SITE_URL is empty. The repository variable vars.SITE_URL (Settings > Secrets and variables > Actions > Variables) is unset or blank. A deployable build needs the public https origin of the site: a loopback origin would publish localhost absolute URLs in canonicals, hreflang, sitemap-index.xml, sitemap-cms.xml and every email, and Astro security.allowedDomains would pin the wrong hostname. Set vars.SITE_URL and re-run; nothing was built and no artifact was uploaded.");
+            }
+            let site;
+            try {
+              site = new URL(rawSite.trim());
+            } catch {
+              fail("SITE_URL is not an absolute URL: " + JSON.stringify(rawSite) + ". Expected a public origin such as https://example.com.");
+            }
+            if (isLoopback(site.hostname)) {
+              fail("SITE_URL points at the loopback host " + JSON.stringify(site.hostname) + ". A deployable artifact must never be frozen from a dev origin.");
+            }
+            if (site.protocol !== "https:") {
+              fail("SITE_URL must use https: for a deployable build (received " + site.protocol + " from " + JSON.stringify(rawSite) + ").");
+            }
+            if (site.pathname !== "/") {
+              fail("SITE_URL must be a bare origin without a path (received " + JSON.stringify(site.pathname) + "). astro.config.mjs refuses to emit a config whose site is not an origin.");
+            }
+
+            const rawAuth = process.env.BETTER_AUTH_URL;
+            if (typeof rawAuth !== "string" || rawAuth.trim() === "") {
+              fail("BETTER_AUTH_URL is empty. The repository variable vars.BETTER_AUTH_URL is unset or blank. better-auth has no base URL to build verification, password-reset and organisation invitation links from. Set vars.BETTER_AUTH_URL and re-run; nothing was built and no artifact was uploaded.");
+            }
+            let auth;
+            try {
+              auth = new URL(rawAuth.trim());
+            } catch {
+              fail("BETTER_AUTH_URL is not an absolute URL: " + JSON.stringify(rawAuth) + ".");
+            }
+            if (auth.protocol !== "https:" && auth.protocol !== "http:") {
+              fail("BETTER_AUTH_URL must use http: or https: (received " + auth.protocol + ").");
+            }
+            if (auth.pathname !== "/") {
+              fail("BETTER_AUTH_URL must be a bare origin without a path (received " + JSON.stringify(auth.pathname) + ").");
+            }
+
+            console.log("Public origin frozen for this build: " + site.origin);
+            console.log("better-auth base URL: " + auth.origin);
+          '
+
       - name: Production Build
         run: pnpm build
+
+      - name: Guard - artifact is frozen on the public origin
+        run: |
+          set -euo pipefail
+          origin="$(node -e 'process.stdout.write(new URL(process.env.SITE_URL.trim()).origin)')"
+          index="dist/client/sitemap-index.xml"
+          if [ ! -f "$index" ]; then
+            echo "::error::$index was not emitted by the build, so the origin frozen into the artifact cannot be verified. Refusing to upload an artifact of unknown origin."
+            exit 1
+          fi
+          if ! grep -qF "$origin/sitemap" "$index"; then
+            echo "::error::$index does not reference the public origin $origin that the guard above validated. Refusing to upload."
+            cat "$index"
+            exit 1
+          fi
+          # Scoped to the generated sitemap XML on purpose: dist/server/chunks/ also
+          # contains a source-level fallback (src/modules/email-voyage/domain/
+          # voyage-email-worker.ts reads process.env.SITE_URL ?? "http://localhost:4321"),
+          # so grepping the whole bundle would report a dev origin on every
+          # legitimate production build. These files are generated from `site` only.
+          for file in dist/client/sitemap*.xml; do
+            if grep -nE 'https?://(localhost|127\.[0-9]|0\.0\.0\.0|\[::1\])' "$file"; then
+              echo "::error::$file contains a loopback origin. Refusing to upload an artifact frozen on a dev origin."
+              exit 1
+            fi
+          done
+          echo "Artifact origin verified: $origin"
+          cat "$index"
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v7

@@ -16,5 +16,5 @@ const data = await getServices({ tagId: tag.tag.id, page }, locale, true);
 const title = `#${tag.translation?.name ?? tag.tag.slug}`;
 ---
 <BaseLayout title={title} description={t.meta.description}>
-  <main><ServicesListingPage locale={locale} title={title} items={data.items} meta={data} baseUrl={`/${locale}/services/tags/${tagSlug}`} activeTagSlug={tagSlug} /></main>
+  <div><ServicesListingPage locale={locale} title={title} items={data.items} meta={data} baseUrl={`/${locale}/services/tags/${tagSlug}`} activeTagSlug={tagSlug} /></div>
 </BaseLayout>

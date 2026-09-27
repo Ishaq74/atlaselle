@@ -40,7 +40,13 @@ const {
         </div>
       </div>
       
-      <form class="newsletter-sidebar__form" id="newsletter-form">
+      {/* method="post" + action explicite : première barrière structurelle contre la
+          soumission native en GET vers l'URL courante — c'est ce GET qui exposait
+          l'email d'inscription dans la chaîne de requête. Le traitement réel est un
+          appel astro:actions, sans route serveur de repli : l'action pointe vers la
+          page courante, qui n'expose aucun export POST, donc une soumission native
+          y est rejetée sans mutation. */}
+      <form class="newsletter-sidebar__form" id="newsletter-form" name="newsletter-form" method="post" action={Astro.url.pathname}>
         <label for="newsletter-email" class="sr-only">
           {blogT.labels.newsletterEmail}
         </label>

@@ -1,0 +1,41 @@
+---
+interface Props {
+  items: string[];
+}
+
+const { items } = Astro.props as Props;
+---
+
+<div class="home-marquee overflow-hidden border-y border-border/60 bg-card py-3.5" aria-hidden="true">
+  <div class="home-marquee-track">
+    {[0, 1].map((copy) => (
+      <span class="home-marquee-chunk" data-copy={copy}>
+        {items.map((item) => (
+          <span class="home-marquee-item">✦ {item}</span>
+        ))}
+      </span>
+    ))}
+  </div>
+</div>
+
+<style>
+  .home-marquee-track {
+    display: flex; width: max-content;
+    animation: home-marquee 30s linear infinite;
+  }
+  .home-marquee-chunk { display: flex; shrink: 0; }
+  .home-marquee-item {
+    padding-inline: 1.5rem; font-size: .82rem; font-weight: 600;
+    letter-spacing: .05em; white-space: nowrap;
+  }
+  @keyframes home-marquee {
+    to { transform: translateX(-50%); }
+  }
+  :global(html[dir="rtl"]) .home-marquee-track { animation-name: home-marquee-rtl; }
+  @keyframes home-marquee-rtl {
+    to { transform: translateX(50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home-marquee-track { animation: none; }
+  }
+</style>

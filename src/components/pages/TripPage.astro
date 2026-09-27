@@ -1,13 +1,275 @@
 ---
+/**
+ * TripPage — fiche voyage.
+ *
+ * Composition éditoriale calquée sur l'article du blog : barre de lecture,
+ * colonne de contenu, sommaire, partage, contenu connexe, puis avis et
+ * questions. La carte de réservation est collante : c'est la seule action de
+ * la page, elle doit rester visible pendant la lecture.
+ */
 import type { Locale } from "@i18n/config";
-import { getApplyPath } from "@i18n/routes";
+import { getApplyPath, getTripsBasePath } from "@i18n/routes";
 import type { TripPageDTO } from "@/modules/trips/loaders/trip.loader";
+import type { TripEngagementDTO } from "@/modules/trips/loaders/trip-engagement.loader";
+import type { TripSummaryDTO } from "@/modules/trips/loaders/trip.loader";
+import ArticleProgressBar from "@/components/blog/ArticleProgressBar.astro";
+import ShareBar from "@/components/blog/ShareBar.astro";
+import TripPageHero from "@/modules/trips/components/TripPageHero.astro";
+import TripBookingCard from "@/modules/trips/components/TripBookingCard.astro";
+import TripHighlights from "@/modules/trips/components/TripHighlights.astro";
+import TripItinerary from "@/modules/trips/components/TripItinerary.astro";
 import TripEngagement from "@/modules/trips/components/TripEngagement.astro";
-const { trip, locale } = Astro.props as { trip: TripPageDTO; locale: Locale };
+import TripReactionBar from "@/modules/trips/components/TripReactionBar.astro";
+import TripCard from "@/modules/trips/components/TripCard.astro";
+import MediaGallery from "@/components/molecules/MediaGallery.astro";
+import type { TripMediaItem } from "@/modules/trips/loaders/trip.loader";
+import ScrollReveal from "@wow/ScrollReveal.astro";
+
+interface Props {
+  trip: TripPageDTO;
+  locale: Locale;
+  engagement: TripEngagementDTO;
+  relatedTrips: TripSummaryDTO[];
+  media: TripMediaItem[];
+  absoluteUrl: string;
+  isSignedIn: boolean;
+}
+
+const { trip, locale, engagement, relatedTrips, media, absoluteUrl, isSignedIn } = Astro.props as Props;
 const copy = trip.translations[locale];
 const applyUrl = getApplyPath(locale, copy.slug);
+const tripsBase = getTripsBasePath(locale);
 const pricePrefix = trip.currency === "EUR" ? "€" : `${trip.currency} `;
-const labels = locale === "fr" ? { dates:"Dates", price:"À partir de", places:"Places restantes", difficulty:"Niveau", itinerary:"Itinéraire", included:"Ce qui est prévu", apply:"Déposer ma candidature", room:"Hébergement", deposit:"Acompte", due:"Solde à régler avant le", rating:"Avis voyageurs" } : locale === "ar" ? { dates:"التواريخ", price:"ابتداءً من", places:"المقاعد المتبقية", difficulty:"المستوى", itinerary:"خط السير", included:"ما الذي ينتظرك", apply:"قدّم طلبك", room:"الإقامة", deposit:"الدفعة المقدمة", due:"الموعد النهائي للرصيد", rating:"تقييمات المسافرات" } : locale === "es" ? { dates:"Fechas", price:"Desde", places:"Plazas restantes", difficulty:"Nivel", itinerary:"Itinerario", included:"Lo que te espera", apply:"Enviar mi solicitud", room:"Alojamiento", deposit:"Anticipo", due:"Saldo antes del", rating:"Opiniones" } : { dates:"Dates", price:"From", places:"Places remaining", difficulty:"Difficulty", itinerary:"Itinerary", included:"What awaits", apply:"Apply for this journey", room:"Rooms", deposit:"Deposit", due:"Final payment due", rating:"Traveller reviews" };
+
+const t = {
+  fr: {
+    list: "Nos voyages", highlights: "Ce qui est prévu", itinerary: "Le programme", day: (i: number) => `Jour ${i + 1}`,
+    related: "Autres voyages", gallery: "La galerie", share: "Partager", linkCopied: "Lien copié.", copyLinkError: "Impossible de copier le lien.", rating: "avis", ratingLabel: "Avis voyageuses",
+    status: "Statut", open: "Disponible", interest: "Liste d'intérêt", places: "Places restantes",
+    priceFrom: "par voyageuse", deposit: "Acompte à la réservation", balance: "Solde dû avant le",
+    lodging: "Hébergement", difficulty: "Difficulté", apply: "Déposer ma candidature",
+    reassurance: "Aucun paiement avant notre confirmation. Acompte de 500 € demandé après acceptation.",
+    onThisPage: "Sur cette page",
+  },
+  en: {
+    list: "Our journeys", highlights: "What awaits", itinerary: "The itinerary", day: (i: number) => `Day ${i + 1}`,
+    related: "Other journeys", gallery: "The gallery", share: "Share", linkCopied: "Link copied.", copyLinkError: "Could not copy link.", rating: "reviews", ratingLabel: "Traveller reviews",
+    status: "Status", open: "Available", interest: "Interest list", places: "Places remaining",
+    priceFrom: "per traveller", deposit: "Deposit on booking", balance: "Balance due before",
+    lodging: "Lodging", difficulty: "Difficulty", apply: "Apply for this journey",
+    reassurance: "No payment before we confirm. The €500 deposit is only requested after acceptance.",
+    onThisPage: "On this page",
+  },
+  es: {
+    list: "Nuestros viajes", highlights: "Lo que te espera", itinerary: "El itinerario", day: (i: number) => `Día ${i + 1}`,
+    related: "Otros viajes", gallery: "La galería", share: "Compartir", linkCopied: "Enlace copiado.", copyLinkError: "No se pudo copiar el enlace.", rating: "opiniones", ratingLabel: "Opiniones de viajeras",
+    status: "Estado", open: "Disponible", interest: "Lista de interés", places: "Plazas restantes",
+    priceFrom: "por viajera", deposit: "Anticipo al reservar", balance: "Saldo antes del",
+    lodging: "Alojamiento", difficulty: "Dificultad", apply: "Enviar mi solicitud",
+    reassurance: "Ningún pago antes de nuestra confirmación. El anticipo de 500 € se pide tras la aceptación.",
+    onThisPage: "En esta página",
+  },
+  ar: {
+    list: "رحلاتنا", highlights: "ما الذي ينتظرك", itinerary: "البرنامج", day: (i: number) => `اليوم ${i + 1}`,
+    related: "رحلات أخرى", gallery: "معرض الصور", share: "مشاركة", linkCopied: "تم نسخ الرابط.", copyLinkError: "تعذر نسخ الرابط.", rating: "تقييمات", ratingLabel: "تقييمات المسافرات",
+    status: "الحالة", open: "متاح", interest: "قائمة الاهتمام", places: "المقاعد المتبقية",
+    priceFrom: "للمسافرة", deposit: "الدفعة المقدمة عند الحجز", balance: "الرصيد قبل",
+    lodging: "الإقامة", difficulty: "الصعوبة", apply: "قدّم طلبك",
+    reassurance: "لا دفع قبل تأكيدنا. الدفعة المقدمة (500 يورو) بعد القبول فقط.",
+    onThisPage: "في هذه الصفحة",
+  },
+}[locale];
+
+const toc = [
+  { id: "trip-highlights", label: t.highlights },
+  { id: "trip-itinerary", label: t.itinerary },
+  { id: "trip-reviews-title", label: t.rating },
+].filter((item) =>
+  item.id === "trip-highlights"
+    ? copy.highlights.length > 0
+    : item.id === "trip-itinerary"
+      ? copy.itinerary.length > 0
+      : trip.allowReviews,
+);
+
+const facts = [
+  { icon: "mdi:calendar-blank", label: t.status, value: trip.status === "open" ? t.open : t.interest },
+  ...(copy.itinerary[0] ? [{ icon: "mdi:calendar-week-outline", label: t.itinerary, value: `${copy.itinerary.length} ${t.day(0).toLowerCase()}` }] : []),
+  { icon: "mdi:hiking", label: t.difficulty, value: copy.difficulty },
+  { icon: "mdi:bed-outline", label: t.lodging, value: trip.roomRule },
+].filter((fact) => fact.value);
 ---
-<section class="bg-primary px-6 py-20 text-primary-foreground"><div class="mx-auto max-w-6xl"><p class="mb-4 text-sm font-semibold uppercase tracking-[.2em]">ATLASELLE</p><h1 class="max-w-4xl text-5xl font-bold tracking-tight">{copy.title}</h1><p class="mt-6 max-w-2xl text-xl opacity-90">{copy.summary}</p>{trip.ratingCount > 0 && <p class="mt-4 text-sm opacity-90" aria-label={`${labels.rating} ${trip.ratingAverage}/5`}><bdi>{trip.ratingAverage}/5</bdi> · <bdi>{trip.ratingCount}</bdi> {labels.rating} · {"★".repeat(Math.round(trip.ratingAverage))}{"☆".repeat(5 - Math.round(trip.ratingAverage))}</p>}</div></section>
-<section class="mx-auto grid max-w-6xl gap-12 px-6 py-14 lg:grid-cols-[1fr_20rem]"><div><h2 class="text-2xl font-bold">{labels.included}</h2><ul class="mt-5 space-y-3">{copy.highlights.map((item) => <li class="border-s-2 border-primary ps-4">{item}</li>)}</ul><h2 class="mt-14 text-2xl font-bold">{labels.itinerary}</h2><ol class="mt-6 space-y-7">{copy.itinerary.map((item, index) => <li class="grid gap-2 sm:grid-cols-[3rem_1fr]"><span class="font-semibold text-primary">{String(index + 1).padStart(2,"0")}</span><div><h3 class="font-semibold">{item.title}</h3><p class="mt-1 text-muted-foreground">{item.text}</p></div></li>)}</ol><TripEngagement tripId={trip.id} locale={locale} commentStatus={trip.commentStatus} allowReviews={trip.allowReviews} /></div><aside class="h-fit rounded-xl border bg-muted/40 p-6"><dl class="space-y-5 text-sm"><div><dt class="text-muted-foreground">{labels.dates}</dt><dd class="mt-1 font-semibold"><bdi>{trip.dates}</bdi></dd></div><div><dt class="text-muted-foreground">{labels.price}</dt><dd class="mt-1 text-2xl font-bold"><bdi>{pricePrefix}{trip.price.toLocaleString("en")}</bdi></dd></div><div><dt class="text-muted-foreground">{labels.places}</dt><dd class="mt-1 font-semibold"><bdi>{trip.remainingPlaces} / {trip.capacity}</bdi></dd></div><div><dt class="text-muted-foreground">{labels.difficulty}</dt><dd class="mt-1">{copy.difficulty}</dd></div><div><dt class="text-muted-foreground">{labels.room}</dt><dd class="mt-1">{trip.roomRule}</dd></div><div><dt class="text-muted-foreground">{labels.deposit}</dt><dd class="mt-1"><bdi>{pricePrefix}{trip.deposit}</bdi></dd></div><div><dt class="text-muted-foreground">{labels.due}</dt><dd class="mt-1"><bdi>{trip.finalPaymentDue}</bdi></dd></div></dl><a class="mt-7 block rounded-md bg-primary px-4 py-3 text-center font-semibold text-primary-foreground" href={applyUrl}>{labels.apply}</a></aside></section>
+
+<ArticleProgressBar targetId="trip-content" />
+
+<TripPageHero
+  trip={trip}
+  locale={locale}
+  title={copy.title}
+  summary={copy.summary}
+  breadcrumb={[
+    { label: "ATLASELLE", href: tripsBase },
+    { label: t.list, href: tripsBase },
+    { label: copy.title, href: "" },
+  ]}
+  facts={facts}
+  ratingLabel={t.ratingLabel}
+/>
+
+<div class="mx-auto grid max-w-7xl gap-10 px-4 py-10 md:px-6 md:py-14 lg:grid-cols-[minmax(0,1fr)_22rem]">
+  {/* Colonne de contenu */}
+  <div class="flex min-w-0 flex-col gap-12" id="trip-content">
+    {copy.highlights.length > 0 && (
+      <ScrollReveal>
+        <TripHighlights highlights={copy.highlights} title={t.highlights} />
+      </ScrollReveal>
+    )}
+
+    {copy.itinerary.length > 0 && (
+      <ScrollReveal>
+        <section aria-labelledby="trip-itinerary">
+          <h2 id="trip-itinerary" class="font-heading mb-6 text-2xl font-semibold tracking-tight">
+            {t.itinerary}
+          </h2>
+          <TripItinerary itinerary={copy.itinerary} dayLabel={t.day} />
+        </section>
+      </ScrollReveal>
+    )}
+
+    {media.length > 0 && (
+      <ScrollReveal>
+        <MediaGallery
+          title={t.gallery}
+          items={media.map((item) => ({
+            url: item.url,
+            alt: item.alt,
+            caption: item.caption,
+            width: item.width,
+            height: item.height,
+          }))}
+          ariaLabel={t.gallery}
+        />
+      </ScrollReveal>
+    )}
+
+    <TripEngagement
+      tripId={trip.id}
+      locale={locale}
+      commentStatus={trip.commentStatus}
+      allowReviews={trip.allowReviews}
+      engagement={engagement}
+      isSignedIn={isSignedIn}
+    />
+
+    {/* Réactions + partage dans la même bande que l'article du blog */}
+    <div class="flex flex-col gap-4 rounded-2xl border bg-card/60 px-5 py-4 shadow-sm backdrop-blur lg:flex-row lg:items-center lg:justify-between">
+      <TripReactionBar tripId={trip.id} locale={locale} engagement={engagement} isSignedIn={isSignedIn} />
+      <ShareBar
+        url={absoluteUrl}
+        title={copy.title}
+        labels={{
+          share: t.share,
+          shareOnX: t.share,
+          shareOnFacebook: t.share,
+          shareOnLinkedIn: t.share,
+          copyLink: t.share,
+          linkCopied: t.linkCopied,
+          copyLinkError: t.copyLinkError,
+        }}
+      />
+    </div>
+  </div>
+
+  {/* Colonne latérale : carte de réservation collante + sommaire */}
+  <aside class="flex flex-col gap-6 lg:sticky lg:top-24 lg:self-start">
+    <TripBookingCard
+      locale={locale}
+      price={trip.price}
+      pricePrefix={pricePrefix}
+      dates={trip.dates}
+      remainingPlaces={trip.remainingPlaces}
+      capacity={trip.capacity}
+      status={trip.status}
+      deposit={trip.deposit}
+      finalPaymentDue={trip.finalPaymentDue}
+      roomRule={trip.roomRule}
+      difficulty={copy.difficulty}
+      applyUrl={applyUrl}
+      labels={{
+        status: t.status,
+        open: t.open,
+        interest: t.interest,
+        places: t.places,
+        priceFrom: t.priceFrom,
+        deposit: t.deposit,
+        balance: t.balance,
+        lodging: t.lodging,
+        difficulty: t.difficulty,
+        apply: t.apply,
+        reassurance: t.reassurance,
+      }}
+    />
+
+    {toc.length >= 2 && (
+      <nav aria-label={t.onThisPage} class="hidden xl:block">
+        <p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t.onThisPage}</p>
+        <ul class="mt-3 space-y-2 border-s text-sm">
+          {toc.map((item) => (
+            <li>
+              <a
+                href={`#${item.id}`}
+                data-trip-toc-link
+                class="-ms-px block border-s-2 border-transparent py-1 ps-4 text-muted-foreground transition-colors hover:text-foreground data-active:border-primary data-active:font-medium data-active:text-foreground"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+
+    {relatedTrips.length > 0 && (
+      <section aria-labelledby="trip-related" class="flex flex-col gap-4">
+        <h2 id="trip-related" class="font-heading text-lg font-semibold tracking-tight">{t.related}</h2>
+        <div class="flex flex-col gap-4">
+          {relatedTrips.map((item) => (
+            <TripCard trip={item} locale={locale} variant="grid" />
+          ))}
+        </div>
+      </section>
+    )}
+  </aside>
+</div>
+
+<script>
+  // Sommaire : la ligne courante suit la lecture (même technique que le blog).
+  function initTripToc(): void {
+    const links = document.querySelectorAll<HTMLAnchorElement>("[data-trip-toc-link]");
+    if (links.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          links.forEach((link) => link.removeAttribute("data-active"));
+          document
+            .querySelector<HTMLAnchorElement>(`[data-trip-toc-link][href="#${entry.target.id}"]`)
+            ?.setAttribute("data-active", "");
+        }
+      },
+      { rootMargin: "0px 0px -70% 0px", threshold: 0 },
+    );
+
+    links.forEach((link) => {
+      const el = link.getAttribute("href")?.slice(1);
+      if (el) {
+        const target = document.getElementById(el);
+        if (target) observer.observe(target);
+      }
+    });
+  }
+
+  initTripToc();
+  document.addEventListener("astro:after-swap", initTripToc);
+</script>

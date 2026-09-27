@@ -1,4 +1,5 @@
 import type { DepartureStatus } from "@database/schemas/departures.schema";
+import { transitionRefused } from "@/modules/state-machines/domain/transition-refusal";
 
 // TODO §8.4 — statut de publication (Trip) ≠ statut de disponibilité (Departure).
 export const DEPARTURE_TRANSITIONS: Record<DepartureStatus, DepartureStatus[]> = {
@@ -17,6 +18,6 @@ export function canTransitionDeparture(from: DepartureStatus, to: DepartureStatu
 
 export function assertTransitionDeparture(from: DepartureStatus, to: DepartureStatus): void {
   if (!canTransitionDeparture(from, to)) {
-    throw new Error(`Invalid departure transition: ${from} → ${to}`);
+    throw transitionRefused("départ", from, to);
   }
 }

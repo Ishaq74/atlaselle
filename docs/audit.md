@@ -2,7 +2,8 @@
 
 > **Fichier** : `src/lib/audit.ts`  
 > **Table** : `audit_log` (PostgreSQL)  
-> **Tests** : `tests/integration/audit.test.ts` (6 tests), `tests/unit/extract-ip.test.ts` (8 tests), `tests/unit/cms-audit.test.ts` (1 test), `tests/unit/audit-fallback.test.ts` (1 test)
+> **Total** : **179 actions** dans l'union `AuditAction` — recompté à partir de `src/lib/audit.ts`, jamais repris d'un autre document  
+> **Tests** : `tests/integration/audit.test.ts` (8 tests) · `tests/unit/extract-ip.test.ts` (19 tests) · `tests/unit/cms-audit.test.ts` (1 test) · `tests/unit/audit-fallback.test.ts` (1 test) · `tests/unit/voyage/middleware-forwarded-audit.test.ts` (21 tests)
 
 ---
 
@@ -71,7 +72,7 @@ Extrait l'adresse IP du client (audit.ts:46-55) :
 | `PASSWORD_RESET_COMPLETE` | Reset mot de passe effectué |
 | `PASSWORD_RESET_COMPLETE_FAILED` | Tentative de reset échouée |
 
-### Gestion utilisateurs (6 actions)
+### Gestion utilisateurs (7 actions)
 
 | Action | Déclencheur |
 | :-- | :-- |
@@ -79,6 +80,7 @@ Extrait l'adresse IP du client (audit.ts:46-55) :
 | `USER_DELETE` | Suppression de compte (RGPD) |
 | `USER_BAN` / `USER_UNBAN` | Ban/unban par admin |
 | `USER_ROLE_CHANGE` | Changement de rôle |
+| `USER_DATA_EXPORT` | Export RGPD des données utilisateur |
 
 ### Impersonation (2 actions)
 
@@ -87,15 +89,7 @@ Extrait l'adresse IP du client (audit.ts:46-55) :
 | `IMPERSONATION_START` | Admin commence l'impersonation |
 | `IMPERSONATION_STOP` | Fin d'impersonation |
 
-### Organisations (11 actions)
-
-| Action | Déclencheur |
-| :-- | :-- |
-| `ORG_CREATE` / `ORG_UPDATE` / `ORG_DELETE` | CRUD organisation |
-| `ORG_MEMBER_ADD` / `ORG_MEMBER_REMOVE` | Gestion membres |
-| `ORG_MEMBER_ROLE_CHANGE` / `ORG_MEMBER_ROLE_UPDATE` | Changement de rôle membre (deux identités en code) |
-| `ORG_INVITATION_SEND` / `ORG_INVITATION_ACCEPT` / `ORG_INVITATION_REJECT` / `ORG_INVITATION_CANCEL` | Flow invitations |
-| `ORG_ROLE_CREATE` / `ORG_ROLE_UPDATE` / `ORG_ROLE_DELETE` | Rôles d'organisation personnalisés |
+> **Section « Organisations » retirée.** Les 11 actions `ORG_*` listées dans les versions antérieures de ce document **n'existent plus** dans l'union `AuditAction` (`ORG_CREATE`, `ORG_UPDATE`, `ORG_DELETE`, `ORG_MEMBER_ADD`, `ORG_MEMBER_REMOVE`, `ORG_MEMBER_ROLE_CHANGE`, `ORG_MEMBER_ROLE_UPDATE`, `ORG_INVITATION_SEND`, `ORG_INVITATION_ACCEPT`, `ORG_INVITATION_REJECT`, `ORG_INVITATION_CANCEL`, `ORG_ROLE_CREATE`, `ORG_ROLE_UPDATE`, `ORG_ROLE_DELETE` → **0 occurrence** dans `src/lib/audit.ts`). Le plugin `organization` a été retiré (TODO §30.3). Toute mention d'`ORG_*` ou d'actions d'organisation dans la documentation est périmée.
 
 ### Fichiers & médias (11 actions)
 
@@ -107,7 +101,7 @@ Extrait l'adresse IP du client (audit.ts:46-55) :
 | `MEDIA_FILE_UPLOAD` / `MEDIA_FILE_RENAME` / `MEDIA_FILE_MOVE` / `MEDIA_FILE_DELETE` | Fichiers médiathèque |
 | `MEDIA_FILE_ALT_UPDATE` / `MEDIA_FILE_ALT_DELETE` | Textes alternatifs |
 
-### CMS Admin — pages & versions (~30 actions)
+### CMS Admin — pages & versions (29 actions `PAGE_`/`PAGES_`)
 
 | Action | Déclencheur |
 | :-- | :-- |
@@ -132,24 +126,77 @@ Extrait l'adresse IP du client (audit.ts:46-55) :
 | `CONTENT_EXPORT` / `CONTENT_IMPORT` | Export / import de contenu |
 | `WEBHOOK_CREATE` / `WEBHOOK_UPDATE` / `WEBHOOK_DELETE` | Webhooks |
 
-### Blog (~30 actions)
+### Blog (33 actions)
 
 `BLOG_POST_CREATE` / `UPDATE` / `DELETE` / `ARCHIVE` / `PUBLISH` / `UNPUBLISH` / `RESTORE` / `VIEW`, `BLOG_CATEGORY_CREATE` / `UPDATE` / `DELETE`, `BLOG_TAG_CREATE` / `UPDATE` / `DELETE`, `BLOG_COMMENT_MODERATE`, `BLOG_REVIEW_MODERATE`, `BLOG_REPORT_RESOLVE`, `BLOG_LINK_CREATE` / `UPDATE` / `DELETE` / `CHECK`, `BLOG_GALLERY_CREATE` / `UPDATE` / `DELETE` / `MEDIA_ADD` / `MEDIA_REMOVE`, `BLOG_NEWSLETTER_SUBSCRIBE` / `CONFIRM` / `UNSUBSCRIBE`, `BLOG_REACTION_ADD` / `REMOVE`, `BLOG_FAVORITE_ADD` / `REMOVE`.
 
-### Services (~30 actions)
+### Services (29 actions)
 
 `SERVICE_CREATE` / `UPDATE` / `DELETE` / `ARCHIVE` / `PUBLISH` / `UNPUBLISH` / `RESTORE` / `DUPLICATE` / `LOCK` / `UNLOCK` / `REVISION_RESTORE` / `VIEW`, `SERVICE_CATEGORY_CREATE` / `UPDATE` / `DELETE`, `SERVICE_TAG_CREATE` / `UPDATE` / `DELETE`, `SERVICE_COMMENT_CREATE` / `MODERATE`, `SERVICE_REVIEW_CREATE` / `MODERATE` / `HELPFUL`, `SERVICE_REPORT_CREATE` / `RESOLVE`, `SERVICE_FAVORITE_ADD` / `REMOVE`, `SERVICE_REACTION_ADD` / `REMOVE`.
 
-### Divers (5 actions)
+### Voyages (32 actions)
+
+`TRIP_CREATE` / `UPDATE` / `PUBLISH` / `UNPUBLISH` / `ARCHIVE` / `RESTORE` / `REVISION_RESTORE` / `TRANSLATION_UPSERT` / `VIEW`, `TRIP_COMMENT_CREATE` / `MODERATE`, `TRIP_REVIEW_CREATE` / `MODERATE` / `HELPFUL`, `TRIP_REPORT_CREATE` / `RESOLVE`, `TRIP_FAVORITE_ADD` / `REMOVE`, `TRIP_REACTION_ADD` / `REMOVE` — **20 actions**.
+
+`DEPARTURE_CREATE` / `UPDATE` / `STATUS` — **3 actions**.
+`APPLICATION_SUBMIT` / `DECISION` / `NOTE` — **3 actions**.
+`RESERVATION_CREATE` / `CANCEL` — **2 actions**.
+`PAYMENT_REFUND`, `CHECKOUT_CREATE`, `POLICY_PUBLISH`, `EMAIL_RETRY` — **4 actions**.
+
+### Actions d'infrastructure (1 action)
 
 | Action | Déclencheur |
 | :-- | :-- |
-| `USER_DATA_EXPORT` | Export données RGPD |
+| `INFRA_PROXY_HEADER_REJECTED` | Un en-tête de transfert de l'origine publique a été rejeté par `security.allowedDomains` |
+
+Émise par `reportRejectedForwardedHeaders()` dans `src/middleware.ts`, **avant** la chaîne de requête — donc y compris sur une sortie précoce. `resource: 'infra'`, `resourceId: 'forwarded-headers'`, `userId: null` (aucun utilisateur n'est authentifié à ce stade).
+
+Champs de métadonnées — ensemble **fermé**, ce qui rend l'absence de secret structurelle et non seulement conventionnelle :
+
+`header`, `reason`, `forwardedValue`, `resolvedHost`, `resolvedProtocol`, `configuredSiteHost`, `requestId`.
+
+`authorization`, `cookie` et `x-api-key` ne sont **pas** des entrées de détection : leur seule présence ne produit aucun signalement, et ils ne sont jamais lus. La valeur refusée est purgée (`[^a-z0-9.:_-]` retiré) et bornée à 128 caractères ; une valeur non normalisable est rapportée `null` plutôt que purgée, puisqu'elle ne se distingue pas d'une entrée hostile. Un seul événement est émis par requête, tronqué au premier en-tête refusé. Le journal est un **effet de bord, pas une condition d'accès** : la requête est servie normalement même si l'écriture échoue.
+
+Couverture : `tests/unit/voyage/middleware-forwarded-audit.test.ts` (21 tests). Détail du mécanisme : [security.md](security.md) §3.
+
+### Divers (3 actions)
+
+| Action | Déclencheur |
+| :-- | :-- |
 | `CONTACT_FORM_SUBMIT` | Soumission formulaire de contact |
 | `EMAIL_SEND_FAILED` | Échec d'envoi email |
 | `AUDIT_LOG_ACCESS` | Consultation du journal d'audit |
 
-> Total : ~150 actions dans l'union `AuditAction` (audit.ts:7-26).
+---
+
+## Total
+
+**179 actions** dans l'union `AuditAction` (`src/lib/audit.ts`, lignes 7-29).
+
+Histogramme par préfixe, recompté depuis l'union :
+
+| Préfixe | Nombre | Préfixe | Nombre |
+| :-- | --: | :-- | --: |
+| `BLOG_` | 33 | `NAVIGATION_` | 6 |
+| `SERVICE_` | 29 | `SIGN_` | 5 |
+| `PAGE_` | 25 | `PASSWORD_` | 5 |
+| `TRIP_` | 20 | `SOCIAL_` | 4 |
+| `MEDIA_` | 9 | `PAGES_` | 4 |
+| `USER_` | 7 | `APPLICATION_` | 3 |
+| `THEME_` | 3 | `WEBHOOK_` | 3 |
+| `DEPARTURE_` | 3 | `IMPERSONATION_` | 2 |
+| `FILE_` | 2 | `EMAIL_` | 2 |
+| `RESERVATION_` | 2 | `CONTENT_` | 2 |
+| `CONTACT_` | 2 | `PAYMENT_` | 1 |
+| `POLICY_` | 1 | `SITE_` | 1 |
+| `CONSENT_` | 1 | `CHECKOUT_` | 1 |
+| `AUDIT_` | 1 | `INFRA_` | 1 |
+| `OPENING_` | 1 | | |
+
+> **Vérification** : `0 doublon` dans l'union. Les onze sections ci-dessus totalisent 179 :
+> `10` auth + `7` utilisateurs + `2` impersonation + `11` fichiers & médias + `29` `PAGE_`/`PAGES_` + `22` admin non-page + `33` blog + `29` services + `32` voyages + `1` infrastructure + `3` divers = **179**.
+>
+> **Action ajoutée récemment** : `INFRA_PROXY_HEADER_REJECTED`. Les versions antérieures de ce document annonçaient « ~150 actions » et ne listaient aucune action d'infrastructure : les deux étaient faux. Le tableau des actions et le compteur sont maintenant alignés sur l'union.
 
 ---
 

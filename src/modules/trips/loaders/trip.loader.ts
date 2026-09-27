@@ -11,6 +11,8 @@ import {
 import { itineraryDays, itineraryDayTranslations } from "@database/schemas/itinerary.schema";
 import { departures } from "@database/schemas/departures.schema";
 import { mediaFiles, mediaFileAlts } from "@database/schemas/media.schema";
+import { tripMedia, tripMediaCaptions } from "@database/schemas/trips.schema";
+import { resolveLocalized } from "@/lib/media/resolve-localized";
 import { reservations } from "@database/schemas/reservations.schema";
 import { seatHolds } from "@database/schemas/departures.schema";
 import { isValidLocale } from "@/i18n/utils";
@@ -67,6 +69,10 @@ export interface TripSummaryDTO {
   title: string;
   summary: string;
   dates: string;
+  /** Départ du prochain déplacement — permet de filtrer/trier par date côté UI. */
+  startDate: Date | null;
+  /** Retour du prochain déplacement. */
+  endDate: Date | null;
   durationDays: number;
   difficulty: string;
   difficultyLevel: number;
@@ -259,6 +265,8 @@ const loadTripsListInner = async (locale: Locale): Promise<TripSummaryDTO[]> => 
       title: tr.title,
       summary: tr.summary,
       dates: dep ? formatRange(locale, dep.startDate, dep.endDate) : "",
+      startDate: dep?.startDate ?? null,
+      endDate: dep?.endDate ?? null,
       durationDays: trip.durationDays,
       difficulty: tr.fitness ?? `${trip.difficultyLevel}/5`,
       difficultyLevel: trip.difficultyLevel,
@@ -274,3 +282,138 @@ const loadTripsListInner = async (locale: Locale): Promise<TripSummaryDTO[]> => 
 };
 
 export const loadTripsList = cached((locale: Locale) => `trips:list:${locale}`, loadTripsListInner);
+
+export interface TripDaySample {
+  dayNumber: number;
+  location: string | null;
+  route: string | null;
+  distanceKm: number | null;
+  maxAltitudeM: number | null;
+  title: string;
+  morning: string;
+  afternoon: string;
+  evening: string;
+  meals: string | null;
+  accommodation: string | null;
+}
+
+/**
+ * Échantillon d'itinéraire pour la homepage (« journée type »).
+ * Reprend les faits réels de la table plutôt qu'un texte marketing : le
+ * récit de la page d'accueil doit pouvoir être vérifié sur la fiche voyage.
+ */
+const loadTripDaySampleInner = async (
+  locale: Locale,
+  tripId: string,
+  limit: number,
+): Promise<TripDaySample[]> => {
+  if (!isValidLocale(locale) || limit < 1) return [];
+  const db = getDrizzle();
+  const days = await db
+    .select()
+    .from(itineraryDays)
+    .where(eq(itineraryDays.tripId, tripId))
+    .orderBy(asc(itineraryDays.dayNumber))
+    .limit(limit);
+  if (days.length === 0) return [];
+  const rows = await db
+    .select()
+    .from(itineraryDayTranslations)
+    .where(inArray(itineraryDayTranslations.dayId, days.map((d) => d.id)));
+  const byDay = new Map(rows.map((r) => [r.dayId, r]));
+  return days
+    .map((day) => {
+      const tr = byDay.get(day.id)?.locale === locale
+        ? byDay.get(day.id)
+        : rows.find((r) => r.dayId === day.id && r.locale === "en");
+      if (!tr) return null;
+      return {
+        dayNumber: day.dayNumber,
+        location: day.location,
+        route: day.route,
+        distanceKm: day.distanceKm,
+        maxAltitudeM: day.maxAltitudeM,
+        title: tr.title,
+        morning: tr.morning ?? "",
+        afternoon: tr.afternoon ?? "",
+        evening: tr.evening ?? "",
+        meals: tr.meals,
+        accommodation: tr.accommodation,
+      } satisfies TripDaySample;
+    })
+    .filter((d): d is TripDaySample => d !== null);
+};
+
+export const loadTripDaySample = cached(
+  (locale: Locale, tripId: string, limit: number) => `trip:day-sample:${locale}:${tripId}:${limit}`,
+  loadTripDaySampleInner,
+);
+
+export interface TripMediaItem {
+  mediaId: string;
+  url: string;
+  alt: string;
+  caption: string | null;
+  width: number | null;
+  height: number | null;
+}
+
+/**
+ * Galerie d'un voyage, dans l'ordre éditorial. Le texte alternatif est résolu
+ * par locale via `mediaFileAlts`, avec repli FR puis EN — une image sans alt
+ * localisé ne doit pas disparaître de la galerie.
+ */
+const loadTripMediaInner = async (locale: Locale, tripId: string): Promise<TripMediaItem[]> => {
+  if (!isValidLocale(locale)) return [];
+  const db = getDrizzle();
+  const rows = await db
+    .select({
+      mediaId: tripMedia.mediaId,
+      altText: tripMedia.altText,
+      caption: tripMedia.caption,
+      sortOrder: tripMedia.sortOrder,
+      url: mediaFiles.url,
+      width: mediaFiles.width,
+      height: mediaFiles.height,
+    })
+    .from(tripMedia)
+    .innerJoin(mediaFiles, eq(mediaFiles.id, tripMedia.mediaId))
+    .where(and(eq(tripMedia.tripId, tripId), eq(tripMedia.kind, "GALLERY")))
+    .orderBy(asc(tripMedia.sortOrder));
+  if (rows.length === 0) return [];
+
+  const mediaIds = rows.map((row) => row.mediaId);
+  const [alts, captions] = await Promise.all([
+    db.select().from(mediaFileAlts).where(inArray(mediaFileAlts.fileId, mediaIds)),
+    db
+      .select()
+      .from(tripMediaCaptions)
+      .where(and(eq(tripMediaCaptions.tripId, tripId), inArray(tripMediaCaptions.mediaId, mediaIds))),
+  ]);
+
+  return rows.map((row) => {
+    const alt = resolveLocalized(
+      alts.filter((a) => a.fileId === row.mediaId).map((a) => ({ locale: a.locale, value: a.alt })),
+      locale,
+    );
+    const caption = resolveLocalized(
+      captions
+        .filter((c) => c.mediaId === row.mediaId)
+        .map((c) => ({ locale: c.locale, value: c.caption })),
+      locale,
+    );
+    return {
+      mediaId: row.mediaId,
+      url: row.url,
+      alt: alt ?? row.altText,
+      caption: caption ?? row.caption,
+      width: row.width,
+      height: row.height,
+    };
+  });
+};
+
+export const loadTripMedia = cached(
+  (locale: Locale, tripId: string) => `trip:media:${locale}:${tripId}`,
+  loadTripMediaInner,
+);

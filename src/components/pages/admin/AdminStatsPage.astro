@@ -23,6 +23,8 @@ const vt = locale === "fr"
   : { title: "Voyages", pending: "Applications to review", open: "Open departures", upcoming: "Departures 7d", recent: "Bookings 7d", failed: "Failed payments", balances: "Balances due", unpublished: "Hidden translations", moderation: "Reviews & comments moderation", pendingComments: "Pending comments", pendingReviews: "Pending reviews", pendingReports: "Pending reports", reporting: "Reporting — day / week / month", day: "Day", week: "7 days", month: "30 days", applications: "Applications", reservations: "Bookings", revenue: "Gross revenue (cents)", views: "Views", byTrip: "By trip", byDeparture: "By departure", approval: "Approval", occupancy: "Occupancy", rating: "Rating" };
 ---
 
+<h1 class="font-heading mb-6 text-2xl font-semibold">{ta.tabs.stats}</h1>
+
 <div class="grid gap-4 sm:grid-cols-2">
   <Card>
     <CardHeader><CardTitle class="text-sm text-muted-foreground">{ta.stats.totalUsers}</CardTitle></CardHeader>

@@ -1,0 +1,50 @@
+---
+/**
+ * HomeScrollExperience — îlot client de la homepage.
+ * Charge `homeScroll.ts` (GSAP) en dynamic import au repos du navigateur :
+ * les autres pages ne téléchargent jamais le chunk. Respecte
+ * `prefers-reduced-motion`, nettoie après `astro:before-swap`.
+ */
+---
+
+<script>
+  let cleanup: (() => void) | null = null;
+  let idleId = 0;
+
+  async function start() {
+    stop();
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!document.querySelector(".home-hero")) return;
+    try {
+      const { initHomeScroll } = await import("./homeScroll");
+      cleanup = initHomeScroll();
+    } catch {
+      cleanup = null;
+    }
+  }
+
+  function stop() {
+    try {
+      cleanup && cleanup();
+    } catch {}
+    cleanup = null;
+    if (idleId) {
+      if ("cancelIdleCallback" in window) window.cancelIdleCallback(idleId);
+      else clearTimeout(idleId);
+      idleId = 0;
+    }
+  }
+
+  function schedule() {
+    stop();
+    const whenIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 350));
+    idleId = whenIdle(() => {
+      idleId = 0;
+      start();
+    });
+  }
+
+  schedule();
+  document.addEventListener("astro:after-swap", schedule);
+  document.addEventListener("astro:before-swap", stop);
+</script>

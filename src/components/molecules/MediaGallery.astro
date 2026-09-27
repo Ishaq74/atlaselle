@@ -1,0 +1,85 @@
+---
+/**
+ * MediaGallery — galerie d'images, partagée par le blog et la fiche voyage.
+ *
+ * Carrousel d'atomes (même rendu que la galerie du blog jusqu'ici), alimenté
+ * par une simple liste d'images. Le composant ne connaît ni le blog ni les
+ * voyages : il ne fait que présenter des médias.
+ */
+import { Image } from "@atoms/image";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@atoms/carousel";
+
+export interface MediaGalleryItem {
+  url: string;
+  alt: string;
+  caption?: string | null;
+  width?: number | null;
+  height?: number | null;
+}
+
+interface Props {
+  items: MediaGalleryItem[];
+  /** Titre de la galerie (facultatif). */
+  title?: string | null;
+  /** Description sous le titre. */
+  description?: string | null;
+  /** 1 image par ligne sur mobile, 2 en tablette, 3 en desktop. */
+  ariaLabel?: string;
+  /** Première image prioritaire (LCP) — ne>true que pour la galerie principale. */
+  priority?: boolean;
+}
+
+const {
+  items,
+  title,
+  description,
+  ariaLabel,
+  priority = false,
+} = Astro.props as Props;
+---
+
+{items.length > 0 && (
+  <section class="flex flex-col gap-4" aria-label={ariaLabel}>
+    {(title || description) && (
+      <div>
+        {title && <h3 class="font-heading text-lg font-semibold tracking-tight">{title}</h3>}
+        {description && <p class="mt-1 text-sm text-muted-foreground">{description}</p>}
+      </div>
+    )}
+
+    <Carousel
+      class="relative"
+      opts={{ align: "start", loop: items.length > 1 }}
+      aria-roledescription="carousel"
+    >
+      <CarouselContent>
+        {items.map((item, index) => (
+          <CarouselItem class="basis-full sm:basis-1/2 md:basis-1/3">
+            <figure class="overflow-hidden rounded-lg border">
+              <Image
+                src={item.url}
+                alt={item.alt}
+                width={item.width ?? 800}
+                height={item.height ?? 800}
+                loading={priority && index === 0 ? "eager" : "lazy"}
+                decoding="async"
+                class="aspect-square w-full object-cover transition-transform duration-500 hover:scale-[1.03]"
+              />
+              {item.caption && (
+                <figcaption class="bg-muted px-3 py-2 text-xs text-muted-foreground">
+                  {item.caption}
+                </figcaption>
+              )}
+            </figure>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      {items.length > 1 && (
+        <>
+          <CarouselPrevious class="start-2" />
+          <CarouselNext class="end-2" />
+        </>
+      )}
+    </Carousel>
+  </section>
+)}

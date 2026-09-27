@@ -177,9 +177,23 @@ Health check — vérifie la DB, le SMTP et l'accès disque `public/uploads`.
 
 | Étape | Détail |
 | :-- | :-- |
-| Auth | **401** `{ error: "Unauthorized" }` sans `HEALTH_TOKEN` (Bearer) ; si `HEALTH_TOKEN` n'est pas configuré, seules les requêtes loopback directes (sans `x-forwarded-for`) sont autorisées |
-| Réponse 200/503 | `{ status: "ok"\|"degraded", version, uptime, timestamp, db: { ok }, smtp: { ok, provider }, disk: { uploadsWritable }, cache: { size, hits, misses } }` (503 si DB, SMTP ou disque KO ; `status: "error"` en cas d'exception) |
+| Auth | **401** `{ error: "Unauthorized" }` sauf si un jeton configuré est présenté. `HEALTH_TOKEN` non configuré (ou vide) → **tout** appelant est refusé, y compris porteur d'un `Bearer` quelconque. Schéma d'autorisation : `Bearer ` exact (`bearer ` et `Basic ` sont refusés). |
+| Règle appliquée aux 503 | Le corps nominal **et** le corps d'erreur 503 sont produits **après** le test d'autorisation. Un état dégradé ou une panne de sonde ne devient donc jamais une fuite d'information pour un appelant non autorisé : c'est 401, pas 503, et aucune dépendance n'est interrogée. |
+| Comparaison | `timingSafeEqual()` sur des **empreintes SHA-256 de longueur fixe** (32 octets), jamais sur les chaînes brutes. Ne révèle pas la longueur du secret et ne peut pas lever sur un jeton multi-octets de longueur différente. |
+| Réponse 200/503 | `{ status: "ok"\|"degraded", version, uptime, timestamp, db: { ok }, smtp: { ok, provider }, disk: { uploadsWritable }, cache: { size, hits, misses } }` (503 si DB, SMTP ou disque KO ; `status: "error"` en cas d'exception, sans le message d'erreur dans le corps) |
 | Cache | `Cache-Control: no-store` |
+| Adresse réseau | **Sans rôle.** Un jeton valide reste valide derrière un proxy ; un en-tête d'adresse n'accorde ni ne retire l'accès. |
+| Tests | `tests/unit/api-health-auth.test.ts` (21 tests) |
+
+> #### Branche de repli supprimée
+>
+> La version précédente autorisait l'appel lorsque **`HEALTH_TOKEN` n'était pas configuré** et que la requête **ne portait aucun en-tête de proxy** — l'absence d'en-tête étant traitée comme une preuve d'appel local. C'est faux : l'absence d'en-tête est **décidée par l'appelant**, et un port exposé n'est pas un loopback. Un `X-Forwarded-For: 127.0.0.1` forgé suffisait à obtenir le corps complet, qui exposait l'état de la base, le fournisseur d'envoi, l'état du disque, les statistiques de cache, la durée de fonctionnement et la version.
+>
+> La règle est maintenant : jeton configuré **et** présenté, sinon refus. L'absence de `HEALTH_TOKEN` est journalisée au chargement du module.
+>
+> **Conséquence opérationnelle** : la sonde doit porter le jeton **dès qu'un proxy est présent sur le réseau**. Une sonde de conteneur locale peut continuer à ne pas l'envoyer si le point d'entrée n'est pas exposé.
+
+Voir [security.md](security.md) §4 bis pour le tableau complet des cas.
 
 ### `POST /api/contact`
 

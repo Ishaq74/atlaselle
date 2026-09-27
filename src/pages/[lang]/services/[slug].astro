@@ -54,8 +54,8 @@ const jsonLdString = !category && detail ? JSON.stringify(buildServiceJsonLd({
 <BaseLayout title={category ? title : `${title} — ${t.meta.title}`} description={description} jsonLd={jsonLdString}>
   <link rel="canonical" href={canonicalHref} />
   {category && listing ? (
-    <main><ServicesListingPage locale={locale} title={title} description={category.translation?.description} items={listing.items} meta={listing} baseUrl={`/${locale}/services/${category.translation?.slug ?? category.category.slug}`} categories={categoryItems} activeCategorySlug={category.translation?.slug ?? category.category.slug} /></main>
+    <div><ServicesListingPage locale={locale} title={title} description={category.translation?.description} items={listing.items} meta={listing} baseUrl={`/${locale}/services/${category.translation?.slug ?? category.category.slug}`} categories={categoryItems} activeCategorySlug={category.translation?.slug ?? category.category.slug} /></div>
   ) : detail ? (
-    <main class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"><ServiceDetail item={detail} locale={locale} /></main>
+    <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"><ServiceDetail item={detail} locale={locale} /></div>
   ) : null}
 </BaseLayout>

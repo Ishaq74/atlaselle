@@ -1,0 +1,215 @@
+---
+export interface HomeHeroImage {
+  url: string;
+  alt: string;
+  width?: number | null;
+  height?: number | null;
+}
+
+interface Props {
+  chapter: string;
+  eyebrow: string;
+  title: string;
+  intro: string;
+  primaryLabel: string;
+  primaryHref: string;
+  secondaryLabel: string;
+  secondaryHref: string;
+  meta: { value: string; label: string; countTo?: number }[];
+  images: HomeHeroImage[];
+  credit: string;
+  tripTitle?: string | null;
+  tripDates?: string | null;
+  tripHref?: string | null;
+}
+
+const {
+  chapter,
+  eyebrow,
+  title,
+  intro,
+  primaryLabel,
+  primaryHref,
+  secondaryLabel,
+  secondaryHref,
+  meta,
+  images,
+  credit,
+  tripTitle,
+  tripDates,
+  tripHref,
+} = Astro.props as Props;
+
+const [lead, mid, tail] = images;
+---
+
+{/*
+  Lisibilité — la contrainte qui gouverne tout ce composant.
+
+  Un texte posé sur une photo n'est pas contrasté par un dégradé « à peu
+  près » : il l'est par une surface. Donc le texte vit sur un voile de
+  `background` qui atteint l'opacité pleine là où le texte est, et s'ouvre
+  uniquement sur la partie photographique. Deux voiles séparés plutôt qu'un
+  seul dégradé directionnel, parce que la position du texte change avec le
+  point de rupture (bas en mobile, colonne à gauche en desktop).
+
+  `muted-foreground` est réservé au texte de lecture ; le micro-texte
+  (chapitre, crédit) prend `foreground` pour ne jamais descendre sous AAA.
+*/}
+<section class="home-hero relative isolate overflow-hidden bg-background text-foreground" aria-label={eyebrow}>
+  <div class="absolute inset-0 -z-10" aria-hidden="true">
+    {/*
+      Chaque colonne est un cadre qui *clippe*. L'image déborde volontairement
+      de 4 % en hauteur (`-inset-y-[4%]` + `h-[108%]`), ce qui laisse la place au
+      parallaxe sans jamais révéler un bord. Le clip est sur la colonne, pas sur
+      la section : c'est ce qui supprime le tremblement en bas de page, la
+      marge négative sur `.home-hero-col` la faisait déborder du calque.
+      Pas de `scale` : les colonnes sont étroites (1/3 d'écran) et un
+      agrandissement suffisait à rendre les sources floues.
+    */}
+    <div class="home-hero-cols grid h-full grid-cols-2 gap-1 sm:grid-cols-3 sm:gap-2 lg:gap-3">
+      {lead && (
+        <div class="relative overflow-hidden">
+          <img
+            src={lead.url}
+            alt=""
+            width={lead.width ?? 1200}
+            height={lead.height ?? 1500}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="absolute inset-x-0 -inset-y-[4%] h-[108%] w-full object-cover will-change-transform"
+            data-depth="0.16"
+          />
+        </div>
+      )}
+      {mid && (
+        <div class="relative hidden overflow-hidden sm:block">
+          <img
+            src={mid.url}
+            alt=""
+            width={mid.width ?? 1200}
+            height={mid.height ?? 1500}
+            loading="lazy"
+            decoding="async"
+            class="absolute inset-x-0 -inset-y-[4%] h-[108%] w-full object-cover will-change-transform"
+            data-depth="0.34"
+          />
+        </div>
+      )}
+      {tail && (
+        <div class="relative overflow-hidden">
+          <img
+            src={tail.url}
+            alt=""
+            width={tail.width ?? 1200}
+            height={tail.height ?? 1500}
+            loading="lazy"
+            decoding="async"
+            class="absolute inset-x-0 -inset-y-[4%] h-[108%] w-full object-cover will-change-transform"
+            data-depth="0.52"
+          />
+        </div>
+      )}
+    </div>
+
+    {/* Mobile / tablette : le texte occupe toute la largeur, en bas. */}
+    <div class="home-hero-veil-b absolute inset-0 lg:hidden"></div>
+    {/* Desktop : le texte occupe la colonne de gauche. */}
+    <div class="home-hero-veil-l absolute inset-0 hidden lg:block"></div>
+    <div class="home-hero-grain absolute inset-0 opacity-[0.16]"></div>
+  </div>
+
+  <div class="mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end gap-0 px-6 pb-10 pt-28 sm:pb-14 lg:pb-20">
+    <p class="font-mono text-[11px] uppercase tracking-[.3em] text-foreground">
+      <span>{chapter}</span>
+      <span class="mx-2 text-muted-foreground" aria-hidden="true">—</span>
+      <span class="text-muted-foreground">{eyebrow}</span>
+    </p>
+
+    <h1
+      class="mt-6 max-w-4xl text-balance text-[clamp(2.5rem,9vw,6.5rem)] font-bold leading-[0.95] tracking-[-0.03em]"
+      data-split="lines"
+    >
+      {title}
+    </h1>
+
+    <p class="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">{intro}</p>
+
+    <div class="mt-8 flex flex-col items-start gap-3 @sm:flex-row @sm:flex-wrap">
+      <a href={primaryHref} class="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-primary-foreground transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+        {primaryLabel} <span aria-hidden="true">→</span>
+      </a>
+      <a href={secondaryHref} class="inline-flex items-center justify-center gap-2 rounded-full border border-foreground/25 bg-background/70 px-7 py-3.5 text-sm font-semibold text-foreground transition hover:-translate-y-0.5 hover:border-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+        {secondaryLabel}
+      </a>
+    </div>
+
+    <div class="mt-12 flex flex-col gap-6 border-t border-foreground/15 pt-6 @sm:grid @sm:grid-cols-[auto_1fr] @sm:items-end @sm:gap-10 lg:gap-14">
+      <dl class="grid grid-cols-3 gap-4 @sm:flex @sm:gap-8">
+        {meta.map((item) => (
+          <div class="min-w-0">
+            <dt class="sr-only">{item.label}</dt>
+            <dd class="text-lg font-bold tracking-tight @sm:text-2xl">
+              {item.countTo !== undefined ? (
+                <bdi><span data-count={item.countTo}>0</span></bdi>
+              ) : (
+                <bdi>{item.value}</bdi>
+              )}
+            </dd>
+            <dd class="mt-1 text-[11px] leading-tight text-muted-foreground @sm:text-xs">{item.label}</dd>
+          </div>
+        ))}
+      </dl>
+      {tripTitle && tripHref && (
+        <a href={tripHref} class="group flex min-w-0 items-center justify-between gap-4 rounded-2xl border border-foreground/15 bg-background/70 p-4 backdrop-blur-md transition hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+          <span class="min-w-0 text-start">
+            <span class="block truncate text-sm font-bold">{tripTitle}</span>
+            {tripDates && <span class="mt-0.5 block truncate text-xs text-muted-foreground"><bdi>{tripDates}</bdi></span>}
+          </span>
+          <span class="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-base font-bold text-primary-foreground transition group-hover:translate-x-0.5 rtl:rotate-180" aria-hidden="true">→</span>
+        </a>
+      )}
+    </div>
+
+    <p class="mt-6 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">{credit}</p>
+  </div>
+</section>
+
+<style>
+  /* Voile mobile : le texte est en bas, sur toute la largeur. On monte
+     l'opacité à la pleine surface dès que le texte commence. */
+  .home-hero-veil-b {
+    background: linear-gradient(
+      to top,
+      var(--background) 0%,
+      var(--background) 34%,
+      color-mix(in oklch, var(--background) 88%, transparent) 58%,
+      color-mix(in oklch, var(--background) 45%, transparent) 82%,
+      transparent 100%
+    );
+  }
+  /* Voile desktop : colonne de texte à gauche, photo ouverte à droite. */
+  .home-hero-veil-l {
+    background:
+      linear-gradient(
+        to top,
+        var(--background) 0%,
+        color-mix(in oklch, var(--background) 70%, transparent) 30%,
+        transparent 62%
+      ),
+      linear-gradient(
+        to right,
+        var(--background) 0%,
+        var(--background) 30%,
+        color-mix(in oklch, var(--background) 72%, transparent) 52%,
+        color-mix(in oklch, var(--background) 22%, transparent) 70%,
+        transparent 84%
+      );
+  }
+  .home-hero-grain {
+    background-image: radial-gradient(currentColor 1px, transparent 1px);
+    background-size: 26px 26px;
+    mask-image: radial-gradient(ellipse at 25% 55%, black, transparent 65%);
+  }
+</style>

@@ -32,7 +32,7 @@ _يتم إنشاء هذا الملف تلقائيًا لتوفير سياق شا
 - 📁 **الوسائط** — رفع، معالجة Sharp، تنظيم المجلدات
 - 📧 **SMTP** — Brevo / Resend / Nodemailer + قائمة انتظار الرسائل الميتة
 - 🛡️ **الأمان** — سجل تدقيق، تحديد معدل الطلبات، تطهير المدخلات
-- ✅ **الاختبارات** — 171 Vitest + 9 E2E × 3 متصفحات
+- ✅ **الاختبارات** — 173 Vitest + 29 E2E × 3 متصفحات
 
 ### المجموعة التقنية
 
@@ -188,6 +188,8 @@ molecules/
   AdminPagination/
   AdminResourceStats.astro
   DataView/
+  Engagement/
+  MediaGallery.astro
 organisms/
   AdminFormShell.astro
   AdminResourceList.astro
@@ -211,7 +213,6 @@ pages/
   ContactPage/
   HomePage/
   LegalPage.astro
-  org/
   TripPage.astro
 services/
   AdminServiceForm.astro
@@ -239,9 +240,9 @@ images/
 ### المكونات
 
 - **atoms/** — 48 components
-- **molecules/** — 3 components
+- **molecules/** — 5 components
 - **organisms/** — 11 components
-- **pages/** — 12 components
+- **pages/** — 11 components
 - **wow/** — 9 components
 
 ### الأنماط والرموز
@@ -398,6 +399,8 @@ migrations/
   0000_tranquil_toad.sql
   0001_steady_meteorite.sql
   0002_trip_engagement.sql
+  0003_trip_media.sql
+  0004_gallery_caption_i18n.sql
   meta/
     0000_snapshot.json
     0001_snapshot.json
@@ -479,6 +482,7 @@ schemas.ts
 - `blog_post_revisions`: `id`, `postId`, `authorId`, `locale`, `title`, `slug`, `content`, `excerpt`, `status`, `revisionNote`, `createdAt` _(post: one, author: one)_
 - `blog_post_galleries`: `id`, `postId`, `title`, `description`, `sortOrder`, `createdAt`, `updatedAt` _(post: one, media: many)_
 - `blog_post_gallery_media`: `galleryId`, `mediaId`, `altText`, `caption`, `sortOrder` _(gallery: one, file: one)_
+- `blog_post_gallery_media_captions`: `galleryId`, `mediaId`, `locale`, `caption`
 - `blog_post_reviews`: `id`, `postId`, `authorId`, `rating`, `title`, `content`, `status`, `isRecommended`, `helpfulCount`, `ipAddress`, `createdAt`, `updatedAt` _(post: one, author: one, helpfulVotes: many)_
 - `blog_post_review_helpful`: `reviewId`, `userId`, `isHelpful`, `createdAt` _(review: one, user: one)_
 - `blog_reports`: `id`, `postId`, `commentId`, `reviewId`, `reporterId`, `reason`, `description`, `status`, `resolvedBy`, `resolvedAt`, `createdAt` _(post: one, comment: one, review: one, reporter: one, resolver: one)_
@@ -540,6 +544,8 @@ schemas.ts
 - `trip_reactions`: `tripId`, `userId`, `reactionType`, `createdAt`, `updatedAt` _(trip: one, user: one)_
 - `trip_notifications`: `id`, `recipientId`, `actorId`, `tripId`, `commentId`, `reviewId`, `type`, `title`, `message`, `readAt`, `createdAt` _(recipient: one, actor: one, trip: one, comment: one, review: one)_
 - `trip_view_stats`: `id`, `tripId`, `viewedAt`, `date`, `hour`, `referrer`, `country` _(trip: one)_
+- `trip_media`: `tripId`, `mediaId`, `kind`, `altText`, `caption`, `sortOrder` _(trip: one, file: one)_
+- `trip_media_captions`: `tripId`, `mediaId`, `locale`, `caption`
 - `trip_locks`: `id`, `tripId`, `userId`, `sessionId`, `lockedAt`, `expiresAt` _(trip: one, user: one)_
 
 **itinerary.schema.ts**
@@ -586,6 +592,8 @@ schemas.ts
 - `0000_tranquil_toad.sql`
 - `0001_steady_meteorite.sql`
 - `0002_trip_engagement.sql`
+- `0003_trip_media.sql`
+- `0004_gallery_caption_i18n.sql`
 
 ### الأوامر
 
@@ -667,22 +675,24 @@ src/middleware.ts
 
 ### الاختبارات
 
+- `tests/e2e/auth-account.spec.ts`
 - `tests/e2e/auth.spec.ts`
 - `tests/integration/audit.test.ts`
 - `tests/integration/auth-advanced.test.ts`
 - `tests/integration/auth-flow.test.ts`
 - `tests/integration/auth.test.ts`
 - `tests/integration/middleware.test.ts`
+- `tests/unit/api-health-auth.test.ts`
 - `tests/unit/audit-fallback.test.ts`
 - `tests/unit/auth-guards.test.ts`
 - `tests/unit/cms-audit.test.ts`
 - `tests/unit/extract-ip.test.ts`
 - `tests/unit/mask-utils.test.ts`
-- `tests/unit/middleware-timeout.test.ts`
 - `tests/unit/permissions.test.ts`
 - `tests/unit/production-hardening.test.ts`
 - `tests/unit/rate-limit.test.ts`
 - `tests/unit/voyage/auth-guards.test.ts`
+- `tests/unit/voyage/middleware-forwarded-audit.test.ts`
 - `tests/unit/voyage/middleware.test.ts`
 
 ## المحتوى ونظام إدارة المحتوى
@@ -922,6 +932,9 @@ services/
   validation/
     index.ts
   workflow.ts
+state-machines/
+  domain/
+    transition-refusal.ts
 travelers/
   admin/
     resource.ts
@@ -943,8 +956,19 @@ trips/
     AdminFaqSection.astro
     AdminTripForm.astro
     AdminTripList.astro
+    TripBookingCard.astro
     TripCard.astro
     TripEngagement.astro
+    TripFilterCard.astro
+    TripFilterPill.astro
+    TripHighlights.astro
+    TripItinerary.astro
+    TripPageHero.astro
+    TripReactionBar.astro
+    TripResults.astro
+    TripSearchBar.astro
+    TripSidebar.astro
+    TripViewToggle.astro
   domain/
     trip-engagement-workflow.ts
     trip-engagement.ts
@@ -1047,9 +1071,14 @@ BaseLayout.astro
 
 ### الاختبارات
 
+- `tests/e2e/actions-blog.spec.ts`
+- `tests/e2e/actions-services.spec.ts`
 - `tests/e2e/admin-pages.spec.ts`
+- `tests/e2e/blog-deep.spec.ts`
+- `tests/e2e/blog-review-rating-a11y.spec.ts`
 - `tests/e2e/blog.spec.ts`
 - `tests/e2e/cms-admin.spec.ts`
+- `tests/e2e/services-deep.spec.ts`
 - `tests/e2e/services-lifecycle.spec.ts`
 - `tests/e2e/services.spec.ts`
 - `tests/integration/blog-actions.test.ts`
@@ -1250,6 +1279,7 @@ utils.ts
 
 ### الاختبارات
 
+- `tests/e2e/i18n-routes.spec.ts`
 - `tests/unit/booking-consent-i18n.test.ts`
 - `tests/unit/cms-i18n.test.ts`
 - `tests/unit/i18n-key-completeness.test.ts`

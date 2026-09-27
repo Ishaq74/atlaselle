@@ -265,6 +265,27 @@ export const blogPostGalleryMedia = pgTable(
   (table) => [primaryKey({ columns: [table.galleryId, table.mediaId] })],
 );
 
+/**
+ * Légendes de galerie par locale.
+ *
+ * `blog_post_gallery_media.caption` reste la valeur de repli (souvent FR) :
+ * sans cette table, la légende reste dans la langue de saisie sur les quatre
+ * locales, alors que les alt sont eux bien localisés via `media_file_alts`.
+ */
+export const blogPostGalleryMediaCaptions = pgTable(
+  "blog_post_gallery_media_captions",
+  {
+    galleryId: text("gallery_id").notNull().references(() => blogPostGalleries.id, { onDelete: "cascade" }),
+    mediaId: text("media_id").notNull().references(() => mediaFiles.id, { onDelete: "cascade" }),
+    locale: localeEnum.notNull(),
+    caption: text("caption").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.galleryId, table.mediaId, table.locale] }),
+    index("blog_gallery_captions_locale_idx").on(table.locale),
+  ],
+);
+
 // ─── Reviews / Ratings ──────────────────────────────────────────────────────
 export const blogPostReviews = pgTable(
   "blog_post_reviews",

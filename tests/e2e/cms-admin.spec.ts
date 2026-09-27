@@ -8,24 +8,48 @@ import { SEED_EMAIL, SEED_PASSWORD } from './global-setup';
  * are accessible after sign-in.
  */
 
-/** Sign in as admin seed user — reliable across browsers. */
+/**
+ * Sign in as admin seed user — reliable across browsers.
+ *
+ * The bare `catch {}` this used to have was the single reason 7 security-class
+ * errors on the 23/09 run were unreadable: it discarded the `waitForURL`
+ * timeout, including the log line that showed the page had navigated to
+ * `…/auth/connexion?email=…&password=…` (the credential leak), and replaced it
+ * with "Sign-in failed after 2 attempts". The original error is now attached as
+ * `cause`, and the second attempt reports which state was observed, so the
+ * report names the failure instead of paraphrasing it.
+ */
 async function signInAsAdmin(page: import('@playwright/test').Page) {
-  for (let attempt = 0; attempt < 2; attempt++) {
+  const MAX_ATTEMPTS = 2;
+  let lastCause: unknown;
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
     await page.goto('/fr/auth/connexion', { waitUntil: 'networkidle' });
     await page.locator('input[name="email"]').fill(SEED_EMAIL);
     await page.locator('input[name="password"]').fill(SEED_PASSWORD);
     const submitBtn = page.locator('button[type="submit"], form button').first();
     try {
       await Promise.all([
-        page.waitForURL(/tableau-de-bord|dashboard/, { timeout: 30000 }),
+        page.waitForURL(/tableau-de-bord|dashboard/, { timeout: 30_000 }),
         submitBtn.click(),
       ]);
       await page.waitForLoadState('networkidle');
       return;
-    } catch {
-      if (attempt === 1) throw new Error('Sign-in failed after 2 attempts');
+    } catch (cause) {
+      lastCause = cause;
     }
   }
+
+  // `page.url()` est synchrone : le `await` n'avait aucun effet sur le type
+  // (ts80007) et rien n'attendait. Le message d'échec doit lire l'URL réellement
+  // observée, donc la valeur est conservée telle quelle.
+  const observed = page.url();
+  throw new Error(
+    `Sign-in failed after ${MAX_ATTEMPTS} attempts. ` +
+      `Last observed URL: ${observed}. ` +
+      `A credential-bearing URL here means the sign-in form fell back to a GET submission.`,
+    { cause: lastCause },
+  );
 }
 
 // ─── Admin access guard ─────────────────────────────────────────────

@@ -404,6 +404,51 @@ export const tripViewStats = pgTable(
   ],
 );
 
+/**
+ * Galerie d'un voyage. Même modèle que `service_media` : une table de liaison
+ * vers `media_files`, ordonnée, avec un texte alternatif obligatoire (les
+ * variantes par locale vivent dans `media_file_alts`).
+ */
+export const tripMedia = pgTable(
+  "trip_media",
+  {
+    tripId: text("trip_id").notNull().references(() => trips.id, { onDelete: "cascade" }),
+    mediaId: text("media_id").notNull().references(() => mediaFiles.id, { onDelete: "cascade" }),
+    kind: text("kind", { enum: ["GALLERY", "DOCUMENT"] }).default("GALLERY").notNull(),
+    altText: text("alt_text").notNull(),
+    caption: text("caption"),
+    sortOrder: integer("sort_order").default(0).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.tripId, table.mediaId] }),
+    index("trip_media_trip_idx").on(table.tripId),
+  ],
+);
+
+export const tripMediaRelations = relations(tripMedia, ({ one }) => ({
+  trip: one(trips, { fields: [tripMedia.tripId], references: [trips.id] }),
+  file: one(mediaFiles, { fields: [tripMedia.mediaId], references: [mediaFiles.id] }),
+}));
+
+/**
+ * Légendes de galerie par locale. `trip_media.caption` reste la valeur de
+ * repli ; sans cette table la légende resterait dans la langue de saisie sur
+ * les quatre locales, alors que les alt sont localisés via `media_file_alts`.
+ */
+export const tripMediaCaptions = pgTable(
+  "trip_media_captions",
+  {
+    tripId: text("trip_id").notNull().references(() => trips.id, { onDelete: "cascade" }),
+    mediaId: text("media_id").notNull().references(() => mediaFiles.id, { onDelete: "cascade" }),
+    locale: localeEnum.notNull(),
+    caption: text("caption").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.tripId, table.mediaId, table.locale] }),
+    index("trip_media_captions_locale_idx").on(table.locale),
+  ],
+);
+
 export const tripLocks = pgTable(
   "trip_locks",
   {

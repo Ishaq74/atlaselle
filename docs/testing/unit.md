@@ -4,56 +4,104 @@
 
 ---
 
-## Vue d'ensemble (extraits — 102 fichiers sur disque, tableau partiel ci-dessous)
+## Vue d'ensemble (extraits — 129 fichiers sur disque, tableau partiel ci-dessous)
 
-| Fichier | Cible | Status |
-| :-- | :-- | :-- |
-| `tests/unit/rate-limit.test.ts` | `src/lib/rate-limit.ts` → `checkRateLimit()` | 8 | ✅ |
+> **Compteurs de ce tableau recomptés à partir des fichiers.** Les valeurs antérieures (rate-limit 8, extract-ip 12, i18n-urls 32, cms-schemas 80, sanitize 21, etc.) étaient périmées. `it.each` parameterize : un `it.each([...4 locales])` compte pour **1** bloc `it()` mais produit **4** tests à l'exécution ; le tableau donne le nombre de blocs source, pas le nombre de tests exécutés.
+
+| Fichier | Cible | Blocs `it()` | Status |
+| :-- | :-- | --: | :-- |
+| `tests/unit/rate-limit.test.ts` | `src/lib/rate-limit.ts` → `checkRateLimit()` | 10 | ✅ |
+| `tests/unit/extract-ip.test.ts` | `src/lib/audit.ts` → `extractIp()` | 19 | ✅ |
+| `tests/unit/api-health-auth.test.ts` | `src/pages/api/health.ts` → `isAuthorized()` + payload | 21 | ✅ |
 | `tests/unit/i18n-utils.test.ts` | `src/i18n/utils.ts` → `toLocale()`, `isRTL()`, `getDirection()` | 6 | ✅ |
-| `tests/unit/extract-ip.test.ts` | `src/lib/audit.ts` → `extractIp()` | 12 | ✅ |
-| `tests/unit/upload.test.ts` | `src/media/upload.ts`, `delete.ts`, `types.ts` | 18 | ✅ |
+| `tests/unit/upload.test.ts` | `src/media/upload.ts`, `delete.ts`, `types.ts` | 19 | ✅ |
 | `tests/unit/mask-utils.test.ts` | `src/database/env.ts`, `src/smtp/env.ts` | 10 | ✅ |
-| `tests/unit/i18n-urls.test.ts` | `src/i18n/utils.ts` → URLs, slugs, loaders | 32 | ✅ |
-| `tests/unit/i18n-translations.test.ts` | `src/i18n/utils.ts` → `get*Translations()` ×4 loaders ×4 locales | 16 | ✅ |
-| `tests/unit/send-email.test.ts` | `src/smtp/send.ts` → `sendEmail()` (mock + retry + backoff) | 14 | ✅ |
+| `tests/unit/i18n-urls.test.ts` | `src/i18n/utils.ts` → URLs, slugs, loaders | 16 | ✅ |
+| `tests/unit/i18n-translations.test.ts` | `src/i18n/utils.ts` → `get*Translations()` ×3 loaders ×4 locales | 3 | ✅ |
+| `tests/unit/send-email.test.ts` | `src/smtp/send.ts` → `sendEmail()` (mock + retry + backoff) | 17 | ✅ |
 | `tests/unit/smtp-env.test.ts` | `src/smtp/env.ts` → `getSmtpFrom()`, `getNodemailerConfig()`, providers | 20 | ✅ |
 | `tests/unit/audit-fallback.test.ts` | `src/lib/audit.ts` → `logAuditEvent()` JSONL fallback | 1 | ✅ |
-| `tests/unit/schema-validation.test.ts` | `src/database/schemas.ts` → 8 table exports + colonnes critiques | 12 | ✅ |
+| `tests/unit/schema-validation.test.ts` | `src/database/schemas.ts` → exports de tables + colonnes critiques | 5 | ✅ |
 | `tests/unit/cli-utils.test.ts` | `src/database/commands/_utils.ts` → `formatPgError()`, ANSI helpers | 12 | ✅ |
-| `tests/unit/cms-schemas.test.ts` | 7 tables CMS : exports + colonnes détaillées | 80 | ✅ |
-| `tests/unit/cms-seeds.test.ts` | 7 fichiers seed CMS : complétude des données | 11 | ✅ |
-| `tests/unit/cms-i18n.test.ts` | Clés i18n CMS ×4 locales (site, navigation, theme, common) | 16 | ✅ |
-| `tests/unit/cms-audit.test.ts` | 19 `AuditAction` CMS compilent correctement | 1 | ✅ |
-| `tests/unit/cache.test.ts` | `src/database/cache.ts` → TTL cache, invalidation, LRU | 10 | ✅ |
+| `tests/unit/cms-schemas.test.ts` | Tables CMS : exports + colonnes | 8 | ✅ |
+| `tests/unit/cms-seeds.test.ts` | Fichiers seed CMS : complétude des données | 12 | ✅ |
+| `tests/unit/cms-i18n.test.ts` | Clés i18n CMS ×4 locales | 4 | ✅ |
+| `tests/unit/cms-audit.test.ts` | Actions `AuditAction` CMS compilent correctement | 1 | ✅ |
+| `tests/unit/cache.test.ts` | `src/database/cache.ts` → TTL cache, invalidation, LRU | 13 | ✅ |
 | `tests/unit/navigation-tree.test.ts` | `src/database/` → `buildNavTree()`, cycle detection | 10 | ✅ |
-| `tests/unit/sanitize.test.ts` | `src/lib/sanitize.ts` → `sanitizeHtml()`, limits | 21 | ✅ |
+| `tests/unit/sanitize.test.ts` | `src/lib/sanitize.ts` → `sanitizeHtml()`, limits | 49 | ✅ |
 | `tests/unit/db-env.test.ts` | `src/database/env.ts` → `getDbUrl()`, `getConnectionLabel()`, pool config | 16 | ✅ |
-| `tests/unit/admin-helpers.test.ts` | `src/actions/admin/_helpers.ts` → `assertAdmin()`, `adminRateLimit()` | 5 | ✅ |
+| `tests/unit/admin-helpers.test.ts` | `src/actions/admin/_helpers.ts` → `assertAdmin()`, `adminRateLimit()` | 7 | ✅ |
 | `tests/unit/auth-guards.test.ts` | `src/lib/auth-guards.ts` → `requireAuth()`, `requireAdmin()` | 5 | ✅ |
-| **Total** | | **336** | **✅** |
+| `tests/unit/voyage/middleware.test.ts` | `src/middleware.ts` → `onRequest` (en-têtes, sorties précoces) | 17 | ✅ |
+| `tests/unit/voyage/middleware-forwarded-audit.test.ts` | `src/middleware.ts` → `INFRA_PROXY_HEADER_REJECTED` | 21 | ✅ |
+| `tests/unit/middleware-timeout.test.ts` | ⚠️ **N'importe pas** `src/middleware.ts` — littéraux locaux | 6 | ❌ Couverture illusoire |
+| **Sous-total des lignes ci-dessus** | | **328** | |
+| **Total dossier** | | **129 fichiers** `tests/unit/**/*.test.ts` sur disque | | **✅** |
 
 ---
 
 ## `rate-limit.test.ts` — Rate Limiter
 
-**Cible** : `checkRateLimit(key, opts)` → `RateLimitResult`
+**Cible** : `checkRateLimit(key, opts)` → `RateLimitResult` — **10 tests**
 
-| # | Test | Ce qu'il vérifie | Inputs | Expected |
-| :-- | :-- | :-- | :-- | :-- |
-| 1 | `allows requests within the limit` | Première requête acceptée | `max: 5, window: 60` | `allowed: true, remaining: 4` |
-| 2 | `decrements remaining on each call` | Le compteur décrémente | 3 appels avec `max: 3` | `remaining: 1` puis `0` |
-| 3 | `blocks requests when limit is exceeded` | Blocage après épuisement | 4 appels avec `max: 3` | `allowed: false, remaining: 0` |
-| 4 | `returns a valid resetAt timestamp` | Le timestamp est dans la fenêtre | `window: 10` | `now < resetAt ≤ now + 10s` |
-| 5 | `uses different counters for different keys` | Isolation par clé | 2 clés différentes | clé A bloquée, clé B autorisée |
-| 6 | `resets after window expires` | La fenêtre expire correctement | `vi.useFakeTimers()` + `advanceTimersByTime(11000)` | `allowed: true` après expiration |
-| 7 | `returns fresh remaining after reset` | Le compteur est neuf après expiration | Même clé après reset | `remaining` frais (pas cumulé) |
-| 8 | `evicts oldest entry when MAX_ENTRIES is reached with active entries` | Protection anti-flood : LRU eviction quand 10 000 clés actives | 10 000 clés + 1 overflow | `allowed: true` (oldest evicted) |
+| # | Test | Ce qu'il vérifie |
+| :-- | :-- | :-- |
+| 1 | `allows requests within the limit` | Première requête acceptée |
+| 2 | `decrements remaining on each call` | Le compteur décrémente |
+| 3 | `blocks requests when limit is exceeded` | Blocage après épuisement |
+| 4 | `returns a valid resetAt timestamp in the future` | `now < resetAt ≤ now + window` |
+| 5 | `uses different counters for different keys` | Isolation par clé |
+| 6 | `resets counter after window expires` | La fenêtre expire correctement (fake timers) |
+| 7 | `provides fresh remaining count after window resets` | Le compteur est neuf après expiration, pas cumulé |
+| 8 | `rejects when MAX_ENTRIES is reached with active entries (fail-closed)` | Rejet fail-closed à 10 000 entrées **actives** |
+| 9 | `jittered resetAt is always at least 1 second in the future` | Le jitter ne produit jamais un `resetAt` passé |
+| 10 | `purges expired entries to make room when full` | La purge libère de la place avant de rejeter |
+
+> **Correction** : le tableau ci-dessus ne listait que 8 tests et décrivait le test 8 comme une **éviction LRU** (« oldest evicted », `allowed: true`). Le comportement réel est un **rejet fail-closed** (`allowed: false`) lorsque `MAX_ENTRIES` est atteint avec des entrées actives, et un 10ᵉ test couvre la purge des entrées expirées. L'éviction LRU n'est pas le comportement du produit.
 
 ### Stratégie — rate-limit
 
 - **Isolation** : chaque test utilise un `keyPrefix` unique (`Date.now() + Math.random()`) pour éviter les collisions
 - **Fake timers** : tests 6-7 utilisent `vi.useFakeTimers()` pour tester l'expiration de la fenêtre sans attendre
-- **Overflow** : test 8 remplit 10 000 entrées pour vérifier le guard `MAX_ENTRIES`
+- **Overflow** : les tests 8 et 10 remplissent 10 000 entrées pour vérifier le guard `MAX_ENTRIES`
+
+---
+
+## `api-health-auth.test.ts` — Authentification de la sonde de santé
+
+**Cible** : `GET /api/health` (`src/pages/api/health.ts`) — **21 tests** en 5 blocs
+
+Dépendances de la sonde mockées (`checkConnection`, `checkSmtpConfig`, `getCacheStats`, `fs/promises.access`) : le résultat ne dépend ni d'une base vivante, ni du disque, ni du `.env` local.
+
+| Bloc | Ce qu'il vérifie |
+| :-- | :-- |
+| `refus par défaut` (9) | 401 sans en-tête, avec `x-forwarded-for` / `x-real-ip` forgés sur loopback IPv4 et IPv6, `Cache-Control: no-store`, schéma `Basic`, `Bearer` sans credential, jeton erroné, casse de `bearer`. **Aucune dépendance interrogée** dans chaque cas. |
+| `HEALTH_TOKEN non configuré` (2) | Refus de tout appelant, y compris porteur d'un `Bearer` quelconque ; refus d'un jeton configuré **vide**, avec et sans en-tête. |
+| `accès accordé` (2) | 200 + charge utile complète ; le jeton-secret n'apparaît nulle part dans la réponse. Accès accordé **quelle que soit l'adresse réseau annoncée**. |
+| `les chemins 503 appliquent la même règle` (4) | 401 **avant** 503 sur chemin dégradé et sur exception ; 503 `degraded` et 503 `error` avec le bon jeton ; le message d'exception n'apparaît pas dans le corps. |
+| `comparaison de jetons multi-octets` (4) | Refus d'un jeton multi-octets de même nombre de caractères mais d'un nombre d'octets différent (une comparaison directe de tampons lèverait et répondrait 500) ; refus dans les deux sens ; **acceptation** d'un jeton légitime non-ASCII. |
+
+**Ancrage** : la route lit `process.env.HEALTH_TOKEN` au **chargement du module**, pas à chaque requête. Chaque cas charge donc un module neuf (`vi.resetModules()` + `vi.stubEnv`), et passer `undefined` **supprime** la variable — le cas « non configuré » ne peut pas être simulé avec une chaîne vide.
+
+> **Règle** : un jeton configuré **et** présenté, sinon refus. L'absence d'en-tête de proxy n'est **plus** traitée comme une preuve d'appel local. Voir [security.md](../security.md) §4 bis.
+
+---
+
+## `voyage/middleware.test.ts` et `voyage/middleware-forwarded-audit.test.ts`
+
+Ces deux fichiers importent réellement `src/middleware.ts`. Le détail de ce qu'ils couvrent, et la raison pour laquelle `tests/unit/middleware-timeout.test.ts` ne doit pas être cité comme couverture du middleware, sont dans [middleware.md](../middleware.md) §Tests.
+
+| Fichier | Tests | Frontière d'observation |
+| :-- | --: | :-- |
+| `tests/unit/voyage/middleware.test.ts` | 17 | L'objet `Response` réellement retourné par `onRequest` |
+| `tests/unit/voyage/middleware-forwarded-audit.test.ts` | 21 | La ligne que la base aurait reçue (`insert().values(row)`) — `@/lib/audit` n'est pas mocké |
+
+---
+
+## `middleware-timeout.test.ts` — Couverture illusoire
+
+**6 tests qui n'importent pas `src/middleware.ts`.** Le fichier teste le motif `Promise.race` sur des promises fabriquées, et assert des **littéraux locaux**. Son littéral HSTS (`max-age=31536000`) diverge de celui du produit (`max-age=63072000`) : le test passe malgré la divergence, ce qui démontre qu'il ne mesure rien du produit. Ne pas le citer comme couverture du middleware. Voir [middleware.md](../middleware.md) §Tests.
 
 ---
 
@@ -342,9 +390,12 @@ Round-trip et cas `null` pour slug inconnu.
 
 ```text
 Fonctions pures testées :     voir matrice (couverture partielle ci-dessus)
-Total fichiers unitaires :    102 sur disque
+Total fichiers unitaires :    129 sur disque
+Total tests Vitest (unit + integration) : 1 907  — voir index.md
 Temps d'exécution :           variable (DB + mocks)
 ```
+
+> Le compte `129` est un **recomptage** depuis `tests/unit/**/*.test.ts` (y compris les sous-dossiers `blog/`, `cms/`, `database/`, `services/`, `voyage/`). La valeur `102` qui figurait dans ce bloc était périmée : ce document se déclarait lui-même périmé en tête de fichier, puis réemployait l'ancienne valeur deux cents lignes plus bas. C'est le genre de contradiction que la vérification ci-dessus interdit.
 
 ---
 

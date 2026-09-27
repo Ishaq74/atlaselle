@@ -1,6 +1,8 @@
 # Audit Atlaselle CMS, Blog et Services
 
 > SNAPSHOT ARCHIVÉ 2026-09-14 — NE PAS UTILISER COMME VÉRITÉ. État daté du 2026-09-05 (build échouait à l'époque). Source de vérité actuelle : `docs/ETAT-REEL.md` + `docs/testing/index.md`.
+>
+> **Liens source : ancrés sur l'état du 2026-09-05, donc partiellement morts.** Les ancreurs `#L<n>` de ce document pointent la numérotation de lignes de ce jour-là ; le code ayant bougé, six d'entre elles dépassent désormais la longueur du fichier : `src/actions/services/taxonomy.ts#L50` (45 lignes), `src/pages/api/content-import.ts#L84` (81), `src/pages/api/search.ts#L51` (37), `src/pages/api/cron/publish.ts#L56` (48), `src/modules/services/validation/index.ts#L115` (113). Deux chemins n'existent plus : `src/pages/sitemap-services-org.xml.ts` (**supprimé** — les sitemaps d'organisation ont été retirés, voir [ETAT-REEL.md](../ETAT-REEL.md) §3 « Comptes réels ») et `src/pages/[lang]/services/[categorySlug].astro` (la route existe toujours, mais le fichier est devenu `src/pages/[lang]/services/[categorySlug]/[slug].astro`). **Ces liens sont laissés tels quels** : corriger les numéros aurait falsifié l'instantané. Les chemins-current sont indiqués ici une fois pour toutes.
 
 Date : 2026-09-05. Audit du code local et validations locales, sans correction applicative.
 

@@ -30,7 +30,17 @@ const t = locale === "fr"
         ))}
       </ul>
       {canPublish ? (
-        <form data-version-form class="mt-4 grid gap-3 text-sm">
+        /* method="post" + action explicite : première barrière structurelle contre la
+           soumission native en GET vers l'URL courante — c'est ce GET qui exposait le titre
+           et le corps intégral du projet de version dans la chaîne de requête, donc dans
+           l'historique de navigation, dans l'en-tête Referer des navigations suivantes et
+           dans le journal d'accès du serveur. Le traitement réel est un appel
+           astro:actions (createPolicyVersion), sans route serveur de repli : l'action
+           pointe vers la page courante, qui n'exporte aucun POST, donc une soumission
+           native y est rejetée sans mutation. preventDefault (script) = seconde barrière.
+           L'identifiant compose l'id du document : un id statique dupliquerait le même
+           nom sur chaque bloc de version. */
+        <form id={`policy-version-form-${doc.id}`} name={`policy-version-form-${doc.id}`} method="post" action={Astro.url.pathname} data-version-form class="mt-4 grid gap-3 text-sm">
           <h3 class="font-semibold">{t.newVersion}</h3>
           <input name="title" required maxlength="300" placeholder="Title" class="rounded-md border bg-background p-2" />
           <textarea name="content" required rows="4" class="rounded-md border bg-background p-2"></textarea>

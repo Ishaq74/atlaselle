@@ -14,7 +14,25 @@
 | `tests/e2e/cms-admin.spec.ts` | Pages admin CMS (site, navigation, theme) | ✅ |
 | `tests/e2e/services.spec.ts` | Services publics + admin (seed admin) | ✅ |
 | `tests/e2e/services-lifecycle.spec.ts` | Lifecycle éditorial services (seed admin) | ✅ |
-| **Total** | **6 specs** | **✅** |
+| `tests/e2e/credential-url-leak.spec.ts` | Invariant : les identifiants n'atteignent jamais une URL (y compris sans JavaScript) | ✅ |
+| `tests/e2e/error-paths-security.spec.ts` | Sorties précoces du middleware et leurs en-têtes | ✅ |
+| `tests/e2e/actions-*.spec.ts` (5) | Matrice d'actions : admin, blog, services, voyage, cross-modules | ✅ |
+| `tests/e2e/admin-*.spec.ts` (3) | Admin étendu, pages, trips CRUD | ✅ |
+| `tests/e2e/guest-journeys.spec.ts` | Parcours visiteur non authentifié | ✅ |
+| `tests/e2e/i18n-routes.spec.ts` | Routage, locales, redirections de casse | ✅ |
+| `tests/e2e/public-pages.spec.ts` | Pages publiques | ✅ |
+| `tests/e2e/ux-flows.spec.ts` | Parcours UX | ✅ |
+| `tests/e2e/voyage.spec.ts` | Tunnel voyage complet | ✅ |
+| `tests/e2e/blog-deep.spec.ts` | Blog — profondeur | ✅ |
+| `tests/e2e/blog-review-rating-a11y.spec.ts` | Notation d'avis + résumé accessible | ✅ |
+| `tests/e2e/api-endpoints.spec.ts` | Endpoints API, `Origin` explicite | ✅ |
+| `tests/e2e/contact.spec.ts` | Formulaire de contact | ✅ |
+| `tests/e2e/auth-account.spec.ts` | Compte : profil, mot de passe, suppression | ✅ |
+| **Total** | **28 specs** (269 blocs `test()`) | **✅** |
+
+> Les sept premières lignes de ce tableau ne sont qu'un extrait ; la liste complète est le décompte ci-dessus, recompté à partir de `tests/e2e/*.spec.ts`. Les **28** noms de fichiers sont listés dans [index.md](index.md) § « Les 28 specs E2E ».
+>
+> **269 blocs `test()`** : décompte des déclarations `test(` et `test.skip(` sur les 28 `*.spec.ts`. Les 111 `test.describe(` et les 26 crochets (`beforeEach`, `beforeAll`, `afterAll`) ne sont pas des tests. Chaque bloc est joué sur les 3 navigateurs, soit **807 exécutions** par run complet.
 
 ### Infrastructure
 
@@ -183,9 +201,12 @@ Pages admin CMS :            3 (site, navigation, theme)
 Specs blog/services :        blog.spec.ts, services.spec.ts, services-lifecycle.spec.ts (seed admin via global-setup, rôle admin)
 Security headers :           4
 Navigateurs :                Chromium + Firefox + WebKit
-Fichiers :                   6 specs (+2 setup/teardown)
+Fichiers :                   28 specs (+2 setup/teardown, qui ne sont pas des specs)
+Blocs test() :               269 (× 3 navigateurs)
 Temps d'exécution :          ~45–90 s
 ```
+
+> **Le délai d'exécution n'est pas déclaré dans `playwright.config.ts`.** Aucun `timeout` racine, aucun `timeout` dans `use`, aucun dans les `projects`, aucun `expect.timeout`. Le seul `timeout` du fichier est `webServer.timeout: 180_000`, qui borne le **démarrage du serveur**. Le délai d'exécution effectif est donc le **défaut de Playwright, 30 s**, relevé par les `test.setTimeout()` locaux que les specs longues portent explicitement. Détail et liste de ces appels : [setup.md](setup.md) § « Le délai d'exécution n'est pas dans la configuration ».
 
 ---
 

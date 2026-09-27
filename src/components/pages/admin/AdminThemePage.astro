@@ -64,10 +64,18 @@ function tokenLabel(key: string): string {
   <!-- ─── Create new theme ─── -->
   <div class="mb-6 flex items-center justify-between">
     <div>
-      <h2 class="text-lg font-semibold">{cms.title}</h2>
+      <h1 class="text-lg font-semibold">{cms.title}</h1>
       <p class="text-sm text-muted-foreground">{cms.description}</p>
     </div>
-    <form id="create-theme-form" class="flex items-end gap-2">
+    {/* method="post" + action explicite : première barrière structurelle contre la
+        soumission native en GET vers l'URL courante — c'est ce GET qui exposait le nom
+        du nouveau thème dans la chaîne de requête, donc dans l'historique de
+        navigation, dans l'en-tête Referer des navigations suivantes et dans le
+        journal d'accès du serveur. Le traitement réel est un appel astro:actions
+        (createTheme), sans route serveur de repli : l'action pointe vers la page
+        courante, qui n'exporte aucun POST, donc une soumission native y est rejetée
+        sans mutation. preventDefault (script) = seconde barrière. */}
+    <form id="create-theme-form" name="create-theme-form" method="post" action={Astro.url.pathname} class="flex items-end gap-2">
       <Input id="new-theme-name" placeholder={cms.themeName} required class="w-48" />
       <Button type="submit" size="sm">{cms.createTheme}</Button>
     </form>
@@ -112,7 +120,18 @@ function tokenLabel(key: string): string {
             </div>
           </CardHeader>
           <CardContent class="theme-body hidden">
-            <form class="theme-form grid gap-6" data-id={th.id} data-name={th.name}>
+            {/* method="post" + action explicite : première barrière structurelle contre
+                la soumission native en GET vers l'URL courante — c'est ce GET qui
+                exposait la carte de tokens (light, dark, polices, rayon) et le nom du
+                thème dans la chaîne de requête, donc dans l'historique de navigation,
+                dans l'en-tête Referer des navigations suivantes et dans le journal
+                d'accès du serveur. Le traitement réel est un appel astro:actions
+                (updateTheme), sans route serveur de repli : l'action pointe vers la page
+                courante, qui n'exporte aucun POST, donc une soumission native y est
+                rejetée sans mutation. preventDefault (script) = seconde barrière.
+                L'identifiant compose l'id du thème : un id statique dupliquerait le même
+                nom sur chaque carte de la liste. */}
+            <form id={`theme-form-${th.id}`} name={`theme-form-${th.id}`} method="post" action={Astro.url.pathname} class="theme-form grid gap-6" data-id={th.id} data-name={th.name}>
               {/* ── Typography & Radius ── */}
               <fieldset class="space-y-4">
                 <legend class="text-sm font-semibold text-foreground">{cms.typographyLayout}</legend>

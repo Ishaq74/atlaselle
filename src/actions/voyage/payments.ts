@@ -6,7 +6,7 @@ import { reservations } from "@database/schemas";
 import { LOCALES } from "@i18n/config";
 import { refundReservationPayments } from "@/modules/payments/domain/refund-service";
 import { initiateBalancePayment } from "@/modules/payments/domain/payment-service";
-import { toActionError } from "@/lib/voyage-errors";
+import { toVoyageActionError } from "./transition-errors";
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
 
 export const paymentRefundInput = z.object({
@@ -60,7 +60,7 @@ export const payBalance = defineAction({
         cancelUrl: `${origin}/${input.locale}/booking-confirmed`,
       });
     } catch (err) {
-      throw toActionError(err);
+      throw toVoyageActionError(err);
     }
   },
 });

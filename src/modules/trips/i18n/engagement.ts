@@ -10,6 +10,12 @@ export interface TripEngagementTranslations {
   reviewContent: string;
   reviewTitleLabel: string;
   reviewRecommended: string;
+  /** Badge court sur une carte d'avis. */
+  recommended: string;
+  notRecommended: string;
+  /** Libellé de l'onglet d'écriture. */
+  writeReview: string;
+  writeComment: string;
   submitReview: string;
   commentTitle: string;
   commentContent: string;
@@ -43,6 +49,10 @@ const translations: Record<Locale, TripEngagementTranslations> = {
     reviewContent: "Votre avis",
     reviewTitleLabel: "Titre (optionnel)",
     reviewRecommended: "Je recommande ce voyage",
+    recommended: "Recommandé",
+    notRecommended: "Déconseillé",
+    writeReview: "Donner mon avis",
+    writeComment: "Poser une question",
     submitReview: "Publier l'avis",
     commentTitle: "Questions & commentaires",
     commentContent: "Votre commentaire",
@@ -74,6 +84,10 @@ const translations: Record<Locale, TripEngagementTranslations> = {
     reviewContent: "Your review",
     reviewTitleLabel: "Title (optional)",
     reviewRecommended: "I recommend this journey",
+    recommended: "Recommended",
+    notRecommended: "Not recommended",
+    writeReview: "Leave a review",
+    writeComment: "Ask a question",
     submitReview: "Submit review",
     commentTitle: "Questions & comments",
     commentContent: "Your comment",
@@ -105,6 +119,10 @@ const translations: Record<Locale, TripEngagementTranslations> = {
     reviewContent: "Tu opinión",
     reviewTitleLabel: "Título (opcional)",
     reviewRecommended: "Recomiendo este viaje",
+    recommended: "Recomendado",
+    notRecommended: "No recomendado",
+    writeReview: "Dejar una reseña",
+    writeComment: "Hacer una pregunta",
     submitReview: "Publicar opinión",
     commentTitle: "Preguntas y comentarios",
     commentContent: "Tu comentario",
@@ -136,6 +154,10 @@ const translations: Record<Locale, TripEngagementTranslations> = {
     reviewContent: "مراجعتك",
     reviewTitleLabel: "العنوان (اختياري)",
     reviewRecommended: "أوصي بهذه الرحلة",
+    recommended: "موصى به",
+    notRecommended: "غير موصى به",
+    writeReview: "أضف تقييماً",
+    writeComment: "اطرح سؤالاً",
     submitReview: "نشر التقييم",
     commentTitle: "الأسئلة والتعليقات",
     commentContent: "تعليقك",

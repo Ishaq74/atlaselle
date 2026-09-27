@@ -30,6 +30,8 @@ function formatDate(d: Date | string | null) {
 const uniqueActions = [...new Set(adminAuditLogs.map((l: any) => l.action))].sort();
 ---
 
+<h1 class="font-heading mb-6 text-2xl font-semibold">{ta.tabs.auditLog}</h1>
+
 <DataView>
   <NativeSelect slot="toolbar-start" id="audit-action-filter" class="max-w-xs text-sm">
     <NativeSelectOption value="">{ta.auditLog.allActions}</NativeSelectOption>

@@ -1,15 +1,32 @@
 ---
-import { toLocale } from '@i18n/utils';
+import { toLocale, getBlogTranslations, getBlogUrl } from '@i18n/utils';
+import { LOCALES } from '@i18n/config';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import AtlaselleHome from '@pages/AtlaselleHome.astro';
-import { loadTripsList } from '@/modules/trips/loaders/trip.loader';
+import { loadTripsList, loadTripDaySample } from '@/modules/trips/loaders/trip.loader';
+import { getServices } from '@/modules/services/loaders';
+import { getBlogPosts } from '@/database/loaders/blog.loader';
 
 export const prerender = false;
 
 const locale = toLocale(Astro.params.lang);
-const trips = await loadTripsList(locale);
+const blogT = await getBlogTranslations(locale);
+const [trips, servicesData, blogData] = await Promise.all([
+  loadTripsList(locale),
+  getServices({ page: 1, limit: 3 }, locale, true).catch(() => ({ items: [], page: 1, limit: 3, total: 0, totalPages: 1 })),
+  getBlogPosts(locale, { page: 1, limit: 3 }).catch(() => ({ items: [], meta: { total: 0, page: 1, limit: 3, totalPages: 0, hasNextPage: false, hasPrevPage: false } })),
+]);
+
+// La « journée type » illustrée par la homepage vient d'un voyage réel : on
+// prend le premier itinéraire publié, sinon la section est simplement masquée.
+const featureTrip = trips.find((t) => t.hero?.url) ?? trips[0] ?? null;
+const daySample = featureTrip ? await loadTripDaySample(locale, featureTrip.id, 1).catch(() => []) : [];
+
+const canonicalPath = `/${locale}/`;
+const alternateUrls = Object.fromEntries(LOCALES.map((loc) => [loc, `/${loc}/`]));
+const blogBaseUrl = getBlogUrl(locale, blogT);
 ---
 
-<BaseLayout title="ATLASELLE - Small-group cultural journeys" description="Thoughtfully shaped small-group journeys across Africa and the Mediterranean.">
-  <AtlaselleHome locale={locale} trips={trips} />
+<BaseLayout title="ATLASELLE - Small-group cultural journeys" description="Thoughtfully shaped small-group journeys across Africa and the Mediterranean." canonicalPath={canonicalPath} alternateUrls={alternateUrls}>
+  <AtlaselleHome locale={locale} trips={trips} services={servicesData.items} posts={blogData.items} blogT={blogT} blogBaseUrl={blogBaseUrl} days={daySample} />
 </BaseLayout>

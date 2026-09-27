@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { test, expect } from '@playwright/test';
 import { adminRequest, callAction } from '../helpers/actions';
+import type { TripStatus } from '../../src/database/schemas/trips.schema';
 
 /**
  * E2E — voyage action surface.
@@ -61,7 +62,7 @@ test.describe('Voyage actions — input validation (admin)', () => {
 test.describe('Voyage actions — trip lifecycle state machine (DB fixture)', () => {
   test('draft → submitForReview → approve → publish → unpublish → archive → restore', async ({ browser }) => {
     const { getDrizzle } = await import('../../src/database/drizzle');
-    const { trips } = await import('../../src/database/schemas/trips.schema');
+    const { trips, TRIP_STATUSES } = await import('../../src/database/schemas/trips.schema');
     const { insertTestTrip } = await import('../helpers/trip-factory');
     const { eq } = await import('drizzle-orm');
 
@@ -78,21 +79,53 @@ test.describe('Voyage actions — trip lifecycle state machine (DB fixture)', ()
       return row?.status;
     };
 
+    /**
+     * Séquence de référence, dans le vocabulaire du domaine voyage.
+     *
+     * `TripStatus` est le type de la colonne `trips.status` : toute valeur hors
+     * énumération est un erreur de compilation, pas un faux vert. Les statuts
+     * Foreign — `under_review` appartient au domaine `applications`, `draft` après
+     * une dépublication ne fait plus partie de la table de transitions — sont donc
+     * exclus par construction.
+     * Table `TRIP_TRANSITIONS` (src/modules/trips/domain/trip-transitions.ts) :
+     *   draft→review · review→approved · approved→published
+     *   published→{unpublished,archived} · unpublished→{published,archived}
+     *   archived→unpublished
+     * `restoreTrip` cible `unpublished` (TRANSITION_TARGET.restored) : restaurer
+     * depuis `archived` ne retourne pas à `draft`.
+     */
+    const TRANSITIONS: ReadonlyArray<readonly [action: string, target: TripStatus]> = [
+      ['submitTripForReview', 'review'],
+      ['approveTrip', 'approved'],
+      ['publishTrip', 'published'],
+      ['unpublishTrip', 'unpublished'],
+      ['archiveTrip', 'archived'],
+      ['restoreTrip', 'unpublished'],
+    ];
+
     try {
       const req = await adminRequest(browser);
-      const transitions: Array<[string, string]> = [
-        ['submitTripForReview', 'under_review'],
-        ['approveTrip', 'approved'],
-        ['publishTrip', 'published'],
-        ['unpublishTrip', 'draft'],
-        ['archiveTrip', 'archived'],
-        ['restoreTrip', 'draft'],
-      ];
-      for (const [action, expected] of transitions) {
+
+      // Séquence attendue de bout en bout, état de départ inclus.
+      const expectedChain: TripStatus[] = ['draft', ...TRANSITIONS.map(([, target]) => target)];
+
+      // Séquence OBSERVÉE : chaque état est relu en base après sa transition.
+      const observedChain: TripStatus[] = [(await readStatus()) as TripStatus];
+
+      for (const [action, target] of TRANSITIONS) {
         const result = await callAction(req, action, { id: tripId });
-        expect(result.ok, `${action} failed: ${result.errorCode} ${result.errorMessage}`).toBe(true);
-        await expect.poll(readStatus, { message: `status after ${action}` }).toBe(expected);
+        expect(result.ok, `${action} failed: ${result.status} ${result.errorCode ?? ''} ${result.errorMessage ?? ''}`.trim()).toBe(true);
+        await expect.poll(readStatus, { message: `status after ${action}` }).toBe(target);
+        observedChain.push((await readStatus()) as TripStatus);
       }
+
+      // La garantie est la SÉQUENCE entière, pas chaque étape isolément : une
+      // transition qui saute une étape ou qui retombe sur un état inattendu
+      // échoue ici même si chaque polled check isolé aurait pu passer.
+      expect(observedChain, 'observed trip status sequence').toEqual(expectedChain);
+      // Toute valeur lue en base appartient bien à l'énumération du domaine :
+      // la colonne ne peut pas hériter du vocabulaire d'un autre objet.
+      for (const status of observedChain) expect(TRIP_STATUSES).toContain(status);
     } finally {
       await db.delete(trips).where(eq(trips.id, tripId)).catch(() => {});
     }

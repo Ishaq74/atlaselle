@@ -59,6 +59,8 @@ const { t, locale, allSettings, socialLinks: socials, contactInfo: contact, open
 const cms = t.admin.cms.site;
 ---
 
+<h1 class="font-heading mb-6 text-2xl font-semibold">{cms.title}</h1>
+
 <div
   id="cms-site-data"
   data-locale={locale}
@@ -110,6 +112,15 @@ const cms = t.admin.cms.site;
             ))}
           </div>
 
+          {/* method="post" + action explicite : première barrière structurelle contre la
+              soumission native en GET vers l'URL courante — c'est ce GET qui exposait
+              les contenus éditoriaux de la locale (nom du site, description, slogan,
+              titre et description meta) dans la chaîne de requête, donc dans
+              l'historique de navigation, dans l'en-tête Referer des navigations
+              suivantes et dans le journal d'accès du serveur. Le traitement réel est
+              un appel astro:actions (upsertSiteSettings), sans route serveur de repli :
+              l'action pointe vers la page courante, qui n'exporte aucun POST, donc une
+              soumission native y est rejetée sans mutation. */}
           <!-- One form per locale -->
           {LOCALES.map((l) => {
             const s = allSettings[l];
@@ -123,6 +134,9 @@ const cms = t.admin.cms.site;
 
             return (
               <form
+                name={`locale-settings-form-${l}`}
+                method="post"
+                action={Astro.url.pathname}
                 class="grid gap-4 locale-settings-form"
                 data-form-locale={l}
                 style={l !== locale ? 'display:none' : ''}
@@ -262,11 +276,19 @@ const cms = t.admin.cms.site;
           <CardTitle>{cms.tabContact}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form id="contact-form" class="grid gap-4">
+          {/* method="post" + action explicite : première barrière structurelle contre la
+              soumission native en GET vers l'URL courante — c'est ce GET qui exposait
+              email / phone / address dans la chaîne de requête, donc dans l'historique de
+              navigation, dans l'en-tête Referer des navigations suivantes et dans le
+              journal d'accès du serveur. Le traitement réel est un appel astro:actions
+              (updateContactInfo), sans route serveur de repli : l'action pointe vers la
+              page courante, qui n'exporte aucun POST, donc une soumission native y est
+              rejetée sans mutation. */}
+          <form id="contact-form" name="contact-form" method="post" action={Astro.url.pathname} class="grid gap-4">
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div class="grid gap-2">
                 <Label for="contact-email">{cms.email}</Label>
-                <Input id="contact-email" name="email" type="email" value={contact?.email ?? ''} />
+                <Input id="contact-email" name="email" type="email" value={contact?.email ?? ''} autocomplete="email" />
               </div>
               <div class="grid gap-2">
                 <Label for="contact-phone">{cms.phone}</Label>
@@ -320,7 +342,15 @@ const cms = t.admin.cms.site;
           <CardTitle>{cms.tabHours}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form id="hours-form" class="grid gap-3">
+          {/* method="post" + action explicite : première barrière structurelle contre la
+              soumission native en GET vers l'URL courante — c'est ce GET qui exposait
+              les horaires (ouverture, fermeture, pause méridienne) dans la chaîne de
+              requête, donc dans l'historique de navigation, dans l'en-tête Referer des
+              navigations suivantes et dans le journal d'accès du serveur. Le traitement
+              réel est un appel astro:actions (updateOpeningHours), sans route serveur de
+              repli : l'action pointe vers la page courante, qui n'exporte aucun POST,
+              donc une soumission native y est rejetée sans mutation. */}
+          <form id="hours-form" name="hours-form" method="post" action={Astro.url.pathname} class="grid gap-3">
             {Array.from({ length: 7 }, (_, i) => {
               const row = hours.find((h) => h.dayOfWeek === i);
               const midday = row?.hasMiddayBreak ?? false;
@@ -400,10 +430,21 @@ const cms = t.admin.cms.site;
               </button>
             ))}
           </div>
+          {/* method="post" + action explicite : première barrière structurelle contre la
+              soumission native en GET vers l'URL courante — c'est ce GET qui exposait les
+              libellés et URL de CTA du header dans la chaîne de requête, donc dans
+              l'historique de navigation, dans l'en-tête Referer des navigations
+              suivantes et dans le journal d'accès du serveur. Le traitement réel est un
+              appel astro:actions (upsertSiteSettings), sans route serveur de repli :
+              l'action pointe vers la page courante, qui n'exporte aucun POST, donc une
+              soumission native y est rejetée sans mutation. */}
           {LOCALES.map((l) => {
             const s = allSettings[l];
             return (
               <form
+                name={`header-settings-form-${l}`}
+                method="post"
+                action={Astro.url.pathname}
                 class="grid gap-4 header-settings-form"
                 data-form-locale={l}
                 style={l !== locale ? 'display:none' : ''}
@@ -461,10 +502,21 @@ const cms = t.admin.cms.site;
               </button>
             ))}
           </div>
+          {/* method="post" + action explicite : première barrière structurelle contre la
+              soumission native en GET vers l'URL courante — c'est ce GET qui exposait les
+              libellés et URL de pied de page dans la chaîne de requête, donc dans
+              l'historique de navigation, dans l'en-tête Referer des navigations
+              suivantes et dans le journal d'accès du serveur. Le traitement réel est un
+              appel astro:actions (upsertSiteSettings), sans route serveur de repli :
+              l'action pointe vers la page courante, qui n'exporte aucun POST, donc une
+              soumission native y est rejetée sans mutation. */}
           {LOCALES.map((l) => {
             const s = allSettings[l];
             return (
               <form
+                name={`footer-settings-form-${l}`}
+                method="post"
+                action={Astro.url.pathname}
                 class="grid gap-4 footer-settings-form"
                 data-form-locale={l}
                 style={l !== locale ? 'display:none' : ''}

@@ -31,7 +31,7 @@ const stats = [
 ---
 <div data-service-admin-root data-confirm-delete={t.admin.confirmDelete} data-confirm-archive={t.admin.confirmArchive} data-action-error={t.admin.actionError} data-locale={locale}>
   <AdminResourceList resourceId="service">
-    <div slot="header" class="flex w-full flex-wrap items-center justify-between gap-3"><div><h1 class="text-2xl font-semibold">{t.admin.title}</h1><p class="text-sm text-muted-foreground">{total} {t.labels.services.toLowerCase()}</p></div>{canCreate && <Button href={`${baseUrl}/new`}>{t.admin.newService}</Button>}</div>
+    <div slot="header" class="flex w-full flex-wrap items-center justify-between gap-3"><div><p class="text-sm text-muted-foreground">{total} {t.labels.services.toLowerCase()}</p></div>{canCreate && <Button href={`${baseUrl}/new`}>{t.admin.newService}</Button>}</div>
     <div slot="filters" class="space-y-3">
       <form method="get" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         <input class="h-10 rounded-md border bg-background px-3 text-sm xl:col-span-2" name="search" placeholder={t.labels.search} value={p.get("search") ?? ""} />

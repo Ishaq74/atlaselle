@@ -2,10 +2,12 @@
 import { toLocale } from "@i18n/utils";
 import { LOCALES } from "@i18n/config";
 import { getTripPath } from "@i18n/routes";
-import { loadTripPage } from "@/modules/trips/loaders/trip.loader";
+import { loadTripPage, loadTripsList, loadTripMedia } from "@/modules/trips/loaders/trip.loader";
+import { loadTripEngagement } from "@/modules/trips/loaders/trip-engagement.loader";
 import { safeJsonLd } from "@/lib/sanitize";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import TripPage from "@/components/pages/TripPage.astro";
+
 const locale = toLocale(Astro.params.lang);
 const dto = await loadTripPage(locale, Astro.params.slug ?? "");
 if (!dto) {
@@ -27,7 +29,26 @@ const jsonLdPayload = {
   ...(dto.ratingCount > 0 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: dto.ratingAverage, reviewCount: dto.ratingCount } } : {}),
 };
 const jsonLd = safeJsonLd(JSON.stringify(jsonLdPayload));
+
+// Avis et voyages connexes : chargés par la page, jamais par le composant.
+const viewerId = Astro.locals.user?.id ?? null;
+const [engagement, allTrips, media] = await Promise.all([
+  loadTripEngagement(dto.id, viewerId),
+  loadTripsList(locale),
+  loadTripMedia(locale, dto.id).catch(() => []),
+]);
+const relatedTrips = allTrips.filter((trip) => trip.id !== dto.id).slice(0, 2);
+const absoluteUrl = new URL(canonicalPath, Astro.url.origin).href;
 ---
+
 <BaseLayout title={`${copy.title} — ATLASELLE`} description={copy.summary} canonicalPath={canonicalPath} alternateUrls={alternateUrls} jsonLd={jsonLd}>
-  <TripPage trip={dto} locale={locale} />
+  <TripPage
+    trip={dto}
+    locale={locale}
+    engagement={engagement}
+    relatedTrips={relatedTrips}
+    media={media}
+    absoluteUrl={absoluteUrl}
+    isSignedIn={Boolean(viewerId)}
+  />
 </BaseLayout>

@@ -1,0 +1,15 @@
+import { config } from "dotenv";
+config({ path: ".env" });
+import { Client } from "pg";
+const url = process.env.DATABASE_URL ?? "";
+const c = new Client({ connectionString: url });
+await c.connect();
+const alts = await c.query(`SELECT locale, count(*)::int AS n FROM media_file_alts GROUP BY locale ORDER BY locale`);
+console.log("alts par locale:", JSON.stringify(alts.rows));
+const one = await c.query(`SELECT count(*)::int AS n FROM media_file_alts WHERE file_id = (SELECT media_id FROM trip_media LIMIT 1)`);
+console.log("alts pour un media de galerie:", one.rows[0].n);
+const caps = await c.query(`SELECT count(*)::int AS n FROM trip_media WHERE caption IS NOT NULL`);
+console.log("trip_media avec caption:", caps.rows[0].n);
+const bcap = await c.query(`SELECT count(*)::int AS n FROM blog_post_gallery_media WHERE caption IS NOT NULL`);
+console.log("blog gallery media avec caption:", bcap.rows[0].n);
+await c.end();

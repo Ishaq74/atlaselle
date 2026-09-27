@@ -134,7 +134,7 @@ test.describe('Blog actions — public comment workflow (DB fixture)', () => {
 
   test('reply deeper than 1 level is rejected', async ({ browser }) => {
     const { getDrizzle, schema } = await import('../../src/database/drizzle');
-    const { eq, desc, isNotNull } = await import('drizzle-orm');
+    const { desc, isNotNull } = await import('drizzle-orm');
     const db = getDrizzle();
 
     // Find an APPROVED reply (has parentId) — replying to it must fail.
