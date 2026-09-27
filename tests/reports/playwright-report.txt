@@ -1,829 +1,169 @@
 ════════════════════════════════════════════════════════════════════════════════
   PLAYWRIGHT E2E TEST REPORT
-  Generated: 2026-09-23 16:36:24
+  Generated: 2026-09-27 13:17:32
 ════════════════════════════════════════════════════════════════════════════════
 
-  ❌ actions-admin.spec.ts  (102/108 tests passed)
+  ✅ actions-admin.spec.ts  (108/108 tests passed)
   ✅ actions-blog.spec.ts  (75/75 tests passed)
   ✅ actions-matrix.spec.ts  (540/540 tests passed)
   ✅ actions-services.spec.ts  (63/63 tests passed)
-  ❌ actions-voyage.spec.ts  (90/96 tests passed)
+  ✅ actions-voyage.spec.ts  (96/96 tests passed)
   ✅ admin-extended.spec.ts  (30/30 tests passed)
-  ❌ admin-pages.spec.ts  (29/51 tests passed)
+  ❌ admin-pages.spec.ts  (52/54 tests passed)
   ✅ admin-trips-crud.spec.ts  (15/15 tests passed)
-  ✅ api-endpoints.spec.ts  (66/66 tests passed)
+  ✅ api-endpoints.spec.ts  (78/78 tests passed)
   ✅ app.spec.ts  (42/42 tests passed)
-  ❌ auth-account.spec.ts  (21/27 tests passed)
-  ❌ auth.spec.ts  (38/45 tests passed)
+  ✅ auth-account.spec.ts  (27/27 tests passed)
+  ✅ auth.spec.ts  (45/45 tests passed)
   ✅ blog-deep.spec.ts  (24/24 tests passed)
-  ❌ blog.spec.ts  (9/30 tests passed)
-  ❌ cms-admin.spec.ts  (17/24 tests passed)
-  ❌ cms-deep.spec.ts  (30/33 tests passed)
+  ❌ blog-review-rating-a11y.spec.ts  (0/3 tests passed)
+  ❌ blog.spec.ts  (15/30 tests passed)
+  ✅ cms-admin.spec.ts  (24/24 tests passed)
+  ✅ cms-deep.spec.ts  (33/33 tests passed)
   ✅ contact.spec.ts  (24/24 tests passed)
+  ✅ credential-url-leak.spec.ts  (18/18 tests passed)
+  ✅ error-paths-security.spec.ts  (27/27 tests passed)
   ✅ guest-journeys.spec.ts  (48/48 tests passed)
   ✅ i18n-routes.spec.ts  (90/90 tests passed)
   ✅ public-pages.spec.ts  (36/36 tests passed)
-  ❌ services-deep.spec.ts  (12/18 tests passed)
-  ❌ services-lifecycle.spec.ts  (0/3 tests passed)
-  ❌ services.spec.ts  (15/30 tests passed)
-  ❌ ux-flows.spec.ts  (13/15 tests passed)
-  ❌ voyage.spec.ts  (25/30 tests passed)
+  ✅ services-deep.spec.ts  (18/18 tests passed)
+  ✅ services-lifecycle.spec.ts  (3/3 tests passed)
+  ❌ services.spec.ts  (27/30 tests passed)
+  ✅ ux-flows.spec.ts  (15/15 tests passed)
+  ✅ voyage.spec.ts  (30/30 tests passed)
+  ❌ zz-regression-probe.spec.ts  (6/9 tests passed)
 
 ════════════════════════════════════════════════════════════════════════════════
   SUMMARY
 ════════════════════════════════════════════════════════════════════════════════
 
-  Total tests:   1563
-  Passed:        1454  
-  Failed:        79  ❌
-  Skipped:       30
-  Duration:      3215.4s
+  Total tests:   1635
+  Passed:        1609  
+  Failed:        14  ❌
+  Skipped:       12
+  Duration:      3113.8s
 
 ════════════════════════════════════════════════════════════════════════════════
   FAILURES
 ════════════════════════════════════════════════════════════════════════════════
 
-  Suite: actions-admin.spec.ts > Admin actions — page workflow (DB fixture)
-  Test:  create → publish → lock → unlock → trash → restore → permanent delete
-────────────────────────────────────────────────────────────────────────────────
-  Error: publishPage failed: undefined
-
-[2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32mtrue[39m
-Received: [31mfalse[39m
-
-
-  Suite: actions-admin.spec.ts > Admin actions — page workflow (DB fixture)
-  Test:  createPage with a duplicate slug is rejected
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-
-Expected value: [32m500[39m
-Received array: [31m[409, 400][39m
-
-
-  Suite: actions-admin.spec.ts > Admin actions — page workflow (DB fixture)
-  Test:  create → publish → lock → unlock → trash → restore → permanent delete
-────────────────────────────────────────────────────────────────────────────────
-  Error: publishPage failed: undefined
-
-[2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32mtrue[39m
-Received: [31mfalse[39m
-
-
-  Suite: actions-admin.spec.ts > Admin actions — page workflow (DB fixture)
-  Test:  createPage with a duplicate slug is rejected
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-
-Expected value: [32m500[39m
-Received array: [31m[409, 400][39m
-
-
-  Suite: actions-admin.spec.ts > Admin actions — page workflow (DB fixture)
-  Test:  create → publish → lock → unlock → trash → restore → permanent delete
-────────────────────────────────────────────────────────────────────────────────
-  Error: publishPage failed: undefined
-
-[2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32mtrue[39m
-Received: [31mfalse[39m
-
-
-  Suite: actions-admin.spec.ts > Admin actions — page workflow (DB fixture)
-  Test:  createPage with a duplicate slug is rejected
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-
-Expected value: [32m500[39m
-Received array: [31m[409, 400][39m
-
-
-  Suite: actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture)
-  Test:  draft → submitForReview → approve → publish → unpublish → archive → restore
-────────────────────────────────────────────────────────────────────────────────
-  Error: status after submitTripForReview
-
-status after submitTripForReview
-
-[2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m"[7munder_[27mreview"[39m
-Received: [31m"review"[39m
-
-Call Log:
-- Timeout 5000ms exceeded whil
-
-
-  Suite: actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture)
-  Test:  approveTrip from draft is rejected (invalid transition)
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-
-Expected value: [32m500[39m
-Received array: [31m[400, 409, 422][39m
-
-
-  Suite: actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture)
-  Test:  draft → submitForReview → approve → publish → unpublish → archive → restore
-────────────────────────────────────────────────────────────────────────────────
-  Error: status after submitTripForReview
-
-status after submitTripForReview
-
-[2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m"[7munder_[27mreview"[39m
-Received: [31m"review"[39m
-
-Call Log:
-- Timeout 5000ms exceeded whil
-
-
-  Suite: actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture)
-  Test:  approveTrip from draft is rejected (invalid transition)
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-
-Expected value: [32m500[39m
-Received array: [31m[400, 409, 422][39m
-
-
-  Suite: actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture)
-  Test:  draft → submitForReview → approve → publish → unpublish → archive → restore
-────────────────────────────────────────────────────────────────────────────────
-  Error: status after submitTripForReview
-
-status after submitTripForReview
-
-[2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m"[7munder_[27mreview"[39m
-Received: [31m"review"[39m
-
-Call Log:
-- Timeout 5000ms exceeded whil
-
-
-  Suite: actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture)
-  Test:  approveTrip from draft is rejected (invalid transition)
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-
-Expected value: [32m500[39m
-Received array: [31m[400, 409, 422][39m
-
-
-  Suite: admin-pages.spec.ts > Admin — Stats page
-  Test:  stats page displays dashboard content
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
-
-Locator: locator('h1')
-Expected pattern: [32m/Stats|Tableau de bord/i[39m
-Timeout: 5000ms
-Error: element(s) not found
-
-Call log:
-[2m  - Expect "toContainText" locator('h1') with timeout 
-
-
-  Suite: admin-pages.spec.ts > Admin — Stats page
-  Test:  stats page displays dashboard content
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
-
-Locator: locator('h1')
-Expected pattern: [32m/Stats|Tableau de bord/i[39m
-Timeout: 5000ms
-Error: element(s) not found
-
-Call log:
-[2m  - Expect "toContainText" locator('h1') with timeout 
-
-
-  Suite: admin-pages.spec.ts > Admin — Stats page
-  Test:  stats page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Stats page
-  Test:  stats page displays dashboard content
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Media page
-  Test:  media page has upload UI
-────────────────────────────────────────────────────────────────────────────────
-  TypeError: [2mexpect([22m[31mAller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E Seed Usere2e-seed@test.com[39m
-[31m  [39m
-[31m  [39m
-[31m  [39m
-[31m  [39m
-[31m  [39m
-[31mTableau de bord[39m
-[31m  [39m
-[31m  [39m
-[31mAdministration[39m
-[31m  [39m
-[31m 
-
-
-  Suite: admin-pages.spec.ts > Admin — Media page
-  Test:  media page has upload UI
-────────────────────────────────────────────────────────────────────────────────
-  TypeError: [2mexpect([22m[31mAller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E Seed Usere2e-seed@test.com[39m
-[31m  [39m
-[31m  [39m
-[31m  [39m
-[31m  [39m
-[31m  [39m
-[31mTableau de bord[39m
-[31m  [39m
-[31m  [39m
-[31mAdministration[39m
-[31m  [39m
-[31m 
-
-
-  Suite: admin-pages.spec.ts > Admin — Media page
-  Test:  media page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Media page
-  Test:  media page has upload UI
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Roles page
-  Test:  roles page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Users page
-  Test:  users page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Pages page
-  Test:  pages page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Audit log page
-  Test:  audit page shows audit log table
-────────────────────────────────────────────────────────────────────────────────
-  TypeError: [2mexpect([22m[31mAller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E Seed Usere2e-seed@test.com[39m
-[31m  [39m
-[31m  [39m
-[31m  [39m
-[31m  [39m
-[31m  [39m
-[31mTableau de bord[39m
-[31m  [39m
-[31m  [39m
-[31mAdministration[39m
-[31m  [39m
-[31m 
-
-
-  Suite: admin-pages.spec.ts > Admin — Audit log page
-  Test:  audit page shows audit log table
-────────────────────────────────────────────────────────────────────────────────
-  TypeError: [2mexpect([22m[31mAller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E Seed Usere2e-seed@test.com[39m
-[31m  [39m
-[31m  [39m
-[31m  [39m
-[31m  [39m
-[31m  [39m
-[31mTableau de bord[39m
-[31m  [39m
-[31m  [39m
-[31mAdministration[39m
-[31m  [39m
-[31m 
-
-
-  Suite: admin-pages.spec.ts > Admin — Audit log page
-  Test:  audit page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Audit log page
-  Test:  audit page shows audit log table
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Emails page
-  Test:  emails page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Policies page
-  Test:  policies page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Travelers page
-  Test:  travelers page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: admin-pages.spec.ts > Admin — Applications page
-  Test:  applications page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
   Suite: admin-pages.spec.ts > Admin — Reservations page
   Test:  reservations page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
+  [31mTearing down "context" exceeded the test timeout of 30000ms.[39m
 
 
   Suite: admin-pages.spec.ts > Admin — Payments page
   Test:  payments page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
+  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
 
 
-  Suite: admin-pages.spec.ts > Admin — Blog edit page
-  Test:  blog new post page loads
+  Suite: blog-review-rating-a11y.spec.ts > Star rating — required-field error announcement
+  Test:  the rating error region announces the translated message in every page language and never a bare numeric value
 ────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
+  [31mTest timeout of 120000ms exceeded.[39m
 
 
-  Suite: auth-account.spec.ts > Auth — sign-out
-  Test:  sign-out clears the session
+  Suite: blog-review-rating-a11y.spec.ts > Star rating — required-field error announcement
+  Test:  the rating error region announces the translated message in every page language and never a bare numeric value
 ────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-
-Expected value: [32m415[39m
-Received array: [31m[200, 302][39m
+  [31mTest timeout of 120000ms exceeded.[39m
 
 
-  Suite: auth-account.spec.ts > Auth — sign-out
-  Test:  sign-out clears the session
+  Suite: blog-review-rating-a11y.spec.ts > Star rating — required-field error announcement
+  Test:  the rating error region announces the translated message in every page language and never a bare numeric value
 ────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-
-Expected value: [32m415[39m
-Received array: [31m[200, 302][39m
-
-
-  Suite: auth-account.spec.ts > Auth — sign-out
-  Test:  sign-out clears the session
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-
-Expected value: [32m415[39m
-Received array: [31m[200, 302][39m
-
-
-  Suite: auth-account.spec.ts > Auth — export-data endpoint
-  Test:  authenticated user can export their data (RGPD)
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m200[39m
-Received: [31m500[39m
-
-
-  Suite: auth-account.spec.ts > Auth — export-data endpoint
-  Test:  authenticated user can export their data (RGPD)
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m200[39m
-Received: [31m500[39m
-
-
-  Suite: auth-account.spec.ts > Auth — export-data endpoint
-  Test:  authenticated user can export their data (RGPD)
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m200[39m
-Received: [31m500[39m
-
-
-  Suite: auth.spec.ts > Sign-up flow
-  Test:  sign-up form submits and redirects to sign-in page
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: auth.spec.ts > Sign-up flow
-  Test:  sign-in form rejects unverified email
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: auth.spec.ts > Authenticated flow
-  Test:  verified user can sign in and reach dashboard
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: auth.spec.ts > Authenticated flow
-  Test:  authenticated user can access profile page
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: auth.spec.ts > Enter key submission
-  Test:  sign-in form submits on Enter key
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: auth.spec.ts > Enter key submission
-  Test:  sign-up form submits on Enter key
-────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
-
-
-  Suite: auth.spec.ts > Enter key submission
-  Test:  forgot-password form submits on Enter key
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-
-Locator:  locator('#forgot-password-success')
-Expected: visible
-Received: hidden
-Timeout:  20000ms
-
-Call log:
-[2m  - Expect "toBeVisible" locator('#forgot-password-success') with timeout 20000ms[22m
-[2m  - 
+  [31mTest timeout of 120000ms exceeded.[39m
 
 
   Suite: blog.spec.ts > Blog surfaces
-  Test:  global admin can create and edit a draft workflow post
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 90000ms exceeded.[39m
-
-
-  Suite: blog.spec.ts > Blog surfaces
-  Test:  global admin can create and edit a draft workflow post
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 90000ms exceeded.[39m
-
-
-  Suite: blog.spec.ts > Blog surfaces
-  Test:  global admin can create and edit a draft workflow post
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 90000ms exceeded.[39m
-
-
-  Suite: cms-admin.spec.ts > CMS Site settings page
-  Test:  site page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: Sign-in failed after 2 attempts
-
-
-  Suite: cms-admin.spec.ts > CMS Site settings page
-  Test:  site page contains settings form
-────────────────────────────────────────────────────────────────────────────────
-  Error: Sign-in failed after 2 attempts
-
-
-  Suite: cms-admin.spec.ts > CMS Site settings page
-  Test:  site page has tabs for settings and hours
-────────────────────────────────────────────────────────────────────────────────
-  Error: Sign-in failed after 2 attempts
-
-
-  Suite: cms-admin.spec.ts > CMS Navigation page
-  Test:  navigation page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: Sign-in failed after 2 attempts
-
-
-  Suite: cms-admin.spec.ts > CMS Navigation page
-  Test:  navigation page contains management UI
-────────────────────────────────────────────────────────────────────────────────
-  Error: Sign-in failed after 2 attempts
-
-
-  Suite: cms-admin.spec.ts > CMS Theme page
-  Test:  theme page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: Sign-in failed after 2 attempts
-
-
-  Suite: cms-admin.spec.ts > CMS Theme page
-  Test:  theme page contains form
-────────────────────────────────────────────────────────────────────────────────
-  Error: Sign-in failed after 2 attempts
-
-
-  Suite: cms-deep.spec.ts > CMS — pages & sections
-  Test:  pages admin lists pages and exposes create action
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-
-Locator: locator('main')
-Expected: visible
-Error: strict mode violation: locator('main') resolved to 2 elements:
-    1) <main class="flex-1" id="main-content">…</main> aka locator('#main-content')
-    2) <main
-
-
-  Suite: cms-deep.spec.ts > CMS — pages & sections
-  Test:  pages admin lists pages and exposes create action
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-
-Locator: locator('main')
-Expected: visible
-Error: strict mode violation: locator('main') resolved to 2 elements:
-    1) <main class="flex-1" id="main-content">…</main> aka locator('#main-content')
-    2) <main
-
-
-  Suite: cms-deep.spec.ts > CMS — pages & sections
-  Test:  pages admin lists pages and exposes create action
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-
-Locator: locator('main')
-Expected: visible
-Error: strict mode violation: locator('main') resolved to 2 elements:
-    1) <main class="flex-1" id="main-content">…</main> aka locator('#main-content')
-    2) <main
-
-
-  Suite: services-deep.spec.ts > Services — admin CRUD & editor
-  Test:  services admin supports search + status + sort query params
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m200[39m
-Received: [31m500[39m
-
-
-  Suite: services-deep.spec.ts > Services — admin CRUD & editor
-  Test:  services admin supports search + status + sort query params
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m200[39m
-Received: [31m500[39m
-
-
-  Suite: services-deep.spec.ts > Services — admin CRUD & editor
-  Test:  services admin supports search + status + sort query params
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m200[39m
-Received: [31m500[39m
-
-
-  Suite: services-deep.spec.ts > Services — public surfaces
-  Test:  services list responds to search query
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-
-Locator: locator('main')
-Expected: visible
-Error: strict mode violation: locator('main') resolved to 2 elements:
-    1) <main class="flex-1" id="main-content">…</main> aka locator('#main-content')
-    2) <main
-
-
-  Suite: services-deep.spec.ts > Services — public surfaces
-  Test:  services list responds to search query
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-
-Locator: locator('main')
-Expected: visible
-Error: strict mode violation: locator('main') resolved to 2 elements:
-    1) <main class="flex-1" id="main-content">…</main> aka locator('#main-content')
-    2) <main
-
-
-  Suite: services-deep.spec.ts > Services — public surfaces
-  Test:  services list responds to search query
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-
-Locator: locator('main')
-Expected: visible
-Error: strict mode violation: locator('main') resolved to 2 elements:
-    1) <main class="flex-1" id="main-content">…</main> aka locator('#main-content')
-    2) <main
-
-
-  Suite: services-lifecycle.spec.ts
-  Test:  services admin lifecycle follows the explicit state machine
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
-
-Locator:  locator('tr:has([data-id="ea3275ce-9b20-4d69-b01c-27b0413e61dc"])')
-Expected: [32m1[39m
-Received: [31m0[39m
-Timeout:  15000ms
-
-Call log:
-[2m  - Expect "toHaveCount" locator('tr
-
-
-  Suite: services-lifecycle.spec.ts
-  Test:  services admin lifecycle follows the explicit state machine
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
-
-Locator:  locator('tr:has([data-id="7dd2bb62-5dda-4699-8ffc-8c1f26170727"])')
-Expected: [32m1[39m
-Received: [31m0[39m
-Timeout:  15000ms
-
-Call log:
-[2m  - Expect "toHaveCount" locator('tr
-
-
-  Suite: services-lifecycle.spec.ts
-  Test:  services admin lifecycle follows the explicit state machine
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
-
-Locator:  locator('tr:has([data-id="88facc0d-c3f7-48ba-a6e0-19c22ddc8033"])')
-Expected: [32m1[39m
-Received: [31m0[39m
-Timeout:  15000ms
-
-Call log:
-[2m  - Expect "toHaveCount" locator('tr
-
-
-  Suite: services.spec.ts > Services surfaces
-  Test:  global admin exposes the resource grammar
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m200[39m
-Received: [31m500[39m
-
-
-  Suite: services.spec.ts > Services surfaces
-  Test:  global admin exposes the resource grammar
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m200[39m
-Received: [31m500[39m
-
-
-  Suite: services.spec.ts > Services surfaces
-  Test:  global admin exposes the resource grammar
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m200[39m
-Received: [31m500[39m
-
-
-  Suite: ux-flows.spec.ts > Contact form — UI submission
-  Test:  contact form submits successfully through the UI
+  Test:  guest comment stays pending until moderation
 ────────────────────────────────────────────────────────────────────────────────
   [31mTest timeout of 30000ms exceeded.[39m
 
 
-  Suite: ux-flows.spec.ts > Locale switcher
-  Test:  the locale switcher exposes all 4 locales
+  Suite: blog.spec.ts > Blog surfaces
+  Test:  guest comment stays pending until moderation
 ────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
-
-Locator: getByRole('button', { name: /switch language|changer de langue|language/i })
-Expected: visible
-Error: strict mode violation: getByRole('button', { name: /switch language|changer de langue|language/i }
+  [31mTest timeout of 30000ms exceeded.[39m
 
 
-  Suite: voyage.spec.ts > Voyage — candidature
-  Test:  authenticated flow submits an application
+  Suite: blog.spec.ts > Blog surfaces
+  Test:  guest comment stays pending until moderation
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 90000ms exceeded.[39m
+  [31mTest timeout of 30000ms exceeded.[39m
 
 
-  Suite: voyage.spec.ts > Voyage — candidature
-  Test:  authenticated flow submits an application
+  Suite: services.spec.ts > Services surfaces
+  Test:  admin lifecycle preserves the explicit state machine
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 90000ms exceeded.[39m
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"ARCHIVED"[39m
+Received: [31m"DRAFT"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
 
 
-  Suite: voyage.spec.ts > Voyage — candidature
-  Test:  authenticated flow submits an application
+  Suite: services.spec.ts > Services surfaces
+  Test:  admin lifecycle preserves the explicit state machine
 ────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"ARCHIVED"[39m
+Received: [31m"DRAFT"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
 
 
-  Suite: voyage.spec.ts > Voyage — admin trips
-  Test:  admin trips list loads
+  Suite: services.spec.ts > Services surfaces
+  Test:  admin lifecycle preserves the explicit state machine
 ────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"ARCHIVED"[39m
+Received: [31m"DRAFT"[39m
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
 
 
-  Suite: voyage.spec.ts > Voyage — admin trips
-  Test:  admin applications, reservations, payments and emails load
+  Suite: zz-regression-probe.spec.ts > PROBE — actions-voyage : sequence d etats
+  Test:  la sequence reelle est distincte du vocabulaire perime, etape par etape
 ────────────────────────────────────────────────────────────────────────────────
-  Error: page.waitForURL: SSL connect error
-=========================== logs ===========================
-waiting for navigation until "load"
-============================================================
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected substring: [32m"under_review"[39m
+Received string:    [31m"probe·[39m
+[31mprobe·[39m
+[31m[2mexpect([22m[31mreceived[39m[31m[2m).[22mtoBe[2m([22m[32mexpected[39m
+
+
+  Suite: zz-regression-probe.spec.ts > PROBE — actions-voyage : sequence d etats
+  Test:  la sequence reelle est distincte du vocabulaire perime, etape par etape
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected substring: [32m"under_review"[39m
+Received string:    [31m"probe·[39m
+[31mprobe·[39m
+[31m[2mexpect([22m[31mreceived[39m[31m[2m).[22mtoBe[2m([22m[32mexpected[39m
+
+
+  Suite: zz-regression-probe.spec.ts > PROBE — actions-voyage : sequence d etats
+  Test:  la sequence reelle est distincte du vocabulaire perime, etape par etape
+────────────────────────────────────────────────────────────────────────────────
+  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected substring: [32m"under_review"[39m
+Received string:    [31m"probe·[39m
+[31mprobe·[39m
+[31m[2mexpect([22m[31mreceived[39m[31m[2m).[22mtoBe[2m([22m[32mexpected[39m
 
 
 ════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 1454/1563 passed
+  END OF REPORT — 1609/1635 passed
 ════════════════════════════════════════════════════════════════════════════════

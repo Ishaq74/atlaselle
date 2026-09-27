@@ -1,18 +1,141 @@
 ════════════════════════════════════════════════════════════════════════════════
   PA11Y ACCESSIBILITY REPORT — WCAG 2.1 AAA
-  Generated: 2026-09-23 16:41:39
+  Generated: 2026-09-27 13:24:12
 ════════════════════════════════════════════════════════════════════════════════
 
   Total URLs tested:  60
-  Passed:             60/60  ✅
-  Failed:             0/60
+  Passed:             56/60  ⚠️
+  Failed:             20/60
 
 ────────────────────────────────────────────────────────────────────────────────
+
+  ISSUES BY RULE:
+────────────────────────────────────────────────────────────────────────────────
+  aria-prohibited-attr  (20 occurrences)
+
+════════════════════════════════════════════════════════════════════════════════
+  DETAILED FAILURES
+════════════════════════════════════════════════════════════════════════════════
+
+  URL: http://localhost:4321/fr/
+  Issues: 5
+────────────────────────────────────────────────────────────────────────────────
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > p:nth-child(3)
+    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="4.5/5"><span class="text-warning" aria...</p>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > p:nth-child(3)
+    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(5) > article > div:nth-child(2) > p:nth-child(3)
+    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(3) > span
+    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(2) > span
+    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
+
+
+  URL: http://localhost:4321/en/
+  Issues: 5
+────────────────────────────────────────────────────────────────────────────────
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > p:nth-child(3)
+    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="4.5/5"><span class="text-warning" aria...</p>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > p:nth-child(3)
+    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(5) > article > div:nth-child(2) > p:nth-child(3)
+    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(3) > span
+    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(2) > span
+    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
+
+
+  URL: http://localhost:4321/es/
+  Issues: 5
+────────────────────────────────────────────────────────────────────────────────
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > p:nth-child(3)
+    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="4.5/5"><span class="text-warning" aria...</p>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > p:nth-child(3)
+    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(5) > article > div:nth-child(2) > p:nth-child(3)
+    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(3) > span
+    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(2) > span
+    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
+
+
+  URL: http://localhost:4321/ar/
+  Issues: 5
+────────────────────────────────────────────────────────────────────────────────
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > p:nth-child(3)
+    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="4.5/5"><span class="text-warning" aria...</p>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > p:nth-child(3)
+    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(5) > article > div:nth-child(2) > p:nth-child(3)
+    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(3) > span
+    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
+
+    Rule:     aria-prohibited-attr
+    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
+    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(2) > span
+    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
+
 
 ════════════════════════════════════════════════════════════════════════════════
   PASSING URLS
 ════════════════════════════════════════════════════════════════════════════════
-  ✅ http://localhost:4321/fr/
   ✅ http://localhost:4321/fr/a-propos
   ✅ http://localhost:4321/fr/contact
   ✅ http://localhost:4321/fr/mentions-legales
@@ -20,7 +143,6 @@
   ✅ http://localhost:4321/fr/auth/connexion
   ✅ http://localhost:4321/fr/auth/inscription
   ✅ http://localhost:4321/fr/auth/mot-de-passe-oublie
-  ✅ http://localhost:4321/en/
   ✅ http://localhost:4321/en/about
   ✅ http://localhost:4321/en/contact
   ✅ http://localhost:4321/en/legal-notice
@@ -28,7 +150,6 @@
   ✅ http://localhost:4321/en/auth/sign-in
   ✅ http://localhost:4321/en/auth/sign-up
   ✅ http://localhost:4321/en/auth/forgot-password
-  ✅ http://localhost:4321/es/
   ✅ http://localhost:4321/es/acerca-de
   ✅ http://localhost:4321/es/contacto
   ✅ http://localhost:4321/es/aviso-legal
@@ -36,7 +157,6 @@
   ✅ http://localhost:4321/es/auth/iniciar-sesion
   ✅ http://localhost:4321/es/auth/registro
   ✅ http://localhost:4321/es/auth/contrasena-olvidada
-  ✅ http://localhost:4321/ar/
   ✅ http://localhost:4321/ar/about
   ✅ http://localhost:4321/ar/contact
   ✅ http://localhost:4321/ar/legal-notice
@@ -74,5 +194,5 @@
   ✅ http://localhost:4321/ar/admin/blog
 
 ════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 60/60 passed
+  END OF REPORT — 56/60 passed
 ════════════════════════════════════════════════════════════════════════════════

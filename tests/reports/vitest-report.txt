@@ -1,6 +1,6 @@
 ════════════════════════════════════════════════════════════════════════════════
   VITEST UNIT & INTEGRATION TEST REPORT
-  Generated: 2026-09-23 15:42:42
+  Generated: 2026-09-27 12:25:28
 ════════════════════════════════════════════════════════════════════════════════
 
   ✅ tests\integration\admin-trips.test.ts  (4/4 passed)
@@ -31,7 +31,7 @@
   ✅ tests\integration\navigation-cycle.test.ts  (6/6 passed)
   ✅ tests\integration\payments-endpoints.test.ts  (5/5 passed)
   ✅ tests\integration\repositories.test.ts  (4/4 passed)
-  ✅ tests\integration\sitemap.test.ts  (2/2 passed)
+  ✅ tests\integration\sitemap.test.ts  (3/3 passed)
   ✅ tests\integration\trip-loader.test.ts  (3/3 passed)
   ✅ tests\integration\voyage-action-errors.test.ts  (17/17 passed)
   ✅ tests\integration\voyage-actions-missing.test.ts  (6/6 passed)
@@ -64,6 +64,7 @@
   ✅ tests\unit\admin-theme.test.ts  (10/10 passed)
   ✅ tests\unit\admin-versions.test.ts  (11/11 passed)
   ✅ tests\unit\analytics.test.ts  (2/2 passed)
+  ✅ tests\unit\api-health-auth.test.ts  (21/21 passed)
   ✅ tests\unit\audit-fallback.test.ts  (1/1 passed)
   ✅ tests\unit\auth-guards.test.ts  (5/5 passed)
   ✅ tests\unit\blog-engagement-actions.test.ts  (38/38 passed)
@@ -93,6 +94,7 @@
   ✅ tests\unit\content-import-schema.test.ts  (10/10 passed)
   ✅ tests\unit\content-locking.test.ts  (6/6 passed)
   ✅ tests\unit\db-env.test.ts  (16/16 passed)
+  ✅ tests\unit\demote-level-one-headings.test.ts  (47/47 passed)
   ✅ tests\unit\editor-dom-safety.test.ts  (4/4 passed)
   ✅ tests\unit\export-data.test.ts  (4/4 passed)
   ✅ tests\unit\extract-ip.test.ts  (19/19 passed)
@@ -106,7 +108,6 @@
   ✅ tests\unit\mask-utils.test.ts  (10/10 passed)
   ✅ tests\unit\media-list.test.ts  (4/4 passed)
   ✅ tests\unit\media-loader.test.ts  (12/12 passed)
-  ✅ tests\unit\middleware-timeout.test.ts  (6/6 passed)
   ✅ tests\unit\navigation-loader.test.ts  (7/7 passed)
   ✅ tests\unit\navigation-menus.test.ts  (10/10 passed)
   ✅ tests\unit\navigation-tree.test.ts  (10/10 passed)
@@ -118,12 +119,12 @@
   ✅ tests\unit\request-id.test.ts  (6/6 passed)
   ✅ tests\unit\sanitize.test.ts  (49/49 passed)
   ✅ tests\unit\schema-validation.test.ts  (9/9 passed)
-  ✅ tests\unit\search-fts.test.ts  (20/20 passed)
+  ✅ tests\unit\search-fts.test.ts  (25/25 passed)
   ✅ tests\unit\section-content-xss.test.ts  (18/18 passed)
   ✅ tests\unit\section-schemas.test.ts  (48/48 passed)
   ✅ tests\unit\sections-sanitize.test.ts  (10/10 passed)
   ✅ tests\unit\send-email.test.ts  (17/17 passed)
-  ✅ tests\unit\seo.test.ts  (32/32 passed)
+  ✅ tests\unit\seo.test.ts  (31/31 passed)
   ✅ tests\unit\services-contract.test.ts  (16/16 passed)
   ✅ tests\unit\services-validation.test.ts  (7/7 passed)
   ✅ tests\unit\services-workflow-restore.test.ts  (2/2 passed)
@@ -164,7 +165,8 @@
   ✅ tests\unit\voyage\core-utils.test.ts  (7/7 passed)
   ✅ tests\unit\voyage\helpers.test.ts  (11/11 passed)
   ✅ tests\unit\voyage\loaders-edge.test.ts  (6/6 passed)
-  ✅ tests\unit\voyage\middleware.test.ts  (11/11 passed)
+  ✅ tests\unit\voyage\middleware-forwarded-audit.test.ts  (21/21 passed)
+  ✅ tests\unit\voyage\middleware.test.ts  (23/23 passed)
   ✅ tests\unit\voyage\pricing-availability.test.ts  (11/11 passed)
   ✅ tests\unit\voyage\request-id-fallback.test.ts  (1/1 passed)
   ✅ tests\unit\voyage\seed-content.test.ts  (8/8 passed)
@@ -179,11 +181,11 @@
   SUMMARY
 ════════════════════════════════════════════════════════════════════════════════
 
-  Total tests:   1807
-  Passed:        1807  ✅
+  Total tests:   1907
+  Passed:        1907  ✅
   Failed:        0  
-  Duration:      135s
+  Duration:      145s
 
 ════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 1807/1807 passed
+  END OF REPORT — 1907/1907 passed
 ════════════════════════════════════════════════════════════════════════════════
