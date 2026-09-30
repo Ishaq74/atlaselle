@@ -45,8 +45,23 @@ export interface CommonTranslations {
   };
   a11y: {
     openMenu: string;
+    toggleTheme: string;
     switchLanguage: string;
     skipToContent: string;
+    previousPage: string;
+    nextPage: string;
+    previousItem: string;
+    nextItem: string;
+    closeNotification: string;
+    notifications: string;
+    closeDialog: string;
+    toggleSidebar: string;
+    loading: string;
+    selectField: string;
+    iconPicker: string;
+    uploadedFiles: string;
+    breadcrumb: string;
+    pagination: string;
   };
   errors: {
     notFound: {
@@ -120,6 +135,10 @@ export interface HomeTranslations {
     description: string;
     primaryButton: { text: string; href: string };
     secondaryButton?: { text: string; href: string };
+  };
+  a11y: {
+    previousSlide: string;
+    nextSlide: string;
   };
 }
 
@@ -293,6 +312,10 @@ export interface AuthTranslations {
   admin: {
     title: string;
     contentGroup: string;
+    navigation: {
+      title: string;
+      description: string;
+    };
     localeSwitcher: {
       title: string;
     };
@@ -557,6 +580,7 @@ export interface AuthTranslations {
         restoreVersionConfirm: string;
         versionRestored: string;
         snapshotNotePrompt: string;
+        snapshotNoteLabel: string;
         snapshotCreated: string;
         insertMedia: string;
         noPages: string;
@@ -590,6 +614,7 @@ export interface AuthTranslations {
           allLocales: string;
         };
         sort: {
+          label: string;
           newest: string;
           oldest: string;
           nameAsc: string;
@@ -957,6 +982,7 @@ export interface BlogTranslations {
     readMore: string;
     publishedOn: string;
     byAuthor: string;
+    authorWebsite: string;
     readingTime: string;
     categories: string;
     category: string;
@@ -1011,6 +1037,10 @@ export interface BlogTranslations {
     reviewTitleLabel: string;
     reviewTitlePlaceholder: string;
     recommendLabel: string;
+    notRecommendedLabel: string;
+    reviewHelpful: string;
+    reviewNotHelpful: string;
+    reviewReport: string;
     reviewSubmitted: string;
     reactionUpdated: string;
     shareOnX: string;
@@ -1072,8 +1102,12 @@ export interface BlogTranslations {
       ogDescription: string;
       commentStatus: string;
       publishedAt: string;
+      updatedAt: string;
+      createdAt: string;
       galleryTitle: string;
     };
+    sortField: string;
+    sortOrder: string;
     commentStatuses: {
       OPEN: string;
       CLOSED: string;
@@ -1112,6 +1146,9 @@ export interface BlogTranslations {
       linkInsert: string;
       linkNoResult: string;
       imageAlt: string;
+      imageAltTitle: string;
+      imageAltMissing: string;
+      selectionPlaceholder: string;
     };
     feedback: {
       created: string;
@@ -1162,6 +1199,9 @@ export interface BlogTranslations {
       noPendingReviews: string;
       noPendingReports: string;
       ratingLabel: string;
+      confirmReject: string;
+      confirmDelete: string;
+      confirmSpam: string;
     };
     reportReasons: Record<"SPAM" | "ABUSIVE" | "OFF_TOPIC" | "HATE_SPEECH" | "OTHER", string>;
     notificationTypes: Record<

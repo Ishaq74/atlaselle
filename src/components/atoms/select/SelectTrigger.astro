@@ -3,12 +3,14 @@ import ChevronDown from "@tabler/icons/outline/chevron-down.svg";
 import type { HTMLAttributes } from "astro/types";
 import { tv, type VariantProps } from "tailwind-variants";
 
-type Props = Omit<HTMLAttributes<"button">, "role" | "type"> &
+type Props = Omit<HTMLAttributes<"button">, "role" | "type" | "aria-label"> &
   VariantProps<typeof selectTrigger> & {
     /**
      * The content to be rendered inside the select trigger
      */
     children: any;
+    /** Libellé accessible du champ (à traduire par l'appelant). */
+    label?: string;
   };
 
 export const selectTrigger = tv({
@@ -31,13 +33,13 @@ export const selectTrigger = tv({
   },
 });
 
-const { class: className, size, ...rest } = Astro.props;
+const { class: className, size, label = "Select field", ...rest } = Astro.props;
 ---
 
 <button
   class={selectTrigger({ size, class: className })}
   type="button"
-  aria-label="Select field"
+  aria-label={label}
   aria-expanded="false"
   data-state="closed"
   {...rest}

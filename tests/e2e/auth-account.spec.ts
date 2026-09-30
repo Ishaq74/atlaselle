@@ -7,7 +7,7 @@ import { SEED_EMAIL, SEED_PASSWORD } from './global-setup';
  * dashboard content, sign-out, and guest/auth guard matrices.
  */
 
-const BASE_URL = 'http://localhost:4322';
+import { BASE_URL } from '../helpers/e2e-env';
 
 async function userState(browser: import('@playwright/test').Browser) {
   const context = await browser.newContext();

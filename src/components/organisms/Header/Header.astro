@@ -30,6 +30,7 @@ import {
 } from "@atoms/sheet";
 
 import Brand from "@organisms/Header/Brand.astro";
+import { getDirection, getCommonTranslations } from "@i18n/utils";
 import AuthUser from "@organisms/Header/AuthUser.astro";
 import ThemeSwitcher from "./ThemeSwitcher.astro";
 import LanguageSwitcher from "./LanguageSwitcher.astro";
@@ -47,6 +48,10 @@ interface Props extends HTMLAttributes<"nav"> {
   siteName?: string;
   logoLightUrl?: string | null;
   logoDarkUrl?: string | null;
+  logoLightWidth?: number;
+  logoLightHeight?: number;
+  logoDarkWidth?: number;
+  logoDarkHeight?: number;
   links?: NavLink[];
   ctaText?: string;
   ctaHref?: string;
@@ -65,6 +70,10 @@ const {
   siteName = "",
   logoLightUrl,
   logoDarkUrl,
+  logoLightWidth,
+  logoLightHeight,
+  logoDarkWidth,
+  logoDarkHeight,
   links = [],
   ctaText = "Get Started",
   ctaHref = "#",
@@ -76,16 +85,19 @@ const {
   class: className,
   ...rest
 } = Astro.props;
+// En RTL la feuille mobile s'ouvre du côté gauche (miroir du layout).
+const isRtl = locale ? getDirection(locale) === 'rtl' : false;
+const commonT = locale ? await getCommonTranslations(locale) : null;
 ---
 
 <nav class={navStyles({ class: className })} data-navbar-2 {...rest}>
   <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
     <div class="flex shrink-0 items-center">
       <slot name="logo">
-        <Brand siteName={siteName} logoLightUrl={logoLightUrl} logoDarkUrl={logoDarkUrl} />
+        <Brand siteName={siteName} logoLightUrl={logoLightUrl} logoDarkUrl={logoDarkUrl} logoLightWidth={logoLightWidth} logoLightHeight={logoLightHeight} logoDarkWidth={logoDarkWidth} logoDarkHeight={logoDarkHeight} />
       </slot>
 
-      <div class="ml-6 hidden items-center gap-1 @2xl:flex">
+      <div class="ms-6 hidden items-center gap-1 @2xl:flex">
         {
           links.map((link) => {
             if (link.children && link.children.length > 0) {
@@ -136,28 +148,29 @@ const {
         </>
       )}
       <LanguageSwitcher />
-      <ThemeSwitcher />
+      <ThemeSwitcher label={commonT?.a11y.toggleTheme} />
     </div>
 
     <div class="flex items-center gap-1 @2xl:hidden">
       <LanguageSwitcher />
-      <ThemeSwitcher />
+      <ThemeSwitcher label={commonT?.a11y.toggleTheme} />
       {links.length > 0 && (
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" class="[&_svg]:size-8" aria-label="Open menu">
+          <Button variant="ghost" size="icon" class="[&_svg]:size-8" aria-label={commonT?.a11y.openMenu ?? "Open menu"}>
             <IconMenu />
           </Button>
         </SheetTrigger>
         <SheetContent
           id="navbar-2-sheet-content"
-          side="right"
+          side={isRtl ? 'left' : 'right'}
           class="max-w-70 sm:max-w-75"
+          closeLabel={commonT?.a11y.closeDialog}
         >
           <SheetHeader>
-            <SheetTitle class="pr-12">
+            <SheetTitle class="pe-12">
               <slot name="logo">
-                <Brand siteName={siteName} logoLightUrl={logoLightUrl} logoDarkUrl={logoDarkUrl} />
+                <Brand siteName={siteName} logoLightUrl={logoLightUrl} logoDarkUrl={logoDarkUrl} logoLightWidth={logoLightWidth} logoLightHeight={logoLightHeight} logoDarkWidth={logoDarkWidth} logoDarkHeight={logoDarkHeight} />
               </slot>
             </SheetTitle>
             <Separator class="mt-2" />
@@ -185,7 +198,7 @@ const {
                           <IconChevronDown class="size-5 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         </button>
                       </CollapsibleTrigger>
-                      <CollapsibleContent class="flex flex-col pl-4">
+                      <CollapsibleContent class="flex flex-col ps-4">
                         {link.children.map((child) => (
                           <SheetClose asChild>
                             <a

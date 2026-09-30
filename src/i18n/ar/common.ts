@@ -37,8 +37,23 @@ export default {
   },
   a11y: {
     openMenu: 'فتح القائمة',
+    toggleTheme: 'تبديل المظهر',
     switchLanguage: 'تغيير اللغة',
     skipToContent: 'انتقل إلى المحتوى الرئيسي',
+    previousPage: 'الانتقال إلى الصفحة السابقة',
+    nextPage: 'الانتقال إلى الصفحة التالية',
+    previousItem: 'العنصر السابق',
+    nextItem: 'العنصر التالي',
+    closeNotification: 'إغلاق الإشعار',
+    notifications: 'الإشعارات',
+    closeDialog: 'إغلاق النافذة',
+    toggleSidebar: 'إظهار أو إخفاء التنقل',
+    loading: 'جارٍ التحميل',
+    selectField: 'اختر قيمة',
+    iconPicker: 'منتقي الأيقونات',
+    uploadedFiles: 'الملفات المرفوعة',
+    breadcrumb: 'مسار التنقل',
+    pagination: 'ترقيم الصفحات',
   },
   errors: {
     notFound: {

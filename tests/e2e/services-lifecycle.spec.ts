@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { SEED_EMAIL, SEED_PASSWORD } from "./global-setup";
+import { confirmAdminAction } from "../helpers/admin-ui";
 
-const BASE_URL = "http://localhost:4322";
+import { BASE_URL } from "../helpers/e2e-env";
 
 async function authState(browser: import("@playwright/test").Browser) {
   const context = await browser.newContext();
@@ -63,6 +64,9 @@ test("services admin lifecycle follows the explicit state machine", async ({ bro
     await expect.poll(readStatus).toBe("DRAFT");
 
     await page.locator(`tr:has([data-id="${serviceId}"]) [data-action="archive"][data-id="${serviceId}"]`).click();
+    // L'archivage est une action destructrice : le back-office exige une
+    // confirmation explicite avant de l'exécuter.
+    await confirmAdminAction(page);
     await page.waitForLoadState("networkidle");
     await expect.poll(readStatus).toBe("ARCHIVED");
 

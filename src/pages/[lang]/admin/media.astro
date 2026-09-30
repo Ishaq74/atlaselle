@@ -1,6 +1,6 @@
 ---
 import { requirePermission } from '@/lib/auth-guards';
-import { getMediaFolders, getMediaFilesByFolder, getMediaFoldersList, getMediaFile, getMediaFileCountsByFolder, getMediaStats } from '@database/loaders/media.loader';
+import { getMediaFolders, getMediaFilesByFolder, countMediaFilesInFolder, getMediaFoldersList, getMediaFile, getMediaFileCountsByFolder, getMediaStats } from '@database/loaders/media.loader';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import AuthLayout from '@organisms/AuthLayout/AuthLayout.astro';
 import AdminSidebar from '@organisms/AdminSidebar/AdminSidebar.astro';
@@ -14,11 +14,16 @@ const { locale, authT } = result;
 
 const folderId = Astro.url.searchParams.get('folder') || null;
 const editFileId = Astro.url.searchParams.get('file') || null;
+const pageSize = 48;
+const requestedPage = Math.max(1, Number(Astro.url.searchParams.get('page') ?? '1') || 1);
+const totalCount = await countMediaFilesInFolder(folderId);
+const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+const page = Math.min(requestedPage, totalPages);
 
 const [folderTree, foldersList, files, editFile, fileCountsMap, stats] = await Promise.all([
   getMediaFolders(),
   getMediaFoldersList(),
-  getMediaFilesByFolder(folderId),
+  getMediaFilesByFolder(folderId, { limit: pageSize, offset: (page - 1) * pageSize }),
   editFileId ? getMediaFile(editFileId) : null,
   getMediaFileCountsByFolder(),
   getMediaStats(),
@@ -44,6 +49,10 @@ for (const [k, v] of fileCountsMap) {
       editFile={editFile}
       fileCounts={fileCounts}
       stats={stats}
+      page={page}
+      total={totalCount}
+      pageSize={pageSize}
+      paginationUrl={new URL(Astro.url.href)}
     />
   </AuthLayout>
 </BaseLayout>

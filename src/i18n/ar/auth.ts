@@ -75,6 +75,10 @@ export default {
     localeSwitcher: {
       title: 'اللغات',
     },
+    navigation: {
+      title: 'التنقل',
+      description: 'التنقل الرئيسي في لوحة التحكم.',
+    },
     tabs: {
       stats: 'الإحصائيات',
       users: 'المستخدمون',
@@ -351,6 +355,7 @@ export default {
         restoreVersionConfirm: 'هل تريد استعادة هذا الإصدار؟ سيتم إنشاء لقطة من الحالة الحالية تلقائياً.',
         versionRestored: 'تمت استعادة الإصدار.',
         snapshotNotePrompt: 'ملاحظة اختيارية لهذه اللقطة:',
+        snapshotNoteLabel: 'ملاحظة اللقطة',
         snapshotCreated: 'تم إنشاء اللقطة.',
         insertMedia: 'إدراج وسائط',
         noPages: 'لا توجد صفحات.',
@@ -383,7 +388,7 @@ export default {
           allTemplates: 'جميع القوالب',
           allLocales: 'جميع اللغات',
         },
-        sort: {
+        sort: { label: 'ترتيب',
           newest: 'الأحدث',
           oldest: 'الأقدم',
           nameAsc: 'الاسم أ–ي',

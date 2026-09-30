@@ -9,9 +9,12 @@ const sidebarTrigger = tv({
 
 import { Button } from "@atoms/button";
 
-type Props = ComponentProps<typeof Button>;
+type Props = ComponentProps<typeof Button> & {
+  /** Libellé accessible (à traduire par l'appelant). */
+  label?: string;
+};
 
-const { class: className, size = "icon-sm", variant = "ghost", ...rest } = Astro.props;
+const { class: className, size = "icon-sm", variant = "ghost", label = "Toggle Sidebar", ...rest } = Astro.props;
 ---
 
 <Button
@@ -19,14 +22,14 @@ const { class: className, size = "icon-sm", variant = "ghost", ...rest } = Astro
   size={size}
   class={sidebarTrigger({ class: className })}
   data-sidebar="trigger"
-  aria-label="Toggle Sidebar"
+  aria-label={label}
   {...rest}
   data-slot="sidebar-trigger"
 >
   <slot name="icon">
     <PanelLeft />
   </slot>
-  <span class="sr-only">Toggle Sidebar</span>
+  <span class="sr-only">{label}</span>
 </Button>
 
 <script>

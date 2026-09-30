@@ -1,7 +1,7 @@
 ---
 import { LOCALES } from "@i18n/config";
 import { toLocale, getBlogTranslations } from "@i18n/utils";
-import { getBlogPosts, getBlogCategories, getBlogTags } from "@database/loaders/blog.loader";
+import { getBlogPosts, getBlogCategories, getBlogTags } from "@/modules/blog/loaders/blog.loader";
 import { generateSchemaMarkup } from "@/lib/blog/utils";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import BlogListingPage from "@pages/blog/BlogListingPage.astro";

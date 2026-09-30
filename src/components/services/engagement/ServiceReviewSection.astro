@@ -1,0 +1,108 @@
+---
+/**
+ * Section « avis » d'une prestation.
+ *
+ * Gabarit aligné sur `components/blog/engagement/BlogReviewSection.astro` et
+ * `components/trips/engagement/TripReviewSection.astro` :
+ *
+ *   titre avec icône → résumé de note hors onglets → onglets liste / écriture
+ *
+ * Purement présententiel : les données viennent du DTO du loader, le
+ * formulaire est son propre composant, la soumission est dans `client/`.
+ */
+import { Icon } from "astro-icon/components";
+import type { Locale } from "@i18n/config";
+import { getServiceEngagementTranslations } from "@/modules/services/i18n/engagement";
+import type { ServiceEngagementReviewRow } from "@/modules/services/loaders/service-engagement.loader";
+import {
+  averageRating,
+  ratingDistribution,
+  toReviewItem,
+} from "@/modules/services/engagement/adapter";
+import EngagementTabs from "@/components/molecules/Engagement/EngagementTabs.astro";
+import EngagementReviewStats from "@/components/molecules/Engagement/EngagementReviewStats.astro";
+import EngagementReviewCard from "@/components/molecules/Engagement/EngagementReviewCard.astro";
+import ServiceReviewForm from "@/components/services/engagement/ServiceReviewForm.astro";
+import { Card, CardContent } from "@atoms/card";
+
+interface Props {
+  reviews: ServiceEngagementReviewRow[];
+  helpfulByReview: Map<string, boolean>;
+  isSignedIn: boolean;
+  locale: Locale;
+  action: string;
+}
+
+const { reviews, helpfulByReview, isSignedIn, locale, action } = Astro.props as Props;
+const t = getServiceEngagementTranslations(locale);
+
+const hasReviews = reviews.length > 0;
+
+const reviewLabels = {
+  // Les deux libellés doivent DIFFÉRER : l'atome affiche `recommended` sur un
+  // badge vert et `notRecommended` sur un badge rouge. Réutiliser le même texte
+  // affichait « Je recommande ce service » y compris sur les avis négatifs —
+  // soit l'inverse du sens du badge.
+  recommended: t.reviewRecommended,
+  notRecommended: t.notRecommended,
+  helpful: t.helpful,
+  helpfulMark: t.helpfulMark,
+  helpfulUnmark: t.helpfulUnmark,
+  report: t.report,
+  reply: t.reviewReply,
+};
+---
+
+<section class="flex flex-col gap-6" aria-labelledby="service-reviews-title">
+  <h2 id="service-reviews-title" class="font-heading flex items-center gap-2 text-lg font-semibold">
+    <Icon name="mdi:star-outline" class="size-5 text-muted-foreground" />
+    {t.reviewTitle} (<bdi>{reviews.length}</bdi>)
+  </h2>
+
+  {/* Résumé toujours visible, au-dessus des onglets — comme sur le blog. */}
+  <EngagementReviewStats
+    average={averageRating(reviews)}
+    total={reviews.length}
+    distribution={ratingDistribution(reviews)}
+    ratingLabel={t.reviewTitle}
+  />
+
+  <EngagementTabs
+    defaultTab={hasReviews ? "list" : "write"}
+    listLabel={t.reviewTitle}
+    listCount={reviews.length}
+    writeLabel={t.submitReview}
+    listIcon="mdi:message-star-outline"
+  >
+    <div slot="list" class="flex flex-col gap-4">
+      {hasReviews ? (
+        reviews.map((row) => (
+          <EngagementReviewCard
+            locale={locale}
+            review={toReviewItem(row, t.anonymous, helpfulByReview.get(row.review.id) === true)}
+            isSignedIn={isSignedIn}
+            labels={reviewLabels}
+          />
+        ))
+      ) : (
+        <Card>
+          <CardContent class="py-8 text-center text-sm text-muted-foreground">
+            {t.noReviews}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+
+    <div slot="write">
+      {isSignedIn ? (
+        <ServiceReviewForm locale={locale} action={action} />
+      ) : (
+        <Card>
+          <CardContent class="py-8 text-center text-sm text-muted-foreground">
+            {t.signInRequired}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  </EngagementTabs>
+</section>

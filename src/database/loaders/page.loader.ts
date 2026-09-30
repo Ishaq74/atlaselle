@@ -10,6 +10,52 @@ export interface PageWithSections {
 }
 
 /**
+ * Résolution de slug de page CMS par locale — pour le changeur de langue.
+ *
+ * Les slugs d'une page CMS sont independently localisés : la même page
+ * s'appelle `mentions-legales` en fr, `legal-notice` en en et `aviso-legal` en
+ * es. Conserver le slug courant en changeant de langue produisait donc une URL
+ * inexistante (404) — sur TOUTES les pages légales, et sur toute page CMS dont
+ * le slug est traduit.
+ *
+ * On passe par l'identifiant stable de la page, comme le fait déjà le
+ * changeur pour les voyages (`resolveTripSlug` → `getTripSlug`) : on traduit
+ * « la page que je consulte », pas « une chaîne de caractères ».
+ */
+export const getCmsPageSlugById = cached(
+  (pageId: string, locale: string) => `page:slug-by-id:${pageId}:${locale}`,
+  async (pageId: string, locale: string): Promise<string | null> => {
+    if (!isValidLocale(locale)) return null;
+    const db = getDrizzle();
+    const [row] = await db
+      .select({ slug: pages.slug })
+      .from(pages)
+      .where(and(eq(pages.id, pageId), eq(pages.locale, locale)))
+      .limit(1);
+    return row?.slug ?? null;
+  },
+);
+
+/**
+ * Retrouve l'identifiant d'une page CMS à partir de son slug dans une locale,
+ * toutes publications confondues (le changeur doit fonctionner sur un brouillon
+ * autant que sur une page publiée).
+ */
+export const getCmsPageIdBySlug = cached(
+  (locale: string, slug: string) => `page:id-by-slug:${locale}:${slug}`,
+  async (locale: string, slug: string): Promise<string | null> => {
+    if (!isValidLocale(locale)) return null;
+    const db = getDrizzle();
+    const [row] = await db
+      .select({ id: pages.id })
+      .from(pages)
+      .where(and(eq(pages.locale, locale), eq(pages.slug, slug)))
+      .limit(1);
+    return row?.id ?? null;
+  },
+);
+
+/**
  * Load a published CMS page by locale and slug, including its visible sections.
  */
 export const getPage = cached(

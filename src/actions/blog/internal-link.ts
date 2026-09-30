@@ -2,6 +2,7 @@ import { defineAction } from "astro:actions";
 import { z } from "astro/zod";
 import { blogInternalLinkResolver } from "@/lib/blog/blog-internal-link";
 import { getInternalLinkResolver, registerInternalLinkResolver } from "@/lib/content/internal-link-resolver";
+import { blogPublicRateLimit } from "./_helpers";
 
 registerInternalLinkResolver(blogInternalLinkResolver);
 
@@ -21,6 +22,7 @@ export const resolveBlogInternalLink = defineAction({
     locale: z.string().trim().min(2).max(5),
   }),
   handler: async (input, context) => {
+    blogPublicRateLimit(context, "internal-link", { window: 300, max: 60 });
     const resolver = resolveResolver(input.resolverName, context.request.headers.get("referer"));
     if (!resolver) return { results: [], resolution: { href: "#", title: null, exists: false } };
     const ctx = { locale: input.locale };

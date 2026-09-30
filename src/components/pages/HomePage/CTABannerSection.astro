@@ -44,12 +44,25 @@ const {
   <div class="dark bg-background text-foreground relative overflow-hidden">
     <!-- Background Image -->
     <div class="absolute inset-0">
+      {/*
+        Décor de fond, donc `alt=""` et `loading="lazy"` : il est sous un voile
+        noir opaque et n'est jamais le contenu.
+
+        `widths` ne peut pas dépasser la largeur de la source. La source par
+        défaut fait 720 px : Astro ne produit donc qu'UNE variante à 720, alors
+        que `sizes="100vw"` la déclarait utilisable sur toute la largeur —
+        d'où « Properly size images », 237 KiB récupérables sur /about.
+
+        On annonce donc les largeurs réellement disponibles, et `sizes` tient
+        compte du conteneur `max-w-7xl` plutôt que du viewport entier : la
+        bannière ne fait jamais 1920 px de large.
+      */}
       <Picture
         src={backgroundImage}
         alt=""
         formats={['avif', 'webp']}
-        widths={[800, 1200, 1920]}
-        sizes="100vw"
+        widths={[480, 720]}
+        sizes="(min-width: 1280px) 1280px, 100vw"
         class="size-full object-cover"
         loading="lazy"
       />

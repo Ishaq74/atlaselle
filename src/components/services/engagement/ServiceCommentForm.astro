@@ -1,0 +1,42 @@
+---
+/**
+ * Formulaire de commentaire sur une prestation.
+ *
+ * Même découpage que `components/blog/engagement/BlogCommentForm.astro`.
+ */
+import type { Locale } from "@i18n/config";
+import { getServiceEngagementTranslations } from "@/modules/services/i18n/engagement";
+import EngagementCommentFormCard from "@/components/molecules/Engagement/EngagementCommentFormCard.astro";
+
+interface Props {
+  locale: Locale;
+  action: string;
+}
+
+const { locale, action } = Astro.props as Props;
+const t = getServiceEngagementTranslations(locale);
+---
+
+{/* Pas de champ nom/e-mail : le commentaire est rattaché à la session, un
+    visiteur ne peut pas en publier sans être connecté. */}
+<EngagementCommentFormCard
+  formId="service-comment-form"
+  action={action}
+  showGuestFields={false}
+  labels={{
+    title: t.submitComment,
+    content: t.commentContent,
+    submit: t.submitComment,
+    guestName: "",
+    guestEmail: "",
+    error: t.error,
+    submitted: t.success,
+  }}
+/>
+
+<script>
+  import { initServiceEngagementForms } from "@/modules/services/client/engagement-forms";
+
+  initServiceEngagementForms();
+  document.addEventListener("astro:after-swap", initServiceEngagementForms);
+</script>

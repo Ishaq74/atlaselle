@@ -9,22 +9,25 @@ export const carouselPrevious = tv({
   base: [
     "starwind-carousel-previous absolute size-8 rounded-full",
     // Horizontal positioning
-    "group-data-[axis=x]/carousel:top-1/2 group-data-[axis=x]/carousel:-left-12 group-data-[axis=x]/carousel:-translate-y-1/2",
+    "group-data-[axis=x]/carousel:top-1/2 group-data-[axis=x]/carousel:-start-12 group-data-[axis=x]/carousel:-translate-y-1/2",
     // Vertical positioning
     "group-data-[axis=y]/carousel:-top-12 group-data-[axis=y]/carousel:left-1/2 group-data-[axis=y]/carousel:-translate-x-1/2 group-data-[axis=y]/carousel:rotate-90",
   ],
 });
 
-type Props = ComponentProps<typeof Button>;
+type Props = ComponentProps<typeof Button> & {
+  /** Libellé accessible (à traduire par l'appelant). */
+  label?: string;
+};
 
-const { class: className = "", variant = "outline", size = "icon", ...rest } = Astro.props;
+const { class: className = "", variant = "outline", size = "icon", label = "Previous slide", ...rest } = Astro.props;
 ---
 
 <Button
   variant={variant}
   size={size}
   class={carouselPrevious({ class: className })}
-  aria-label="Previous slide"
+  aria-label={label}
   {...rest}
   data-slot="carousel-previous"
 >
@@ -32,6 +35,6 @@ const { class: className = "", variant = "outline", size = "icon", ...rest } = A
     <ArrowLeft class="rtl:-scale-x-100" />
   </slot>
   <slot>
-    <span class="sr-only">Previous slide</span>
+    <span class="sr-only">{label}</span>
   </slot>
 </Button>

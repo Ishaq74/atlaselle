@@ -35,6 +35,9 @@ interface Props extends HTMLAttributes<"section"> {
   description?: string;
   /** Array of testimonials */
   testimonials?: Testimonial[];
+  /** Libellés accessibles des flèches (à traduire par l'appelant). */
+  previousLabel?: string;
+  nextLabel?: string;
 }
 
 const testimonial1Styles = tv({
@@ -46,6 +49,8 @@ const {
   heading = "We Have Helped Over 2,000 Developers",
   description = "Join our community of developers and start building your next project today. We are here to help you every step of the way.",
   testimonials = [],
+  previousLabel = "Previous testimonial",
+  nextLabel = "Next testimonial",
   class: className,
   ...rest
 } = Astro.props;
@@ -72,20 +77,20 @@ const {
               class="rounded-full"
               variant="outline"
               size="icon"
-              aria-label="Previous testimonial"
+              aria-label={previousLabel}
             >
               <IconArrowLeft class="size-6 rtl:-scale-x-100" />
-              <span class="sr-only">Previous testimonial</span>
+              <span class="sr-only">{previousLabel}</span>
             </Button>
             <Button
               id="testimonials-01-next"
               class="rounded-full"
               variant="outline"
               size="icon"
-              aria-label="Next testimonial"
+              aria-label={nextLabel}
             >
               <IconArrowRight class="size-6 rtl:-scale-x-100" />
-              <span class="sr-only">Next testimonial</span>
+              <span class="sr-only">{nextLabel}</span>
             </Button>
           </div>
         </div>

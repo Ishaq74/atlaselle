@@ -1,7 +1,7 @@
 import rss from "@astrojs/rss";
 import type { APIRoute } from "astro";
 import { getPagesList } from "@database/loaders/page.loader";
-import { getBlogPosts } from "@database/loaders/blog.loader";
+import { getBlogPosts } from "@/modules/blog/loaders/blog.loader";
 import { LOCALES, DEFAULT_LOCALE, type Locale } from "@i18n/config";
 import { getCommonTranslations } from "@i18n/utils";
 import { buildBlogPostUrl } from "@/lib/blog/utils";

@@ -1,4 +1,4 @@
-import { eq, asc, isNull, desc, inArray, count, sql } from "drizzle-orm";
+import { and, eq, asc, isNull, isNotNull, desc, inArray, count, sql } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { cached } from "@database/cache";
 import { mediaFolders, mediaFiles, mediaFileAlts } from "@database/schemas";
@@ -98,21 +98,30 @@ export const getMediaFoldersList = cached(
 
 // ─── Files ───────────────────────────────────────────────────────────────────
 
-/** List files in a given folder (null = root). Includes all alt texts. */
+/** List files in a given folder (null = root). Includes all alt texts.
+ *  Pass `{ limit, offset }` to bound the result set (admin pagination);
+ *  without it the full folder listing is returned (legacy callers/tests). */
 export const getMediaFilesByFolder = cached(
-  (folderId: string | null) => `media:files:folder:${folderId ?? "root"}`,
-  async (folderId: string | null): Promise<MediaFileWithAlts[]> => {
+  (folderId: string | null, opts?: { limit?: number; offset?: number }) =>
+    `media:files:folder:${folderId ?? "root"}:${opts?.limit ?? "all"}:${opts?.offset ?? 0}`,
+  async (folderId: string | null, opts?: { limit?: number; offset?: number }): Promise<MediaFileWithAlts[]> => {
     const db = getDrizzle();
 
     const whereClause = folderId
       ? eq(mediaFiles.folderId, folderId)
       : isNull(mediaFiles.folderId);
 
-    const files = await db
+    let query = db
       .select()
       .from(mediaFiles)
       .where(whereClause)
-      .orderBy(desc(mediaFiles.createdAt));
+      .orderBy(desc(mediaFiles.createdAt))
+      .$dynamic();
+
+    if (opts?.limit !== undefined) query = query.limit(Math.max(1, opts.limit));
+    if (opts?.offset !== undefined && opts.offset > 0) query = query.offset(opts.offset);
+
+    const files = await query;
 
     if (files.length === 0) return [];
 
@@ -141,6 +150,61 @@ export const getMediaFilesByFolder = cached(
       createdAt: f.createdAt,
       alts: altsMap.get(f.id) ?? [],
     }));
+  },
+);
+
+/** Number of files in a given folder (null = root). Used for admin pagination. */
+export const countMediaFilesInFolder = cached(
+  (folderId: string | null) => `media:files:folder:${folderId ?? "root"}:count`,
+  async (folderId: string | null): Promise<number> => {
+    const db = getDrizzle();
+    const whereClause = folderId
+      ? eq(mediaFiles.folderId, folderId)
+      : isNull(mediaFiles.folderId);
+    const [row] = await db.select({ total: count() }).from(mediaFiles).where(whereClause);
+    return row?.total ?? 0;
+  },
+);
+
+export interface MediaDimensions {
+  url: string;
+  width: number;
+  height: number;
+}
+
+/**
+ * Résout les dimensions intrinsèques de médias à partir de leurs URLs (index unique `media_files_url_uidx`).
+ * Sert à poser width/height sur les images de ratio inconnu (logo du site) et à éviter le CLS.
+ */
+export const getMediaDimensionsByUrls = cached(
+  (...urls: (string | null | undefined)[]) => `media:dimensions:${urls.filter(Boolean).sort().join("|")}`,
+  async (...urls: (string | null | undefined)[]): Promise<Map<string, MediaDimensions>> => {
+    const wanted = urls.filter((url): url is string => typeof url === "string" && url.length > 0);
+    if (wanted.length === 0) return new Map();
+
+    const db = getDrizzle();
+    const rows = await db
+      .select({
+        url: mediaFiles.url,
+        width: mediaFiles.width,
+        height: mediaFiles.height,
+      })
+      .from(mediaFiles)
+      .where(
+        and(
+          inArray(mediaFiles.url, wanted),
+          isNotNull(mediaFiles.width),
+          isNotNull(mediaFiles.height),
+        ),
+      );
+
+    const result = new Map<string, MediaDimensions>();
+    for (const row of rows) {
+      if (row.width && row.height) {
+        result.set(row.url, { url: row.url, width: row.width, height: row.height });
+      }
+    }
+    return result;
   },
 );
 

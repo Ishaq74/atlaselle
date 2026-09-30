@@ -5,11 +5,11 @@ import { SEED_EMAIL } from './global-setup';
 /**
  * Accessibility contract of the mandatory star-rating control.
  *
- * `src/components/blog/comments/StarRating.astro` renders, next to a required
+ * `src/components/atoms/star-rating/StarRating.astro` renders, next to a required
  * radio group, a feedback region that is in the document from the first paint
  * and stays empty while the group is valid (`role="alert"`, `id="${name}-error"`,
- * StarRating.astro:120-130). A failed submission is the only thing that writes
- * into it (StarRating.astro:141-157), so that text is the *entire* announcement a
+ * StarRating.astro:125-130). A failed submission is the only thing that writes
+ * into it (StarRating.astro:140-157), so that text is the *entire* announcement a
  * screen reader makes for a rating the visitor was not allowed to leave empty.
  * It therefore has to be the sentence the page language carries, never the bare
  * value on the scale: `const errorMessage = invalidText ?? "0/5"`
@@ -96,9 +96,16 @@ async function dismissCookieBanner(page: import('@playwright/test').Page) {
   // `#cookie-consent` ships with the `hidden` class and its script removes it on
   // DOMContentLoaded, which `waitUntil: 'networkidle'` has already passed: the
   // state read here is final, so no wait and no race.
-  if (await banner.isVisible()) {
-    await page.locator('#cc-reject-all').click();
-  }
+  if (!(await banner.isVisible())) return;
+  const reject = page.locator('#cc-reject-all');
+  // Le bandeau attache son écouteur au chargement : un clic posé avant que le
+  // script soit prêt ne fait rien, et le bandeau continue de couvrir la page.
+  // On réessaie tant qu'il est là, plutôt que de laisser l'échec surfaces plus
+  // loin sur un « element intercepts pointer events » sans rapport.
+  await expect(async () => {
+    await reject.click({ timeout: 2_000 });
+    await expect(banner).toBeHidden({ timeout: 2_000 });
+  }).toPass({ timeout: 15_000 });
   await expect(banner, 'the cookie banner must not cover the review form').toBeHidden();
 }
 
@@ -203,8 +210,8 @@ test.describe('Star rating — required-field error announcement', () => {
       // Everything but the rating is filled: leaving exactly one mandatory control
       // empty is what makes the next click the failure path under test, instead of
       // an accident of which field the browser happens to reject first.
-      await form.locator('#review-title').fill(`E2E rating announcement ${seeded!.unique}`);
-      await form.locator('#review-content').fill(`E2E rating announcement body ${seeded!.unique}`);
+      await form.locator('[name="title"]').fill(`E2E rating announcement ${seeded!.unique}`);
+      await form.locator('[name="content"]').fill(`E2E rating announcement body ${seeded!.unique}`);
       await expect(form.locator('input[name="rating"]:checked')).toHaveCount(0);
 
       await form.locator('button[type="submit"]').click();

@@ -12,6 +12,7 @@ import { Label } from '@atoms/label';
 import { NativeSelect, NativeSelectOption } from '@atoms/native-select';
 import Badge from '@atoms/badge/Badge.astro';
 import MediaPicker from '@atoms/media-picker/MediaPicker.astro';
+import { getAdminDict } from '@i18n/admin';
 
 type PageRow = typeof pages.$inferSelect;
 type SectionRow = typeof pageSections.$inferSelect;
@@ -43,11 +44,14 @@ backUrl.searchParams.delete('edit');
   data-t-deleted={cms.deleted}
   data-t-error={t.admin.cms.common.error}
   data-t-confirm={t.admin.cms.common.confirmDelete}
+  data-confirm-label={getAdminDict(locale).common.confirm}
+  data-cancel-label={getAdminDict(locale).common.cancel}
   data-t-no-versions={cms.noVersions}
   data-t-restore-version={cms.restoreVersion}
   data-t-restore-version-confirm={cms.restoreVersionConfirm}
   data-t-version-restored={cms.versionRestored}
   data-t-snapshot-note-prompt={cms.snapshotNotePrompt}
+  data-t-snapshot-note-label={cms.snapshotNoteLabel}
   data-t-snapshot-created={cms.snapshotCreated}
   data-t-show-versions={cms.showVersions}
   data-t-hide-versions={cms.hideVersions}
@@ -139,7 +143,7 @@ backUrl.searchParams.delete('edit');
       ) : (
         <div class="space-y-4" id="sections-list">
           {sections.map((section, idx) => (
-            <div class="section-item border rounded-md p-4" data-id={section.id}>
+            <div class="section-item border rounded-md p-4" data-id={section.id} data-updated-at={section.updatedAt.toISOString()}>
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
                   <Badge variant="outline" size="sm">{section.type}</Badge>
@@ -186,6 +190,7 @@ backUrl.searchParams.delete('edit');
 <script>
   import { actions } from 'astro:actions';
   import { toast } from '@atoms/toast';
+  import { confirmAdminAction, promptAdminAction } from '@/core/admin';
 
   /** Escape user-controlled text before inserting into innerHTML. */
   function esc(s: string): string {
@@ -204,9 +209,11 @@ backUrl.searchParams.delete('edit');
       const tRestoreVersionConfirm = this.dataset.tRestoreVersionConfirm ?? '';
       const tVersionRestored = this.dataset.tVersionRestored ?? '';
       const tSnapshotNotePrompt = this.dataset.tSnapshotNotePrompt ?? '';
+      const tSnapshotNoteLabel = this.dataset.tSnapshotNoteLabel ?? '';
       const tSnapshotCreated = this.dataset.tSnapshotCreated ?? '';
       const tShowVersions = this.dataset.tShowVersions ?? '';
       const tHideVersions = this.dataset.tHideVersions ?? '';
+      const ask = (message: string) => confirmAdminAction({ title: message, message, confirmLabel: this.dataset.confirmLabel || 'OK', cancelLabel: this.dataset.cancelLabel || '' });
 
       // ─── Save page metadata ───
       this.querySelector('#page-meta-form')?.addEventListener('submit', async (e) => {
@@ -247,13 +254,18 @@ backUrl.searchParams.delete('edit');
       this.querySelectorAll<HTMLElement>('.save-section-btn').forEach((btn) => {
         btn.addEventListener('click', async () => {
           const id = btn.dataset.id!;
+          const item = btn.closest<HTMLElement>('.section-item');
           const textarea = this.querySelector<HTMLTextAreaElement>(`.section-content-input[data-id="${id}"]`);
           if (!textarea) return;
-          const { error } = await actions.updateSection({
+          const { data, error } = await actions.updateSection({
             id,
             content: textarea.value,
+            expectedUpdatedAt: item?.dataset.updatedAt || undefined,
           });
-          if (!error) toast.success(tSaved);
+          if (!error) {
+            if (item && data?.updatedAt) item.dataset.updatedAt = new Date(data.updatedAt).toISOString();
+            toast.success(tSaved);
+          }
           else toast.error(error.message ?? tError);
         });
       });
@@ -263,7 +275,8 @@ backUrl.searchParams.delete('edit');
         btn.addEventListener('click', async () => {
           const id = btn.dataset.id!;
           const isVisible = btn.dataset.visible === 'true';
-          const { error } = await actions.updateSection({ id, isVisible: !isVisible });
+          const item = btn.closest<HTMLElement>('.section-item');
+          const { error } = await actions.updateSection({ id, isVisible: !isVisible, expectedUpdatedAt: item?.dataset.updatedAt || undefined });
           if (!error) location.reload();
           else toast.error(error.message ?? tError);
         });
@@ -272,7 +285,7 @@ backUrl.searchParams.delete('edit');
       // ─── Delete section ───
       this.querySelectorAll<HTMLElement>('.delete-section-btn').forEach((btn) => {
         btn.addEventListener('click', async () => {
-          if (!confirm(tConfirm)) return;
+          if (!(await ask(tConfirm))) return;
           const id = btn.dataset.id!;
           const { error } = await actions.deleteSection({ id });
           if (!error) {
@@ -343,8 +356,8 @@ backUrl.searchParams.delete('edit');
           <div class="flex items-center justify-between border rounded px-3 py-2 text-sm">
             <div>
               <span class="font-medium">v${v.versionNumber}</span>
-              <span class="text-muted-foreground ml-2">${new Date(v.createdAt).toLocaleString()}</span>
-              ${v.note ? `<span class="text-muted-foreground ml-2">— ${esc(String(v.note))}</span>` : ''}
+              <span class="text-muted-foreground ms-2">${new Date(v.createdAt).toLocaleString()}</span>
+              ${v.note ? `<span class="text-muted-foreground ms-2">— ${esc(String(v.note))}</span>` : ''}
             </div>
             <button class="restore-version-btn text-xs underline text-primary hover:text-primary/80" data-version-id="${esc(String(v.id))}">
               ${esc(tRestoreVersion)}
@@ -354,7 +367,7 @@ backUrl.searchParams.delete('edit');
         // Bind restore buttons
         versionsList.querySelectorAll<HTMLElement>('.restore-version-btn').forEach((btn) => {
           btn.addEventListener('click', async () => {
-            if (!confirm(tRestoreVersionConfirm)) return;
+            if (!(await ask(tRestoreVersionConfirm))) return;
             const versionId = btn.dataset.versionId!;
             const { error: restoreErr } = await actions.restorePageVersion({ versionId });
             if (!restoreErr) { toast.success(tVersionRestored); location.reload(); }
@@ -364,7 +377,13 @@ backUrl.searchParams.delete('edit');
       };
 
       createVersionBtn?.addEventListener('click', async () => {
-        const note = prompt(tSnapshotNotePrompt);
+        const note = await promptAdminAction({
+          title: tSnapshotNotePrompt,
+          inputLabel: tSnapshotNoteLabel,
+          confirmLabel: this.dataset.confirmLabel ?? '',
+          cancelLabel: this.dataset.cancelLabel ?? '',
+        });
+        if (note === null) return;
         const { error } = await actions.createPageVersion({
           pageId,
           ...(note ? { note } : {}),
@@ -390,4 +409,11 @@ backUrl.searchParams.delete('edit');
   }
 
   customElements.define('sections-editor', SectionsEditor);
+</script>
+
+<script>
+  import { registerAdminDirtyGuard } from "@/core/admin/dirty-guard";
+
+  registerAdminDirtyGuard();
+  document.addEventListener("astro:after-swap", () => registerAdminDirtyGuard());
 </script>

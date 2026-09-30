@@ -7,9 +7,11 @@ type Variant = "default" | "success" | "error" | "warning" | "info" | "loading";
 
 interface Props {
   variant: Variant;
+  /** Libellé du bouton de fermeture, propagé au gabarit de toast. */
+  closeLabel?: string;
 }
 
-const { variant } = Astro.props;
+const { variant, closeLabel } = Astro.props;
 
 // Loading variant uses default item styling but loading title styling
 const itemVariant = variant === "loading" ? "default" : variant;
@@ -17,7 +19,7 @@ const itemVariant = variant === "loading" ? "default" : variant;
 
 <template data-toast-template={variant}>
   <slot>
-    <ToastItem variant={itemVariant}>
+    <ToastItem variant={itemVariant} closeLabel={closeLabel}>
       <ToastTitle variant={variant}>Title</ToastTitle>
       <ToastDescription>Description</ToastDescription>
     </ToastItem>

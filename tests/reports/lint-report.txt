@@ -2,3 +2,34 @@
 > atlaselle@0.0.1 lint C:\Users\Utilisateur\Documents\t3code\atlaselle
 > eslint "src/**/*.{js,ts,astro}"
 
+
+C:\Users\Utilisateur\Documents\t3code\atlaselle\src\components\blog\cards\PostCard.astro
+  168:3  warning  Unused CSS selector `.post-card`                                      astro/no-unused-css-selector
+  188:3  warning  Unused CSS selector `.post-card__image`                               astro/no-unused-css-selector
+  196:3  warning  Unused CSS selector `.post-card__link:hover .post-card__image`        astro/no-unused-css-selector
+  225:3  warning  Unused CSS selector `.post-card__header`                              astro/no-unused-css-selector
+  242:3  warning  Unused CSS selector `.post-card__title`                               astro/no-unused-css-selector
+  256:3  warning  Unused CSS selector `.post-card__title-link:hover .post-card__title`  astro/no-unused-css-selector
+  260:3  warning  Unused CSS selector `.post-card__content`                             astro/no-unused-css-selector
+  275:3  warning  Unused CSS selector `.post-card__footer`                              astro/no-unused-css-selector
+  309:3  warning  Unused CSS selector `.post-card__author-icon`                         astro/no-unused-css-selector
+  321:3  warning  Unused CSS selector `.post-card__read-more`                           astro/no-unused-css-selector
+  325:3  warning  Unused CSS selector `.post-card__read-more :global(svg)`              astro/no-unused-css-selector
+  331:3  warning  Unused CSS selector `.post-card--retro .post-card__image-wrap`        astro/no-unused-css-selector
+  336:3  warning  Unused CSS selector `.post-card--retro .post-card__badges`            astro/no-unused-css-selector
+  342:3  warning  Unused CSS selector `.post-card--retro .post-card__title`             astro/no-unused-css-selector
+  346:3  warning  Unused CSS selector `.post-card--retro .post-card__date`              astro/no-unused-css-selector
+  350:3  warning  Unused CSS selector `.post-card--compact .post-card__image-wrap`      astro/no-unused-css-selector
+  354:3  warning  Unused CSS selector `.post-card--compact .post-card__excerpt`         astro/no-unused-css-selector
+  358:3  warning  Unused CSS selector `.post-card--modern .post-card__image-wrap`       astro/no-unused-css-selector
+  363:3  warning  Unused CSS selector `.post-card--modern .post-card__badges`           astro/no-unused-css-selector
+
+C:\Users\Utilisateur\Documents\t3code\atlaselle\src\components\molecules\Engagement\EngagementReactionButtons.astro
+  86:10  error  Parsing error: Unknown token at 2856, expected: "*", actual: "/* `reacti"
+
+C:\Users\Utilisateur\Documents\t3code\atlaselle\src\components\pages\AboutPage\ValuesSection.astro
+  104:14  error  Parsing error: Unknown token at 3942, expected: "*", actual: "/* La gril"
+
+✖ 21 problems (2 errors, 19 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.

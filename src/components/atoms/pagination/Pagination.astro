@@ -2,16 +2,19 @@
 import type { HTMLAttributes } from "astro/types";
 import { tv } from "tailwind-variants";
 
-type Props = HTMLAttributes<"nav">;
+type Props = HTMLAttributes<"nav"> & {
+  /** Libellé accessible de la navigation de pagination (à traduire par l'appelant). */
+  label?: string;
+};
 
 export const pagination = tv({ base: "mx-auto flex w-full justify-center" });
 
-const { class: className, ...rest } = Astro.props;
+const { class: className, label = "Pagination", ...rest } = Astro.props;
 ---
 
 <nav
   role="navigation"
-  aria-label="pagination"
+  aria-label={label}
   class={pagination({ class: className })}
   {...rest}
   data-slot="pagination"

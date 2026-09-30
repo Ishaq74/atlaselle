@@ -1,14 +1,14 @@
 ---
 import { requirePermission } from "@/lib/auth-guards";
 import { getBlogTranslations } from "@i18n/utils";
-import { getBlogCategories, getBlogTags } from "@database/loaders/blog.loader";
-import { getBlogPostEditorData } from "@database/loaders/blog-admin-editor.loader";
+import { getBlogCategories, getBlogTags } from "@/modules/blog/loaders/blog.loader";
+import { getBlogPostEditorData } from "@/modules/blog/loaders/admin/blog-admin-editor.loader";
 import { hasBlogPermission } from "@/actions/blog/_helpers";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
 import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
 import AdminFormShell from "@organisms/AdminFormShell.astro";
-import AdminPostForm from "@/components/blog/AdminPostForm.astro";
+import AdminPostForm from "@/components/blog/admin/AdminPostForm.astro";
 import type { BlogPostEditorData } from "@/lib/blog/editor-types";
 
 export const prerender = false;

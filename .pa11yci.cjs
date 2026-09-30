@@ -82,9 +82,32 @@ for (const lang of locales) {
   }
 }
 
-// Admin pages (admin cookie) — all admin routes
+// Admin pages (admin cookie) — every admin route, not just the CMS ones.
+// The full list matters: the audit that found `aria-prohibited-attr` on the
+// home page had only walked 5 admin screens, so a regression in `users`,
+// `media` or `policies` would have stayed invisible. Screens whose data comes
+// from seeded content still render their empty state and are still audited.
 const adminUrls = [];
-const adminPages = ['stats', 'site', 'navigation', 'theme', 'blog'];
+const adminPages = [
+  'stats',
+  'audit',
+  'users',
+  'roles',
+  'site',
+  'navigation',
+  'theme',
+  'pages',
+  'media',
+  'blog',
+  'services',
+  'trips',
+  'applications',
+  'reservations',
+  'payments',
+  'travelers',
+  'emails',
+  'policies',
+];
 for (const lang of locales) {
   for (const page of adminPages) {
     adminUrls.push({
@@ -100,6 +123,21 @@ module.exports = {
     runners: ['axe'],
     timeout: 30000,
     wait: 1000,
+    /**
+     * Pa11y-ci audit les URL via UNE instance Chrome unique partagee
+     * (`testBrowser`, lib/pa11y-ci.js) : le runner n'est pas concu pour la
+     * concurrence. Avec `concurrency: 4`, la mesure donnait 140 s au lieu de
+     * 462 s — mais seules 32 des 112 pages etaient auditees, les autres
+     * echouant sur « Protocol error (Target.closeTarget) » : un onglet ferme
+     * par un autre worker. Le gain etait donc une illusion, pas une
+     * acceleration.
+     *
+     * `useIncognitoBrowserContext` est ce qui rend le partage sur ; le laisser
+     * actif est la seule option fiable avec ce runner.
+     *
+     * On garde donc 1 et on ne triche pas sur le nombre de pages auditees.
+     */
+    concurrency: 1,
     chromeLaunchConfig: {
       executablePath: findChrome(),
       args: ['--no-sandbox', '--disable-setuid-sandbox'],

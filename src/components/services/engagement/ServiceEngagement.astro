@@ -1,0 +1,83 @@
+---
+/**
+ * Engagement d'une prestation — chef d'orchestre.
+ *
+ * Même architecture que `components/trips/engagement/TripEngagement.astro` :
+ *
+ *   - la présentation vient des atomes partagés de `molecules/Engagement` ;
+ *   - les données viennent du loader `loadServiceEngagement` ;
+ *   - la traduction domaine → contrats est dans `engagement/adapter.ts` ;
+ *   - le branchement des actions est dans `client/`.
+ *
+ * Le composant ne touche pas la base et ne contient aucun script métier.
+ */
+import type { Locale } from "@i18n/config";
+import { getServiceEngagementTranslations } from "@/modules/services/i18n/engagement";
+import { loadServiceEngagement } from "@/modules/services/loaders/service-engagement.loader";
+import ServiceEngagementBar from "@/components/services/engagement/ServiceEngagementBar.astro";
+import ServiceReviewSection from "@/components/services/engagement/ServiceReviewSection.astro";
+import ServiceCommentSection from "@/components/services/engagement/ServiceCommentSection.astro";
+
+interface Props {
+  serviceId: string;
+  locale: Locale;
+  /** URL canonique de la prestation, pour le partage. */
+  canonicalUrl?: string | null;
+  /** Titre partagé. */
+  serviceTitle?: string | null;
+}
+
+const { serviceId, locale, canonicalUrl, serviceTitle } = Astro.props as Props;
+
+const viewerId = Astro.locals.user?.id ?? null;
+const t = getServiceEngagementTranslations(locale);
+const action = Astro.url.pathname;
+
+const {
+  reviews,
+  comments,
+  isFavorite,
+  viewerReaction,
+  reactionCounts,
+  viewerHelpfulByReview,
+} = await loadServiceEngagement(serviceId, viewerId);
+
+const isSignedIn = Boolean(viewerId);
+---
+
+<section class="mt-14 space-y-10" data-service-engagement>
+  <ServiceEngagementBar
+    serviceId={serviceId}
+    locale={locale}
+    isSignedIn={isSignedIn}
+    isFavorite={isFavorite}
+    viewerReaction={viewerReaction}
+    reactionCounts={reactionCounts}
+    url={canonicalUrl ?? Astro.url.href}
+    title={serviceTitle ?? t.reviewTitle}
+  />
+
+  <p data-service-engagement-status class="text-sm" aria-live="polite"></p>
+
+  <ServiceReviewSection
+    reviews={reviews}
+    helpfulByReview={viewerHelpfulByReview}
+    isSignedIn={isSignedIn}
+    locale={locale}
+    action={action}
+  />
+
+  <ServiceCommentSection
+    comments={comments}
+    isSignedIn={isSignedIn}
+    locale={locale}
+    action={action}
+  />
+</section>
+
+<script>
+  import { bindServiceEngagement } from "@/modules/services/client/engagement";
+
+  bindServiceEngagement();
+  document.addEventListener("astro:after-swap", bindServiceEngagement);
+</script>

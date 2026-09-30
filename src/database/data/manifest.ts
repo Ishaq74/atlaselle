@@ -23,6 +23,8 @@ export const seedManifest: SeedEntry[] = [
   { dataFile: '08-theme.data.ts', schemaExport: 'themeSettings', label: 'theme settings' },
   { dataFile: '09-legal-pages.data.ts', schemaExport: 'pages', label: 'legal pages' },
   { dataFile: '09b-legal-sections.data.ts', schemaExport: 'pageSections', label: 'legal page sections' },
+  { dataFile: '09c-legal-terms-sections.data.ts', schemaExport: 'pageSections', label: 'booking terms sections' },
+  { dataFile: '09d-legal-insurance-sections.data.ts', schemaExport: 'pageSections', label: 'travel insurance sections' },
   { dataFile: '10-consent-settings.data.ts', schemaExport: 'consentSettings', label: 'consent settings' },
 
   { dataFile: '11-blog-categories.data.ts', schemaExport: 'blogCategories', label: 'blog categories' },

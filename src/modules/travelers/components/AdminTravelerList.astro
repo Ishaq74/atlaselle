@@ -1,6 +1,12 @@
 ---
 import type { Locale } from "@i18n/config";
 import type { loadAdminTravelers } from "@/modules/travelers/loaders/admin-travelers.loader";
+import { getAdminDict } from "@i18n/admin";
+import { AdminResourceShell, DataView } from "@/core/admin";
+import AdminPagination from "@molecules/AdminPagination/AdminPagination.astro";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@atoms/table";
+import { Badge } from "@atoms/badge";
+import Button from "@atoms/button/Button.astro";
 
 type Row = Awaited<ReturnType<typeof loadAdminTravelers>>["rows"][number];
 
@@ -14,73 +20,168 @@ interface Props {
 
 const { rows, meta, locale, baseUrl, search } = Astro.props;
 const totalPages = Math.max(1, Math.ceil(meta.total / meta.pageSize));
-const t = locale === "fr"
-  ? { title: "Voyageuses", search: "Rechercher (email, nom)", applications: "Candidatures", reservations: "Réservations", verified: "Vérifié", export: "Export", anonymize: "Anonymiser", confirmAnonymize: "Anonymiser définitivement ce dossier (transactions conservées sans PII) ?", prev: "←", next: "→", of: "sur" }
-  : { title: "Travelers", search: "Search (email, name)", applications: "Applications", reservations: "Bookings", verified: "Verified", export: "Export", anonymize: "Anonymize", confirmAnonymize: "Permanently anonymize this file (transactions kept without PII)?", prev: "←", next: "→", of: "of" };
+const dict = getAdminDict(locale);
+const t = dict.travelers;
+const c = dict.common;
+const col = dict.columns;
+const hasFilters = Boolean(search);
+const paginationUrl = new URL(Astro.url.href);
 ---
-<section class="mx-auto max-w-6xl px-6 py-10">
-  <h1 class="text-3xl font-bold">{t.title} ({meta.total})</h1>
-  <form method="get" class="mt-6 flex flex-wrap gap-3 text-sm">
-    <input type="search" name="search" value={search ?? ""} placeholder={t.search} class="rounded-md border bg-background px-3 py-1.5" />
-    <button type="submit" class="rounded-md bg-primary px-4 py-1.5 font-semibold text-primary-foreground">OK</button>
-  </form>
-  <div class="mt-6 overflow-x-auto rounded-xl border">
-    <table class="w-full text-left text-sm">
-      <thead class="bg-muted/60">
-        <tr><th class="px-4 py-2">Email</th><th class="px-4 py-2">Nom</th><th class="px-4 py-2">{t.verified}</th><th class="px-4 py-2">{t.applications}</th><th class="px-4 py-2">{t.reservations}</th><th class="px-4 py-2"></th></tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr class="border-t" data-traveler-id={row.id}>
-            <td class="px-4 py-2 font-medium">{row.email}</td>
-            <td class="px-4 py-2">{row.legalName ?? "—"}</td>
-            <td class="px-4 py-2">{row.emailVerifiedAt ? "✓" : "—"}</td>
-            <td class="px-4 py-2">{row.applicationsCount}</td>
-            <td class="px-4 py-2">{row.reservationsCount}</td>
-            <td class="px-4 py-2 text-right">
-              <button type="button" class="text-primary underline" data-export>{t.export}</button>
-              {" · "}
-              <button type="button" class="text-red-600 underline" data-anonymize data-confirm={t.confirmAnonymize}>{t.anonymize}</button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+
+<AdminResourceShell title={`${t.title} (${meta.total})`}>
+  <div class="space-y-4 p-4 md:p-6">
+    <input type="hidden" data-travelers-i18n data-error={c.error} data-anonymize-title={t.anonymize} data-anonymize-message={t.confirmAnonymize} data-confirm-label={c.confirm} data-cancel-label={c.cancel} data-export-done={t.exportDone} />
+
+    <form method="get" class="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3" data-admin-filters aria-label={c.filter}>
+      <div class="flex flex-col gap-1">
+        <label for="traveler-filter-search" class="text-sm font-medium">{c.search}</label>
+        <input
+          id="traveler-filter-search"
+          type="search"
+          name="search"
+          value={search ?? ""}
+          placeholder={t.searchPlaceholder}
+          class="h-9 rounded-md border bg-background px-3"
+        />
+      </div>
+      <div class="flex items-end gap-2">
+        <Button type="submit" size="sm" variant="primary">{c.search}</Button>
+        <Button size="sm" variant="outline" href={baseUrl}>{c.reset}</Button>
+      </div>
+    </form>
+
+    <DataView
+      listLabel={dict.views.list}
+      tableLabel={dict.views.table}
+      cardsLabel={dict.views.cards}
+      showModeSelector={rows.length > 0}
+    >
+      {/* Slots directs exigés : un slot nommé dans une expression
+          conditionnelle n'est pas enregistré par Astro — donc plus de
+          sélecteur de vue et trois vues empilées. */}
+          <div slot="table">
+          {rows.length === 0 ? (
+            <div class="rounded-lg border border-dashed p-10 text-center">
+          <p class="font-medium">{c.noResults}</p>
+          <p class="mt-1 text-sm text-muted-foreground">{c.noResultsHint}</p>
+          {hasFilters ? <Button class="mt-4" size="sm" variant="outline" href={baseUrl}>{c.clearFilters}</Button> : null}
+            </div>
+          ) : (
+          <Table aria-label={t.title}>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">{col.email}</TableHead>
+                <TableHead scope="col">{col.name}</TableHead>
+                <TableHead scope="col">{col.verified}</TableHead>
+                <TableHead scope="col">{col.applications}</TableHead>
+                <TableHead scope="col">{col.reservations}</TableHead>
+                <TableHead scope="col"><span class="sr-only">{c.actions}</span></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow data-traveler-id={row.id}>
+                  <TableCell class="font-medium">{row.email}</TableCell>
+                  <TableCell>{row.legalName ?? "—"}</TableCell>
+                  <TableCell>{row.emailVerifiedAt ? <Badge variant="success" size="sm">{c.yes}</Badge> : <span class="text-muted-foreground">{c.no}</span>}</TableCell>
+                  <TableCell>{row.applicationsCount}</TableCell>
+                  <TableCell>{row.reservationsCount}</TableCell>
+                  <TableCell class="text-end whitespace-nowrap">
+                    <Button size="sm" variant="ghost" data-export>{t.exportLabel}</Button>
+                    <Button size="sm" variant="error" data-anonymize>{t.anonymize}</Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          )}
+          </div>
+
+          <div slot="list" class="divide-y rounded-lg border" hidden={rows.length === 0}>
+            {rows.map((row) => (
+              <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3" data-traveler-id={row.id}>
+                <div class="min-w-0">
+                  <p class="truncate font-medium">{row.email}</p>
+                  <p class="truncate text-xs text-muted-foreground">
+                    {row.legalName ?? t.name} · {col.applications}: {row.applicationsCount} · {col.reservations}: {row.reservationsCount}
+                  </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <Button size="sm" variant="ghost" data-export>{t.exportLabel}</Button>
+                  <Button size="sm" variant="error" data-anonymize>{t.anonymize}</Button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div slot="cards" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" hidden={rows.length === 0}>
+            {rows.map((row) => (
+              <article class="flex flex-col gap-3 rounded-lg border p-4" data-traveler-id={row.id}>
+                <div class="flex items-start justify-between gap-2">
+                  <h3 class="min-w-0 truncate font-medium">{row.email}</h3>
+                  {row.emailVerifiedAt ? <Badge variant="success" size="sm">{col.verified}</Badge> : null}
+                </div>
+                <dl class="grid grid-cols-2 gap-2 text-sm">
+                  <div class="col-span-2"><dt class="text-muted-foreground">{col.name}</dt><dd class="truncate">{row.legalName ?? "—"}</dd></div>
+                  <div><dt class="text-muted-foreground">{col.applications}</dt><dd>{row.applicationsCount}</dd></div>
+                  <div><dt class="text-muted-foreground">{col.reservations}</dt><dd>{row.reservationsCount}</dd></div>
+                </dl>
+                <div class="mt-auto flex justify-end gap-2">
+                  <Button size="sm" variant="ghost" data-export>{t.exportLabel}</Button>
+                  <Button size="sm" variant="error" data-anonymize>{t.anonymize}</Button>
+                </div>
+              </article>
+            ))}
+          </div>
+    </DataView>
+
+    <AdminPagination currentPage={meta.page} totalPages={totalPages} baseUrl={paginationUrl} />
   </div>
-  <nav class="mt-4 flex items-center gap-3 text-sm" aria-label="Pagination">
-    {meta.page > 1 ? <a class="rounded-md border px-3 py-1" href={`${baseUrl}?page=${meta.page - 1}${search ? `&search=${encodeURIComponent(search)}` : ""}`}>{t.prev}</a> : null}
-    <span>{meta.page} {t.of} {totalPages}</span>
-    {meta.page < totalPages ? <a class="rounded-md border px-3 py-1" href={`${baseUrl}?page=${meta.page + 1}${search ? `&search=${encodeURIComponent(search)}` : ""}`}>{t.next}</a> : null}
-  </nav>
-</section>
+</AdminResourceShell>
 
 <script>
   import { actions } from "astro:actions";
-  document.querySelectorAll("[data-export]").forEach((btn) => {
+  import { toast } from "@atoms/toast";
+  import { confirmAdminAction } from "@/core/admin";
+
+  const i18n = document.querySelector<HTMLInputElement>("[data-travelers-i18n]");
+
+  document.querySelectorAll<HTMLButtonElement>("[data-export]").forEach((btn) => {
+    if (btn.dataset.bound === "true") return;
+    btn.dataset.bound = "true";
     btn.addEventListener("click", async () => {
-      const row = (btn as HTMLElement).closest("[data-traveler-id]");
-      const id = row?.getAttribute("data-traveler-id") ?? "";
+      const id = btn.closest<HTMLElement>("[data-traveler-id]")?.getAttribute("data-traveler-id") ?? "";
       if (!id) return;
       const { data, error } = await actions.exportTravelerData({ id });
       if (error || !data) {
-        alert(error?.message ?? "Error");
+        toast.error(error?.message ?? i18n?.dataset.error ?? "");
         return;
       }
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `traveler-${id}.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `traveler-${id}.json`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      toast.success(i18n?.dataset.exportDone ?? "");
     });
   });
-  document.querySelectorAll("[data-anonymize]").forEach((btn) => {
+
+  document.querySelectorAll<HTMLButtonElement>("[data-anonymize]").forEach((btn) => {
+    if (btn.dataset.bound === "true") return;
+    btn.dataset.bound = "true";
     btn.addEventListener("click", async () => {
-      const row = (btn as HTMLElement).closest("[data-traveler-id]");
-      const id = row?.getAttribute("data-traveler-id") ?? "";
-      if (!id || !window.confirm((btn as HTMLElement).dataset.confirm ?? "OK")) return;
+      const id = btn.closest<HTMLElement>("[data-traveler-id]")?.getAttribute("data-traveler-id") ?? "";
+      if (!id) return;
+      const ok = await confirmAdminAction({
+        title: i18n?.dataset.anonymizeTitle ?? "",
+        message: i18n?.dataset.anonymizeMessage ?? "",
+        confirmLabel: i18n?.dataset.confirmLabel ?? "OK",
+        cancelLabel: i18n?.dataset.cancelLabel ?? "",
+      });
+      if (!ok) return;
       const { error } = await actions.anonymizeTraveler({ id });
-      if (error) alert(error.message);
+      if (error) toast.error(error.message ?? i18n?.dataset.error ?? "");
       else window.location.reload();
     });
   });

@@ -10,6 +10,7 @@ import { Input } from '@atoms/input';
 import { Label } from '@atoms/label';
 import Button from '@atoms/button/Button.astro';
 import Badge from '@atoms/badge/Badge.astro';
+import { getAdminDict } from '@i18n/admin';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@atoms/tabs';
 import {
   Select,
@@ -37,7 +38,7 @@ interface Props {
   themes: ThemeRow[];
 }
 
-const { t, themes } = Astro.props;
+const { t, themes, locale } = Astro.props;
 const cms = t.admin.cms.theme;
 
 function resolveTokens(th: ThemeRow, mode: 'light' | 'dark'): Record<ThemeTokenKey, string> {
@@ -58,6 +59,8 @@ function tokenLabel(key: string): string {
   data-t-error={t.admin.cms.common.error}
   data-t-cannot-delete={cms.cannotDeleteActive}
   data-t-confirm-delete={t.admin.cms.common.confirmDelete}
+  data-confirm-label={getAdminDict(locale).common.confirm}
+  data-cancel-label={getAdminDict(locale).common.cancel}
   data-defaults-light={JSON.stringify(DEFAULT_LIGHT_TOKENS)}
   data-defaults-dark={JSON.stringify(DEFAULT_DARK_TOKENS)}
 >
@@ -402,7 +405,7 @@ function tokenLabel(key: string): string {
                           <span class="wcag-ratio text-[9px] text-muted-foreground" data-wcag-ratio>-:1</span>
                         </div>
                         {/* Color dot pair */}
-                        <div class="ml-auto flex gap-0.5">
+                        <div class="ms-auto flex gap-0.5">
                           <span class="wcag-dot-bg inline-block size-2.5 rounded-full border border-border/60" data-wcag-dot-bg/>
                           <span class="wcag-dot-fg inline-block size-2.5 rounded-full border border-border/60" data-wcag-dot-fg/>
                         </div>
@@ -491,6 +494,7 @@ function tokenLabel(key: string): string {
 <script>
   import { actions } from 'astro:actions';
   import { toast } from '@atoms/toast';
+  import { confirmAdminAction } from '@/core/admin';
 
   /* ── OKLCH ↔ sRGB hex conversion ─────────────────────────────── */
 
@@ -891,7 +895,7 @@ function tokenLabel(key: string): string {
           const card = btn.closest('.theme-card') as HTMLElement;
           const id = card?.dataset.themeId;
           if (!id) return;
-          if (!confirm(tConfirmDelete)) return;
+          if (!(await confirmAdminAction({ title: tConfirmDelete, message: tConfirmDelete, confirmLabel: this.dataset.confirmLabel || 'OK', cancelLabel: this.dataset.cancelLabel || '' }))) return;
           const { error } = await actions.deleteTheme({ id });
           if (!error) {
             toast.success(tDeleted);
@@ -949,3 +953,10 @@ function tokenLabel(key: string): string {
     transition: transform 0.2s ease;
   }
 </style>
+
+<script>
+  import { registerAdminDirtyGuard } from "@/core/admin/dirty-guard";
+
+  registerAdminDirtyGuard();
+  document.addEventListener("astro:after-swap", () => registerAdminDirtyGuard());
+</script>

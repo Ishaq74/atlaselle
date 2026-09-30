@@ -8,6 +8,7 @@ import { Toaster } from "@atoms/toast";
 import { CookieConsent } from "@organisms/CookieConsent";
 import { getSiteSettings, getSocialLinks, getActiveThemeCss } from "@database/loaders/site.loader";
 import { getConsentSettings } from "@database/loaders/consent.loader";
+import { getMediaDimensionsByUrls } from "@database/loaders/media.loader";
 import { safeJsonLd } from "@/lib/sanitize";
 import { getMenu, getMenuMeta, type NavTreeItem } from "@database/loaders/navigation.loader";
 
@@ -48,6 +49,13 @@ const [siteData, dbSocialLinks, headerNav, footerPrimary, footerSecondary, foote
 ]);
 
 const siteName = siteData?.siteName ?? "ATLASELLE";
+
+// Dimensions reelles du logo CMS : width/height explicites pour eviter le CLS (audit Lighthouse `unsized-images`).
+const logoDimensions = await getMediaDimensionsByUrls(siteData?.logoLight, siteData?.logoDark);
+const logoLight = siteData?.logoLight ?? null;
+const logoDark = siteData?.logoDark ?? null;
+const logoLightDims = logoLight ? logoDimensions.get(logoLight) : undefined;
+const logoDarkDims = logoDark ? logoDimensions.get(logoDark) : undefined;
 const metaTitle = titleOverride ?? siteData?.metaTitle ?? t.meta.title;
 const metaDesc = descriptionOverride ?? siteData?.metaDescription ?? t.meta.description;
 
@@ -155,8 +163,12 @@ const toAbsUrl = (u: string) => new URL(u, Astro.url.origin).href;
     )}
     <Header
         siteName={siteName}
-        logoLightUrl={siteData?.logoLight}
-        logoDarkUrl={siteData?.logoDark}
+        logoLightUrl={logoLight}
+        logoDarkUrl={logoDark}
+        logoLightWidth={logoLightDims?.width}
+        logoLightHeight={logoLightDims?.height}
+        logoDarkWidth={logoDarkDims?.width}
+        logoDarkHeight={logoDarkDims?.height}
         links={links}
         ctaText={siteData?.headerCtaText || t.cta.getStarted}
         ctaHref={siteData?.headerCtaUrl || `/${locale}/`}
@@ -181,7 +193,7 @@ const toAbsUrl = (u: string) => new URL(u, Astro.url.origin).href;
         navSecondaryHeading={navSecondaryHeading}
         legalHeading={legalHeading}
     />
-    <Toaster position="bottom-right" />
+    <Toaster position="bottom-right" closeLabel={t.a11y.closeNotification} viewportLabel={t.a11y.notifications} />
     {consentData?.isActive && <CookieConsent consent={consentData} />}
     <script>
       import { authClient } from '@/lib/auth-client';

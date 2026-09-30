@@ -26,6 +26,12 @@ type Props = HTMLAttributes<"div"> & {
    * @default "offcanvas"
    */
   collapsible?: "offcanvas" | "icon" | "none";
+  /** Titre (sr-only) du panneau mobile — à traduire par l'appelant. */
+  mobileTitle?: string;
+  /** Description (sr-only) du panneau mobile — à traduire par l'appelant. */
+  mobileDescription?: string;
+  /** Libellé du bouton de fermeture du panneau mobile. */
+  mobileCloseLabel?: string;
 };
 
 export const sidebar = tv({
@@ -96,6 +102,9 @@ const {
   side = "left",
   variant = "sidebar",
   collapsible = "offcanvas",
+  mobileTitle = "Sidebar",
+  mobileDescription = "Mobile navigation sidebar",
+  mobileCloseLabel = "Close dialog",
   class: className,
   ...rest
 } = Astro.props;
@@ -144,11 +153,12 @@ const SIDEBAR_WIDTH_MOBILE = "18rem";
         <SheetContent
           side={side}
           class={sidebarMobileContent()}
+          closeLabel={mobileCloseLabel}
           style={{ "--sidebar-width": SIDEBAR_WIDTH_MOBILE }}
         >
           <SheetHeader class="sr-only">
-            <SheetTitle>Sidebar</SheetTitle>
-            <SheetDescription>Mobile navigation sidebar</SheetDescription>
+            <SheetTitle>{mobileTitle}</SheetTitle>
+            <SheetDescription>{mobileDescription}</SheetDescription>
           </SheetHeader>
           <div class="flex h-full w-full flex-col">
             <slot />

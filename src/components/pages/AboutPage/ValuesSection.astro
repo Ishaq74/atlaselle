@@ -79,13 +79,34 @@ const defaultValue = items[0]?.value;
             data-index={index}
             data-active={item.value === defaultValue ? "true" : "false"}
           >
+            {/*
+              Trois des quatre images sont masquées (`opacity-0`) au premier
+              rendu, mais le navigateur les télécharge quand même : elles sont
+              dans le viewport, donc `loading="lazy"` ne les retient pas.
+              Résultat : « Properly size images », 237 KiB récupérables.
+
+              On ne donne donc un `src` qu'à l'image réellement affichée. Les
+              autres portent leur source dans `data-src`, et le script la
+              promote au clic sur l'accordéon correspondant — l'image est alors
+              demandée, et sa dimensions reserved par le conteneur `aspect-4/3`,
+              donc aucun décalage de mise en page.
+
+              `widths` ne peut pas dépasser 800 px, la largeur de la source.
+              Le `sizes` reflète la colonne occupée, pas la fenêtre entière.
+            */}
+            {/* La grille ne passe à deux colonnes qu'à partir de 2xl
+                (1536 px) : sous ce seuil l'image occupe TOUTE la largeur.
+                Le `sizes` doit le dire, sinon le navigateur retient la
+                variante 800 px pour une colonne qui n'en affiche que 400,
+                et Lighthouse signale « Properly size images ». */}
             <Image
               src={item.image}
               alt={item.title}
               class="h-full w-full object-cover transition-transform duration-700"
               width={800}
               height={600}
-              loading="lazy"
+              widths={[400, 800]}
+              sizes="(min-width: 1536px) 640px, 100vw"
               data-index={index}
               data-active={item.value === defaultValue ? "true" : "false"}
             />

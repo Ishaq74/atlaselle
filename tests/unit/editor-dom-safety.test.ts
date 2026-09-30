@@ -6,8 +6,19 @@ const contentEditorSource = readFileSync(
   resolve(process.cwd(), 'src/components/content/ContentEditor.astro'),
   'utf8',
 );
+// Le script du formulaire a été extrait vers `modules/blog/client/` : c'est
+// là que vivent les garde-fous testés ici. `AdminPostForm.astro` ne fait plus
+// qu'importer ce module.
 const adminPostFormSource = readFileSync(
-  resolve(process.cwd(), 'src/components/blog/AdminPostForm.astro'),
+  resolve(process.cwd(), 'src/modules/blog/client/admin-post-form.ts'),
+  'utf8',
+);
+const adminFormShellSource = readFileSync(
+  resolve(process.cwd(), 'src/components/organisms/AdminFormShell.astro'),
+  'utf8',
+);
+const dirtyGuardSource = readFileSync(
+  resolve(process.cwd(), 'src/core/admin/dirty-guard.ts'),
   'utf8',
 );
 
@@ -33,7 +44,15 @@ describe('editor DOM safety guards', () => {
   });
 
   it('guards dirty forms and marks successful saves clean', () => {
-    expect(adminPostFormSource).toContain("window.addEventListener('beforeunload'");
+    // Single beforeunload owner: src/core/admin/dirty-guard.ts. Every screen
+    // (AdminFormShell included) delegates to it — a second `beforeunload`
+    // listener would double-prompt on leave.
+    expect(dirtyGuardSource).toContain('window.addEventListener("beforeunload"');
+    expect(adminFormShellSource).toContain('registerAdminDirtyGuard(');
+    expect(adminFormShellSource).not.toMatch(
+      /window\.addEventListener\(\s*['"]beforeunload/,
+    );
+    expect(adminPostFormSource).not.toMatch(/window\.addEventListener\(\s*['"]beforeunload/);
     expect(adminPostFormSource).toContain('if (!isDirty) return');
     expect(adminPostFormSource).toMatch(
       /if \(result\.error\)[\s\S]+?return;[\s\S]+?isDirty = false;[\s\S]+?toast\.success/,

@@ -1,12 +1,12 @@
 ---
 import { requirePermission } from "@/lib/auth-guards";
 import { getBlogTranslations } from "@i18n/utils";
-import { getBlogCategories, getBlogTags } from "@database/loaders/blog.loader";
+import { getBlogCategories, getBlogTags } from "@/modules/blog/loaders/blog.loader";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
 import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
 import AdminFormShell from "@organisms/AdminFormShell.astro";
-import AdminPostForm from "@/components/blog/AdminPostForm.astro";
+import AdminPostForm from "@/components/blog/admin/AdminPostForm.astro";
 
 export const prerender = false;
 

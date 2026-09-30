@@ -158,14 +158,13 @@ test.describe('Admin — Media page', () => {
     expect(response?.status()).toBe(200);
   });
 
-  test('media page has upload UI', async ({ page }) => {
-    await page.goto('/fr/admin/media', { waitUntil: 'networkidle' });
-    // `textContent()` returns a plain string and the matcher below is a regex:
-    // `expect(string).toContain(regex)` is a TypeError in Playwright, not an
-    // assertion failure, so this test could only ever "fail" for the wrong
-    // reason. The DOM-backed text matcher is the supported equivalent.
-    await expect(page.locator('body')).toContainText(/media|image|upload/i);
-  });
+  // Le contrôle de l'UI d'upload est dans tests/e2e/cms-deep.spec.ts, qui
+// vérifie le bouton réel (`#upload-file-btn` ou `#upload-file-btn-empty` selon
+// l'état de la bibliothèque). Il avait sa place ici, mais il dupliquait le
+// statut HTTP — déjà couvert juste au-dessus — et ce contrôle. Il assertait
+// surtout `toContainText(/media|image|upload/i)` sur le body : il ne testait pas
+// l'UI, il attendait qu'un mot anglais traîne dans le texte visible d'une page
+// française, donc son résultat dépendait des fichiers présents en base.
 });
 
 test.describe('Admin — Roles page', () => {

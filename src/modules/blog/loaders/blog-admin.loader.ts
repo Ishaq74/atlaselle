@@ -131,3 +131,21 @@ export async function getBlogAdminTags(locale: Locale) {
   const db = getDrizzle();
   return db.select({ id: blogTags.id, slug: blogTags.slug, name: sql<string>`coalesce(${blogTagTranslations.name}, ${blogTags.slug})` }).from(blogTags).leftJoin(blogTagTranslations, and(eq(blogTagTranslations.tagId, blogTags.id), eq(blogTagTranslations.locale, locale))).orderBy(asc(sql<string>`coalesce(${blogTagTranslations.name}, ${blogTags.slug})`));
 }
+
+export async function getBlogAdminCategories(locale: Locale) {
+  const db = getDrizzle();
+  return db.select({ id: blogCategories.id, slug: blogCategories.slug, name: sql<string>`coalesce(${blogCategoryTranslations.name}, ${blogCategories.slug})` }).from(blogCategories).leftJoin(blogCategoryTranslations, and(eq(blogCategoryTranslations.categoryId, blogCategories.id), eq(blogCategoryTranslations.locale, locale))).orderBy(asc(sql<string>`coalesce(${blogCategoryTranslations.name}, ${blogCategories.slug})`));
+}
+
+/** Total category/tag rows — used to size admin taxonomy pagination. */
+export async function countBlogTaxonomy() {
+  const db = getDrizzle();
+  const [categories, tags] = await Promise.all([
+    db.select({ value: count() }).from(blogCategories),
+    db.select({ value: count() }).from(blogTags),
+  ]);
+  return {
+    categories: Number(categories[0]?.value ?? 0),
+    tags: Number(tags[0]?.value ?? 0),
+  };
+}

@@ -1,6 +1,11 @@
 ---
-import type { Locale } from "@i18n/config";
-import type { BlogTranslations } from "@i18n/config";
+/**
+ * Formulaire de commentaire sur un article de blog.
+ *
+ * Le markup vient de l'atome partagé `EngagementCommentFormCard` ; la
+ * soumission est dans `modules/blog/client/engagement-forms.ts`.
+ */
+import type { BlogTranslations, Locale } from "@i18n/config";
 import type { AppUser } from "@/lib/types";
 import EngagementCommentFormCard from "@/components/molecules/Engagement/EngagementCommentFormCard.astro";
 
@@ -9,14 +14,15 @@ interface Props {
   blogT: BlogTranslations;
   postId: string;
   user: AppUser | null;
+  /** Rattache le commentaire à un parent (réponse). */
   parentId?: string;
 }
 
 const { blogT, postId, user, parentId } = Astro.props;
 ---
 
-{/* Le formulaire vient du cœur partagé : même markup que la fiche voyage,
-    seul le script d'action ci-dessous est propre au blog. */}
+{/* `showGuestFields` suit la session : un visiteur connecté n'a pas à ressaisir
+    son nom et son e-mail. */}
 <EngagementCommentFormCard
   formId="comment-form"
   action={Astro.url.pathname}
@@ -36,50 +42,8 @@ const { blogT, postId, user, parentId } = Astro.props;
 </EngagementCommentFormCard>
 
 <script>
-  import { actions } from 'astro:actions';
-  import { toast } from '@atoms/toast';
+  import { initBlogEngagementForms } from "@/modules/blog/client/engagement-forms";
 
-  function init() {
-    document.querySelectorAll<HTMLFormElement>('#comment-form').forEach((form) => {
-      if (form.dataset.bound === 'true') return;
-      form.dataset.bound = 'true';
-
-      const errorText = form.dataset.tError ?? 'Error';
-      const submittedText = form.dataset.tSubmitted ?? 'Comment submitted';
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(form);
-        const postId = String(formData.get('postId') ?? '');
-        const content = String(formData.get('content') ?? '').trim();
-        const parentId = formData.get('parentId') ? String(formData.get('parentId')) : undefined;
-        const guestName = formData.get('guestName') ? String(formData.get('guestName')) : undefined;
-        const guestEmail = formData.get('guestEmail') ? String(formData.get('guestEmail')) : undefined;
-
-        if (!postId || !content) return;
-
-        const { error } = await actions.createBlogComment({
-          postId,
-          content,
-          parentId,
-          guestName,
-          guestEmail,
-        });
-
-        if (error) {
-          toast.error(error.message ?? errorText);
-        } else {
-          toast.success(submittedText);
-          form.reset();
-          // Le commentaire part en modération (PENDING) et n'est pas public
-          // avant validation : recharger la page serait du gaspillage (scroll
-          // perdu, JS/CSS re-téléchargés, compteur de vues relancé). Le toast
-          // suffit.
-        }
-      });
-    });
-  }
-
-  init();
-  document.addEventListener('astro:after-swap', init);
+  initBlogEngagementForms();
+  document.addEventListener("astro:after-swap", initBlogEngagementForms);
 </script>

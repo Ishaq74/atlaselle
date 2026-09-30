@@ -10,7 +10,7 @@ import { LOCALES, type Locale } from "@i18n/config";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { extractIp } from "@/lib/audit";
-import { assertVoyagePermission, auditVoyage } from "./_helpers";
+import { assertVoyagePermission, auditVoyage, voyagePublicRateLimit } from "./_helpers";
 import { assertStateTransition } from "./transition-errors";
 import { findOrCreateTraveler } from "@/modules/travelers/domain/travelers-service";
 import { normalizeEmail } from "@/modules/travelers/domain/traveler-email";
@@ -232,6 +232,7 @@ export const applicationWithdrawInput = z.object({ id: z.uuid(), email: z.string
 export const withdrawApplication = defineAction({
   input: applicationWithdrawInput,
   handler: async (input, context) => {
+    voyagePublicRateLimit(context, "application-withdraw", { window: 300, max: 10 });
     const db = getDrizzle();
     const [current] = await db.select().from(applications).where(eq(applications.id, input.id)).limit(1);
     if (!current) throw new ActionError({ code: "NOT_FOUND", message: "Candidature introuvable." });

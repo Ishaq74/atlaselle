@@ -13,6 +13,7 @@ import { Input } from '@atoms/input';
 import { NativeSelect, NativeSelectOption } from '@atoms/native-select';
 import { DataView } from '@molecules/DataView';
 import AdminPagination from '@molecules/AdminPagination/AdminPagination.astro';
+import { getAdminDict } from '@i18n/admin';
 
 type PageRow = Pick<
   typeof pages.$inferSelect,
@@ -32,6 +33,7 @@ interface Props {
 
 const { t, locale, pages: allPages, currentPage, totalPages, baseUrl } = Astro.props;
 const cms = t.admin.cms.pages;
+const dict = getAdminDict(locale);
 const LOCK_TTL_MS = 5 * 60 * 1000;
 
 function isLocked(page: PageRow) {
@@ -58,6 +60,8 @@ function isoDate(d: Date | string | null) {
   data-t-error={t.admin.cms.common.error}
   data-t-confirm={cms.confirmDelete}
   data-t-create-title={cms.createPage}
+  data-confirm-label={getAdminDict(locale).common.confirm}
+  data-cancel-label={getAdminDict(locale).common.cancel}
 >
   <div class="mb-4 flex items-center justify-between">
     <div>
@@ -67,7 +71,7 @@ function isoDate(d: Date | string | null) {
     <Button id="create-page-btn" size="sm">{cms.createPage}</Button>
   </div>
 
-  <DataView>
+  <DataView listLabel={dict.views.list} tableLabel={dict.views.table} cardsLabel={dict.views.cards}>
     <Fragment slot="toolbar-start">
       <Input
         type="search"
@@ -75,17 +79,17 @@ function isoDate(d: Date | string | null) {
         placeholder={cms.searchPlaceholder}
         class="max-w-xs"
       />
-      <NativeSelect id="admin-page-filter-status" class="w-auto text-sm">
+      <NativeSelect id="admin-page-filter-status" class="w-auto text-sm" aria-label={cms.filter.allStatuses}>
         <NativeSelectOption value="">{cms.filter.allStatuses}</NativeSelectOption>
         <NativeSelectOption value="published">{cms.published}</NativeSelectOption>
         <NativeSelectOption value="draft">{cms.draft}</NativeSelectOption>
       </NativeSelect>
-      <NativeSelect id="admin-page-filter-template" class="w-auto text-sm">
+      <NativeSelect id="admin-page-filter-template" class="w-auto text-sm" aria-label={cms.filter.allTemplates}>
         <NativeSelectOption value="">{cms.filter.allTemplates}</NativeSelectOption>
         <NativeSelectOption value="legal">legal</NativeSelectOption>
         <NativeSelectOption value="default">default</NativeSelectOption>
       </NativeSelect>
-      <NativeSelect id="admin-page-filter-locale" class="w-auto text-sm">
+      <NativeSelect id="admin-page-filter-locale" class="w-auto text-sm" aria-label={cms.filter.allLocales}>
         <NativeSelectOption value="">{cms.filter.allLocales}</NativeSelectOption>
         {LOCALES.map((loc) => (
           <NativeSelectOption value={loc}>{loc.toUpperCase()}</NativeSelectOption>
@@ -94,7 +98,7 @@ function isoDate(d: Date | string | null) {
     </Fragment>
 
     <Fragment slot="toolbar-end">
-      <NativeSelect id="admin-page-sort" class="w-auto text-sm">
+      <NativeSelect id="admin-page-sort" class="w-auto text-sm" aria-label={cms.sort.label}>
         <NativeSelectOption value="newest">{cms.sort.newest}</NativeSelectOption>
         <NativeSelectOption value="oldest">{cms.sort.oldest}</NativeSelectOption>
         <NativeSelectOption value="name-asc">{cms.sort.nameAsc}</NativeSelectOption>
@@ -114,7 +118,7 @@ function isoDate(d: Date | string | null) {
             <TableHead class="text-center">{cms.columns.sections}</TableHead>
             <TableHead class="text-center">{cms.columns.status}</TableHead>
             <TableHead class="text-center">{cms.columns.locked}</TableHead>
-            <TableHead class="text-right">{cms.columns.actions}</TableHead>
+            <TableHead class="text-end">{cms.columns.actions}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody id="admin-pages-tbody">
@@ -159,7 +163,7 @@ function isoDate(d: Date | string | null) {
                     <span class="text-muted-foreground">—</span>
                   )}
                 </TableCell>
-                <TableCell class="text-right">
+                <TableCell class="text-end">
                   <div class="flex gap-1 justify-end flex-wrap">
                     <Button size="sm" variant="outline" class="page-toggle-btn" data-id={page.id} data-published={String(page.isPublished)}>
                       {page.isPublished ? cms.unpublish : cms.publish}
@@ -236,6 +240,54 @@ function isoDate(d: Date | string | null) {
         ))
       )}
     </div>
+
+    <!-- ─── List view ─── -->
+    <div slot="list" class="divide-y rounded-md border" id="admin-pages-list">
+      {allPages.length === 0 ? (
+        <p class="py-8 text-center text-muted-foreground">{cms.noResults}</p>
+      ) : (
+        allPages.map((page) => (
+          <div
+            class="cms-page-row flex flex-wrap items-center gap-3 px-4 py-3"
+            data-id={page.id}
+            data-title={page.title.toLowerCase()}
+            data-slug={page.slug.toLowerCase()}
+            data-template={page.template ?? 'default'}
+            data-locale={page.locale}
+            data-published={String(page.isPublished)}
+            data-date={isoDate(page.publishedAt)}
+          >
+            <Badge variant="outline" size="sm">{page.locale.toUpperCase()}</Badge>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-medium">{page.title}</p>
+              <p class="truncate text-xs text-muted-foreground">/{page.slug} · {page.template ?? 'default'}</p>
+            </div>
+            <span class="text-xs text-muted-foreground">{cms.columns.sections}: {page.sectionCount ?? 0}</span>
+            {isLocked(page) ? (
+              <span class="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400" title={`Locked by ${page.lockedBy}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            ) : null}
+            <Badge variant={page.isPublished ? 'default' : 'secondary'} size="sm">
+              {page.isPublished ? cms.published : cms.draft}
+            </Badge>
+            <div class="flex flex-wrap justify-end gap-1">
+              <Button size="sm" variant="outline" class="page-toggle-btn" data-id={page.id} data-published={String(page.isPublished)}>
+                {page.isPublished ? cms.unpublish : cms.publish}
+              </Button>
+              <Button size="sm" variant="outline" class="page-edit-btn" data-id={page.id}>
+                {cms.editPage}
+              </Button>
+              <Button size="sm" variant="error" class="page-delete-btn" data-id={page.id}>
+                {t.admin.cms.common.delete}
+              </Button>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
   </DataView>
 
   <AdminPagination currentPage={currentPage} totalPages={totalPages} baseUrl={baseUrl} />
@@ -244,8 +296,18 @@ function isoDate(d: Date | string | null) {
 <script>
   import { actions } from 'astro:actions';
   import { toast } from '@atoms/toast';
+  import { confirmAdminAction } from '@/core/admin';
 
   class PagesManager extends HTMLElement {
+    private ask(message: string) {
+      return confirmAdminAction({
+        title: message,
+        message,
+        confirmLabel: this.dataset.confirmLabel || 'OK',
+        cancelLabel: this.dataset.cancelLabel || '',
+      });
+    }
+
     connectedCallback() {
       const locale = this.dataset.locale!;
       const tDeleted = this.dataset.tDeleted ?? '';
@@ -278,7 +340,7 @@ function isoDate(d: Date | string | null) {
       // ─── Delete page ───
       this.querySelectorAll<HTMLElement>('.page-delete-btn').forEach((btn) => {
         btn.addEventListener('click', async () => {
-          if (!confirm(tConfirm)) return;
+          if (!(await this.ask(tConfirm))) return;
           const id = btn.dataset.id!;
           const { error } = await actions.deletePage({ id });
           if (!error) { toast.success(tDeleted); btn.closest('.cms-page-row')?.remove(); }
@@ -335,19 +397,30 @@ function isoDate(d: Date | string | null) {
 
       const applySort = () => {
         const sortValue = sortSelect?.value ?? 'newest';
-        const parent = rows[0]?.parentElement;
-        if (!parent) return;
 
-        const sorted = [...rows].sort((a, b) => {
-          switch (sortValue) {
-            case 'oldest': return (a.dataset.date ?? '').localeCompare(b.dataset.date ?? '');
-            case 'newest': return (b.dataset.date ?? '').localeCompare(a.dataset.date ?? '');
-            case 'name-asc': return (a.dataset.title ?? '').localeCompare(b.dataset.title ?? '');
-            case 'name-desc': return (b.dataset.title ?? '').localeCompare(a.dataset.title ?? '');
-            default: return 0;
-          }
+        // The same rows are rendered twice (table + cards): sort each view in
+        // place instead of moving every node into the first row's parent.
+        const groups = new Map<Element, HTMLElement[]>();
+        rows.forEach((row) => {
+          const parent = row.parentElement;
+          if (!parent) return;
+          const group = groups.get(parent);
+          if (group) group.push(row);
+          else groups.set(parent, [row]);
         });
-        sorted.forEach((row) => parent.appendChild(row));
+
+        groups.forEach((group, parent) => {
+          group.sort((a, b) => {
+            switch (sortValue) {
+              case 'oldest': return (a.dataset.date ?? '').localeCompare(b.dataset.date ?? '');
+              case 'newest': return (b.dataset.date ?? '').localeCompare(a.dataset.date ?? '');
+              case 'name-asc': return (a.dataset.title ?? '').localeCompare(b.dataset.title ?? '');
+              case 'name-desc': return (b.dataset.title ?? '').localeCompare(a.dataset.title ?? '');
+              default: return 0;
+            }
+          });
+          group.forEach((row) => parent.appendChild(row));
+        });
       };
 
       searchInput?.addEventListener('input', applyFilters);

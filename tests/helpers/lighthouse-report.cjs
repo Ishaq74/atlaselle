@@ -34,6 +34,17 @@ const CWV_THRESHOLDS = {
   cls: { good: 0.1, poor: 0.25, unit: '', label: 'Cumulative Layout Shift' },
 };
 
+// URLs intentionally excluded from search engines (back-office). The SEO
+// category is reported but excluded from the SEO gate for these pages.
+const NOINDEX_SCOPE = /\/admin\//;
+
+const catKeys = ['performance', 'accessibility', 'best-practices', 'seo'];
+
+/** Categories actually gated for a given page. */
+function gatedCategories(page) {
+  return catKeys.filter(cat => !(cat === 'seo' && page.isNoindexScoped));
+}
+
 // ── Main ─────────────────────────────────────────────────────────────
 
 if (!fs.existsSync(LH_DIR)) {
@@ -117,7 +128,13 @@ for (const f of jsonFiles) {
     }
   }
 
-  pages.push({ name, scores, cwv, failedAudits, a11yIssues });
+  // Pages admin are intentionally noindex (back-office): the Lighthouse SEO
+  // "page is blocked from indexing" audit is a false positive there, so the SEO
+  // gate is not applied to them (see NOINDEX_SCOPE below).
+  const finalUrl = r.finalUrl || r.requestedUrl || r.finalDisplayedUrl || '';
+  const isNoindexScoped = NOINDEX_SCOPE.test(finalUrl) || NOINDEX_SCOPE.test(name);
+
+  pages.push({ name, scores, cwv, failedAudits, a11yIssues, isNoindexScoped });
 }
 
 if (!pages.length) {
@@ -152,14 +169,21 @@ lines.push('  ' + '─'.repeat(106));
 
 for (const pg of pages) {
   const s = pg.scores;
-  const perfIcon = (s.performance || 0) >= THRESHOLDS.performance ? '✅' : '❌';
+  // Row marker reflects the GATED categories only (SEO is not gated on noindex
+  // back-office pages, so a 69 SEO there must not flag the whole page).
+  const gated = gatedCategories(pg);
+  const rowOk = gated.every(cat => (s[cat] ?? 0) >= THRESHOLDS[cat]);
+  const rowIcon = rowOk ? '✅' : '❌';
+  const seoCell = pg.isNoindexScoped
+    ? `${String(s.seo ?? 'N/A')} (n/a)`
+    : String(s.seo ?? 'N/A');
   lines.push(
-    '  ' + perfIcon + ' ' +
+    '  ' + rowIcon + ' ' +
     pg.name.padEnd(38) +
     String(s.performance ?? 'N/A').padEnd(6) +
     String(s.accessibility ?? 'N/A').padEnd(6) +
     String(s['best-practices'] ?? 'N/A').padEnd(6) +
-    String(s.seo ?? 'N/A')
+    seoCell
   );
 }
 
@@ -218,20 +242,23 @@ lines.push('  SUMMARY');
 lines.push(hr);
 lines.push('');
 
-const catKeys = ['performance', 'accessibility', 'best-practices', 'seo'];
 for (const cat of catKeys) {
   const threshold = THRESHOLDS[cat];
-  const passed = pages.filter(p => (p.scores[cat] || 0) >= threshold).length;
-  const icon = passed === pages.length ? '✅' : '⚠️';
+  const scoped = pages.filter(p => gatedCategories(p).includes(cat));
+  const passed = scoped.filter(p => (p.scores[cat] || 0) >= threshold).length;
+  const icon = passed === scoped.length ? '✅' : '⚠️';
   const label = cat.charAt(0).toUpperCase() + cat.slice(1);
-  lines.push(`  ${label.padEnd(20)} >= ${threshold}:  ${passed}/${pages.length}  ${icon}`);
+  const note = scoped.length === pages.length ? '' : ` (${pages.length - scoped.length} noindex page(s) excluded)`;
+  lines.push(`  ${label.padEnd(20)} >= ${threshold}:  ${passed}/${scoped.length}  ${icon}${note}`);
 }
 
 // Averages
 lines.push('');
 lines.push('  Averages:');
 for (const cat of catKeys) {
-  const avg = pages.reduce((s, p) => s + (p.scores[cat] || 0), 0) / pages.length;
+  const scoped = pages.filter(p => gatedCategories(p).includes(cat));
+  if (scoped.length === 0) continue;
+  const avg = scoped.reduce((s, p) => s + (p.scores[cat] || 0), 0) / scoped.length;
   const label = cat.charAt(0).toUpperCase() + cat.slice(1);
   lines.push(`    ${label.padEnd(20)} ${avg.toFixed(1)}`);
 }
@@ -283,7 +310,7 @@ if (pagesWithA11y.length > 0) {
 // ── Pages passing all gates ──────────────────────────────────────────
 
 const passingAll = pages.filter(p =>
-  catKeys.every(cat => (p.scores[cat] || 0) >= THRESHOLDS[cat])
+  gatedCategories(p).every(cat => (p.scores[cat] || 0) >= THRESHOLDS[cat])
 );
 if (passingAll.length > 0) {
   lines.push('');
@@ -298,9 +325,9 @@ if (passingAll.length > 0) {
 // ── Footer ───────────────────────────────────────────────────────────
 
 const totalPassed = catKeys.reduce((sum, cat) => {
-  return sum + pages.filter(p => (p.scores[cat] || 0) >= THRESHOLDS[cat]).length;
+  return sum + pages.filter(p => gatedCategories(p).includes(cat) && (p.scores[cat] || 0) >= THRESHOLDS[cat]).length;
 }, 0);
-const totalChecks = catKeys.length * pages.length;
+const totalChecks = pages.reduce((sum, p) => sum + gatedCategories(p).length, 0);
 
 lines.push('');
 lines.push(hr);

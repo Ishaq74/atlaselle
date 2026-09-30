@@ -1,58 +1,36 @@
 ══════════════════════════════════════════════════════════════════════════════════
   ATOMIC — GLOBAL QA REPORT
-  Generated: 2026-09-27 13:54:49
+  Generated: 2026-09-30 17:27:39
 ══════════════════════════════════════════════════════════════════════════════════
 
   ✅ Type & Template Check (astro check)
-     0 errors, 0 warnings, 2 hints
+     0 errors, 0 warnings, 0 hints
 
-  ✅ Lint (ESLint)
-     0 errors, 0 warnings
+  ❌ Lint (ESLint)
+     2 errors, 19 warnings
+
+  • See tests/reports/lint-report.txt for details
 
   ✅ Unit & Integration Tests (Vitest)
-     1907/1907 passed
+     1997/1997 passed
 
   ❌ End-to-End Tests (Playwright)
-     1609/1635 passed, 12 skipped, 14 failed
+     1629/1632 passed, 3 failed
 
-  • admin-pages.spec.ts > Admin — Reservations page › reservations page loads successfully
-    [31mTearing down "context" exceeded the test timeout of 30000ms.[39m
-  • admin-pages.spec.ts > Admin — Payments page › payments page loads successfully
-    [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
-  • blog-review-rating-a11y.spec.ts > Star rating — required-field error announcement › the rating error region announces the translated message in every page language and never a bare numeric value
-    [31mTest timeout of 120000ms exceeded.[39m
-  • blog-review-rating-a11y.spec.ts > Star rating — required-field error announcement › the rating error region announces the translated message in every page language and never a bare numeric value
-    [31mTest timeout of 120000ms exceeded.[39m
-  • blog-review-rating-a11y.spec.ts > Star rating — required-field error announcement › the rating error region announces the translated message in every page language and never a bare numeric value
-    [31mTest timeout of 120000ms exceeded.[39m
-  • blog.spec.ts > Blog surfaces › guest comment stays pending until moderation
-    [31mTest timeout of 30000ms exceeded.[39m
-  • blog.spec.ts > Blog surfaces › guest comment stays pending until moderation
-    [31mTest timeout of 30000ms exceeded.[39m
-  • blog.spec.ts > Blog surfaces › guest comment stays pending until moderation
-    [31mTest timeout of 30000ms exceeded.[39m
-  • services.spec.ts > Services surfaces › admin lifecycle preserves the explicit state machine
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-  • services.spec.ts > Services surfaces › admin lifecycle preserves the explicit state machine
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-  • services.spec.ts > Services surfaces › admin lifecycle preserves the explicit state machine
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-  • zz-regression-probe.spec.ts > PROBE — actions-voyage : sequence d etats › la sequence reelle est distincte du vocabulaire perime, etape par etape
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-  • zz-regression-probe.spec.ts > PROBE — actions-voyage : sequence d etats › la sequence reelle est distincte du vocabulaire perime, etape par etape
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-  • zz-regression-probe.spec.ts > PROBE — actions-voyage : sequence d etats › la sequence reelle est distincte du vocabulaire perime, etape par etape
-    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+  • admin-pages.spec.ts > Admin — Media page › media page has upload UI
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+  • admin-pages.spec.ts > Admin — Media page › media page has upload UI
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+  • admin-pages.spec.ts > Admin — Media page › media page has upload UI
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
 
-  ❌ Accessibility Audit (Pa11y — WCAG 2.1 AAA)
-     56/60 URLs clean, 20 issue(s) across 1 rule(s)
-
-  • aria-prohibited-attr: 20 occurrence(s)
+  ✅ Accessibility Audit (Pa11y — WCAG 2.1 AAA)
+     112/112 URLs clean
 
   ❌ Performance & Quality Audit (Lighthouse CI)
-     52 page(s) audited, 9 below threshold (≥90)
+     52 page(s) audited, 8 below threshold (≥90)
 
-  • 9 page(s) scored below the 90 threshold (see lighthouse-report.txt for detail)
+  • 8 page(s) scored below the 90 threshold (see lighthouse-report.txt for detail)
 
 ══════════════════════════════════════════════════════════════════════════════════
   GLOBAL STATUS
@@ -65,10 +43,10 @@
   │ Report                                      │ Status       │ Result  │
   ├─────────────────────────────────────────────┼──────────────┼─────────┤
   │ Astro check                                 │ GREEN        │ 0 error │
-  │ ESLint                                      │ GREEN        │ 0 error │
-  │ Vitest (unit/integration)                   │ GREEN        │ 1907/19 │
-  │ Playwright (e2e)                            │ RED          │ 1609/16 │
-  │ Pa11y (a11y)                                │ RED          │ 56/60 U │
+  │ ESLint                                      │ RED          │ 2 error │
+  │ Vitest (unit/integration)                   │ GREEN        │ 1997/19 │
+  │ Playwright (e2e)                            │ RED          │ 1629/16 │
+  │ Pa11y (a11y)                                │ GREEN        │ 112/112 │
   │ Lighthouse (perf)                           │ RED          │ 52 page │
   └─────────────────────────────────────────────┴──────────────┴─────────┘
 

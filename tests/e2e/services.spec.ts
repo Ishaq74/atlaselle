@@ -1,11 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { test, expect } from '@playwright/test';
 import { SEED_EMAIL, SEED_PASSWORD } from './global-setup';
+import { confirmAdminAction } from '../helpers/admin-ui';
 
 // Single-tenant (TODO §30.3 hors périmètre) : surfaces globales uniquement.
 
 type StorageState = Awaited<ReturnType<import('@playwright/test').BrowserContext['storageState']>>;
-const BASE_URL = 'http://localhost:4322';
+import { BASE_URL } from '../helpers/e2e-env';
 const LOCALES = ['fr', 'en', 'es', 'ar'] as const;
 
 type ServiceStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'DELETED';
@@ -129,7 +130,7 @@ test.describe.serial('Services surfaces', () => {
     const row = page.locator(`tr:has([data-id="${seeded.draftServiceId}"])`); await expect(row).toHaveCount(1);
     await row.locator(`[data-action="publish"][data-id="${seeded.draftServiceId}"]`).click(); await page.waitForLoadState('networkidle'); await expect.poll(() => serviceStatus(seeded.draftServiceId)).toBe('PUBLISHED');
     await page.locator(`tr:has([data-id="${seeded.draftServiceId}"]) [data-action="unpublish"][data-id="${seeded.draftServiceId}"]`).click(); await page.waitForLoadState('networkidle'); await expect.poll(() => serviceStatus(seeded.draftServiceId)).toBe('DRAFT');
-    await page.locator(`tr:has([data-id="${seeded.draftServiceId}"]) [data-action="archive"][data-id="${seeded.draftServiceId}"]`).click(); await page.waitForLoadState('networkidle'); await expect.poll(() => serviceStatus(seeded.draftServiceId)).toBe('ARCHIVED');
+    await page.locator(`tr:has([data-id="${seeded.draftServiceId}"]) [data-action="archive"][data-id="${seeded.draftServiceId}"]`).click(); await confirmAdminAction(page); await page.waitForLoadState('networkidle'); await expect.poll(() => serviceStatus(seeded.draftServiceId)).toBe('ARCHIVED');
     await page.locator(`tr:has([data-id="${seeded.draftServiceId}"]) [data-action="restore"][data-id="${seeded.draftServiceId}"]`).click(); await page.waitForLoadState('networkidle'); await expect.poll(() => serviceStatus(seeded.draftServiceId)).toBe('DRAFT'); await context.close();
   });
 });

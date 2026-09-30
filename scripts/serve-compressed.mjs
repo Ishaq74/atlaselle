@@ -48,15 +48,54 @@ const port = Number(process.env.PORT ?? 4321);
 // framing overhead outweighs the gain (Lighthouse recommendation).
 const compress = compression({ threshold: 1024 });
 
+/**
+ * Un client qui coupe sa connexion (navigation, onglet fermé, requête annulée
+ * par le navigateur) est un comportement NORMAL, pas une panne serveur.
+ *
+ * Sans ce garde-fou, Node remonte `Error: aborted` depuis `abortIncoming` et
+ * l'adaptateur Astro l'imprime en `[ERROR]` avec une pile d'appels — ce qui
+ * rend un run de tests illisible et masque les vraies erreurs. Les tests E2E
+ * en déclenchaient en permanence (Playwright annule les requêtes à chaque
+ * navigation).
+ *
+ * On absorbe donc ces erreurs explicitement, et on coupe la requête en cours.
+ */
+function ignoreClientDisconnect(req, res) {
+  // Socket partie avant la fin de la requête : rien à répondre.
+  req.on('aborted', () => {
+    if (!res.writableEnded) res.destroy();
+  });
+  // Erreurs de bas niveau sur la requête elle-même. `ECONNRESET` et
+  // `aborted` sont des déconnexions ; le reste est laissé remonter.
+  req.on('error', (err) => {
+    const code = err?.code;
+    if (code === 'ECONNRESET' || code === 'EPIPE' || err?.message === 'aborted') {
+      if (!res.writableEnded) res.destroy();
+      return;
+    }
+    console.error('[serve] Request error:', err);
+    if (!res.writableEnded) res.destroy();
+  });
+}
+
 const server = createServer((req, res) => {
+  ignoreClientDisconnect(req, res);
   compress(req, res, (err) => {
     if (err) {
+      if (res.writableEnded || res.destroyed) return;
       res.statusCode = 500;
       res.end('Compression error');
       return;
     }
     handler(req, res);
   });
+});
+
+// Erreur de parsing au niveau TCP (requête malformée, TLS, etc.) : on répond
+// proprement au lieu de laisser remonter une exception non gérée.
+server.on('clientError', (_err, socket) => {
+  if (!socket.writable || socket.destroyed) return;
+  socket.end('HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n');
 });
 
 server.listen(port, host, () => {

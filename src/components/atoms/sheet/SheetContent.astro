@@ -8,9 +8,11 @@ type Props = HTMLAttributes<"dialog"> & {
    * Side of the page the sheet opens from
    */
   side?: "top" | "right" | "bottom" | "left";
+  /** Libellé accessible du bouton de fermeture (à traduire par l'appelant). */
+  closeLabel?: string;
 };
 
-const { side = "right", class: className, ...rest } = Astro.props;
+const { side = "right", closeLabel = "Close dialog", class: className, ...rest } = Astro.props;
 
 export const dialogBackdrop = tv({
   base: [
@@ -56,7 +58,7 @@ export const sheetContent = tv({
 export const sheetCloseButton = tv({
   base: [
     "starwind-dialog-close",
-    "absolute top-4 right-4 rounded-xs [&>svg]:opacity-70 hover:[&>svg]:opacity-100",
+    "absolute top-4 end-4 rounded-xs [&>svg]:opacity-70 hover:[&>svg]:opacity-100",
     "focus-visible:ring-outline/50 transition-[color,box-shadow] outline-none focus-visible:ring-3",
   ],
 });
@@ -82,7 +84,7 @@ export const sheetCloseButton = tv({
     type="button"
     class={sheetCloseButton()}
     data-slot="sheet-close"
-    aria-label="Close dialog"
+    aria-label={closeLabel}
   >
     <slot name="icon">
       <X class="size-5 transition-opacity" />

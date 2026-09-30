@@ -8,12 +8,21 @@
  * deletes it on a graceful stop. Playwright hard-kills the webServer process
  * tree, so the lock survives every run — cleaning it here keeps the working
  * tree tidy (scripts/e2e-server.mjs also pre-cleans it before each run).
+ *
+ * ## Isolation entre voies
+ *
+ * Le lock `.astro/preview.json` est PARTAGÉ par toutes les voies. Quand `E2E_LANE`
+ * est défini, on ne le touche donc pas : tuer ce PID reviendrait à arrêter le
+ * serveur d'une autre voie encore en cours (risque R4). Le lock sera nettoyé par
+ * le teardown de la dernière voie, ou au prochain run en exécution simple.
  */
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { SEED_EMAIL } from './global-setup';
 
 function cleanupPreviewLock() {
+  // En mode voie, le lock est partagé : ne pas le toucher (voir en-tête).
+  if (process.env.E2E_LANE) return;
   const lockPath = resolve('.astro/preview.json');
   if (!existsSync(lockPath)) return;
   try {

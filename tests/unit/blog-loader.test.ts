@@ -50,7 +50,7 @@ import {
   getBlogModerationQueue,
   getBlogNotifications,
   getUnreadBlogNotificationCount,
-} from '@/database/loaders/blog.loader';
+} from '@/modules/blog/loaders/blog.loader';
 
 function makeChain(rows: any[]) {
   const terminal: any = Object.assign(Promise.resolve(rows), {
@@ -65,6 +65,9 @@ function makeChain(rows: any[]) {
     groupBy: vi.fn(() => chain),
     limit: vi.fn(() => terminal),
     offset: vi.fn(() => Promise.resolve(rows)),
+    // Les loaders de taxonomie sont paginés : ils appellent
+    // `.orderBy().$dynamic()` avant `limit` / `offset` (signature Drizzle).
+    $dynamic: vi.fn(() => chain),
     then: (resolve: any) => resolve(rows),
   };
   return chain;

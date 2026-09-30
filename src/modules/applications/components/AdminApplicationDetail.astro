@@ -1,6 +1,13 @@
 ---
 import type { Locale } from "@i18n/config";
 import type { loadAdminApplication } from "@/modules/applications/loaders/admin-applications.loader";
+import { getAdminDict, adminStatusLabel } from "@i18n/admin";
+import { AdminDetailShell, statusTone } from "@/core/admin";
+import { Badge } from "@atoms/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@atoms/card";
+import { Input } from "@atoms/input";
+import { Label } from "@atoms/label";
+import Button from "@atoms/button/Button.astro";
 
 interface Props {
   detail: NonNullable<Awaited<ReturnType<typeof loadAdminApplication>>>;
@@ -11,91 +18,153 @@ interface Props {
 
 const { detail, locale, baseUrl, canReview } = Astro.props;
 const { application, traveler, decisions, events, checkouts } = detail;
-const t = locale === "fr"
-  ? { traveler: "Voyageuse", answers: "Réponses", history: "Décisions", events: "Journal", checkouts: "Liens checkout", note: "Note interne (optionnelle)", approve: "Approuver", decline: "Refuser", contact: "Demander un échange", room: "Chambre", diet: "Régime", access: "Accessibilité", motivation: "Motivation", expectations: "Attentes" }
-  : { traveler: "Traveler", answers: "Answers", history: "Decisions", events: "Timeline", checkouts: "Checkout links", note: "Internal note (optional)", approve: "Approve", decline: "Decline", contact: "Request a chat", room: "Room", diet: "Diet", access: "Accessibility", motivation: "Motivation", expectations: "Expectations" };
+const dict = getAdminDict(locale);
+const t = dict.applications;
+const c = dict.common;
+const col = dict.columns;
 const reviewable = ["submitted", "under_review", "contact_required"].includes(application.status);
+const fmtDate = (value: Date) => value.toISOString().slice(0, 16).replace("T", " ");
 ---
-<section class="mx-auto max-w-4xl space-y-8 px-6 py-10" data-application-id={application.id}>
-  <div>
-    <a class="text-sm text-primary underline" href={baseUrl}>← {application.id.slice(0, 8)}</a>
-    <h1 class="mt-2 text-3xl font-bold">{traveler?.legalName ?? traveler?.email}</h1>
-    <p class="mt-1 text-sm text-muted-foreground">{traveler?.email} · {application.status}</p>
-  </div>
+
+<AdminDetailShell
+  data-application-id={application.id}
+  title={traveler?.legalName ?? traveler?.email ?? application.id}
+  description={traveler?.email ?? undefined}
+  backHref={baseUrl}
+  backLabel={t.backToList}
+>
+  <Fragment slot="meta">
+    <p class="mt-2">
+      <Badge variant={statusTone(application.status)} size="sm">{adminStatusLabel(dict, application.status)}</Badge>
+    </p>
+  </Fragment>
 
   {canReview && reviewable ? (
-    <div class="space-y-3 rounded-xl border p-6">
-      <label class="block text-sm">{t.note}<input name="internalNote" data-review-note maxlength="5000" class="mt-2 w-full rounded-md border bg-background p-2" /></label>
-      <div class="flex flex-wrap gap-2">
-        <button type="button" class="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground" data-decision="approved">{t.approve}</button>
-        <button type="button" class="rounded-md border px-4 py-2 text-sm font-semibold" data-decision="contact_required">{t.contact}</button>
-        <button type="button" class="rounded-md border border-red-300 px-4 py-2 text-sm font-semibold" data-decision="declined">{t.decline}</button>
-      </div>
-    </div>
+    <Card>
+      <CardContent class="grid gap-3 p-6">
+        <div class="flex flex-col gap-1">
+          <Label for="application-internal-note">{t.optionalNote}</Label>
+          <Input id="application-internal-note" name="internalNote" data-review-note maxlength="5000" size="sm" />
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <Button type="button" variant="primary" size="sm" data-decision="approved">{t.approve}</Button>
+          <Button type="button" variant="outline" size="sm" data-decision="contact_required">{t.requestChat}</Button>
+          <Button type="button" variant="error" size="sm" data-decision="declined" data-confirm-decline={t.confirmDecline}>{t.decline}</Button>
+        </div>
+      </CardContent>
+    </Card>
   ) : null}
 
-  <div class="rounded-xl border p-6">
-    <h2 class="text-xl font-bold">{t.traveler}</h2>
-    <dl class="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-      <div><dt class="text-muted-foreground">Email</dt><dd>{traveler?.email}</dd></div>
-      <div><dt class="text-muted-foreground">Téléphone</dt><dd>{traveler?.phone ?? "—"}</dd></div>
-      <div><dt class="text-muted-foreground">Locale</dt><dd>{traveler?.locale ?? "—"}</dd></div>
-    </dl>
-  </div>
+  <Card>
+    <CardHeader>
+      <CardTitle>{col.traveler}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <dl class="grid gap-2 text-sm sm:grid-cols-2">
+        <div><dt class="text-muted-foreground">{col.email}</dt><dd>{traveler?.email}</dd></div>
+        <div><dt class="text-muted-foreground">{t.phone}</dt><dd>{traveler?.phone ?? "—"}</dd></div>
+        <div><dt class="text-muted-foreground">{col.locale}</dt><dd>{traveler?.locale ?? "—"}</dd></div>
+      </dl>
+    </CardContent>
+  </Card>
 
-  <div class="rounded-xl border p-6">
-    <h2 class="text-xl font-bold">{t.answers}</h2>
-    <dl class="mt-3 space-y-3 text-sm">
-      <div><dt class="text-muted-foreground">{t.room}</dt><dd>{application.roomPreference ?? "—"}</dd></div>
-      <div><dt class="text-muted-foreground">{t.diet}</dt><dd>{application.dietaryRequirements ?? "—"}</dd></div>
-      <div><dt class="text-muted-foreground">{t.access}</dt><dd>{application.accessibilityNeeds ?? "—"}</dd></div>
-      <div><dt class="text-muted-foreground">{t.motivation}</dt><dd class="whitespace-pre-wrap">{application.motivation ?? "—"}</dd></div>
-      <div><dt class="text-muted-foreground">{t.expectations}</dt><dd class="whitespace-pre-wrap">{application.expectations ?? "—"}</dd></div>
-    </dl>
-  </div>
+  <Card>
+    <CardHeader>
+      <CardTitle>{t.answers}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <dl class="space-y-3 text-sm">
+        <div><dt class="text-muted-foreground">{t.room}</dt><dd>{application.roomPreference ?? "—"}</dd></div>
+        <div><dt class="text-muted-foreground">{t.diet}</dt><dd>{application.dietaryRequirements ?? "—"}</dd></div>
+        <div><dt class="text-muted-foreground">{t.access}</dt><dd>{application.accessibilityNeeds ?? "—"}</dd></div>
+        <div><dt class="text-muted-foreground">{t.motivation}</dt><dd class="whitespace-pre-wrap">{application.motivation ?? "—"}</dd></div>
+        <div><dt class="text-muted-foreground">{t.expectations}</dt><dd class="whitespace-pre-wrap">{application.expectations ?? "—"}</dd></div>
+      </dl>
+    </CardContent>
+  </Card>
 
-  <div class="rounded-xl border p-6">
-    <h2 class="text-xl font-bold">{t.checkouts}</h2>
-    <ul class="mt-3 space-y-2 text-sm">
-      {checkouts.length === 0 ? <li>—</li> : null}
-      {checkouts.map((c) => (
-        <li class="flex justify-between gap-4 border-b py-1">
-          <a class="text-primary underline" href={`/${locale}/checkout/${c.id}`}>/{locale}/checkout/{c.id.slice(0, 8)}…</a>
-          <span class="rounded-full bg-muted px-2 py-0.5 text-xs">{c.status}</span>
-        </li>
-      ))}
-    </ul>
-  </div>
+  <Card>
+    <CardHeader>
+      <CardTitle>{t.checkouts}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      {checkouts.length === 0 ? (
+        <p class="text-sm text-muted-foreground">{c.noResults}</p>
+      ) : (
+        <ul class="space-y-2 text-sm">
+          {checkouts.map((ck) => (
+            <li class="flex flex-wrap justify-between gap-4 border-b pb-1 last:border-b-0">
+              <a class="text-primary underline" href={`/${locale}/checkout/${ck.id}`}>/{locale}/checkout/{ck.id.slice(0, 8)}…</a>
+              <Badge variant={statusTone(ck.status)} size="sm">{adminStatusLabel(dict, ck.status)}</Badge>
+            </li>
+          ))}
+        </ul>
+      )}
+    </CardContent>
+  </Card>
 
-  <div class="rounded-xl border p-6">
-    <h2 class="text-xl font-bold">{t.history}</h2>
-    <ul class="mt-3 space-y-2 text-sm">
-      {decisions.length === 0 ? <li>—</li> : null}
-      {decisions.map((d) => (
-        <li class="flex justify-between gap-4 border-b py-1"><span class="font-semibold">{d.decision}</span><span class="text-muted-foreground">{d.createdAt.toISOString().slice(0, 16).replace("T", " ")}</span></li>
-      ))}
-    </ul>
-    <h2 class="mt-6 text-xl font-bold">{t.events}</h2>
-    <ul class="mt-3 space-y-2 text-sm">
-      {events.map((e) => (
-        <li class="flex justify-between gap-4 border-b py-1"><span>{e.event}</span><span class="text-muted-foreground">{e.createdAt.toISOString().slice(0, 16).replace("T", " ")}</span></li>
-      ))}
-    </ul>
-  </div>
-</section>
+  <Card>
+    <CardHeader>
+      <CardTitle>{t.decisions}</CardTitle>
+    </CardHeader>
+    <CardContent class="space-y-6">
+      {decisions.length === 0 ? (
+        <p class="text-sm text-muted-foreground">{c.noResults}</p>
+      ) : (
+        <ul class="space-y-2 text-sm">
+          {decisions.map((d) => (
+            <li class="flex flex-wrap justify-between gap-4 border-b pb-1 last:border-b-0">
+              <span class="font-semibold">{d.decision}</span>
+              <span class="text-muted-foreground">{fmtDate(d.createdAt)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div>
+        <h3 class="font-heading text-base font-medium">{t.timeline}</h3>
+        <ul class="mt-2 space-y-2 text-sm">
+          {events.map((ev) => (
+            <li class="flex flex-wrap justify-between gap-4 border-b pb-1 last:border-b-0">
+              <span>{ev.event}</span>
+              <span class="text-muted-foreground">{fmtDate(ev.createdAt)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </CardContent>
+  </Card>
+
+  <input type="hidden" data-application-i18n data-error={c.error} data-decline-title={t.decline} data-decline-confirm={t.confirmDecline} data-confirm-label={c.confirm} data-cancel-label={c.cancel} data-success={t.decisionSaved} />
+</AdminDetailShell>
 
 <script>
   import { actions } from "astro:actions";
-  const root = document.querySelector("section[data-application-id]");
+  import { toast } from "@atoms/toast";
+  import { confirmAdminAction } from "@/core/admin";
+
+  const root = document.querySelector<HTMLElement>("[data-application-id]");
   const id = root?.getAttribute("data-application-id") ?? "";
-  document.querySelectorAll("[data-decision]").forEach((btn) => {
+  const i18n = document.querySelector<HTMLInputElement>("[data-application-i18n]");
+
+  document.querySelectorAll<HTMLButtonElement>("[data-decision]").forEach((btn) => {
     btn.addEventListener("click", async () => {
-      const el = btn as HTMLElement;
-      const decision = (el.dataset.decision ?? "") as "approved" | "declined" | "contact_required";
-      const internalNote = (document.querySelector("[data-review-note]") as HTMLInputElement | null)?.value || null;
-      const { error } = await actions.reviewApplication({ id, decision, internalNote });
-      if (error) alert(error.message);
-      else window.location.reload();
+      const decision = (btn.dataset.decision ?? "") as "approved" | "declined" | "contact_required";
+      if (decision === "declined") {
+        const ok = await confirmAdminAction({
+          title: i18n?.dataset.declineTitle ?? "",
+          message: i18n?.dataset.declineConfirm ?? "",
+          confirmLabel: i18n?.dataset.confirmLabel ?? "OK",
+          cancelLabel: i18n?.dataset.cancelLabel ?? "",
+        });
+        if (!ok) return;
+      }
+      const note = (document.querySelector("[data-review-note]") as HTMLInputElement | null)?.value || null;
+      const { error } = await actions.reviewApplication({ id, decision, internalNote: note });
+      if (error) toast.error(error.message ?? i18n?.dataset.error ?? "");
+      else {
+        toast.success(i18n?.dataset.success ?? "");
+        window.location.reload();
+      }
     });
   });
 </script>

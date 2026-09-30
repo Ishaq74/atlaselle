@@ -793,6 +793,11 @@ export const lockPage = defineAction({
       .set({ lockedBy: user.id, lockedAt: now })
       .where(eq(pages.id, input.id));
 
+    auditAdmin(context, user.id, "PAGE_LOCK", {
+      resource: "page",
+      resourceId: input.id,
+    });
+
     return { success: true as const, lockedBy: user.id, lockedAt: now.toISOString() };
   },
 });
@@ -802,14 +807,42 @@ export const unlockPage = defineAction({
     id: z.string().min(1, "L'identifiant est requis."),
   }),
   handler: async (input, context) => {
-    await assertPermission(context, { page: ["update"] });
+    const user = await assertPermission(context, { page: ["update"] });
+    adminRateLimit(context, user.id, "pages");
     const db = getDrizzle();
 
-    // Only the lock owner (or any admin via force) can unlock
+    const [page] = await db
+      .select({ lockedBy: pages.lockedBy, lockedAt: pages.lockedAt })
+      .from(pages)
+      .where(eq(pages.id, input.id))
+      .limit(1);
+
+    if (!page) {
+      throw new ActionError({ code: "NOT_FOUND", message: "Page introuvable." });
+    }
+
+    // Only the lock owner can unlock while the lock is still fresh; a stale
+    // lock (older than LOCK_TTL_MS) may be cleared by anyone, and an admin can
+    // always force-unlock.
+    const isFresh = page.lockedAt !== null && Date.now() - page.lockedAt.getTime() < LOCK_TTL_MS;
+    const isOwner = page.lockedBy === null || page.lockedBy === user.id;
+    if (!isOwner && isFresh && user.role !== "admin") {
+      throw new ActionError({
+        code: "FORBIDDEN",
+        message: "Seul l'utilisateur ayant verrouillé cette page peut la déverrouiller.",
+      });
+    }
+
     await db
       .update(pages)
       .set({ lockedBy: null, lockedAt: null })
       .where(eq(pages.id, input.id));
+
+    auditAdmin(context, user.id, "PAGE_UNLOCK", {
+      resource: "page",
+      resourceId: input.id,
+      metadata: { forced: !isOwner },
+    });
 
     return { success: true as const };
   },

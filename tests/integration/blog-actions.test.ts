@@ -17,7 +17,7 @@ vi.mock('astro:actions', () => {
 import { getDrizzle } from '@database/drizzle';
 import { and, eq } from 'drizzle-orm';
 import { blogPosts, blogReports, blogPostRevisions, blogPostTranslations, blogPostViewStats, user } from '@database/schemas';
-import { publishedScope } from '@database/loaders/blog.loader';
+import { publishedScope } from '@/modules/blog/loaders/blog.loader';
 import { listBlogPostRevisions } from '@/actions/blog/post';
 import { updateBlogReport, getBlogModerationQueue } from '@/actions/blog/moderation';
 import { resolveBlogInternalLink } from '@/actions/blog/internal-link';

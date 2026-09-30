@@ -2,6 +2,7 @@ import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool, type PoolClient } from 'pg';
 import * as schema from './schemas';
 import { getDbUrl, getPoolConfig } from './env';
+import { shutdownCache } from './cache';
 
 export type DrizzleDB = NodePgDatabase<typeof schema>;
 export interface DbActorContext {
@@ -115,6 +116,18 @@ export async function withDbActorContext<T>(
   const raw = options?.statementTimeoutMs ?? 30_000;
   const timeout = Number.isFinite(raw) ? Math.max(1000, Math.min(300_000, raw)) : 30_000;
 
+  // Un client n'est rendu au pool QUE si sa transaction a proprement abouti.
+  // Si l'échec vient du réseau (socket coupé : c'est exactement ce que fait
+  // Playwright en annulant une requête), le client est potentiellement encore
+  // « busy » et son état est inconnu. Le réinjecter dans le pool le prête à la
+  // requête suivante, qui se heurte à un client déjà en cours d'exécution :
+  // d'où l'avertissement pg « Calling client.query() when the client is
+  // already executing a query », et un état transactionnel fantôme.
+  //
+  // `release(true)` détruit le client : le pool en crée un neuf. C'est le
+  // comportement documenté de node-postgres pour un client corrompu.
+  let poisoned = false;
+
   try {
     await client.query('BEGIN');
     // `SET LOCAL` is a utility command: the parser stops at the parameter token
@@ -130,36 +143,41 @@ export async function withDbActorContext<T>(
     await client.query('COMMIT');
     return result;
   } catch (error) {
+    poisoned = true;
     try {
       await client.query('ROLLBACK');
-    } catch (rollbackError) {
-      console.error('[DB] Failed to rollback actor-context transaction:', rollbackError);
+    } catch {
+      // Le ROLLBACK a lui-même échoué : la connexion est morte, on ne tente
+      // rien de plus. Le client sera détruit ci-dessous.
+      poisoned = true;
     }
     throw error;
   } finally {
-    client.release();
+    client.release(poisoned);
   }
 }
 
 export async function checkConnection(): Promise<{ ok: boolean; latency: number; error?: unknown }> {
   const start = Date.now();
+  let client: PoolClient | null = null;
+  let healthy = false;
   try {
-    const client = await getPgClient();
-    try {
-      await client.query('SELECT 1');
-      return { ok: true, latency: Date.now() - start };
-    } catch (err) {
-      return { ok: false, latency: Date.now() - start, error: err };
-    } finally {
-      client.release();
-    }
+    client = await getPgClient();
+    await client.query('SELECT 1');
+    healthy = true;
+    return { ok: true, latency: Date.now() - start };
   } catch (err) {
     return { ok: false, latency: Date.now() - start, error: err };
+  } finally {
+    // Même règle qu'`withDbActorContext` : un client dont la requête a échoué
+    // est détruit, pas renvoyé au pool. Ici la sonde sert précisément à
+    // détecter une connexion morte — la remettre en circulation propagerait
+    // la panne à la requête suivante.
+    client?.release(healthy ? false : true);
   }
 }
 
 export async function shutdownDb(): Promise<void> {
-  const { shutdownCache } = await import('./cache');
   shutdownCache();
   if (instance) {
     await instance.pool.end();

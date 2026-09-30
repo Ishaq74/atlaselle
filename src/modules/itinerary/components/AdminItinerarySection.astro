@@ -2,6 +2,8 @@
 import type { Locale } from "@i18n/config";
 import { LOCALES } from "@i18n/config";
 import type { loadAdminItinerary } from "@/modules/itinerary/loaders/admin-itinerary.loader";
+import { getAdminDict } from "@i18n/admin";
+import Button from "@atoms/button/Button.astro";
 
 type Days = Awaited<ReturnType<typeof loadAdminItinerary>>;
 
@@ -13,12 +15,20 @@ interface Props {
 }
 
 const { tripId, days, locale, canUpdate } = Astro.props;
-const t = locale === "fr"
-  ? { title: "Itinéraire", day: "Jour", location: "Lieu", route: "Trajet", add: "Ajouter un jour", save: "Enregistrer", remove: "Supprimer", confirm: "Supprimer ce jour ?" }
-  : { title: "Itinerary", day: "Day", location: "Location", route: "Route", add: "Add a day", save: "Save", remove: "Delete", confirm: "Delete this day?" };
+const dict = getAdminDict(locale);
+const t = dict.tripForm;
+const f = dict.tripForm.fields;
+const c = dict.common;
+const inputClass = "mt-1 w-full rounded-md border bg-background p-2";
+const FIELDS = [
+  { key: "title", label: f.title, type: "input", required: true } as const,
+  { key: "morning", label: f.morning, type: "textarea" } as const,
+  { key: "afternoon", label: f.afternoon, type: "textarea" } as const,
+  { key: "evening", label: f.evening, type: "textarea" } as const,
+];
 ---
 <section class="space-y-4" data-trip-id={tripId}>
-  <h2 class="text-xl font-bold">{t.title} ({days.length})</h2>
+  <h2 class="font-heading text-xl font-semibold">{t.itinerary} ({days.length})</h2>
   {days.map(({ day, translations }) => {
     const byLocale = new Map(translations.map((x) => [x.locale, x]));
     return (
@@ -26,48 +36,34 @@ const t = locale === "fr"
         <summary class="cursor-pointer font-semibold">{t.day} {day.dayNumber} — {byLocale.get(locale)?.title ?? day.location ?? `#${day.dayNumber}`}</summary>
         {canUpdate ? (
           <div class="mt-4 space-y-4">
-            /* method="post" + action explicite : première barrière structurelle contre la
-               soumission native en GET vers l'URL courante — c'est ce GET qui exposait le
-               lieu et le trajet de chaque journée dans la chaîne de requête, donc dans
-               l'historique de navigation, dans l'en-tête Referer des navigations suivantes
-               et dans le journal d'accès du serveur. Le traitement réel est un appel
-               astro:actions (updateItineraryDay), sans route serveur de repli : l'action
-               pointe vers la page courante, qui n'exporte aucun POST, donc une soumission
-               native y est rejetée sans mutation. preventDefault (script) = seconde
-               barrière. L'identifiant compose l'id de la journée : un id statique
-               dupliquerait le même nom sur chaque journée de l'itinéraire. */
             <form id={`itinerary-day-form-${day.id}`} name={`itinerary-day-form-${day.id}`} method="post" action={Astro.url.pathname} data-day-form={day.id} class="grid gap-3 text-sm sm:grid-cols-3">
               <input type="hidden" name="expectedUpdatedAt" value={day.updatedAt.toISOString()} />
-              <label class="block">{t.location}<input name="location" value={day.location ?? ""} maxlength="200" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
-              <label class="block">{t.route}<input name="route" value={day.route ?? ""} maxlength="300" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
+              <div class="flex flex-col"><label for={`itinerary-day-location-${day.id}`}>{f.location}</label><input id={`itinerary-day-location-${day.id}`} name="location" value={day.location ?? ""} maxlength="200" class={inputClass} /></div>
+              <div class="flex flex-col"><label for={`itinerary-day-route-${day.id}`}>{f.route}</label><input id={`itinerary-day-route-${day.id}`} name="route" value={day.route ?? ""} maxlength="300" class={inputClass} /></div>
               <div class="flex items-end gap-2">
-                <button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save}</button>
-                <button type="button" class="rounded-md border px-4 py-2" data-day-delete>{t.remove}</button>
+                <Button type="submit" variant="primary" size="sm">{t.save}</Button>
+                <Button type="button" variant="error" size="sm" data-day-delete data-confirm={t.deleteDay}>{t.remove}</Button>
               </div>
             </form>
             {LOCALES.map((loc: Locale) => {
               const tr = byLocale.get(loc);
               return (
-                /* method="post" + action explicite : première barrière structurelle contre
-                   la soumission native en GET vers l'URL courante — c'est ce GET qui
-                   exposait le titre, le matin, l'après-midi et le soir de chaque couple
-                   journée × locale dans la chaîne de requête, donc dans l'historique de
-                   navigation, dans l'en-tête Referer des navigations suivantes et dans le
-                   journal d'accès du serveur. Le traitement réel est un appel astro:actions
-                   (upsertItineraryDayTranslation), sans route serveur de repli : l'action
-                   pointe vers la page courante, qui n'exporte aucun POST, donc une
-                   soumission native y est rejetée sans mutation. preventDefault (script) =
-                   seconde barrière. L'identifiant compose l'id de la journée et la locale :
-                   un id statique dupliquerait le même nom sur chaque couple journée ×
-                   locale. */
                 <form id={`itinerary-day-translation-form-${day.id}-${loc}`} name={`itinerary-day-translation-form-${day.id}-${loc}`} method="post" action={Astro.url.pathname} data-day-tr-form={day.id} data-locale={loc} class="grid gap-3 rounded-lg bg-muted/40 p-4 text-sm">
                   <h4 class="font-bold uppercase">{loc}</h4>
                   <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt.toISOString() ?? ""} />
-                  <label class="block">title<input name="title" value={tr?.title ?? ""} required maxlength="300" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
-                  <label class="block">morning<textarea name="morning" rows="2" class="mt-1 w-full rounded-md border bg-background p-2">{tr?.morning ?? ""}</textarea></label>
-                  <label class="block">afternoon<textarea name="afternoon" rows="2" class="mt-1 w-full rounded-md border bg-background p-2">{tr?.afternoon ?? ""}</textarea></label>
-                  <label class="block">evening<textarea name="evening" rows="2" class="mt-1 w-full rounded-md border bg-background p-2">{tr?.evening ?? ""}</textarea></label>
-                  <div><button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save} ({loc})</button></div>
+                  {FIELDS.map((entry) => (
+                    <div class="flex flex-col">
+                      <label for={`itinerary-day-${entry.key}-${day.id}-${loc}`}>{entry.label}</label>
+                      {entry.type === "input" ? (
+                        <input id={`itinerary-day-${entry.key}-${day.id}-${loc}`} name={entry.key} value={tr?.[entry.key] ?? ""} required={entry.required} maxlength="300" class={inputClass} />
+                      ) : (
+                        <textarea id={`itinerary-day-${entry.key}-${day.id}-${loc}`} name={entry.key} rows="2" class={inputClass}>{tr?.[entry.key] ?? ""}</textarea>
+                      )}
+                    </div>
+                  ))}
+                  <div class="flex flex-wrap gap-2">
+                    <Button type="submit" variant="primary" size="sm">{t.save} ({loc})</Button>
+                  </div>
                 </form>
               );
             })}
@@ -77,40 +73,36 @@ const t = locale === "fr"
     );
   })}
   {canUpdate ? (
-    /* method="post" + action explicite : première barrière structurelle contre la
-       soumission native en GET vers l'URL courante — c'est ce GET qui exposait le numéro,
-       le lieu et le trajet de la nouvelle journée dans la chaîne de requête, donc dans
-       l'historique de navigation, dans l'en-tête Referer des navigations suivantes et
-       dans le journal d'accès du serveur. Le traitement réel est un appel astro:actions
-       (createItineraryDay), sans route serveur de repli : l'action pointe vers la page
-       courante, qui n'exporte aucun POST, donc une soumission native y est rejetée sans
-       mutation. preventDefault (script) = seconde barrière. */
     <form id="itinerary-day-add-form" name="itinerary-day-add-form" method="post" action={Astro.url.pathname} data-day-add class="grid gap-3 rounded-xl border p-4 text-sm sm:grid-cols-4">
-      <label class="block">{t.day}<input name="dayNumber" type="number" min="1" required class="mt-1 w-full rounded-md border bg-background p-2" /></label>
-      <label class="block">{t.location}<input name="location" maxlength="200" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
-      <label class="block">{t.route}<input name="route" maxlength="300" class="mt-1 w-full rounded-md border bg-background p-2" /></label>
-      <div class="flex items-end"><button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.add}</button></div>
+      <div class="flex flex-col"><label for="itinerary-day-add-number">{t.dayNumber}</label><input id="itinerary-day-add-number" name="dayNumber" type="number" min="1" required class={inputClass} /></div>
+      <div class="flex flex-col"><label for="itinerary-day-add-location">{f.location}</label><input id="itinerary-day-add-location" name="location" maxlength="200" class={inputClass} /></div>
+      <div class="flex flex-col"><label for="itinerary-day-add-route">{f.route}</label><input id="itinerary-day-add-route" name="route" maxlength="300" class={inputClass} /></div>
+      <div class="flex items-end"><Button type="submit" variant="primary" size="sm">{t.addDay}</Button></div>
     </form>
   ) : null}
+  <input type="hidden" data-itinerary-i18n data-error={c.error} data-confirm-label={c.confirm} data-cancel-label={c.cancel} />
 </section>
 
 <script>
   import { actions } from "astro:actions";
   import type { Locale } from "@i18n/config";
+  import { toast } from "@atoms/toast";
+  import { confirmAdminAction } from "@/core/admin";
+
   const root = document.querySelector("section[data-trip-id]");
   const tripId = root?.getAttribute("data-trip-id") ?? "";
+  const i18n = document.querySelector<HTMLInputElement>("[data-itinerary-i18n]");
   const opt = (v: FormDataEntryValue | null): string | null => {
     const s = String(v ?? "");
     return s === "" ? null : s;
   };
+  const fail = (message: string | null | undefined) => toast.error(message ?? i18n?.dataset.error ?? "");
 
-  document.querySelectorAll("[data-day-form]").forEach((form) => {
+  document.querySelectorAll<HTMLFormElement>("[data-day-form]").forEach((form) => {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const target = e.currentTarget as HTMLFormElement | null;
-      if (!target) return;
-      const data = new FormData(target);
-      const id = target.getAttribute("data-day-form") ?? "";
+      const data = new FormData(form);
+      const id = form.getAttribute("data-day-form") ?? "";
       const level = Number(data.get("activityLevel") ?? "");
       const { error } = await actions.updateItineraryDay({
         id,
@@ -119,54 +111,58 @@ const t = locale === "fr"
         route: opt(data.get("route")),
         activityLevel: Number.isFinite(level) && level >= 1 && level <= 5 ? level : null,
       });
-      if (error) alert(error.message);
+      if (error) fail(error.message);
       else window.location.reload();
     });
   });
 
-  document.querySelectorAll("[data-day-delete]").forEach((btn) => {
+  document.querySelectorAll<HTMLButtonElement>("[data-day-delete]").forEach((btn) => {
     btn.addEventListener("click", async () => {
-      const form = (btn as HTMLElement).closest("[data-day-form]");
-      const id = form?.getAttribute("data-day-form") ?? "";
-      if (!id || !window.confirm("OK?")) return;
+      const id = btn.closest<HTMLFormElement>("[data-day-form]")?.getAttribute("data-day-form") ?? "";
+      if (!id) return;
+      const message = btn.dataset.confirm ?? "";
+      const ok = await confirmAdminAction({
+        title: message,
+        message,
+        confirmLabel: i18n?.dataset.confirmLabel ?? "OK",
+        cancelLabel: i18n?.dataset.cancelLabel ?? "",
+      });
+      if (!ok) return;
       const { error } = await actions.deleteItineraryDay({ id });
-      if (error) alert(error.message);
+      if (error) fail(error.message);
       else window.location.reload();
     });
   });
 
-  document.querySelectorAll("[data-day-tr-form]").forEach((form) => {
+  document.querySelectorAll<HTMLFormElement>("[data-day-tr-form]").forEach((form) => {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const target = e.currentTarget as HTMLFormElement | null;
-      if (!target) return;
-      const data = new FormData(target);
+      const data = new FormData(form);
       const { error } = await actions.upsertItineraryDayTranslation({
-        dayId: target.getAttribute("data-day-tr-form") ?? "",
+        dayId: form.getAttribute("data-day-tr-form") ?? "",
         expectedUpdatedAt: String(data.get("expectedUpdatedAt") ?? "") || null,
-        locale: (target.getAttribute("data-locale") ?? "en") as Locale,
+        locale: (form.getAttribute("data-locale") ?? "en") as Locale,
         title: String(data.get("title") ?? ""),
         morning: opt(data.get("morning")),
         afternoon: opt(data.get("afternoon")),
         evening: opt(data.get("evening")),
       });
-      if (error) alert(error.message);
+      if (error) fail(error.message);
       else window.location.reload();
     });
   });
 
-  document.querySelector("[data-day-add]")?.addEventListener("submit", async (e) => {
+  document.querySelector<HTMLFormElement>("[data-day-add]")?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const target = e.currentTarget as HTMLFormElement | null;
-    if (!target) return;
-    const data = new FormData(target);
+    const form = e.currentTarget as HTMLFormElement;
+    const data = new FormData(form);
     const { error } = await actions.createItineraryDay({
       tripId,
       dayNumber: Number(data.get("dayNumber")),
       location: opt(data.get("location")),
       route: opt(data.get("route")),
     });
-    if (error) alert(error.message);
+    if (error) fail(error.message);
     else window.location.reload();
   });
 </script>

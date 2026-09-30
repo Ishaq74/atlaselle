@@ -6,6 +6,8 @@ interface Props {
   placeholder?: string;
   searchPlaceholder?: string;
   clearLabel?: string;
+  /** Libellé accessible de la popup (à traduire par l'appelant). */
+  label?: string;
   class?: string;
 }
 
@@ -16,6 +18,7 @@ const {
   placeholder = 'Select icon',
   searchPlaceholder = 'Search…',
   clearLabel = 'Clear',
+  label = 'Icon picker',
   class: className,
 } = Astro.props;
 
@@ -42,7 +45,7 @@ const iconName = value?.replace(/^mdi:/, '') ?? '';
     ></span>
     <span
       id={`${id}-label`}
-      class:list={['flex-1 text-left truncate', { 'text-muted-foreground': !iconName }]}
+      class:list={['flex-1 text-start truncate', { 'text-muted-foreground': !iconName }]}
     >
       {iconName || placeholder}
     </span>
@@ -50,9 +53,9 @@ const iconName = value?.replace(/^mdi:/, '') ?? '';
 
   <div
     id={`${id}-dropdown`}
-    class="absolute left-0 z-50 mt-1 hidden w-80 rounded-lg border bg-popover p-3 shadow-lg"
+    class="absolute start-0 z-50 mt-1 hidden w-80 rounded-lg border bg-popover p-3 shadow-lg"
     role="dialog"
-    aria-label="Icon picker"
+    aria-label={label}
   >
     <input
       type="text"

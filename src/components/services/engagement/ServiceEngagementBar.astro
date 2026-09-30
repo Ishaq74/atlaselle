@@ -1,0 +1,80 @@
+---
+/**
+ * Barre d'engagement d'une prestation : réactions, favori et partage.
+ *
+ * Les trois domaines exposent la même barre, au même endroit dans la page et
+ * avec le même ordre : réactions à gauche, partage à droite. Blog et voyages
+ * ont chacun leur composant dédié ; celui-ci est l'équivalent services, ce qui
+ * évite d'avoir le markup inline dans l'orchestrateur.
+ */
+import type { Locale } from "@i18n/config";
+import { getServiceEngagementTranslations } from "@/modules/services/i18n/engagement";
+import EngagementReactionButtons from "@/components/molecules/Engagement/EngagementReactionButtons.astro";
+import EngagementShareBar from "@/components/molecules/Engagement/EngagementShareBar.astro";
+import type { ServiceReactionKey } from "@/modules/services/loaders/service-engagement.loader";
+
+interface Props {
+  serviceId: string;
+  locale: Locale;
+  isSignedIn: boolean;
+  isFavorite: boolean;
+  viewerReaction: ServiceReactionKey | null;
+  reactionCounts: Record<ServiceReactionKey, number>;
+  /** URL partageable. */
+  url: string;
+  /** Titre partagé. */
+  title: string;
+}
+
+const { locale, isSignedIn, isFavorite, viewerReaction, reactionCounts, url, title } =
+  Astro.props as Props;
+
+const t = getServiceEngagementTranslations(locale);
+---
+
+<div
+  class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border bg-card/60 px-5 py-4 shadow-sm backdrop-blur"
+  data-service-reaction-bar
+  data-service-id={Astro.props.serviceId}
+  data-t-error={t.error}
+  data-t-updated={t.success}
+>
+  {isSignedIn ? (
+    <EngagementReactionButtons
+      activeReaction={viewerReaction}
+      counts={reactionCounts}
+      isFavorite={isFavorite}
+      showFavorite
+      isSignedIn
+      labels={{
+        favorite: t.favorite,
+        unfavorite: t.unfavorite,
+        reactions: t.reactionLabel,
+        reaction: t.reactionLabel,
+      }}
+    />
+  ) : (
+    <p class="text-sm text-muted-foreground">{t.reactionLabel}</p>
+  )}
+
+  <EngagementShareBar
+    url={url}
+    title={title}
+    labels={{
+      share: t.share,
+      shareOnX: t.shareOnX,
+      shareOnFacebook: t.shareOnFacebook,
+      shareOnLinkedIn: t.shareOnLinkedIn,
+      copyLink: t.copyLink,
+      linkCopied: t.linkCopied,
+      copyLinkError: t.copyLinkError,
+    }}
+  />
+</div>
+
+<script>
+  import { initServiceEngagementBar } from "@/modules/services/client/engagement-bar";
+
+  initServiceEngagementBar();
+  document.addEventListener("astro:after-swap", initServiceEngagementBar);
+</script>

@@ -6,7 +6,7 @@ import { requirePermission } from "@lib/auth-guards";
 import { hasServicePermission } from "@/modules/services/permissions";
 import { getServiceAdminData, getServiceAdminStats, getServiceAdminTaxonomy, getServiceModerationQueue } from "@/modules/services/admin";
 import { getServiceCategories, getServiceProviders, getServiceTags } from "@/modules/services/loaders";
-import ServicesAdminPage from "@/components/services/ServicesAdminPage.astro";
+import ServicesAdminPage from "@/components/services/admin/ServicesAdminPage.astro";
 import { getServiceTranslations } from "@/modules/services/i18n";
 import { LOCALES } from "@i18n/config";
 export const prerender = false;

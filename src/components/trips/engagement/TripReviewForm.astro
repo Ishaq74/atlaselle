@@ -1,0 +1,44 @@
+---
+/**
+ * Formulaire d'avis sur un voyage.
+ *
+ * Même découpage que `components/blog/engagement/BlogReviewForm.astro` et
+ * `components/services/engagement/ServiceReviewForm.astro`.
+ */
+import type { Locale } from "@i18n/config";
+import { getTripEngagementTranslations } from "@/modules/trips/i18n/engagement";
+import EngagementReviewFormCard from "@/components/molecules/Engagement/EngagementReviewFormCard.astro";
+
+interface Props {
+  tripId: string;
+  locale: Locale;
+  action: string;
+}
+
+const { tripId, locale, action } = Astro.props as Props;
+const t = getTripEngagementTranslations(locale);
+---
+
+<EngagementReviewFormCard
+  formId="trip-review-form"
+  action={action}
+  labels={{
+    title: t.submitReview,
+    yourRating: t.reviewRating,
+    titlePlaceholder: t.reviewTitleLabel,
+    content: t.reviewContent,
+    recommend: t.reviewRecommended,
+    submit: t.submitReview,
+    error: t.error,
+    submitted: t.success,
+  }}
+>
+  <input type="hidden" name="tripId" value={tripId} slot="hidden" />
+</EngagementReviewFormCard>
+
+<script>
+  import { initTripEngagementForms } from "@/modules/trips/client/engagement-forms";
+
+  initTripEngagementForms();
+  document.addEventListener("astro:after-swap", initTripEngagementForms);
+</script>

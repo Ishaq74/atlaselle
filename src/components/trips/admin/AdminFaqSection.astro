@@ -20,7 +20,7 @@ const f = dict.tripForm.fields;
 const c = dict.common;
 const inputClass = "w-full rounded-md border bg-background p-2";
 ---
-<section class="space-y-4" data-trip-id={tripId}>
+<section class="space-y-4" data-trip-faq data-trip-id={tripId}>
   <h2 class="font-heading text-xl font-semibold">{t.faq} ({faqs.linked.length})</h2>
   {faqs.linked.map(({ faq, translations }) => {
     const byLocale = new Map(translations.map((x) => [x.locale, x]));
@@ -98,86 +98,8 @@ const inputClass = "w-full rounded-md border bg-background p-2";
 </section>
 
 <script>
-  import { actions } from "astro:actions";
-  import type { Locale } from "@i18n/config";
-  import { toast } from "@atoms/toast";
-  import { confirmAdminAction } from "@/core/admin";
+  import { initAdminFaqSection } from "@/modules/trips/client/admin-faq";
 
-  const root = document.querySelector("section[data-trip-id]");
-  const tripId = root?.getAttribute("data-trip-id") ?? "";
-  const i18n = document.querySelector<HTMLInputElement>("[data-faq-i18n]");
-  const fail = (message: string | null | undefined) => toast.error(message ?? i18n?.dataset.error ?? "");
-  const ask = async (message: string) =>
-    confirmAdminAction({
-      title: message,
-      message,
-      confirmLabel: i18n?.dataset.confirmLabel ?? "OK",
-      cancelLabel: i18n?.dataset.cancelLabel ?? "",
-    });
-
-  document.querySelectorAll<HTMLFormElement>("[data-faq-tr]").forEach((form) => {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const data = new FormData(form);
-      const { error } = await actions.upsertFaqTranslation({
-        faqId: form.getAttribute("data-id") ?? "",
-        expectedUpdatedAt: String(data.get("expectedUpdatedAt") ?? "") || null,
-        locale: (form.getAttribute("data-locale") ?? "en") as Locale,
-        question: String(data.get("question") ?? ""),
-        answer: String(data.get("answer") ?? ""),
-      });
-      if (error) fail(error.message);
-      else window.location.reload();
-    });
-  });
-
-  document.querySelectorAll<HTMLButtonElement>("[data-faq-unlink]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const faqId = btn.closest<HTMLElement>("[data-faq-id]")?.getAttribute("data-faq-id") ?? "";
-      if (!faqId) return;
-      const message = btn.dataset.confirm ?? "";
-      if (message && !(await ask(message))) return;
-      const { error } = await actions.unlinkFaqFromTrip({ tripId, faqId });
-      if (error) fail(error.message);
-      else window.location.reload();
-    });
-  });
-
-  document.querySelectorAll<HTMLButtonElement>("[data-faq-delete]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const id = btn.closest<HTMLElement>("[data-faq-id]")?.getAttribute("data-faq-id") ?? "";
-      if (!id) return;
-      const message = btn.dataset.confirm ?? "";
-      if (message && !(await ask(message))) return;
-      const { error } = await actions.deleteFaq({ id });
-      if (error) fail(error.message);
-      else window.location.reload();
-    });
-  });
-
-  document.querySelector<HTMLFormElement>("[data-faq-link]")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const form = e.currentTarget as HTMLFormElement;
-    const data = new FormData(form);
-    const { error } = await actions.linkFaqToTrip({ tripId, faqId: String(data.get("faqId") ?? "") });
-    if (error) fail(error.message);
-    else {
-      toast.success(i18n?.dataset.linked ?? "");
-      window.location.reload();
-    }
-  });
-
-  document.querySelector<HTMLFormElement>("[data-faq-create]")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const form = e.currentTarget as HTMLFormElement;
-    const data = new FormData(form);
-    const { error } = await actions.createFaq({
-      tripId,
-      locale: (String(data.get("locale") ?? "en")) as Locale,
-      question: String(data.get("question") ?? ""),
-      answer: String(data.get("answer") ?? ""),
-    });
-    if (error) fail(error.message);
-    else window.location.reload();
-  });
+  initAdminFaqSection();
+  document.addEventListener("astro:after-swap", initAdminFaqSection);
 </script>

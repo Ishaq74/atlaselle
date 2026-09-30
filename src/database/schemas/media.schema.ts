@@ -4,6 +4,7 @@ import {
   text,
   timestamp,
   integer,
+  jsonb,
   uniqueIndex,
   index,
   check,
@@ -51,7 +52,13 @@ export const mediaFiles = pgTable(
     size: integer("size").notNull(),
     width: integer("width"),
     height: integer("height"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    // Variantes WebP responsive générées à l'upload (voir src/media/variants.ts).
+    // `[{ width, height, url }]` — permet de servir un <picture> avec srcset
+    // au lieu du seul original, qui pour une photo brute peut peser plusieurs Mo.
+    // NULL / [] = aucune variante : le rendu retombe sur `url` (original).
+    variants: jsonb("variants").$type<
+      Array<{ width: number; height: number; url: string }>
+    >(),    createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())

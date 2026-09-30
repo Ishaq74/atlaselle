@@ -75,6 +75,10 @@ export default {
     localeSwitcher: {
       title: 'Languages',
     },
+    navigation: {
+      title: 'Navigation',
+      description: 'Back-office main navigation.',
+    },
     tabs: {
       stats: 'Statistics',
       users: 'Users',
@@ -351,6 +355,7 @@ export default {
         restoreVersionConfirm: 'Restore this version? A snapshot of the current state will be created automatically.',
         versionRestored: 'Version restored.',
         snapshotNotePrompt: 'Optional note for this snapshot:',
+        snapshotNoteLabel: 'Snapshot note',
         snapshotCreated: 'Snapshot created.',
         insertMedia: 'Insert media',
         noPages: 'No pages created.',
@@ -383,7 +388,7 @@ export default {
           allTemplates: 'All templates',
           allLocales: 'All languages',
         },
-        sort: {
+        sort: { label: 'Sort',
           newest: 'Newest',
           oldest: 'Oldest',
           nameAsc: 'Name A–Z',

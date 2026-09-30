@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 
 // Mock the env module before importing send
 vi.mock('@smtp/env', () => ({
@@ -23,6 +23,10 @@ const payload = { to: 'user@test.com', subject: 'Hello', html: '<p>Hi</p>' };
 describe('sendEmail', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Ces tests exercent le ROUTAGE vers les fournisseurs via mocks : il faut
+    // désactiver le garde-fou « aucun envoi réel en test » de src/smtp/send.ts,
+    // sinon sendEmail court-circuite en écrivant dans logs/test-emails.
+    process.env.SMTP_ALLOW_REAL_SEND_IN_TEST = 'true';
   });
 
   it('routes to BREVO provider', async () => {
@@ -219,5 +223,33 @@ describe('sendEmail', () => {
     await expect(sendEmail({ ...payload, subject: 'Hello\r\nBcc: evil@test.com' }))
       .rejects.toThrow('Invalid subject — contains line terminators');
     expect(mockBrevoSend).not.toHaveBeenCalled();
+  });
+});
+
+describe('garde-fou "aucun envoi réel en test"', () => {
+  const originalOptOut = process.env.SMTP_ALLOW_REAL_SEND_IN_TEST;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    delete process.env.SMTP_ALLOW_REAL_SEND_IN_TEST;
+  });
+
+  afterAll(() => {
+    if (originalOptOut === undefined) delete process.env.SMTP_ALLOW_REAL_SEND_IN_TEST;
+    else process.env.SMTP_ALLOW_REAL_SEND_IN_TEST = originalOptOut;
+  });
+
+  it('n’appelle aucun fournisseur et résout sans erreur sous NODE_ENV=test', async () => {
+    vi.mocked(getSmtpProvider).mockReturnValue('BREVO');
+    await expect(sendEmail(payload)).resolves.toBeUndefined();
+    expect(mockBrevoSend).not.toHaveBeenCalled();
+    expect(mockResendSend).not.toHaveBeenCalled();
+    expect(mockNodemailerSend).not.toHaveBeenCalled();
+  });
+
+  it('refuse l’opt-out explicite sans qu’un provider soit appelé', async () => {
+    vi.mocked(getSmtpProvider).mockReturnValue('NODEMAILER');
+    await expect(sendEmail(payload)).resolves.toBeUndefined();
+    expect(mockNodemailerSend).not.toHaveBeenCalled();
   });
 });

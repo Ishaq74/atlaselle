@@ -14,6 +14,10 @@ interface Props extends HTMLAttributes<"a"> {
   logoDarkSrc?: ImageMetadata;
   logoLightUrl?: string | null;
   logoDarkUrl?: string | null;
+  logoLightWidth?: number;
+  logoLightHeight?: number;
+  logoDarkWidth?: number;
+  logoDarkHeight?: number;
   logoAlt?: string;
   logoHeight?: string;
   hideLogo?: boolean;
@@ -31,6 +35,10 @@ const {
   logoDarkSrc = logoDark,
   logoLightUrl,
   logoDarkUrl,
+  logoLightWidth,
+  logoLightHeight,
+  logoDarkWidth,
+  logoDarkHeight,
   logoAlt,
   logoHeight = "h-8",
   hideLogo = false,
@@ -44,6 +52,33 @@ const {
 } = Astro.props;
 
 const useDbLogo = !!(logoLightUrl || logoDarkUrl);
+
+/**
+ * Dimensions intrinsèques de repli.
+ *
+ * Un `<img>` sans `width`/`height` explicites est signalé par Lighthouse
+ * (« Image elements do not have explicit width and height ») sur TOUTES les
+ * pages qui affichent l'en-tête — 49 pages auditées sur 52 — et provoque un
+ * décalage de mise en page (CLS) puisque le CSS ne fixe que la hauteur
+ * (`h-8 w-auto`) : le navigateur ne peut alors déduire le ratio.
+ *
+ * Le registre `logoDimensions` ne contient pas forcément un logo déposé via le
+ * CMS dans `/uploads`, et l'attribut disparaissait purement et simplement du
+ * HTML rendu. On retombe donc sur les mêmes dimensions que la branche statique
+ * (voir plus bas) : elles ne servent qu'à établir le ratio, la taille affichée
+ * reste dictée par le CSS.
+ */
+const LOGO_FALLBACK_WIDTH = 120;
+const LOGO_FALLBACK_HEIGHT = 32;
+
+const lightIntrinsic = {
+  width: (logoLightUrl ? logoLightWidth : logoDarkWidth) ?? LOGO_FALLBACK_WIDTH,
+  height: (logoLightUrl ? logoLightHeight : logoDarkHeight) ?? LOGO_FALLBACK_HEIGHT,
+};
+const darkIntrinsic = {
+  width: (logoDarkUrl ? logoDarkWidth : logoLightWidth) ?? LOGO_FALLBACK_WIDTH,
+  height: (logoDarkUrl ? logoDarkHeight : logoLightHeight) ?? LOGO_FALLBACK_HEIGHT,
+};
 
 const alt = logoAlt ?? "";
 
@@ -89,6 +124,8 @@ function toWebpUrl(url: string): string {
             src={logoLightUrl ?? logoDarkUrl!}
             alt={alt}
             class:list={[logoHeight, "w-auto"]}
+            width={lightIntrinsic.width}
+            height={lightIntrinsic.height}
             loading="eager"
             fetchpriority="high"
           />
@@ -99,6 +136,8 @@ function toWebpUrl(url: string): string {
             src={logoDarkUrl ?? logoLightUrl!}
             alt={alt}
             class:list={[logoHeight, "w-auto"]}
+            width={darkIntrinsic.width}
+            height={darkIntrinsic.height}
             loading="eager"
             fetchpriority="high"
           />

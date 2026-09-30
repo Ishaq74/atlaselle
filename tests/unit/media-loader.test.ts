@@ -34,15 +34,25 @@ import {
 // ── Helpers ─────────────────────────────────────────────────────────
 
 function selectChain(rows: any[]) {
+  // Chaîne "dynamique" : les loaders paginés appellent `.orderBy().$dynamic()`
+  // avant d'appliquer `limit` / `offset` (signature Drizzle).
+  const dynamic: any = Object.assign(Promise.resolve(rows), {
+    limit: vi.fn().mockResolvedValue(rows),
+    offset: vi.fn().mockResolvedValue(rows),
+    $dynamic: vi.fn(),
+  });
+  dynamic.$dynamic.mockReturnValue(dynamic);
   const terminal: any = Object.assign(Promise.resolve(rows), {
     limit: vi.fn().mockResolvedValue(rows),
     groupBy: vi.fn().mockResolvedValue(rows),
-    orderBy: vi.fn().mockReturnValue(Object.assign(Promise.resolve(rows), { limit: vi.fn().mockResolvedValue(rows) })),
+    orderBy: vi.fn().mockReturnValue(dynamic),
+    $dynamic: vi.fn(() => dynamic),
   });
   const fromResult: any = Object.assign(Promise.resolve(rows), {
     where: vi.fn().mockReturnValue(terminal),
     orderBy: vi.fn().mockReturnValue(terminal),
     limit: vi.fn().mockResolvedValue(rows),
+    offset: vi.fn().mockResolvedValue(rows),
     groupBy: vi.fn().mockResolvedValue(rows),
   });
   return {

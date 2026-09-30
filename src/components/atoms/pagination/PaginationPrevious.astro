@@ -9,22 +9,24 @@ import PaginationLink from "./PaginationLink.astro";
 
 type Props = HTMLAttributes<"a"> & {
   size?: VariantProps<typeof ButtonVariants.button>["size"];
+  /** Libellé accessible (à traduire par l'appelant). */
+  label?: string;
 };
 
 export const paginationPrevious = tv({ base: "group gap-1" });
 
-const { class: className, size = "md", ...rest } = Astro.props;
+const { class: className, size = "md", label = "Go to previous page", ...rest } = Astro.props;
 ---
 
 <PaginationLink
-  aria-label="Go to previous page"
+  aria-label={label}
   size={size}
   class={paginationPrevious({ class: className })}
   {...rest}
   data-slot="pagination-previous"
 >
   <slot name="icon">
-    <ChevronLeft class="size-4 transition-transform group-hover:-translate-x-1" />
+    <ChevronLeft class="size-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180" />
   </slot>
   <slot />
 </PaginationLink>

@@ -13,6 +13,8 @@ import { NativeSelect, NativeSelectOption } from '@atoms/native-select';
 import { Separator } from '@atoms/separator';
 import { Badge } from '@atoms/badge';
 import Button from '@atoms/button/Button.astro';
+import AdminPagination from '@molecules/AdminPagination/AdminPagination.astro';
+import { getAdminDict } from '@i18n/admin';
 
 interface FolderFlat {
   id: string;
@@ -31,9 +33,13 @@ interface Props {
   fileCounts: Record<string, number>;
   stats: { totalFiles: number; totalSize: number; totalFolders: number };
   baseUrl?: string;
+  page?: number;
+  total?: number;
+  pageSize?: number;
+  paginationUrl?: URL;
 }
 
-const { t, locale, folderTree, foldersList, files, currentFolderId, editFile, fileCounts, stats, baseUrl } = Astro.props;
+const { t, locale, folderTree, foldersList, files, currentFolderId, editFile, fileCounts, stats, baseUrl, page = 1, total, pageSize = 48, paginationUrl } = Astro.props;
 const mediaT = t.admin.cms.media;
 
 const adminUrl = baseUrl ?? `/${locale}/admin/media`;
@@ -119,6 +125,8 @@ function filenameExt(name: string): string {
   data-t-copied-url={mediaT.copiedUrl}
   data-t-confirm-delete-file={mediaT.confirmDeleteFile}
   data-t-confirm-delete-folder={mediaT.confirmDeleteFolder}
+  data-confirm-label={getAdminDict(locale).common.confirm}
+  data-cancel-label={getAdminDict(locale).common.cancel}
   class="grid gap-6"
 >
   <h1 class="font-heading mb-6 text-2xl font-semibold">{t.admin.tabs.media}</h1>
@@ -161,16 +169,16 @@ function filenameExt(name: string): string {
         </>
       ))}
       {currentFolderId && (
-        <Badge variant="secondary" class="ml-2 text-[10px]">{pluralize(files.length, mediaT.counts.file, mediaT.counts.files)}</Badge>
+        <Badge variant="secondary" class="ms-2 text-[10px]">{pluralize(total ?? files.length, mediaT.counts.file, mediaT.counts.files)}</Badge>
       )}
     </nav>
     <div class="flex gap-2">
       <Button id="create-folder-btn" size="sm" variant="outline">
-        <svg class="size-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" /></svg>
+        <svg class="size-4 me-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" /></svg>
         {mediaT.newFolder}
       </Button>
       <Button id="upload-file-btn" size="sm">
-        <svg class="size-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>
+        <svg class="size-4 me-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" /></svg>
         {mediaT.upload}
       </Button>
     </div>
@@ -247,8 +255,8 @@ function filenameExt(name: string): string {
               <Label for="rename-file-mobile">{mediaT.fileName}</Label>
               <div class="flex gap-2">
                 <div class="relative flex-1">
-                  <Input id="rename-file-mobile" value={filenameWithoutExt(editFile.filename)} class="pr-14 font-mono text-xs rename-input" data-file-id={editFile.id} data-original={editFile.filename} />
-                  <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground font-mono">{filenameExt(editFile.filename)}</span>
+                  <Input id="rename-file-mobile" value={filenameWithoutExt(editFile.filename)} class="pe-14 font-mono text-xs rename-input" data-file-id={editFile.id} data-original={editFile.filename} />
+                  <span class="pointer-events-none absolute inset-y-0 end-3 flex items-center text-xs text-muted-foreground font-mono">{filenameExt(editFile.filename)}</span>
                 </div>
                 <Button size="sm" variant="outline" data-file-id={editFile.id} class="rename-btn">{mediaT.rename}</Button>
               </div>
@@ -286,7 +294,7 @@ function filenameExt(name: string): string {
               const altData = editFile.alts.find(a => a.locale === loc);
               return (
                 <div class="grid gap-1.5" data-alt-locale={loc}>
-                  <Label for={`alt-mobile-${loc}`}>{LOCALE_LABELS[loc]} {altData ? <Badge variant="secondary" class="ml-1 text-[10px]">✓</Badge> : <Badge variant="outline" class="ml-1 text-[10px]">{mediaT.altMissing}</Badge>}</Label>
+                  <Label for={`alt-mobile-${loc}`}>{LOCALE_LABELS[loc]} {altData ? <Badge variant="secondary" class="ms-1 text-[10px]">✓</Badge> : <Badge variant="outline" class="ms-1 text-[10px]">{mediaT.altMissing}</Badge>}</Label>
                   <Input id={`alt-mobile-${loc}`} value={altData?.alt ?? ''} placeholder={`${mediaT.altPlaceholder} (${loc})`} data-file-id={editFile.id} data-locale={loc} class="alt-input" />
                   <Input id={`title-mobile-${loc}`} value={altData?.title ?? ''} placeholder={`${mediaT.titlePlaceholder} (${loc})`} data-file-id={editFile.id} data-locale={loc} class="title-input text-xs" />
                 </div>
@@ -319,7 +327,7 @@ function filenameExt(name: string): string {
                     </div>
                   </a>
                   <button
-                    class="delete-folder-btn p-2 mr-1 rounded opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+                    class="delete-folder-btn p-2 me-1 rounded opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
                     data-folder-id={child.id}
                     data-folder-name={child.name}
                     title={mediaT.deleteFolder}
@@ -366,7 +374,7 @@ function filenameExt(name: string): string {
       {files.length > 0 ? (
         <div>
           <h3 class="mb-3 text-sm font-medium text-muted-foreground">
-            {mediaT.filesHeading} <Badge variant="secondary">{files.length}</Badge>
+            {mediaT.filesHeading} <Badge variant="secondary">{total ?? files.length}</Badge>
           </h3>
           <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
             {files.map((file) => {
@@ -400,7 +408,7 @@ function filenameExt(name: string): string {
                     )}
                     {/* Missing alt indicator */}
                     {!altForLocale && (
-                      <div class="absolute top-1 right-1">
+                      <div class="absolute top-1 end-1">
                         <Badge variant="error" class="text-[10px] px-1 py-0">ALT</Badge>
                       </div>
                     )}
@@ -428,6 +436,14 @@ function filenameExt(name: string): string {
           </CardContent>
         </Card>
         )
+      )}
+
+      {paginationUrl && (
+        <AdminPagination
+          currentPage={page}
+          totalPages={Math.max(1, Math.ceil((total ?? files.length) / pageSize))}
+          baseUrl={paginationUrl}
+        />
       )}
     </div>
 
@@ -487,11 +503,11 @@ function filenameExt(name: string): string {
                 <div class="relative flex-1">
                   <Input
                     value={filenameWithoutExt(editFile.filename)}
-                    class="pr-14 font-mono text-xs rename-input"
+                    class="pe-14 font-mono text-xs rename-input"
                     data-file-id={editFile.id}
                     data-original={editFile.filename}
                   />
-                  <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground font-mono">
+                  <span class="pointer-events-none absolute inset-y-0 end-3 flex items-center text-xs text-muted-foreground font-mono">
                     {filenameExt(editFile.filename)}
                   </span>
                 </div>
@@ -545,9 +561,9 @@ function filenameExt(name: string): string {
                   <Label>
                     {LOCALE_LABELS[loc]}
                     {altData ? (
-                      <Badge variant="secondary" class="ml-1 text-[10px]">✓</Badge>
+                      <Badge variant="secondary" class="ms-1 text-[10px]">✓</Badge>
                     ) : (
-                      <Badge variant="outline" class="ml-1 text-[10px]">{mediaT.altMissing}</Badge>
+                      <Badge variant="outline" class="ms-1 text-[10px]">{mediaT.altMissing}</Badge>
                     )}
                   </Label>
                   <Input
@@ -588,6 +604,7 @@ function filenameExt(name: string): string {
 <script>
   import { actions } from 'astro:actions';
   import { toast } from '@atoms/toast';
+  import { confirmAdminAction } from '@/core/admin';
   import type { Locale } from '@i18n/config';
 
   class MediaManager extends HTMLElement {
@@ -618,6 +635,15 @@ function filenameExt(name: string): string {
 
     private showError(msg: string) {
       toast.error(msg);
+    }
+
+    private ask(message: string) {
+      return confirmAdminAction({
+        title: message,
+        message,
+        confirmLabel: this.dataset.confirmLabel || 'OK',
+        cancelLabel: this.dataset.cancelLabel || '',
+      });
     }
 
     // ── Folder CRUD ──
@@ -652,7 +678,7 @@ function filenameExt(name: string): string {
           const folderName = btn.dataset.folderName ?? '';
           if (!folderId) return;
           const confirmMessage = (this.dataset.tConfirmDeleteFolder ?? 'Delete folder {name}?').replace('{name}', folderName);
-          if (!confirm(confirmMessage)) return;
+          if (!(await this.ask(confirmMessage))) return;
 
           const { error } = await actions.deleteMediaFolder({ id: folderId });
           if (error) { this.showError(error.message); return; }
@@ -718,7 +744,7 @@ function filenameExt(name: string): string {
         btn.addEventListener('click', async () => {
           const fileId = btn.dataset.fileId;
           if (!fileId) return;
-          if (!confirm(this.dataset.tConfirmDeleteFile ?? 'Supprimer ce fichier ?')) return;
+          if (!(await this.ask(this.dataset.tConfirmDeleteFile ?? 'Supprimer ce fichier ?'))) return;
 
           const { error } = await actions.deleteMediaFile({ id: fileId });
           if (error) { this.showError(error.message); return; }

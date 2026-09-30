@@ -6,10 +6,9 @@ import type { AppUser } from "@lib/types";
 import { Card, CardContent } from "@atoms/card";
 import EngagementTabs from "@/components/molecules/Engagement/EngagementTabs.astro";
 import EngagementReviewStats from "@/components/molecules/Engagement/EngagementReviewStats.astro";
-import EngagementReviewCard, {
-  type EngagementReviewItem,
-} from "@/components/molecules/Engagement/EngagementReviewCard.astro";
-import ReviewForm from "./ReviewForm.astro";
+import EngagementReviewCard from "@/components/molecules/Engagement/EngagementReviewCard.astro";
+import { toReviewItem } from "@/modules/blog/engagement/adapter";
+import BlogReviewForm from "./BlogReviewForm.astro";
 
 interface Props {
   locale: Locale;
@@ -25,31 +24,19 @@ const { locale, blogT, postId, reviews, stats, user, allowReviews } = Astro.prop
 const hasReviews = reviews.length > 0;
 const defaultTab = hasReviews ? "list" : "write";
 
+/* Libellés de l'atome d'avis. Les deux premiers doivent DIFFÉRER : l'atome
+   affiche `recommended` sur un badge vert et `notRecommended` sur un badge
+   rouge ; les confondre affichait « Recommended » y compris sur un avis
+   négatif. Ils étaient ici en dur en anglais, donc aussi faux en fr, es et ar —
+   seuls les voyages et les services localisaient. */
 const cardLabels = {
-  recommended: "Recommended",
-  notRecommended: "Not recommended",
-  helpful: "Helpful",
-  helpfulMark: "Helpful",
-  helpfulUnmark: "Not helpful",
-  report: "Report",
-  reply: "Reply",
-};
-
-/** Adapte le modèle blog au cœur présentationnel partagé. */
-const toItem = (review: BlogReviewWithAuthor): EngagementReviewItem => {
-  const name = review.author?.name ?? "Anonymous";
-  return {
-    id: review.id,
-    rating: review.rating,
-    title: review.title,
-    content: review.content,
-    isRecommended: review.isRecommended,
-    helpfulCount: review.helpfulCount,
-    createdAt: review.createdAt,
-    authorName: name,
-    authorImage: review.author?.image ?? null,
-    viewerHelpful: review.userVote ?? null,
-  };
+  recommended: blogT.labels.recommendLabel,
+  notRecommended: blogT.labels.notRecommendedLabel,
+  helpful: blogT.labels.reviewHelpful,
+  helpfulMark: blogT.labels.reviewHelpful,
+  helpfulUnmark: blogT.labels.reviewNotHelpful,
+  report: blogT.labels.reviewReport,
+  reply: blogT.labels.writeComment,
 };
 ---
 
@@ -87,7 +74,7 @@ const toItem = (review: BlogReviewWithAuthor): EngagementReviewItem => {
             reviews.map((review) => (
               <EngagementReviewCard
                 locale={locale}
-                review={toItem(review)}
+                review={toReviewItem(review)}
                 isSignedIn={Boolean(user)}
                 labels={cardLabels}
               />
@@ -102,7 +89,7 @@ const toItem = (review: BlogReviewWithAuthor): EngagementReviewItem => {
         </div>
 
         <div slot="write">
-          <ReviewForm locale={locale} blogT={blogT} postId={postId} user={user} />
+          <BlogReviewForm locale={locale} blogT={blogT} postId={postId} user={user} />
         </div>
       </EngagementTabs>
     </>

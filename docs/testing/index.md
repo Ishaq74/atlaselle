@@ -17,6 +17,7 @@
 | [unit.md](unit.md) | Tests unitaires — détail de chaque test, matrice de couverture |
 | [integration.md](integration.md) | Tests d'intégration — better-auth testUtils, sessions, admin, orgs, audit, export |
 | [e2e.md](e2e.md) | Tests E2E Playwright — pages publiques, guards, auth flow, global-setup |
+| [qa-parallel.md](qa-parallel.md) | **QA parallélisée** — voies E2E par navigateur, bases jetables, fusion de rapports, dépannage |
 | [a11y.md](a11y.md) | **Accessibilité & Performance** — Pa11y-ci (WCAG AAA) + Lighthouse CI |
 | [ci.md](ci.md) | Pipeline GitHub Actions — 4 jobs qualité + deploy + summary |
 | [gaps.md](gaps.md) | **Failles & manques** — tout ce qui reste à tester, par priorité |

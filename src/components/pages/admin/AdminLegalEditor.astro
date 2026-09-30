@@ -13,6 +13,7 @@ import { Input } from '@atoms/input';
 import { Label } from '@atoms/label';
 import Badge from '@atoms/badge/Badge.astro';
 import { Textarea } from '@atoms/textarea';
+import { getAdminDict } from '@i18n/admin';
 
 type PageRow = typeof pages.$inferSelect;
 type SectionRow = typeof pageSections.$inferSelect;
@@ -62,7 +63,7 @@ const parsedSections = sections
       const raw = s.content;
       parsed = (typeof raw === 'string' ? JSON.parse(raw) : raw) as FaqSection;
     } catch { /* keep default */ }
-    return { id: s.id, isVisible: s.isVisible, sortOrder: s.sortOrder, data: parsed };
+    return { id: s.id, isVisible: s.isVisible, sortOrder: s.sortOrder, updatedAt: s.updatedAt, data: parsed };
   });
 ---
 
@@ -75,6 +76,8 @@ const parsedSections = sections
   data-t-error={t.admin.cms.common.error}
   data-t-confirm-tab={legal.confirmDeleteTab}
   data-t-confirm-item={legal.confirmDeleteItem}
+  data-confirm-label={getAdminDict(locale).common.confirm}
+  data-cancel-label={getAdminDict(locale).common.cancel}
   data-t-new-tab-title={legal.newTabTitle}
   data-t-question={legal.question}
   data-t-answer={legal.answer}
@@ -156,7 +159,7 @@ const parsedSections = sections
   ) : (
     <div class="space-y-6" id="sections-list">
       {parsedSections.map((section, idx) => (
-        <Card class="section-card" data-section-id={section.id} data-sort-order={section.sortOrder}>
+        <Card class="section-card" data-section-id={section.id} data-sort-order={section.sortOrder} data-updated-at={section.updatedAt.toISOString()}>
           <Collapsible defaultOpen={false}>
             <CardHeader>
               <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -273,6 +276,7 @@ const parsedSections = sections
 <script>
   import { actions } from 'astro:actions';
   import { toast } from '@atoms/toast';
+  import { confirmAdminAction } from '@/core/admin';
 
   class LegalEditor extends HTMLElement {
     connectedCallback() {
@@ -282,6 +286,7 @@ const parsedSections = sections
       const tError = this.dataset.tError ?? '';
       const tConfirmTab = this.dataset.tConfirmTab ?? '';
       const tConfirmItem = this.dataset.tConfirmItem ?? '';
+      const ask = (message: string) => confirmAdminAction({ title: message, message, confirmLabel: this.dataset.confirmLabel || 'OK', cancelLabel: this.dataset.cancelLabel || '' });
       const tNewTabTitle = this.dataset.tNewTabTitle ?? '';
       const tQuestion = this.dataset.tQuestion ?? '';
       const tAnswer = this.dataset.tAnswer ?? '';
@@ -411,7 +416,7 @@ const parsedSections = sections
           item.dataset.key = v.key;
           item.className = 'var-option flex items-center gap-3 px-3 py-2 cursor-pointer text-sm transition-colors';
           const valueHtml = v.value
-            ? `<span class="ml-auto text-xs text-muted-foreground/60 truncate max-w-32">${escapeHtml(v.value)}</span>`
+            ? `<span class="ms-auto text-xs text-muted-foreground/60 truncate max-w-32">${escapeHtml(v.value)}</span>`
             : '';
           item.innerHTML = `
             <code class="font-mono text-xs bg-muted rounded px-1.5 py-0.5 shrink-0 text-primary">\u007B\u007B${escapeHtml(v.key)}\u007D\u007D</code>
@@ -595,8 +600,11 @@ const parsedSections = sections
             items,
           });
 
-          const { error } = await actions.updateSection({ id: sectionId, content });
-          if (!error) toast.success(tSaved);
+          const { data, error } = await actions.updateSection({ id: sectionId, content, expectedUpdatedAt: (card as HTMLElement).dataset.updatedAt || undefined });
+          if (!error) {
+            if (data?.updatedAt) (card as HTMLElement).dataset.updatedAt = new Date(data.updatedAt).toISOString();
+            toast.success(tSaved);
+          }
           else toast.error(error.message ?? tError);
         });
       });
@@ -615,7 +623,7 @@ const parsedSections = sections
       // ─── Delete tab ───
       this.querySelectorAll<HTMLElement>('.delete-tab-btn').forEach((btn) => {
         btn.addEventListener('click', async () => {
-          if (!confirm(tConfirmTab)) return;
+          if (!(await ask(tConfirmTab))) return;
           const id = btn.dataset.sectionId!;
           const { error } = await actions.deleteSection({ id });
           if (!error) { toast.success(tDeleted); btn.closest('.section-card')?.remove(); }
@@ -689,8 +697,8 @@ const parsedSections = sections
 
       // ─── Remove Q&A item ───
       this.querySelectorAll<HTMLElement>('.remove-item-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          if (!confirm(tConfirmItem)) return;
+        btn.addEventListener('click', async () => {
+          if (!(await ask(tConfirmItem))) return;
           btn.closest('.item-row')?.remove();
         });
       });
@@ -749,3 +757,10 @@ const parsedSections = sections
     vertical-align: baseline;
   }
 </style>
+
+<script>
+  import { registerAdminDirtyGuard } from "@/core/admin/dirty-guard";
+
+  registerAdminDirtyGuard();
+  document.addEventListener("astro:after-swap", () => registerAdminDirtyGuard());
+</script>

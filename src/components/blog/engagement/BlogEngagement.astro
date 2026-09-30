@@ -1,0 +1,84 @@
+---
+/**
+ * Engagement d'un article de blog — chef d'orchestre.
+ *
+ * Même rôle que `components/trips/engagement/TripEngagement.astro` et
+ * `components/services/detail/ServiceEngagement.astro` : la page n'assemble que
+ * le contenu, ici on regroupe la barre (réactions + partage), les avis et les
+ * commentaires.
+ *
+ * Purement présentationnel : les données viennent des loaders, la soumission et
+ * les actions sont dans `modules/blog/client/`.
+ */
+import type { Locale } from "@i18n/config";
+import type { AppUser } from "@/lib/types";
+import type { BlogCommentWithAuthor, BlogReviewWithAuthor } from "@/lib/blog/types";
+import type { BlogReactionType } from "@/lib/blog/constants";
+import type { BlogTranslations } from "@i18n/config";
+import BlogEngagementBar from "@/components/blog/engagement/BlogEngagementBar.astro";
+import BlogCommentSection from "@/components/blog/engagement/BlogCommentSection.astro";
+import BlogReviewSection from "@/components/blog/engagement/BlogReviewSection.astro";
+
+interface Props {
+  locale: Locale;
+  blogT: BlogTranslations;
+  postId: string;
+  reactionCounts: Record<BlogReactionType, number>;
+  userReaction: BlogReactionType | null;
+  comments: BlogCommentWithAuthor[];
+  commentStatus: "OPEN" | "CLOSED" | "DISABLED";
+  reviews: BlogReviewWithAuthor[];
+  reviewStats: { total: number; average: number; distribution: { rating: number; count: number }[] };
+  allowReviews: boolean;
+  user: AppUser | null;
+  /** URL absolue de l'article, pour le partage. */
+  absoluteUrl: string;
+  /** Titre partagé. */
+  title: string;
+}
+
+const {
+  locale,
+  blogT,
+  postId,
+  reactionCounts,
+  userReaction,
+  comments,
+  commentStatus,
+  reviews,
+  reviewStats,
+  allowReviews,
+  user,
+  absoluteUrl,
+  title,
+} = Astro.props as Props;
+---
+
+<BlogEngagementBar
+  blogT={blogT}
+  postId={postId}
+  reactionCounts={reactionCounts}
+  userReaction={userReaction}
+  isSignedIn={Boolean(user)}
+  url={absoluteUrl}
+  title={title}
+/>
+
+<BlogCommentSection
+  locale={locale}
+  blogT={blogT}
+  postId={postId}
+  comments={comments}
+  user={user}
+  commentStatus={commentStatus}
+/>
+
+<BlogReviewSection
+  locale={locale}
+  blogT={blogT}
+  postId={postId}
+  reviews={reviews}
+  stats={reviewStats}
+  user={user}
+  allowReviews={allowReviews}
+/>

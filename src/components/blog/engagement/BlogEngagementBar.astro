@@ -1,0 +1,74 @@
+---
+/**
+ * Barre d'engagement d'un article de blog : réactions et partage.
+ *
+ * Même rôle que `components/services/engagement/ServiceEngagementBar.astro` et
+ * `components/trips/engagement/TripEngagementBar.astro` : la barre est posée au
+ * même endroit dans la page, réactions à gauche et partage à droite.
+ *
+ * Le blog n'a pas de favori sur un article : seuls les voyages et les services
+ * en proposent un. La mécanique des réactions est celle des trois domaines
+ * (`core/engagement/client/binding.ts`), seule l'action est propre au blog.
+ */
+import type { BlogTranslations } from "@i18n/config";
+import type { BlogReactionType } from "@/lib/blog/constants";
+import EngagementReactionButtons from "@/components/molecules/Engagement/EngagementReactionButtons.astro";
+import EngagementShareBar from "@/components/molecules/Engagement/EngagementShareBar.astro";
+
+interface Props {
+  blogT: BlogTranslations;
+  postId: string;
+  reactionCounts: Record<BlogReactionType, number>;
+  userReaction: BlogReactionType | null;
+  isSignedIn: boolean;
+  /** URL absolue de l'article, pour le partage. */
+  url: string;
+  /** Titre partagé. */
+  title: string;
+}
+
+const { blogT, postId, reactionCounts, userReaction, isSignedIn, url, title } =
+  Astro.props as Props;
+---
+
+<div
+  class="flex flex-col gap-4 rounded-2xl border bg-card/60 px-5 py-4 shadow-sm backdrop-blur lg:flex-row lg:items-center lg:justify-between"
+  data-blog-engagement-bar
+  data-post-id={postId}
+  data-t-error={blogT.labels.genericError}
+  data-t-updated={blogT.labels.reactionUpdated}
+>
+  <EngagementReactionButtons
+    activeReaction={userReaction}
+    counts={reactionCounts as Record<string, number>}
+    showFavorite={false}
+    isSignedIn={isSignedIn}
+    labels={{
+      favorite: "",
+      unfavorite: "",
+      reactions: blogT.labels.reactions,
+      reaction: blogT.labels.reactions,
+    }}
+  />
+
+  <EngagementShareBar
+    url={url}
+    title={title}
+    labels={{
+      share: blogT.labels.share,
+      shareOnX: blogT.labels.shareOnX,
+      shareOnFacebook: blogT.labels.shareOnFacebook,
+      shareOnLinkedIn: blogT.labels.shareOnLinkedIn,
+      copyLink: blogT.labels.copyLink,
+      linkCopied: blogT.labels.linkCopied,
+      copyLinkError: blogT.labels.copyLinkError,
+    }}
+  />
+</div>
+
+<script>
+  import { initBlogEngagementBar } from "@/modules/blog/client/engagement-bar";
+
+  initBlogEngagementBar();
+  document.addEventListener("astro:after-swap", initBlogEngagementBar);
+</script>

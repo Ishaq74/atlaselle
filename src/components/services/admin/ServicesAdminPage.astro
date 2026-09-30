@@ -153,57 +153,8 @@ const et = getServiceEngagementTranslations(props.locale);
   </AdminResourceShell>
 </div>
 <script>
-  import { actions } from "astro:actions";
-  import { getServiceErrorMessage } from "@/modules/services/i18n";
-  import { confirmAdminAction } from "@/core/admin";
+  import { initServicesAdminPage } from "@/modules/services/client/services-admin";
 
-  for (const root of document.querySelectorAll<HTMLElement>("[data-services-admin-workspace]")) {
-    const locale = (root.dataset.locale ?? "fr") as "fr" | "en" | "es" | "ar";
-    const confirmTaxonomyDelete = root.dataset.confirmTaxonomyDelete ?? "";
-    const refresh = () => window.location.reload();
-    const status = root.querySelector<HTMLElement>("[data-service-admin-status]");
-    const showError = (error: { code?: string } | undefined) => { if (status) status.textContent = getServiceErrorMessage(locale, error?.code); };
-    const confirmDelete = (message: string) => confirmAdminAction({ title: message, message, confirmLabel: root.dataset.confirmLabel || "OK", cancelLabel: root.dataset.cancelLabel || "" });
-
-    root.querySelector<HTMLFormElement>("[data-service-category-create]")?.addEventListener("submit", async (event) => {
-      event.preventDefault(); const form = event.currentTarget as HTMLFormElement; const data = new FormData(form);
-      const result = await actions.createServiceCategory({ locale, name: String(data.get("name")), slug: String(data.get("slug")), parentId: String(data.get("parentId") || "") || null, sortOrder: 0 });
-      const inline = form.querySelector<HTMLElement>("[data-category-status]"); if (inline) inline.textContent = result.error ? getServiceErrorMessage(locale, result.error.code) : ""; if (!result.error) refresh();
-    });
-
-    root.querySelectorAll<HTMLFormElement>("[data-service-category-update]").forEach((form) => form.addEventListener("submit", async (event) => {
-      event.preventDefault(); const data = new FormData(form); const result = await actions.updateServiceCategory({ id: form.dataset.id!, locale, name: String(data.get("name")), slug: String(data.get("slug")), parentId: String(data.get("parentId") || "") || null, sortOrder: 0 });
-      if (result.error) showError(result.error); else refresh();
-    }));
-
-    root.querySelectorAll<HTMLButtonElement>("[data-category-delete]").forEach((button) => button.addEventListener("click", async () => {
-      const form = button.closest("form"); if (!form || !(await confirmDelete(confirmTaxonomyDelete))) return;
-      const result = await actions.deleteServiceCategory({ id: form.dataset.id! }); if (result.error) showError(result.error); else refresh();
-    }));
-
-    root.querySelector<HTMLFormElement>("[data-service-tag-create]")?.addEventListener("submit", async (event) => {
-      event.preventDefault(); const form = event.currentTarget as HTMLFormElement; const data = new FormData(form); const result = await actions.createServiceTag({ locale, name: String(data.get("name")), slug: String(data.get("slug")) });
-      const inline = form.querySelector<HTMLElement>("[data-tag-status]"); if (inline) inline.textContent = result.error ? getServiceErrorMessage(locale, result.error.code) : ""; if (!result.error) refresh();
-    });
-
-    root.querySelectorAll<HTMLFormElement>("[data-service-tag-update]").forEach((form) => form.addEventListener("submit", async (event) => {
-      event.preventDefault(); const data = new FormData(form); const result = await actions.updateServiceTag({ id: form.dataset.id!, locale, name: String(data.get("name")), slug: String(data.get("slug") || "") });
-      if (result.error) showError(result.error); else refresh();
-    }));
-
-    root.querySelectorAll<HTMLButtonElement>("[data-tag-delete]").forEach((button) => button.addEventListener("click", async () => {
-      const form = button.closest("form"); if (!form || !(await confirmDelete(confirmTaxonomyDelete))) return;
-      const result = await actions.deleteServiceTag({ id: form.dataset.id! }); if (result.error) showError(result.error); else refresh();
-    }));
-
-    root.querySelectorAll<HTMLButtonElement>("[data-moderate-review]").forEach((button) => button.addEventListener("click", async () => {
-      const result = await actions.moderateServiceReview({ id: button.dataset.id!, serviceId: button.dataset.serviceId!, status: button.dataset.moderateReview as "APPROVED" | "REJECTED" | "SPAM" }); if (result.error) showError(result.error); else refresh();
-    }));
-    root.querySelectorAll<HTMLButtonElement>("[data-moderate-comment]").forEach((button) => button.addEventListener("click", async () => {
-      const result = await actions.moderateServiceComment({ id: button.dataset.id!, serviceId: button.dataset.serviceId!, status: button.dataset.moderateComment as "APPROVED" | "REJECTED" | "SPAM" | "TRASH" }); if (result.error) showError(result.error); else refresh();
-    }));
-    root.querySelectorAll<HTMLButtonElement>("[data-resolve-report]").forEach((button) => button.addEventListener("click", async () => {
-      const result = await actions.resolveServiceReport({ id: button.dataset.id!, serviceId: button.dataset.serviceId!, status: button.dataset.resolveReport as "REVIEWED" | "RESOLVED" | "REJECTED" }); if (result.error) showError(result.error); else refresh();
-    }));
-  }
+  initServicesAdminPage();
+  document.addEventListener("astro:after-swap", initServicesAdminPage);
 </script>

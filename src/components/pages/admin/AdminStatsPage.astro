@@ -3,7 +3,11 @@ import type { AuthTranslations, Locale } from '@i18n/config';
 import type { AppUser } from '@/lib/types';
 import type { VoyageHealth } from '@/modules/trips/loaders/admin-health.loader';
 import type { VoyageReportingRange, VoyageTripReportRow, VoyageDepartureReportRow } from '@/modules/trips/loaders/admin-reporting.loader';
+import { getAdminDict, adminStatusLabel } from '@i18n/admin';
+import { statusTone } from '@/core/admin';
 import { Card, CardHeader, CardTitle, CardContent } from '@atoms/card';
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@atoms/table';
+import { Badge } from '@atoms/badge';
 
 interface Props {
   t: AuthTranslations;
@@ -18,9 +22,20 @@ interface Props {
 
 const { t, locale, adminStats, voyageStats, voyageReporting, voyageTripReports, voyageDepartureReports } = Astro.props;
 const ta = t.admin;
-const vt = locale === "fr"
-  ? { title: "Voyages", pending: "Candidatures à relire", open: "Départs ouverts", upcoming: "Départs 7 j", recent: "Réservations 7 j", failed: "Paiements échoués", balances: "Soldes dus", unpublished: "Traductions non visibles", moderation: "Modération avis & commentaires", pendingComments: "Commentaires en attente", pendingReviews: "Avis en attente", pendingReports: "Signalements en attente", reporting: "Reporting — jour / semaine / mois", day: "Jour", week: "7 jours", month: "30 jours", applications: "Candidatures", reservations: "Réservations", revenue: "Revenu brut (centimes)", views: "Vues", byTrip: "Par voyage", byDeparture: "Par départ", approval: "Approbation", occupancy: "Occupation", rating: "Note" }
-  : { title: "Voyages", pending: "Applications to review", open: "Open departures", upcoming: "Departures 7d", recent: "Bookings 7d", failed: "Failed payments", balances: "Balances due", unpublished: "Hidden translations", moderation: "Reviews & comments moderation", pendingComments: "Pending comments", pendingReviews: "Pending reviews", pendingReports: "Pending reports", reporting: "Reporting — day / week / month", day: "Day", week: "7 days", month: "30 days", applications: "Applications", reservations: "Bookings", revenue: "Gross revenue (cents)", views: "Views", byTrip: "By trip", byDeparture: "By departure", approval: "Approval", occupancy: "Occupancy", rating: "Rating" };
+const dict = getAdminDict(locale);
+const s = dict.stats;
+const col = dict.columns;
+const periods = [
+  { key: s.day as string, data: voyageReporting?.day },
+  { key: s.week as string, data: voyageReporting?.week },
+  { key: s.month as string, data: voyageReporting?.month },
+];
+const periodRows = [
+  { label: col.applications, field: "applications" as const },
+  { label: col.reservations, field: "reservations" as const },
+  { label: s.revenue as string, field: "revenueGross" as const },
+  { label: s.views as string, field: "views" as const },
+];
 ---
 
 <h1 class="font-heading mb-6 text-2xl font-semibold">{ta.tabs.stats}</h1>
@@ -36,68 +51,110 @@ const vt = locale === "fr"
     </CardHeader>
     <CardContent>
       <p class="text-3xl font-bold">{adminStats.recentSignups}</p>
-      <p class="text-xs text-muted-foreground mt-1">{ta.stats.recentSignupsDescription}</p>
+      <p class="mt-1 text-xs text-muted-foreground">{ta.stats.recentSignupsDescription}</p>
     </CardContent>
   </Card>
 </div>
 
 {voyageStats ? (
   <div class="mt-8">
-    <h2 class="mb-4 text-xl font-bold">{vt.title}</h2>
+    <h2 class="font-heading mb-4 text-xl font-semibold">{dict.trips.title}</h2>
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.pending}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.pendingApplications}</p></CardContent></Card>
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.open}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.openDepartures}</p></CardContent></Card>
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.upcoming}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.upcomingDepartures7d}</p></CardContent></Card>
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.recent}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.recentReservations7d}</p></CardContent></Card>
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.failed}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.failedPayments}</p></CardContent></Card>
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.balances}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.balancesDue}</p></CardContent></Card>
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.unpublished}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.unpublishedTrips}</p></CardContent></Card>
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.pendingComments}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold"><bdi>{voyageStats.pendingComments}</bdi></p></CardContent></Card>
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.pendingReviews}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold"><bdi>{voyageStats.pendingReviews}</bdi></p></CardContent></Card>
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.pendingReports}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold"><bdi>{voyageStats.pendingReports}</bdi></p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{s.pendingApplications as string}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.pendingApplications}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{s.openDepartures as string}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.openDepartures}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{s.upcomingDepartures7d as string}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.upcomingDepartures7d}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{s.recentReservations7d as string}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.recentReservations7d}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{s.failedPayments as string}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.failedPayments}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{s.balancesDue as string}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.balancesDue}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{s.unpublishedTrips as string}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold">{voyageStats.unpublishedTrips}</p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{s.pendingComments as string}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold"><bdi>{voyageStats.pendingComments}</bdi></p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{s.pendingReviews as string}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold"><bdi>{voyageStats.pendingReviews}</bdi></p></CardContent></Card>
+      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{s.pendingReports as string}</CardTitle></CardHeader><CardContent><p class="text-3xl font-bold"><bdi>{voyageStats.pendingReports}</bdi></p></CardContent></Card>
     </div>
   </div>
 ) : null}
 
 {voyageReporting ? (
   <div class="mt-8">
-    <h2 class="mb-4 text-xl font-bold">{vt.reporting}</h2>
+    <h2 class="font-heading mb-4 text-xl font-semibold">{s.reporting as string}</h2>
     <div class="grid gap-4 sm:grid-cols-3">
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.day}</CardTitle></CardHeader><CardContent><p class="text-sm">{vt.applications} : <bdi>{voyageReporting.day.applications}</bdi></p><p class="text-sm">{vt.reservations} : <bdi>{voyageReporting.day.reservations}</bdi></p><p class="text-sm">{vt.revenue} : <bdi>{voyageReporting.day.revenueGross}</bdi></p><p class="text-sm">{vt.views} : <bdi>{voyageReporting.day.views}</bdi></p></CardContent></Card>
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.week}</CardTitle></CardHeader><CardContent><p class="text-sm">{vt.applications} : <bdi>{voyageReporting.week.applications}</bdi></p><p class="text-sm">{vt.reservations} : <bdi>{voyageReporting.week.reservations}</bdi></p><p class="text-sm">{vt.revenue} : <bdi>{voyageReporting.week.revenueGross}</bdi></p><p class="text-sm">{vt.views} : <bdi>{voyageReporting.week.views}</bdi></p></CardContent></Card>
-      <Card><CardHeader><CardTitle class="text-sm text-muted-foreground">{vt.month}</CardTitle></CardHeader><CardContent><p class="text-sm">{vt.applications} : <bdi>{voyageReporting.month.applications}</bdi></p><p class="text-sm">{vt.reservations} : <bdi>{voyageReporting.month.reservations}</bdi></p><p class="text-sm">{vt.revenue} : <bdi>{voyageReporting.month.revenueGross}</bdi></p><p class="text-sm">{vt.views} : <bdi>{voyageReporting.month.views}</bdi></p></CardContent></Card>
+      {periods.map(({ key, data }) => (
+        <Card>
+          <CardHeader><CardTitle class="text-sm text-muted-foreground">{key}</CardTitle></CardHeader>
+          <CardContent>
+            {data ? (
+              <dl class="space-y-1 text-sm">
+                {periodRows.map(({ label, field }) => (
+                  <div class="flex justify-between gap-3">
+                    <dt class="text-muted-foreground">{label}</dt>
+                    <dd><bdi>{data[field]}</bdi></dd>
+                  </div>
+                ))}
+              </dl>
+            ) : null}
+          </CardContent>
+        </Card>
+      ))}
     </div>
   </div>
 ) : null}
 
 {voyageTripReports && voyageTripReports.length > 0 ? (
   <div class="mt-8">
-    <h2 class="mb-4 text-xl font-bold">{vt.byTrip}</h2>
+    <h2 class="font-heading mb-4 text-xl font-semibold">{s.byTrip as string}</h2>
     <div class="overflow-x-auto rounded-xl border">
-      <table class="w-full text-sm">
-        <thead><tr class="border-b text-start text-muted-foreground"><th class="p-3 text-start">Voyage</th><th class="p-3 text-start">{vt.applications}</th><th class="p-3 text-start">{vt.approval} %</th><th class="p-3 text-start">{vt.reservations}</th><th class="p-3 text-start">{vt.revenue}</th><th class="p-3 text-start">{vt.rating}</th></tr></thead>
-        <tbody>
+      <Table aria-label={s.byTrip as string}>
+        <TableHeader>
+          <TableRow>
+            <TableHead scope="col">{dict.trips.title}</TableHead>
+            <TableHead scope="col">{col.applications}</TableHead>
+            <TableHead scope="col">{s.approval as string} %</TableHead>
+            <TableHead scope="col">{col.reservations}</TableHead>
+            <TableHead scope="col">{s.revenue as string}</TableHead>
+            <TableHead scope="col">{dict.moderation.rating as string}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {voyageTripReports.map((row) => (
-            <tr class="border-b last:border-0"><td class="p-3">{row.title ?? row.tripId}</td><td class="p-3"><bdi>{row.applications}</bdi></td><td class="p-3"><bdi>{row.approvalRate}</bdi></td><td class="p-3"><bdi>{row.reservations}</bdi></td><td class="p-3"><bdi>{row.revenueGross}</bdi></td><td class="p-3"><bdi>{row.ratingAverage}/5 ({row.ratingCount})</bdi></td></tr>
+            <TableRow>
+              <TableCell class="font-medium">{row.title ?? row.tripId}</TableCell>
+              <TableCell><bdi>{row.applications}</bdi></TableCell>
+              <TableCell><bdi>{row.approvalRate}</bdi></TableCell>
+              <TableCell><bdi>{row.reservations}</bdi></TableCell>
+              <TableCell><bdi>{row.revenueGross}</bdi></TableCell>
+              <TableCell><bdi>{row.ratingAverage}/5 ({row.ratingCount})</bdi></TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   </div>
 ) : null}
 
 {voyageDepartureReports && voyageDepartureReports.length > 0 ? (
   <div class="mt-8">
-    <h2 class="mb-4 text-xl font-bold">{vt.byDeparture}</h2>
+    <h2 class="font-heading mb-4 text-xl font-semibold">{s.byDeparture as string}</h2>
     <div class="overflow-x-auto rounded-xl border">
-      <table class="w-full text-sm">
-        <thead><tr class="border-b text-start text-muted-foreground"><th class="p-3 text-start">Départ</th><th class="p-3 text-start">Statut</th><th class="p-3 text-start">{vt.occupancy} %</th><th class="p-3 text-start">{vt.revenue}</th></tr></thead>
-        <tbody>
+      <Table aria-label={s.byDeparture as string}>
+        <TableHeader>
+          <TableRow>
+            <TableHead scope="col">{s.departure as string}</TableHead>
+            <TableHead scope="col">{col.status}</TableHead>
+            <TableHead scope="col">{s.occupancy as string} %</TableHead>
+            <TableHead scope="col">{s.revenue as string}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {voyageDepartureReports.map((row) => (
-            <tr class="border-b last:border-0"><td class="p-3"><bdi>{row.startDate.toISOString().slice(0, 10)}</bdi></td><td class="p-3">{row.status}</td><td class="p-3"><bdi>{row.occupancyRate}</bdi></td><td class="p-3"><bdi>{row.revenueGross}</bdi></td></tr>
+            <TableRow>
+              <TableCell><bdi>{row.startDate.toISOString().slice(0, 10)}</bdi></TableCell>
+              <TableCell><Badge variant={statusTone(row.status)} size="sm">{adminStatusLabel(dict, row.status)}</Badge></TableCell>
+              <TableCell><bdi>{row.occupancyRate}</bdi></TableCell>
+              <TableCell><bdi>{row.revenueGross}</bdi></TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   </div>
 ) : null}

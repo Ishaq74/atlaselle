@@ -36,6 +36,10 @@ test-results/
 playwright-report/
 tests/reports/lighthouse/*
 tests/reports/playwright/*
+# Intermédiaires de la QA parallélisée : rapports blob par voie, logs par voie,
+# verrou de run. Les rapports FINAUX (playwright-results.json, *-report.txt)
+# restent versionnés — ce sont eux qu'on compare d'un run à l'autre.
+tests/reports/qa/
 tmp*
 
 # coverage reports

@@ -7,7 +7,7 @@ import { SEED_EMAIL, SEED_PASSWORD } from './global-setup';
  * versions, media folders, and content import/export endpoints.
  */
 
-const BASE_URL = 'http://localhost:4322';
+import { BASE_URL } from '../helpers/e2e-env';
 
 async function adminState(browser: import('@playwright/test').Browser) {
   const context = await browser.newContext();
@@ -113,11 +113,24 @@ test.describe('CMS — content import/export endpoints (admin auth)', () => {
 });
 
 test.describe('CMS — media library', () => {
-  test('media admin page exposes upload UI and folder tree', async ({ browser }) => {
+  test('media admin page exposes the upload UI', async ({ browser }) => {
     const context = await browser.newContext({ storageState: await adminState(browser) });
     const page = await context.newPage();
     const response = await page.goto('/fr/admin/media', { waitUntil: 'networkidle' });
     expect(response?.status()).toBe(200);
+
+    // Ce test ne contrôlait que le statut HTTP : malgré son nom, il ne
+    // vérifiait ni l'UI d'upload, ni l'arborescence de dossiers. Un HTTP 200 sur
+    // une page qui rendrait « erreur interne » l'aurait laissé passer.
+    await expect(page.locator('#upload-file-btn, #upload-file-btn-empty').first()).toBeVisible();
+
+    // Le nom parlait aussi de « folder tree », ce qui n'est pas vérifiable ici :
+    // les lignes de dossiers ne sont rendues que si le dossier courant a des
+    // enfants (AdminMediaPage.astro:311), donc elles sont absentes sur une base
+    // vierge. Couvrir réellement l'arborescence suppose de créer un dossier au
+    // préalable dans ce test ; à faire dans un test dédié si ce contrôle est
+    // souhaité — plutôt que de laisser le nom promettre ce qui n'est pas testé.
+
     await context.close();
   });
 

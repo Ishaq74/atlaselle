@@ -29,8 +29,17 @@ describe("seed data contract", () => {
     }
   });
 
-  it("uses unique data filenames and schema exports", () => {
+  it("uses unique data filenames", () => {
     expect(new Set(seedManifest.map((entry) => entry.dataFile)).size).toBe(seedManifest.length);
-    expect(new Set(seedManifest.map((entry) => entry.schemaExport)).size).toBe(seedManifest.length);
+  });
+
+  it("declares a resolvable schema export for every data file", () => {
+    // Plusieurs entrées peuvent viser la même table (les sections légales se
+    // répartissent sur `pageSections`) : le seeder insère le dataset de chaque
+    // entrée, la table n'est résolue que comme cible. L'unicité porte donc sur
+    // les fichiers.
+    for (const entry of seedManifest) {
+      expect(schemas[entry.schemaExport as keyof typeof schemas], `${entry.dataFile}`).toBeDefined();
+    }
   });
 });

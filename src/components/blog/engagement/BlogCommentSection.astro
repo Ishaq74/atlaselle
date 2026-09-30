@@ -4,10 +4,9 @@ import type { BlogCommentWithAuthor } from "@/lib/blog/types";
 import type { AppUser } from "@lib/types";
 import { Card, CardContent } from "@atoms/card";
 import EngagementTabs from "@/components/molecules/Engagement/EngagementTabs.astro";
-import EngagementCommentThread, {
-  type EngagementCommentItem,
-} from "@/components/molecules/Engagement/EngagementCommentThread.astro";
-import CommentForm from "./CommentForm.astro";
+import EngagementCommentThread from "@/components/molecules/Engagement/EngagementCommentThread.astro";
+import { toCommentItem } from "@/modules/blog/engagement/adapter";
+import BlogCommentForm from "./BlogCommentForm.astro";
 
 interface Props {
   locale: Locale;
@@ -29,15 +28,6 @@ const threadLabels = {
   pending: blogT.labels.pending,
   anonymous: "Anonymous",
 };
-const toItem = (comment: BlogCommentWithAuthor): EngagementCommentItem => ({
-  id: comment.id,
-  content: comment.content,
-  createdAt: comment.createdAt,
-  authorName: comment.author?.name ?? comment.guestName ?? threadLabels.anonymous,
-  authorImage: comment.author?.image ?? null,
-  status: comment.status,
-  replies: (comment.replies ?? []).map(toItem),
-});
 ---
 
 <section id="comments-section" data-post-id={postId}>
@@ -57,7 +47,7 @@ const toItem = (comment: BlogCommentWithAuthor): EngagementCommentItem => ({
           {comments.map((comment) => (
             <EngagementCommentThread
               locale={locale}
-              comment={toItem(comment)}
+              comment={toCommentItem(comment)}
               canReply={false}
               labels={threadLabels}
             />
@@ -83,7 +73,7 @@ const toItem = (comment: BlogCommentWithAuthor): EngagementCommentItem => ({
           comments.map((comment) => (
             <EngagementCommentThread
               locale={locale}
-              comment={toItem(comment)}
+              comment={toCommentItem(comment)}
               canReply={commentStatus === "OPEN"}
               labels={threadLabels}
             />
@@ -98,7 +88,7 @@ const toItem = (comment: BlogCommentWithAuthor): EngagementCommentItem => ({
       </div>
 
       <div slot="write">
-        <CommentForm locale={locale} blogT={blogT} postId={postId} user={user} />
+        <BlogCommentForm locale={locale} blogT={blogT} postId={postId} user={user} />
       </div>
     </EngagementTabs>
   )}

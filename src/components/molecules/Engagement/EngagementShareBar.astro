@@ -1,0 +1,119 @@
+---
+import { Icon } from "astro-icon/components";
+import { Button } from "@atoms/button";
+
+/**
+ * EngagementShareBar — barre de partage.
+ *
+ * Cœur PRÉSENTATIONNEL, sans script métier : elle ne dépend d'aucun domaine.
+ * Elle vivait dans `components/blog/` alors qu'elle n'a rien de spécifique au
+ * blog — la fiche voyage l'importait par accident, et les services n'y avaient
+ * pas accès. Elle rejoint `molecules/Engagement/` aux côtés de
+ * `ReactionButtons`, et n'importe plus `BlogTranslations` : les libellés sont
+ * fournis par l'appelant, donc aucune locale ne peut hériter du français par
+ * défaut.
+ *
+ * Le bouton « copier le lien » est résolu par PORTÉE (le parent `[data-share-bar]`)
+ * et non par un `id` global : plusieurs barres sur la même page — une carte
+ * d'article recommandé, une fiche produit — partageaient le même
+ * `id="copy-link-btn"`, ce qui rendait l'identifiant dupliqué dans le DOM et ne
+ * câblait que la première barre.
+ */
+
+/** Libellés du partage, fournis par l'appelant dans sa locale. */
+export interface EngagementShareLabels {
+  share: string;
+  shareOnX: string;
+  shareOnFacebook: string;
+  shareOnLinkedIn: string;
+  copyLink: string;
+  linkCopied: string;
+  copyLinkError: string;
+}
+
+interface Props {
+  /** Libellés localisés — obligatoires, aucun repli francophone. */
+  labels: EngagementShareLabels;
+  /** URL partageable (absolue de préférence). */
+  url: string;
+  /** Titre partagé. */
+  title: string;
+  /** Classes additionnelles. */
+  class?: string;
+}
+
+const { labels: l, url, title, class: className } = Astro.props as Props;
+
+const encodedUrl = encodeURIComponent(url);
+const encodedTitle = encodeURIComponent(title);
+---
+
+<div
+  class:list={["flex flex-wrap items-center gap-2", className]}
+  data-share-bar
+  data-t-copied={l.linkCopied}
+  data-t-copy-error={l.copyLinkError}
+>
+  <span class="me-2 text-sm font-medium text-muted-foreground">{l.share}</span>
+  <Button
+    type="button"
+    variant="outline"
+    size="icon-sm"
+    href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={l.shareOnX}
+  >
+    <Icon name="mdi:twitter" class="size-4" />
+  </Button>
+  <Button
+    type="button"
+    variant="outline"
+    size="icon-sm"
+    href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={l.shareOnFacebook}
+  >
+    <Icon name="mdi:facebook" class="size-4" />
+  </Button>
+  <Button
+    type="button"
+    variant="outline"
+    size="icon-sm"
+    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={l.shareOnLinkedIn}
+  >
+    <Icon name="mdi:linkedin" class="size-4" />
+  </Button>
+  <Button type="button" variant="outline" size="icon-sm" data-share-copy aria-label={l.copyLink}>
+    <Icon name="mdi:link" class="size-4" />
+  </Button>
+</div>
+
+<script>
+  import { toast } from '@atoms/toast';
+
+  function initShareBars() {
+    for (const bar of document.querySelectorAll<HTMLElement>('[data-share-bar]')) {
+      // Portée par la barre : plusieurs barres peuvent coexister sur la page.
+      const btn = bar.querySelector<HTMLButtonElement>('[data-share-copy]');
+      if (!btn || btn.dataset.bound === 'true') continue;
+      btn.dataset.bound = 'true';
+
+      btn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          toast.success(bar.dataset.tCopied ?? 'Link copied');
+        } catch {
+          toast.error(bar.dataset.tCopyError ?? 'Could not copy link');
+        }
+      });
+    }
+  }
+
+  initShareBars();
+  document.addEventListener('astro:after-swap', initShareBars);
+</script>

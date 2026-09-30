@@ -44,7 +44,17 @@ vi.mock('@/lib/rate-limit', () => ({
 }));
 vi.mock('@i18n/config', () => ({ LOCALES: ['fr', 'en', 'es', 'ar'] as const }));
 vi.mock('@/media/upload', () => ({
-  processUpload: vi.fn(() => Promise.resolve({ url: '/uploads/media/test.jpg', path: '/tmp/test.jpg' })),
+  processUpload: vi.fn(() =>
+    Promise.resolve({
+      url: '/uploads/media/test.jpg',
+      path: '/tmp/test.jpg',
+      // Variantes responsive produites à l'upload (cf. src/media/variants.ts).
+      variants: [
+        { width: 320, height: 240, mimeType: 'image/webp', url: '/uploads/media/test-320.webp', size: 1000 },
+        { width: 640, height: 480, mimeType: 'image/webp', url: '/uploads/media/test-640.webp', size: 2500 },
+      ],
+    }),
+  ),
 }));
 vi.mock('@/media/delete', () => ({
   deleteUpload: vi.fn(() => Promise.resolve()),
@@ -271,6 +281,22 @@ describe('uploadMediaFile', () => {
     const file = new File(['data'], 'test.jpg', { type: 'image/jpeg' });
     const result = await uploadMediaFile.handler({ file, folderId: null }, adminCtx());
     expect(result).toEqual(created);
+  });
+
+  it('persists the responsive variants so the <picture> can serve a srcset', async () => {
+    const created = { id: 'file1', filename: 'test.jpg', url: '/uploads/media/test.jpg', folderId: null };
+    mockInsert.mockReturnValue(insertChain([created]));
+
+    const file = new File(['data'], 'test.jpg', { type: 'image/jpeg' });
+    await uploadMediaFile.handler({ file, folderId: null }, adminCtx());
+
+    // Sans cela, le rendu retombe sur l'original plein résolution : c'est
+    // exactement le défaut de performance que les variantes corrigent.
+    const inserted = mockInsert.mock.results[0]?.value?.values?.mock?.calls?.[0]?.[0];
+    expect(inserted.variants).toEqual([
+      { width: 320, height: 240, url: '/uploads/media/test-320.webp' },
+      { width: 640, height: 480, url: '/uploads/media/test-640.webp' },
+    ]);
   });
 
   it('uploads a file into a specific folder', async () => {

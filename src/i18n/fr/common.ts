@@ -37,8 +37,23 @@ export default {
   },
   a11y: {
     openMenu: 'Ouvrir le menu',
+    toggleTheme: 'Changer de thème',
     switchLanguage: 'Changer de langue',
     skipToContent: 'Aller au contenu principal',
+    previousPage: 'Aller à la page précédente',
+    nextPage: 'Aller à la page suivante',
+    previousItem: 'Élément précédent',
+    nextItem: 'Élément suivant',
+    closeNotification: 'Fermer la notification',
+    notifications: 'Notifications',
+    closeDialog: 'Fermer la fenêtre',
+    toggleSidebar: 'Afficher ou masquer la navigation',
+    loading: 'Chargement',
+    selectField: 'Choisir une valeur',
+    iconPicker: 'Sélecteur d’icônes',
+    uploadedFiles: 'Fichiers envoyés',
+    breadcrumb: 'Fil d’Ariane',
+    pagination: 'Pagination',
   },
   errors: {
     notFound: {

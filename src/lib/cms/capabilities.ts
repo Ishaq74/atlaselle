@@ -30,7 +30,7 @@ export const CMS_CAPABILITIES: Readonly<Record<ModuleCapability, CmsCapabilityDe
   taxonomy: {
     id: "taxonomy",
     purpose: "Explicit category/tag structures, localized terms and domain relations with shared hierarchy invariants.",
-    implementations: ["src/database/schemas/blog.schema.ts", "src/database/loaders/blog.loader.ts", "src/actions/blog/category.ts", "src/actions/blog/tag.ts", "src/lib/cms/taxonomy.ts", "src/database/schemas/services.schema.ts", "src/actions/services/taxonomy.ts"],
+    implementations: ["src/database/schemas/blog.schema.ts", "src/modules/blog/loaders/blog.loader.ts", "src/actions/blog/category.ts", "src/actions/blog/tag.ts", "src/lib/cms/taxonomy.ts", "src/database/schemas/services.schema.ts", "src/actions/services/taxonomy.ts"],
   },
   attributes: {
     id: "attributes",
@@ -40,7 +40,7 @@ export const CMS_CAPABILITIES: Readonly<Record<ModuleCapability, CmsCapabilityDe
   search: {
     id: "search",
     purpose: "Searchable projections, filtering, ranking and URL/SSR-friendly query state.",
-    implementations: ["src/database/loaders/blog.loader.ts", "src/modules/services/search/index.ts", "blog_post_translations.search_vector + GIN index", "services search projection + PostgreSQL ranking"],
+    implementations: ["src/modules/blog/loaders/blog.loader.ts", "src/modules/services/search/index.ts", "blog_post_translations.search_vector + GIN index", "services search projection + PostgreSQL ranking"],
   },
   publication: {
     id: "publication",
@@ -55,7 +55,7 @@ export const CMS_CAPABILITIES: Readonly<Record<ModuleCapability, CmsCapabilityDe
   locks: {
     id: "locks",
     purpose: "Concurrent-editor protection with expiry and refresh semantics.",
-    implementations: ["src/database/schemas/blog.schema.ts", "src/actions/blog/post.ts", "src/components/blog/AdminPostForm.astro", "src/database/schemas/services.schema.ts", "src/actions/services/lifecycle.ts", "src/components/services/AdminServiceForm.astro"],
+    implementations: ["src/database/schemas/blog.schema.ts", "src/actions/blog/post.ts", "src/components/blog/admin/AdminPostForm.astro", "src/database/schemas/services.schema.ts", "src/actions/services/lifecycle.ts", "src/components/services/admin/AdminServiceForm.astro"],
   },
   engagement: {
     id: "engagement",
@@ -65,7 +65,7 @@ export const CMS_CAPABILITIES: Readonly<Record<ModuleCapability, CmsCapabilityDe
   moderation: {
     id: "moderation",
     purpose: "Comments/reviews/reports moderation and tenant-scoped moderation queues.",
-    implementations: ["src/database/schemas/blog.schema.ts", "src/actions/blog/moderation.ts", "src/components/blog/AdminModerationQueue.astro", "src/database/schemas/services.schema.ts", "src/actions/services/moderation.ts", "src/components/services/ServicesAdminPage.astro"],
+    implementations: ["src/database/schemas/blog.schema.ts", "src/actions/blog/moderation.ts", "src/components/blog/admin/AdminModerationQueue.astro", "src/database/schemas/services.schema.ts", "src/actions/services/moderation.ts", "src/components/services/admin/ServicesAdminPage.astro"],
   },
   notifications: {
     id: "notifications",
@@ -80,7 +80,7 @@ export const CMS_CAPABILITIES: Readonly<Record<ModuleCapability, CmsCapabilityDe
   cache: {
     id: "cache",
     purpose: "Shared cache reads and targeted invalidation used by CMS loaders/actions.",
-    implementations: ["src/database/cache.ts", "src/actions/blog/_helpers.ts", "src/database/loaders/blog.loader.ts", "src/actions/services/_helpers.ts", "src/modules/services/loaders/index.ts"],
+    implementations: ["src/database/cache.ts", "src/actions/blog/_helpers.ts", "src/modules/blog/loaders/blog.loader.ts", "src/actions/services/_helpers.ts", "src/modules/services/loaders/index.ts"],
   },
 };
 

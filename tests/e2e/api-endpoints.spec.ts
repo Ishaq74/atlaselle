@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { SEED_EMAIL, SEED_PASSWORD } from './global-setup';
+import { BASE_URL, HOST_HEADER, E2E_PORT } from '../helpers/e2e-env';
 
 /**
  * E2E smoke tests for ALL API endpoints.
@@ -82,9 +83,9 @@ test.describe('API — health', () => {
         ...uniqueIpHeaders(),
         'X-Forwarded-For': '127.0.0.1',
         'X-Real-IP': '127.0.0.1',
-        'X-Forwarded-Host': 'localhost:4322',
+        'X-Forwarded-Host': HOST_HEADER,
         'X-Forwarded-Proto': 'https',
-        'X-Forwarded-Port': '4322',
+        'X-Forwarded-Port': String(E2E_PORT),
         Forwarded: 'for=127.0.0.1;host=localhost;proto=https',
       },
     });
@@ -195,7 +196,7 @@ test.describe('API — search', () => {
 test.describe('API — analytics', () => {
   test('POST /api/analytics rejects invalid payload', async ({ request }) => {
     const response = await request.post('/api/analytics', {
-      headers: { 'Content-Type': 'application/json', Origin: 'http://localhost:4322', ...uniqueIpHeaders() },
+      headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...uniqueIpHeaders() },
       data: {},
     });
     expect([400, 429]).toContain(response.status());
@@ -258,7 +259,7 @@ test.describe('API — blog newsletter', () => {
 test.describe('API — auth endpoints (direct)', () => {
   test('POST /api/auth/sign-in/email rejects wrong password', async ({ request }) => {
     const response = await request.post('/api/auth/sign-in/email', {
-      headers: { 'Content-Type': 'application/json', Origin: 'http://localhost:4322' },
+      headers: { 'Content-Type': 'application/json', Origin: BASE_URL },
       data: { email: SEED_EMAIL, password: 'wrong-password-999' },
     });
     expect(response.status()).toBe(401);
@@ -266,7 +267,7 @@ test.describe('API — auth endpoints (direct)', () => {
 
   test('POST /api/auth/sign-up/email rejects weak password', async ({ request }) => {
     const response = await request.post('/api/auth/sign-up/email', {
-      headers: { 'Content-Type': 'application/json', Origin: 'http://localhost:4322', ...uniqueIpHeaders() },
+      headers: { 'Content-Type': 'application/json', Origin: BASE_URL, ...uniqueIpHeaders() },
       data: { email: `e2e-weak-${Date.now()}@test.com`, password: '123', name: 'Weak' },
     });
     expect(response.status()).toBe(400);
@@ -281,7 +282,7 @@ test.describe('API — auth endpoints (direct)', () => {
 
   test('full API sign-in flow: sign-in then get-session', async ({ request }) => {
     const signIn = await request.post('/api/auth/sign-in/email', {
-      headers: { 'Content-Type': 'application/json', Origin: 'http://localhost:4322' },
+      headers: { 'Content-Type': 'application/json', Origin: BASE_URL },
       data: { email: SEED_EMAIL, password: SEED_PASSWORD },
     });
     expect(signIn.status()).toBe(200);

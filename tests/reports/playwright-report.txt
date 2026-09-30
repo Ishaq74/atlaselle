@@ -1,6 +1,6 @@
 ════════════════════════════════════════════════════════════════════════════════
   PLAYWRIGHT E2E TEST REPORT
-  Generated: 2026-09-27 13:17:32
+  Generated: 2026-09-30 16:56:03
 ════════════════════════════════════════════════════════════════════════════════
 
   ✅ actions-admin.spec.ts  (108/108 tests passed)
@@ -9,15 +9,16 @@
   ✅ actions-services.spec.ts  (63/63 tests passed)
   ✅ actions-voyage.spec.ts  (96/96 tests passed)
   ✅ admin-extended.spec.ts  (30/30 tests passed)
-  ❌ admin-pages.spec.ts  (52/54 tests passed)
+  ❌ admin-pages.spec.ts  (51/54 tests passed)
   ✅ admin-trips-crud.spec.ts  (15/15 tests passed)
+  ✅ admin-ui-contracts.spec.ts  (6/6 tests passed)
   ✅ api-endpoints.spec.ts  (78/78 tests passed)
   ✅ app.spec.ts  (42/42 tests passed)
   ✅ auth-account.spec.ts  (27/27 tests passed)
   ✅ auth.spec.ts  (45/45 tests passed)
   ✅ blog-deep.spec.ts  (24/24 tests passed)
-  ❌ blog-review-rating-a11y.spec.ts  (0/3 tests passed)
-  ❌ blog.spec.ts  (15/30 tests passed)
+  ✅ blog-review-rating-a11y.spec.ts  (3/3 tests passed)
+  ✅ blog.spec.ts  (30/30 tests passed)
   ✅ cms-admin.spec.ts  (24/24 tests passed)
   ✅ cms-deep.spec.ts  (33/33 tests passed)
   ✅ contact.spec.ts  (24/24 tests passed)
@@ -28,142 +29,56 @@
   ✅ public-pages.spec.ts  (36/36 tests passed)
   ✅ services-deep.spec.ts  (18/18 tests passed)
   ✅ services-lifecycle.spec.ts  (3/3 tests passed)
-  ❌ services.spec.ts  (27/30 tests passed)
+  ✅ services.spec.ts  (30/30 tests passed)
   ✅ ux-flows.spec.ts  (15/15 tests passed)
   ✅ voyage.spec.ts  (30/30 tests passed)
-  ❌ zz-regression-probe.spec.ts  (6/9 tests passed)
 
 ════════════════════════════════════════════════════════════════════════════════
   SUMMARY
 ════════════════════════════════════════════════════════════════════════════════
 
-  Total tests:   1635
-  Passed:        1609  
-  Failed:        14  ❌
-  Skipped:       12
-  Duration:      3113.8s
+  Total tests:   1632
+  Passed:        1629  
+  Failed:        3  ❌
+  Duration:      828.1s
 
 ════════════════════════════════════════════════════════════════════════════════
   FAILURES
 ════════════════════════════════════════════════════════════════════════════════
 
-  Suite: admin-pages.spec.ts > Admin — Reservations page
-  Test:  reservations page loads successfully
+  Suite: admin-pages.spec.ts > Admin — Media page
+  Test:  media page has upload UI
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTearing down "context" exceeded the test timeout of 30000ms.[39m
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+Locator: locator('body')
+Timeout: 5000ms
+Expected pattern: [32m/media|image|upload/i[39m
+Received string:  [31m"Aller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E
 
 
-  Suite: admin-pages.spec.ts > Admin — Payments page
-  Test:  payments page loads successfully
+  Suite: admin-pages.spec.ts > Admin — Media page
+  Test:  media page has upload UI
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded while running "beforeEach" hook.[39m
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+Locator: locator('body')
+Timeout: 5000ms
+Expected pattern: [32m/media|image|upload/i[39m
+Received string:  [31m"Aller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E
 
 
-  Suite: blog-review-rating-a11y.spec.ts > Star rating — required-field error announcement
-  Test:  the rating error region announces the translated message in every page language and never a bare numeric value
+  Suite: admin-pages.spec.ts > Admin — Media page
+  Test:  media page has upload UI
 ────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 120000ms exceeded.[39m
+  Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
 
-
-  Suite: blog-review-rating-a11y.spec.ts > Star rating — required-field error announcement
-  Test:  the rating error region announces the translated message in every page language and never a bare numeric value
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 120000ms exceeded.[39m
-
-
-  Suite: blog-review-rating-a11y.spec.ts > Star rating — required-field error announcement
-  Test:  the rating error region announces the translated message in every page language and never a bare numeric value
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 120000ms exceeded.[39m
-
-
-  Suite: blog.spec.ts > Blog surfaces
-  Test:  guest comment stays pending until moderation
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
-
-
-  Suite: blog.spec.ts > Blog surfaces
-  Test:  guest comment stays pending until moderation
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
-
-
-  Suite: blog.spec.ts > Blog surfaces
-  Test:  guest comment stays pending until moderation
-────────────────────────────────────────────────────────────────────────────────
-  [31mTest timeout of 30000ms exceeded.[39m
-
-
-  Suite: services.spec.ts > Services surfaces
-  Test:  admin lifecycle preserves the explicit state machine
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m"ARCHIVED"[39m
-Received: [31m"DRAFT"[39m
-
-Call Log:
-- Timeout 5000ms exceeded while waiting on the predicate
-
-
-  Suite: services.spec.ts > Services surfaces
-  Test:  admin lifecycle preserves the explicit state machine
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m"ARCHIVED"[39m
-Received: [31m"DRAFT"[39m
-
-Call Log:
-- Timeout 5000ms exceeded while waiting on the predicate
-
-
-  Suite: services.spec.ts > Services surfaces
-  Test:  admin lifecycle preserves the explicit state machine
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m"ARCHIVED"[39m
-Received: [31m"DRAFT"[39m
-
-Call Log:
-- Timeout 5000ms exceeded while waiting on the predicate
-
-
-  Suite: zz-regression-probe.spec.ts > PROBE — actions-voyage : sequence d etats
-  Test:  la sequence reelle est distincte du vocabulaire perime, etape par etape
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-
-Expected substring: [32m"under_review"[39m
-Received string:    [31m"probe·[39m
-[31mprobe·[39m
-[31m[2mexpect([22m[31mreceived[39m[31m[2m).[22mtoBe[2m([22m[32mexpected[39m
-
-
-  Suite: zz-regression-probe.spec.ts > PROBE — actions-voyage : sequence d etats
-  Test:  la sequence reelle est distincte du vocabulaire perime, etape par etape
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-
-Expected substring: [32m"under_review"[39m
-Received string:    [31m"probe·[39m
-[31mprobe·[39m
-[31m[2mexpect([22m[31mreceived[39m[31m[2m).[22mtoBe[2m([22m[32mexpected[39m
-
-
-  Suite: zz-regression-probe.spec.ts > PROBE — actions-voyage : sequence d etats
-  Test:  la sequence reelle est distincte du vocabulaire perime, etape par etape
-────────────────────────────────────────────────────────────────────────────────
-  Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
-
-Expected substring: [32m"under_review"[39m
-Received string:    [31m"probe·[39m
-[31mprobe·[39m
-[31m[2mexpect([22m[31mreceived[39m[31m[2m).[22mtoBe[2m([22m[32mexpected[39m
+Locator: locator('body')
+Timeout: 5000ms
+Expected pattern: [32m/media|image|upload/i[39m
+Received string:  [31m"Aller au contenu principalAtlaselleVoyagesBlogServicesÀ proposContactESE2E
 
 
 ════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 1609/1635 passed
+  END OF REPORT — 1629/1632 passed
 ════════════════════════════════════════════════════════════════════════════════

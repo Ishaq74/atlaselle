@@ -7,10 +7,10 @@ import AdminResourceShell from "@organisms/AdminResourceShell.astro";
 import AdminResourceStats from "@molecules/AdminResourceStats.astro";
 import AdminPagination from "@molecules/AdminPagination/AdminPagination.astro";
 import { AdminPostList, AdminModerationQueue, AdminTaxonomyManager } from "@/modules/blog/admin";
-import { NotificationBell } from "@/modules/blog/components/ui";
-import type { BlogAdminAggregateStats } from "@database/loaders/blog-admin.loader";
+import NotificationBell from "@/components/blog/layout/NotificationBell.astro";
+import type { BlogAdminAggregateStats } from "@/modules/blog/loaders/blog-admin.loader";
 import type { BlogPostListItem } from "@/modules/blog/domain";
-import type { getBlogModerationQueue } from "@database/loaders/blog.loader";
+import type { getBlogModerationQueue } from "@/modules/blog/loaders/blog.loader";
 import { blogPostAdminResource } from "@/modules/blog";
 
 interface PostRow { post: BlogPostListItem["post"]; translation: { id: string; locale: Locale; title: string; slug: string } | null; author: BlogPostListItem["author"]; categories: BlogPostListItem["categories"]; }

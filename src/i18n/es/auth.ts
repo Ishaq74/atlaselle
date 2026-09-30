@@ -75,6 +75,10 @@ export default {
     localeSwitcher: {
       title: 'Idiomas',
     },
+    navigation: {
+      title: 'Navegación',
+      description: 'Navegación principal del back-office.',
+    },
     tabs: {
       stats: 'Estadísticas',
       users: 'Usuarios',
@@ -351,6 +355,7 @@ export default {
         restoreVersionConfirm: '¿Restaurar esta versión? Se creará automáticamente una instantánea del estado actual.',
         versionRestored: 'Versión restaurada.',
         snapshotNotePrompt: 'Nota opcional para esta instantánea:',
+        snapshotNoteLabel: 'Nota de la instantánea',
         snapshotCreated: 'Instantánea creada.',
         insertMedia: 'Insertar medio',
         noPages: 'Sin páginas creadas.',
@@ -383,7 +388,7 @@ export default {
           allTemplates: 'Todas las plantillas',
           allLocales: 'Todos los idiomas',
         },
-        sort: {
+        sort: { label: 'Ordenar',
           newest: 'Más reciente',
           oldest: 'Más antiguo',
           nameAsc: 'Nombre A–Z',

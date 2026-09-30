@@ -2,9 +2,9 @@ import type { Locale } from "@i18n/config";
 import { getDrizzle } from "@database/drizzle";
 import { eq, and, ilike } from "drizzle-orm";
 import { blogPosts, blogPostTranslations } from "@database/schemas";
-import { getBlogPostBySlug, getBlogValidLinkTargets } from "@database/loaders/blog.loader";
+import { getBlogPostBySlug, getBlogValidLinkTargets } from "@/modules/blog/loaders/blog.loader";
 import { buildBlogPostUrl } from "@/lib/blog/utils";
-import { publishedScope } from "@database/loaders/blog.loader";
+import { publishedScope } from "@/modules/blog/loaders/blog.loader";
 import type { InternalLinkResolver, InternalLinkResolution } from "@/lib/content/internal-link-resolver";
 
 interface Ctx {

@@ -42,10 +42,16 @@ describe('mapStaticSlugPath — auth localisé', () => {
   });
 });
 
-describe('mapStaticSlugPath — page universelle terms', () => {
-  it.each(LOCALES)('keeps universal slug from %s', (from) => {
-    for (const to of LOCALES) {
-      expect(mapStaticSlugPath(from, to, '/terms', MAPS)).toBe(`/${to}/terms`);
+describe('mapStaticSlugPath — plus de page universelle /terms', () => {
+  it('ne conserve plus le slug : la page est désormais une page CMS localisée', () => {
+    // Les conditions de réservation sont devenues une page CMS dont le slug est
+    // traduit (`conditions-reservation` / `booking-terms` / `condiciones-reserva`).
+    // Conserver « /terms » en changeant de langue produirait un 404 ; le
+    // changeur résout désormais la page par identifiant, hors de cette fonction.
+    for (const from of LOCALES) {
+      for (const to of LOCALES) {
+        expect(mapStaticSlugPath(from, to, '/terms', MAPS)).toBeNull();
+      }
     }
   });
 });

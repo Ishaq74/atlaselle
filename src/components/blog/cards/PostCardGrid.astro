@@ -11,7 +11,7 @@ import {
 import { AspectRatio } from "@atoms/aspect-ratio";
 import { Avatar, AvatarFallback, AvatarImage } from "@atoms/avatar";
 import { Badge } from "@atoms/badge";
-import { Image } from "@atoms/image";
+import { ResponsiveImage } from "@atoms/image";
 
 interface Props {
   locale: Locale;
@@ -26,7 +26,7 @@ interface Props {
     };
     translation: { title: string; slug: string; excerpt: string | null; content: string } | null;
     author: { id: string; name: string; image: string | null } | null;
-    featuredImage: { id: string; url: string; width: number | null; height: number | null } | null;
+    featuredImage: { id: string; url: string; width: number | null; height: number | null; variants?: { width: number; height: number; url: string }[] | null } | null;
     categories: { id: string; slug: string; name: string | null }[];
     commentCount: number;
     rating?: number | null;
@@ -89,13 +89,16 @@ const loadingAttr = priority === "eager" ? ("eager" as const) : ("lazy" as const
   <div class="relative overflow-hidden bg-muted">
     <AspectRatio ratio={16 / 9}>
       {post.featuredImage ? (
-        <Image
+        <ResponsiveImage
           src={post.featuredImage.url}
           alt={translation.title}
           class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          width={post.featuredImage.width ?? 1200}
+          height={post.featuredImage.height ?? 675}
+          variants={post.featuredImage.variants}
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           loading={loadingAttr}
-          decoding="async"
-          width={post.featuredImage.width ?? 1200} height={post.featuredImage.height ?? 675}
+          fetchpriority={priority === "eager" ? "high" : undefined}
         />
       ) : (
         <div class="absolute inset-0 flex items-center justify-center bg-muted">

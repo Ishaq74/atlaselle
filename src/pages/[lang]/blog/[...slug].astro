@@ -5,6 +5,7 @@ import {
   getBlogCategories,
   getBlogCategoryBySlug,
   getBlogComments,
+  getBlogViewerReaction,
   getBlogPostBySlug,
   getBlogPostForAdmin,
   getBlogPosts,
@@ -14,7 +15,7 @@ import {
   getBlogTags,
   getBlogTagBySlug,
   getBlogAuthorByUsername,
-} from "@database/loaders/blog.loader";
+  } from "@/modules/blog/loaders";
 import type { BlogReactionType } from "@/lib/blog/constants";
 import type { BlogPostTranslation } from "@/lib/blog/types";
 import { buildBlogCategoryUrl, buildBlogPostUrl, buildBlogTagUrl, buildBreadcrumbSchema, generateSchemaMarkup } from "@/lib/blog/utils";
@@ -67,6 +68,7 @@ interface PostState {
   reviews: Awaited<ReturnType<typeof getBlogReviews>>;
   reviewStats: Awaited<ReturnType<typeof getBlogReviewStats>>;
   reactionCounts: Record<BlogReactionType, number>;
+  userReaction: BlogReactionType | null;
   relatedPosts: Awaited<ReturnType<typeof getRelatedBlogPosts>>;
 }
 
@@ -135,7 +137,7 @@ async function getAlternateTagSlugs(tagId: string): Promise<Record<string, strin
 }
 
 if (isLegacyCategoryRoute) {
-  return Astro.redirect(`${buildBlogCategoryUrl(locale, null, segments[1])}${Astro.url.search}`, 301);
+  return Astro.redirect(`${buildBlogCategoryUrl(locale, segments[1])}${Astro.url.search}`, 301);
 }
 
 if (isCategorizedPostRoute) {
@@ -190,6 +192,10 @@ if (isCategorizedPostRoute) {
     SAD: 0,
   } as Record<BlogReactionType, number>);
 
+    // La reaction du visiteur n'est pas dans le cache public du post :
+    // elle depend de la session et doit etre lue a part.
+    const userReaction = await getBlogViewerReaction(data.post.id, user?.id ?? null);
+
   pageTitle = data.translation.metaTitle ?? blogT.meta.postTitle(data.translation.title);
   pageDescription = data.translation.metaDescription ?? data.translation.excerpt ?? blogT.meta.description;
   pageAlternateUrls = Object.fromEntries(
@@ -226,6 +232,7 @@ if (isCategorizedPostRoute) {
     reviews,
     reviewStats,
     reactionCounts,
+      userReaction,
     relatedPosts,
   };
 } else if (segments.length === 1) {
@@ -309,6 +316,9 @@ if (isCategorizedPostRoute) {
       SAD: 0,
     } as Record<BlogReactionType, number>);
 
+    // Reaction du visiteur : hors cache public du post, elle depend de la session.
+    const userReaction = await getBlogViewerReaction(data.post.id, user?.id ?? null);
+
     pageTitle = data.translation.metaTitle ?? blogT.meta.postTitle(data.translation.title);
     pageDescription = data.translation.metaDescription ?? data.translation.excerpt ?? blogT.meta.description;
     pageAlternateUrls = Object.fromEntries(
@@ -341,6 +351,7 @@ if (isCategorizedPostRoute) {
       reviews,
       reviewStats,
       reactionCounts,
+      userReaction,
       relatedPosts,
     };
   }
@@ -437,6 +448,7 @@ if (isCategorizedPostRoute) {
       reviews={postState.reviews as never}
       reviewStats={postState.reviewStats}
       reactionCounts={postState.reactionCounts}
+      userReaction={postState.userReaction}
       relatedPosts={postState.relatedPosts}
       baseUrl={baseUrl}
       absoluteUrl={Astro.url.href}

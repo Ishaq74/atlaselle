@@ -65,6 +65,32 @@ export const BLOG_OG_LOCALES = {
 
 export type BlogOgLocale = (typeof BLOG_OG_LOCALES)[Locale];
 
+/**
+ * Segment d'URL du blog par locale.
+ *
+ * Ces segments sont des littéraux figés (et non du contenu traduit) : les
+ * garder ici évite d'importer statiquement les 4 dictionnaires blog complets
+ * depuis `utils.ts`, ce qui annulait le code-splitting des imports dynamiques
+ * de `src/i18n/utils.ts` (avertissement Vite INEFFECTIVE_DYNAMIC_IMPORT).
+ *
+ * Invariant : ces valeurs doivent rester identiques à `routes.blog` dans
+ * `src/i18n/blog/{fr,en,es,ar}.ts` (vérifié par tests/unit/blog-route-segments.test.ts).
+ */
+export const BLOG_ROUTE_SEGMENTS = {
+  fr: "blog",
+  en: "blog",
+  es: "blog",
+  ar: "blog",
+} as const satisfies Record<Locale, string>;
+
+/** Segment d'URL des pages auteur du blog par locale (voir invariant testé). */
+export const BLOG_AUTHOR_SEGMENTS = {
+  fr: "auteur",
+  en: "author",
+  es: "autor",
+  ar: "الكاتب",
+} as const satisfies Record<Locale, string>;
+
 export const BLOG_DEFAULTS = {
   postsPerPage: 9,
   commentsPerPage: 20,

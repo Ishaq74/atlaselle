@@ -1,0 +1,104 @@
+---
+/**
+ * Section « avis » d'un voyage.
+ *
+ * Gabarit identique à `components/services/engagement/ServiceReviewSection.astro`
+ * et `components/blog/engagement/BlogReviewSection.astro` :
+ *
+ *   titre avec icône → résumé de note hors onglets → onglets liste / écriture
+ */
+import { Icon } from "astro-icon/components";
+import type { Locale } from "@i18n/config";
+import type { TripEngagementDTO } from "@/modules/trips/loaders/trip-engagement.loader";
+import { getTripEngagementTranslations } from "@/modules/trips/i18n/engagement";
+import { toReviewItem } from "@/modules/trips/engagement/adapter";
+import EngagementTabs from "@/components/molecules/Engagement/EngagementTabs.astro";
+import EngagementReviewStats from "@/components/molecules/Engagement/EngagementReviewStats.astro";
+import EngagementReviewCard from "@/components/molecules/Engagement/EngagementReviewCard.astro";
+import TripReviewForm from "@/components/trips/engagement/TripReviewForm.astro";
+import { Card, CardContent } from "@atoms/card";
+
+interface Props {
+  tripId: string;
+  locale: Locale;
+  allowReviews: boolean;
+  engagement: TripEngagementDTO;
+  isSignedIn: boolean;
+}
+
+const { tripId, locale, allowReviews, engagement, isSignedIn } = Astro.props as Props;
+const t = getTripEngagementTranslations(locale);
+const { ratingAverage, ratingCount, distribution, reviews } = engagement;
+
+const hasReviews = reviews.length > 0;
+
+const reviewLabels = {
+  recommended: t.recommended,
+  notRecommended: t.notRecommended,
+  helpful: t.helpful,
+  helpfulMark: t.helpfulMark,
+  helpfulUnmark: t.helpfulUnmark,
+  report: t.report,
+  reply: t.reply,
+};
+---
+
+<section class="flex flex-col gap-6" aria-labelledby="trip-reviews-title">
+  <h2 id="trip-reviews-title" class="font-heading flex items-center gap-2 text-lg font-semibold">
+    <Icon name="mdi:star-outline" class="size-5 text-muted-foreground" />
+    {t.reviewTitle} (<bdi>{reviews.length}</bdi>)
+  </h2>
+
+  {!allowReviews ? (
+    <Card>
+      <CardContent class="py-8 text-center text-sm text-muted-foreground">{t.reviewsDisabled}</CardContent>
+    </Card>
+  ) : (
+    <>
+      {/* Résumé toujours visible, au-dessus des onglets. */}
+      <EngagementReviewStats
+        average={ratingAverage}
+        total={ratingCount}
+        distribution={distribution}
+        ratingLabel={t.ratingLabel}
+      />
+
+      <EngagementTabs
+        defaultTab={hasReviews ? "list" : "write"}
+        listLabel={t.reviewTitle}
+        listCount={reviews.length}
+        writeLabel={t.writeReview}
+        listIcon="mdi:message-star-outline"
+      >
+        <div slot="list" class="flex flex-col gap-4">
+          {hasReviews ? (
+            reviews.map((review) => (
+              <EngagementReviewCard
+                locale={locale}
+                review={toReviewItem(review)}
+                isSignedIn={isSignedIn}
+                labels={reviewLabels}
+              />
+            ))
+          ) : (
+            <Card>
+              <CardContent class="py-8 text-center text-sm text-muted-foreground">{t.noReviews}</CardContent>
+            </Card>
+          )}
+        </div>
+
+        <div slot="write">
+          {isSignedIn ? (
+            <TripReviewForm tripId={tripId} locale={locale} action={Astro.url.pathname} />
+          ) : (
+            <Card>
+              <CardContent class="py-8 text-center text-sm text-muted-foreground">
+                {t.signInRequired}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </EngagementTabs>
+    </>
+  )}
+</section>

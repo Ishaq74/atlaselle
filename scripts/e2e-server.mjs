@@ -23,14 +23,35 @@
  * It also performs pre-flight cleanup: kills any orphaned listener on the
  * E2E port (leftover daemon from a previous run) and removes the stale
  * .astro/preview.json lock, so a crashed earlier run can never block tests.
+ *
+ * ## Isolation entre voies (E2E_LANE)
+ *
+ * `.astro/preview.json` est un lock PARTAGÉ : il ne décrit qu'un seul serveur.
+ * En mode voie, le tuer reviendrait à tuer le serveur d'une autre voie (risque
+ * R4). La manipulation du lock est donc désactivée dès que `E2E_LANE` est
+ * défini ; seul le nettoyage par PORT reste actif, et il est sans danger car
+ * chaque voie écoute sur un port distinct.
  */
 
 import { spawn, execSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const PORT = 4322;
+/**
+ * Port d'écoute.
+ *
+ * Surchargeable par `E2E_PORT` : l'orchestrateur `scripts/qa.mjs` donne à chaque
+ * voie son propre port (4322, 4323, 4324…), sinon deux voies se disputeraient le
+ * même bind et la seconde tuerait le serveur de la première. Sans variable, le
+ * comportement est inchangé : 4322.
+ */
+const PORT = Number(process.env.E2E_PORT ?? 4322);
 const HOST = 'localhost';
+/**
+ * Voie courante (nom de lane). Vide en exécution simple.
+ * Quand il est défini, le lock partagé `.astro/preview.json` n'est pas touché.
+ */
+const LANE = process.env.E2E_LANE ?? '';
 const PREVIEW_LOCK = resolve('.astro/preview.json');
 const COMPRESSED_SERVER = resolve('scripts/serve-compressed.mjs');
 
@@ -43,9 +64,16 @@ function killPid(pid, reason) {
   }
 }
 
-/** Free the E2E port and remove any stale preview lock from a previous run. */
+/**
+ * Free the E2E port and remove any stale preview lock from a previous run.
+ *
+ * Le lock `.astro/preview.json` est SAUF en mode voie : il est partagé par toutes
+ * les voies, et tuer le PID qu'il contient reviendrait à arrêter le serveur
+ * d'une autre voie. Le nettoyage par port, lui, reste toujours actif et reste
+ * sûr puisque chaque voie a son propre port.
+ */
 function preflightCleanup() {
-  if (existsSync(PREVIEW_LOCK)) {
+  if (LANE === '' && existsSync(PREVIEW_LOCK)) {
     try {
       const lock = JSON.parse(readFileSync(PREVIEW_LOCK, 'utf8'));
       if (lock && typeof lock.pid === 'number' && lock.pid !== process.pid) {
@@ -55,6 +83,8 @@ function preflightCleanup() {
       // Unreadable lock — just delete it.
     }
     rmSync(PREVIEW_LOCK, { force: true });
+  } else if (LANE !== '') {
+    console.log(`[e2e-server] voie « ${LANE} » : lock .astro/preview.json laissé intact (partagé)`);
   }
 
   if (process.platform === 'win32') {
@@ -79,7 +109,7 @@ preflightCleanup();
 
 const child = spawn(
   process.execPath, // current node binary
-  // Compressed SSR server (gzip) â€” no astro CLI, so no background
+  // Compressed SSR server (gzip) — no astro CLI, so no background
   // daemonization possible; ASTRO_PREVIEW_BACKGROUND stays as a safeguard.
   [COMPRESSED_SERVER],
   {
@@ -93,6 +123,12 @@ const child = spawn(
       TRUST_PROXY: 'true',
       HOST,
       PORT: String(PORT),
+      // En mode voie, better-auth doit connaître l'ORIGINE réellement servie,
+      // sinon il rejettera les requêtes mutantes (Origin / CSRF) comme provenant
+      // d'une origine étrangère (risque R5). En exécution simple on ne touche à
+      // rien : BETTER_AUTH_URL reste celui de l'environnement, donc exactement
+      // le comportement d'avant.
+      ...(LANE !== '' ? { BETTER_AUTH_URL: `http://${HOST}:${PORT}` } : {}),
     },
   },
 );

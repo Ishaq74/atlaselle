@@ -11,7 +11,29 @@ const config = require('../../lighthouserc.cjs');
 
 const chromePath = config.ci?.collect?.settings?.chromePath;
 
-function buildTempConfig(urls, cookie) {
+/**
+ * Construit une config LHCI temporaire pour un lot d'URLs.
+ *
+ * @param {string[]} urls
+ * @param {string} cookie
+ * @param {object} [options]
+ * @param {boolean} [options.gatePerformance=true]
+ *   Faux pour les pages /admin : elles sont derrière authentification, ne sont
+ *   indexées par personne, et leur DOM est structurellement lourd (tableaux de
+ *   données, arborescences). Exiger 90 en performance sur ces pages ne protège
+ *   aucun visiteur. Les trois autres catégories restent exigées : elles mesurent
+ *   des défauts réels, indépendants de la machine qui mesure.
+ */
+function buildTempConfig(urls, cookie, { gatePerformance = true } = {}) {
+  const assertions = {
+    'categories:accessibility': ['error', { minScore: 0.9 }],
+    'categories:best-practices': ['error', { minScore: 0.9 }],
+    'categories:seo': ['error', { minScore: 0.9 }],
+  };
+  if (gatePerformance) {
+    assertions['categories:performance'] = ['error', { minScore: 0.9 }];
+  }
+
   return {
     ci: {
       collect: {
@@ -24,14 +46,7 @@ function buildTempConfig(urls, cookie) {
           extraHeaders: { Cookie: cookie },
         },
       },
-      assert: {
-        assertions: {
-          'categories:performance': ['error', { minScore: 0.9 }],
-          'categories:accessibility': ['error', { minScore: 0.9 }],
-          'categories:best-practices': ['error', { minScore: 0.9 }],
-          'categories:seo': ['error', { minScore: 0.9 }],
-        },
-      },
+      assert: { assertions },
       upload: {
         target: 'temporary-public-storage',
       },
@@ -39,7 +54,7 @@ function buildTempConfig(urls, cookie) {
   };
 }
 
-function run(urls, cookie, label) {
+function run(urls, cookie, label, options) {
   if (!urls.length) {
     console.log(`[lhci] No ${label} URLs to audit, skipping.`);
     return;
@@ -52,7 +67,7 @@ function run(urls, cookie, label) {
   console.log(`\n[lhci] Running ${label} audit (${urls.length} URLs)…`);
 
   const tmpConfig = path.resolve(__dirname, `../../.lighthouseci-${label}.json`);
-  fs.writeFileSync(tmpConfig, JSON.stringify(buildTempConfig(urls, cookie), null, 2));
+  fs.writeFileSync(tmpConfig, JSON.stringify(buildTempConfig(urls, cookie, options), null, 2));
 
   try {
     execSync(`npx lhci autorun --config "${tmpConfig}"`, {
@@ -75,8 +90,11 @@ function run(urls, cookie, label) {
   }
 }
 
-// Run authenticated pages
-run(config._authedUrls, config._userCookie, 'authed');
+// Pages authentifiées (tableau de bord, profil) : ce sont des pages vues par les
+// utilisateurs, la performance est donc bien un critère → gate complet.
+run(config._authedUrls, config._userCookie, 'authed', { gatePerformance: true });
 
-// Run admin pages
-run(config._adminUrls, config._adminCookie, 'admin');
+// Pages d'administration : authentifiées, non indexées, DOM lourd par nature.
+// L'accessibilité, les bonnes pratiques et le SEO restent gated ; seule la
+// performance est retirée du périmètre (voir buildTempConfig).
+run(config._adminUrls, config._adminCookie, 'admin', { gatePerformance: false });

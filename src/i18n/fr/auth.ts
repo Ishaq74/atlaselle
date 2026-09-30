@@ -75,6 +75,10 @@ export default {
     localeSwitcher: {
       title: 'Langues',
     },
+    navigation: {
+      title: 'Navigation',
+      description: 'Navigation principale du back-office.',
+    },
     tabs: {
       stats: 'Statistiques',
       users: 'Utilisateurs',
@@ -351,6 +355,7 @@ export default {
         restoreVersionConfirm: 'Restaurer cette version ? Un snapshot de l\'état actuel sera créé automatiquement.',
         versionRestored: 'Version restaurée.',
         snapshotNotePrompt: 'Note optionnelle pour ce snapshot :',
+        snapshotNoteLabel: 'Note du snapshot',
         snapshotCreated: 'Snapshot créé.',
         insertMedia: 'Insérer un média',
         noPages: 'Aucune page créée.',
@@ -379,7 +384,7 @@ export default {
         searchPlaceholder: 'Rechercher une page…',
         noResults: 'Aucun résultat.',
         filter: { allStatuses: 'Tous les statuts', allTemplates: 'Tous les modèles', allLocales: 'Toutes les langues' },
-        sort: { newest: 'Plus récent', oldest: 'Plus ancien', nameAsc: 'Nom A–Z', nameDesc: 'Nom Z–A' },
+        sort: { label: 'Trier', newest: 'Plus récent', oldest: 'Plus ancien', nameAsc: 'Nom A–Z', nameDesc: 'Nom Z–A' },
         columns: { title: 'Titre', slug: 'Slug', locale: 'Langue', template: 'Modèle', sections: 'Sections', status: 'Statut', locked: 'Verrou', actions: 'Actions' },
         legal: { tabTitle: "Titre de l'onglet", tabIntro: 'Introduction', newTabTitle: 'Nouvel onglet', question: 'Question', answer: 'Réponse', addItem: 'Ajouter un élément', removeItem: 'Supprimer', addTab: 'Ajouter un onglet', deleteTab: "Supprimer l'onglet", noItems: 'Aucun élément.', confirmDeleteTab: 'Supprimer cet onglet et son contenu ?', confirmDeleteItem: 'Supprimer cet élément ?', moveUp: 'Monter', moveDown: 'Descendre', itemIndex: 'Élément', variables: 'Variables', variablesDescription: 'Cliquez sur une variable pour l\'insérer dans le dernier champ sélectionné.', variableInserted: 'Variable insérée.', noFieldFocused: 'Cliquez d\'abord dans un champ texte.', variableUnknown: '⚠ variable inconnue', variableEmpty: '⚠ vide', variableTrimmedSpaces: '⚠ espaces en trop', variableSpacesInName: '⚠ espaces dans le nom', variableInvalidBraces: '⚠ accolades incorrectes', varSiteName: 'Nom du site', varEmail: 'Email', varPhone: 'Téléphone', varAddress: 'Adresse', varCity: 'Ville', varPostalCode: 'Code postal', varCountry: 'Pays' },
       },

@@ -15,6 +15,15 @@ import {
 
 const commonModules: Record<Locale, () => Promise<{ default: CommonTranslations }>> = { fr: () => import('./fr/common'), en: () => import('./en/common'), es: () => import('./es/common'), ar: () => import('./ar/common') };
 export async function getCommonTranslations(locale: Locale): Promise<CommonTranslations> { try { return (await commonModules[locale]()).default; } catch (err) { if (locale !== DEFAULT_LOCALE) return (await commonModules[DEFAULT_LOCALE]()).default; throw err; } }
+/**
+ * Locale déduite du pathname (`/ar/admin/users` → `ar`). Utile aux composants
+ * transverses (pagination, toasts…) qui doivent traduire leurs libellés sans
+ * recevoir la locale en prop.
+ */
+export function getLocaleFromPath(pathname: string): Locale {
+  const segment = pathname.split('/').filter(Boolean)[0];
+  return segment && (LOCALES as readonly string[]).includes(segment) ? (segment as Locale) : DEFAULT_LOCALE;
+}
 const homeModules: Record<Locale, () => Promise<{ default: HomeTranslations }>> = { fr: () => import('./fr/home'), en: () => import('./en/home'), es: () => import('./es/home'), ar: () => import('./ar/home') };
 export async function getHomeTranslations(locale: Locale): Promise<HomeTranslations> { try { return (await homeModules[locale]()).default; } catch (err) { if (locale !== DEFAULT_LOCALE) return (await homeModules[DEFAULT_LOCALE]()).default; throw err; } }
 const aboutModules: Record<Locale, () => Promise<{ default: AboutTranslations }>> = { fr: () => import('./fr/about'), en: () => import('./en/about'), es: () => import('./es/about'), ar: () => import('./ar/about') };
@@ -25,7 +34,7 @@ const authModules: Record<Locale, () => Promise<{ default: AuthTranslations }>> 
 export async function getAuthTranslations(locale: Locale): Promise<AuthTranslations> { try { return (await authModules[locale]()).default; } catch (err) { if (locale !== DEFAULT_LOCALE) return (await authModules[DEFAULT_LOCALE]()).default; throw err; } }
 export function getAuthUrl(locale: Locale, pageId: AuthPageId, authTranslations: AuthTranslations): string { return `/${locale}/auth/${authTranslations.routes[pageId]}`; }
 export function resolveAuthSlug(slug: string, authTranslations: AuthTranslations): AuthPageId | null { const match = (Object.entries(authTranslations.routes) as [AuthPageId, string][]).find(([, route]) => route === slug); return match?.[0] ?? null; }
-export type AdminSubpage = 'stats' | 'users' | 'audit' | 'roles' | 'blog' | 'trips' | 'applications' | 'reservations' | 'payments' | 'travelers' | 'emails' | 'policies' | 'services' | 'site' | 'navigation' | 'pages' | 'media' | 'theme';
+export type AdminSubpage = 'stats' | 'users' | 'audit' | 'roles' | 'blog' | 'trips' | 'moderation' | 'applications' | 'reservations' | 'payments' | 'travelers' | 'emails' | 'policies' | 'services' | 'site' | 'navigation' | 'pages' | 'media' | 'theme';
 export function getAdminUrl(locale: Locale, subpage?: AdminSubpage): string { return subpage ? `/${locale}/admin/${subpage}` : `/${locale}/admin`; }
 export function getPageUrl(locale: Locale, pageId: PageId, commonTranslations: CommonTranslations): string { return `/${locale}/${commonTranslations.pageRoutes[pageId]}`; }
 const blogModules: Record<Locale, () => Promise<{ default: BlogTranslations }>> = { fr: () => import('./blog/fr'), en: () => import('./blog/en'), es: () => import('./blog/es'), ar: () => import('./blog/ar') };
@@ -46,9 +55,15 @@ export interface StaticSlugMaps {
 
 /**
  * Page équivalente dans la langue cible pour les slugs structurels
- * (about/contact/legal, auth, page universelle terms).
+ * (about/contact/legal, auth).
+ *
  * Pur et testé (tests/unit/i18n-switch.test.ts). Retourne le chemin ou `null`
  * (repli : page parente / getRelativeLocaleUrl, jamais de contenu d'une autre langue).
+ *
+ * Le cas `/terms` a été retiré : la page « conditions » est devenue une page
+ * CMS à slug localisé (`conditions-reservation` / `booking-terms` /
+ * `condiciones-reserva`), donc elle n'a plus d'URL universelle. Elle est
+ * résolue par identifiant de page, voir `LanguageSwitcher`.
  */
 export function mapStaticSlugPath(
   currentLocale: Locale,
@@ -56,9 +71,6 @@ export function mapStaticSlugPath(
   pathWithoutLocale: string,
   maps: StaticSlugMaps,
 ): string | null {
-  if (pathWithoutLocale === '/terms') {
-    return `/${targetLocale}${pathWithoutLocale}`;
-  }
   const curPages = maps.pageRoutes[currentLocale];
   const pageEntry = (Object.entries(curPages) as [PageId, string][]).find(
     ([, slug]) => `/${slug}` === pathWithoutLocale,

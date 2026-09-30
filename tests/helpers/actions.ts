@@ -11,7 +11,7 @@
 import type { Browser, APIRequestContext } from '@playwright/test';
 import { SEED_EMAIL, SEED_PASSWORD } from '../e2e/global-setup';
 
-const BASE_URL = 'http://localhost:4322';
+import { BASE_URL } from './e2e-env';
 
 /** Sign in the seeded admin and return an authenticated request context. */
 export async function adminRequest(browser: Browser): Promise<APIRequestContext> {

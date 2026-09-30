@@ -1,18 +1,7 @@
 import type { Locale } from "@i18n/config";
-import arBlog from "@i18n/blog/ar";
-import enBlog from "@i18n/blog/en";
-import esBlog from "@i18n/blog/es";
-import frBlog from "@i18n/blog/fr";
-import { BLOG_OG_LOCALES, type BlogOgLocale } from "./constants";
+import { BLOG_AUTHOR_SEGMENTS, BLOG_OG_LOCALES, BLOG_ROUTE_SEGMENTS, type BlogOgLocale } from "./constants";
 import { stripHtml } from "@/core/content/text";
 export { generateExcerpt, stripHtml } from "@/core/content/text";
-
-const BLOG_ROUTE_SEGMENTS: Record<Locale, string> = {
-  fr: frBlog.routes.blog,
-  en: enBlog.routes.blog,
-  es: esBlog.routes.blog,
-  ar: arBlog.routes.blog,
-};
 
 export function buildBlogUrl(locale: Locale, ...segments: (string | undefined)[]): string {
   const blogRoute = BLOG_ROUTE_SEGMENTS[locale];
@@ -51,8 +40,7 @@ export function buildBlogTagHref(baseUrl: string, tagSegment: string, slug: stri
 }
 
 export function buildBlogAuthorUrl(locale: Locale, username: string): string {
-  const authorSegment = ({ fr: frBlog, en: enBlog, es: esBlog, ar: arBlog } as const)[locale].routes.author;
-  return buildBlogUrl(locale, authorSegment, username);
+  return buildBlogUrl(locale, BLOG_AUTHOR_SEGMENTS[locale], username);
 }
 
 export function buildBlogAuthorHref(baseUrl: string, authorSegment: string, username: string): string {

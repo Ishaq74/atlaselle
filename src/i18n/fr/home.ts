@@ -116,4 +116,8 @@ export default {
     primaryButton: { text: 'Rejoindre ATLASELLE', href: '#' },
     secondaryButton: { text: 'En savoir plus →', href: '#' },
   },
+  a11y: {
+    previousSlide: 'Diapositive précédente',
+    nextSlide: 'Diapositive suivante',
+  },
 } satisfies HomeTranslations;

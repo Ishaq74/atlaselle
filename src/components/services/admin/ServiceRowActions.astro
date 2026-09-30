@@ -1,0 +1,33 @@
+---
+import type { Locale } from "@i18n/config";
+import type { ServiceListItem } from "@/modules/services/domain";
+import { getServiceTranslations } from "@/modules/services/i18n";
+
+interface Props {
+  item: ServiceListItem;
+  locale: Locale;
+  baseUrl: string;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canPublish: boolean;
+  canDelete: boolean;
+  size?: "table" | "list";
+}
+
+const { item, locale, baseUrl, canCreate, canUpdate, canPublish, canDelete, size = "table" } = Astro.props;
+const t = getServiceTranslations(locale);
+const cls = size === "table"
+  ? "service-row-action rounded-md border px-2.5 py-1.5 text-xs"
+  : "service-row-action rounded-md border px-2 py-1 text-xs";
+const status = item.service.status;
+const editable = status !== "ARCHIVED" && status !== "DELETED";
+---
+<div class="flex flex-wrap justify-end gap-2">
+  {canUpdate && <a href={`${baseUrl}/${item.service.id}/edit`} class={`${cls} hover:bg-muted`}>{t.admin.editService}</a>}
+  {status === "DRAFT" && canPublish && <button type="button" class={cls} data-action="publish" data-id={item.service.id}>{t.admin.publish}</button>}
+  {status === "PUBLISHED" && canPublish && <button type="button" class={cls} data-action="unpublish" data-id={item.service.id}>{t.admin.unpublish}</button>}
+  {(status === "ARCHIVED" || status === "DELETED") && canUpdate && <button type="button" class={cls} data-action="restore" data-id={item.service.id}>{t.admin.restore}</button>}
+  {editable && canUpdate && <button type="button" class={cls} data-action="archive" data-id={item.service.id}>{t.admin.archive}</button>}
+  {canCreate && <button type="button" class={cls} data-action="duplicate" data-id={item.service.id}>{t.admin.duplicate}</button>}
+  {canDelete && status !== "DELETED" && <button type="button" class={`${cls} text-destructive`} data-action="delete" data-id={item.service.id}>{t.admin.delete}</button>}
+</div>

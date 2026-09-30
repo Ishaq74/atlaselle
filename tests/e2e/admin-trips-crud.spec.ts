@@ -9,7 +9,7 @@ import { SEED_EMAIL, SEED_PASSWORD } from './global-setup';
  * plus departures, itinerary days, FAQ and content blocks.
  */
 
-const BASE_URL = 'http://localhost:4322';
+import { BASE_URL } from '../helpers/e2e-env';
 
 async function adminState(browser: import('@playwright/test').Browser) {
   const context = await browser.newContext();
@@ -46,10 +46,14 @@ test.describe('Admin trips — CRUD & lifecycle', () => {
       const context = await browser.newContext({ storageState: await adminState(browser) });
       const page = await context.newPage();
 
-      // List page contains the new trip
+      // List page contains the new trip.
+      // AdminTripList rend le titre dans plusieurs slots de DataView (table /
+      // list / cards) et DataView masque les slots inactifs : sans
+      // `filter({ visible: true })`, `.first()` attrape le <p> du slot « list »,
+      // qui est présent dans le DOM mais masqué.
       const listResp = await page.goto('/fr/admin/trips', { waitUntil: 'networkidle' });
       expect(listResp?.status()).toBe(200);
-      await expect(page.getByText('E2E CRUD Trip').first()).toBeVisible();
+      await expect(page.getByText('E2E CRUD Trip').filter({ visible: true }).first()).toBeVisible();
 
       // Edit page loads with the fixture
       const editResp = await page.goto(`/fr/admin/trips/${tripId}`, { waitUntil: 'networkidle' });

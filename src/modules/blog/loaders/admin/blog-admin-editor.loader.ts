@@ -2,7 +2,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { blogPostLinks, blogPosts, blogPostSeo, blogPostTranslations } from "@database/schemas";
 import type { Locale } from "@i18n/config";
-import { getBlogPostForAdmin } from "./blog.loader";
+import { getBlogPostForAdmin } from "@/modules/blog/loaders/blog.loader";
 
 export async function getBlogPostEditorData(postId: string, locale: Locale) {
   const base = await getBlogPostForAdmin(postId);

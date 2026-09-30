@@ -208,35 +208,8 @@ const paginationUrl = new URL(Astro.url.href);
 </AdminResourceShell>
 
 <script>
-  import { actions } from "astro:actions";
-  import { toast } from "@atoms/toast";
+  import { initAdminTripList } from "@/modules/trips/client/admin-trip-list";
 
-  document.querySelectorAll<HTMLSelectElement>("form[data-admin-filters] select[data-autosubmit]").forEach((select) => {
-    if (select.dataset.bound === "true") return;
-    select.dataset.bound = "true";
-    select.addEventListener("change", () => select.form?.requestSubmit());
-  });
-
-  const form = document.querySelector<HTMLFormElement>("[data-trip-create]");
-  form?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const target = e.currentTarget as HTMLFormElement | null;
-    if (!target) return;
-    const data = new FormData(target);
-    const message = target.querySelector<HTMLElement>("[data-form-message]");
-    const { data: result, error } = await actions.createTrip({
-      countryCode: String(data.get("countryCode") ?? "FR").toUpperCase(),
-      durationDays: Number(data.get("durationDays")),
-      durationNights: Number(data.get("durationNights")),
-      groupMin: Number(data.get("groupMin")),
-      groupMax: Number(data.get("groupMax")),
-    });
-    if (error || !result) {
-      const text = error?.message ?? "Error";
-      if (message) message.textContent = text;
-      toast.error(text);
-      return;
-    }
-    window.location.href = `${window.location.pathname}/${result.id}`;
-  });
+  initAdminTripList();
+  document.addEventListener("astro:after-swap", initAdminTripList);
 </script>

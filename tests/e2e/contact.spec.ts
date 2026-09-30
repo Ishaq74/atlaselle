@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
  * Covers page rendering, form submission, validation errors, and rate limiting.
  */
 
-const BASE_URL = 'http://localhost:4322';
+import { BASE_URL } from '../helpers/e2e-env';
 
 let ipSeq = 0;
 /**

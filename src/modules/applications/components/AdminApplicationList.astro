@@ -1,7 +1,14 @@
 ---
+import { NativeSelect, NativeSelectOption } from "@atoms/native-select";
 import type { Locale } from "@i18n/config";
 import type { AdminApplicationRow } from "@/modules/applications/loaders/admin-applications.loader";
 import type { ApplicationStatus } from "@database/schemas/applications.schema";
+import { getAdminDict, adminStatusLabel } from "@i18n/admin";
+import { AdminResourceShell, DataView, statusTone } from "@/core/admin";
+import AdminPagination from "@molecules/AdminPagination/AdminPagination.astro";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@atoms/table";
+import { Badge } from "@atoms/badge";
+import Button from "@atoms/button/Button.astro";
 
 interface Props {
   rows: AdminApplicationRow[];
@@ -14,50 +21,119 @@ interface Props {
 
 const { rows, meta, locale, baseUrl, status, statuses } = Astro.props;
 const totalPages = Math.max(1, Math.ceil(meta.total / meta.pageSize));
-const qs = (over: Record<string, string>) => {
-  const p = new URLSearchParams();
-  if (status) p.set("status", status);
-  for (const [k, v] of Object.entries(over)) {
-    if (v) p.set(k, v);
-    else p.delete(k);
-  }
-  const s = p.toString();
-  return s ? `${baseUrl}?${s}` : baseUrl;
-};
-const t = locale === "fr"
-  ? { title: "Candidatures", status: "Statut", all: "Tous", traveler: "Voyageuse", submitted: "Envoyée", open: "Ouvrir", prev: "←", next: "→", of: "sur" }
-  : { title: "Applications", status: "Status", all: "All", traveler: "Traveler", submitted: "Submitted", open: "Open", prev: "←", next: "→", of: "of" };
+const dict = getAdminDict(locale);
+const t = dict.applications;
+const c = dict.common;
+const col = dict.columns;
+const statusLabel = (value: string) => adminStatusLabel(dict, value);
+const hasFilters = Boolean(status);
+const paginationUrl = new URL(Astro.url.href);
 ---
-<section class="mx-auto max-w-6xl px-6 py-10">
-  <h1 class="text-3xl font-bold">{t.title} ({meta.total})</h1>
-  <form method="get" class="mt-6 flex flex-wrap gap-3 text-sm">
-    <select name="status" class="rounded-md border bg-background px-2 py-1.5" onchange="this.form.submit()">
-      <option value="">{t.status} : {t.all}</option>
-      {statuses.map((s) => (
-        <option value={s} selected={status === s}>{s}</option>
-      ))}
-    </select>
-  </form>
-  <div class="mt-6 overflow-x-auto rounded-xl border">
-    <table class="w-full text-left text-sm">
-      <thead class="bg-muted/60">
-        <tr><th class="px-4 py-2">{t.traveler}</th><th class="px-4 py-2">{t.status}</th><th class="px-4 py-2">{t.submitted}</th><th class="px-4 py-2"></th></tr>
-      </thead>
-      <tbody>
+
+<AdminResourceShell title={`${t.title} (${meta.total})`}>
+  <div class="space-y-4 p-4 md:p-6">
+    <form method="get" class="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3" data-admin-filters aria-label={c.filter}>
+      <div class="flex flex-col gap-1">
+        <label for="application-filter-status" class="text-sm font-medium">{col.status}</label>
+        <NativeSelect id="application-filter-status" name="status" size="sm" data-autosubmit>
+          <NativeSelectOption value="">{c.all}</NativeSelectOption>
+          {statuses.map((s) => (
+            <NativeSelectOption value={s} selected={status === s}>{statusLabel(s)}</NativeSelectOption>
+          ))}
+        </NativeSelect>
+      </div>
+      <div class="flex items-end gap-2">
+        <Button type="submit" size="sm" variant="primary">{c.apply}</Button>
+        <Button size="sm" variant="outline" href={baseUrl}>{c.reset}</Button>
+      </div>
+    </form>
+
+    <DataView
+      listLabel={dict.views.list}
+      tableLabel={dict.views.table}
+      cardsLabel={dict.views.cards}
+      showModeSelector={rows.length > 0}
+    >
+      {/* Slots directs : un slot nommé placé dans une expression
+          conditionnelle n'est pas enregistré par Astro (`Astro.slots.has()`
+          renvoie false) — donc plus de sélecteur de vue et trois vues
+          empilées. La condition est appliquée à l'intérieur du slot. */}
+      <div slot="table">
+        {rows.length === 0 ? (
+          <div class="rounded-lg border border-dashed p-10 text-center">
+            <p class="font-medium">{c.noResults}</p>
+            <p class="mt-1 text-sm text-muted-foreground">{c.noResultsHint}</p>
+            {hasFilters ? <Button class="mt-4" size="sm" variant="outline" href={baseUrl}>{c.clearFilters}</Button> : null}
+          </div>
+        ) : (
+          <Table aria-label={t.title}>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">{col.traveler}</TableHead>
+                <TableHead scope="col">{col.status}</TableHead>
+                <TableHead scope="col">{col.submitted}</TableHead>
+                <TableHead scope="col"><span class="sr-only">{c.actions}</span></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow>
+                  <TableCell class="font-medium">{row.travelerEmail}</TableCell>
+                  <TableCell><Badge variant={statusTone(row.status)} size="sm">{statusLabel(row.status)}</Badge></TableCell>
+                  <TableCell class="whitespace-nowrap">{row.submittedAt?.toISOString().slice(0, 10) ?? "—"}</TableCell>
+                  <TableCell class="text-end">
+                    <Button size="sm" variant="ghost" href={`${baseUrl}/${row.id}`}>{c.open}</Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </div>
+
+      <div slot="list" class="divide-y rounded-lg border" hidden={rows.length === 0}>
         {rows.map((row) => (
-          <tr class="border-t">
-            <td class="px-4 py-2 font-medium">{row.travelerEmail}</td>
-            <td class="px-4 py-2"><span class="rounded-full bg-muted px-2 py-0.5 text-xs">{row.status}</span></td>
-            <td class="px-4 py-2">{row.submittedAt?.toISOString().slice(0, 10) ?? "—"}</td>
-            <td class="px-4 py-2 text-right"><a class="text-primary underline" href={`${baseUrl}/${row.id}`}>{t.open}</a></td>
-          </tr>
+          <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+            <div class="min-w-0">
+              <p class="truncate font-medium">{row.travelerEmail}</p>
+              <p class="truncate text-xs text-muted-foreground">
+                {row.submittedAt?.toISOString().slice(0, 10) ?? "—"}
+              </p>
+            </div>
+            <div class="flex items-center gap-3">
+              <Badge variant={statusTone(row.status)} size="sm">{statusLabel(row.status)}</Badge>
+              <Button size="sm" variant="ghost" href={`${baseUrl}/${row.id}`}>{c.open}</Button>
+            </div>
+          </div>
         ))}
-      </tbody>
-    </table>
+      </div>
+
+      <div slot="cards" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" hidden={rows.length === 0}>
+        {rows.map((row) => (
+          <article class="flex flex-col gap-3 rounded-lg border p-4">
+            <div class="flex items-start justify-between gap-2">
+              <h3 class="min-w-0 truncate font-medium">{row.travelerEmail}</h3>
+              <Badge variant={statusTone(row.status)} size="sm">{statusLabel(row.status)}</Badge>
+            </div>
+            <dl class="grid grid-cols-2 gap-2 text-sm">
+              <div class="col-span-2"><dt class="text-muted-foreground">{col.submitted}</dt><dd>{row.submittedAt?.toISOString().slice(0, 10) ?? "—"}</dd></div>
+            </dl>
+            <div class="mt-auto flex justify-end">
+              <Button size="sm" variant="outline" href={`${baseUrl}/${row.id}`}>{c.open}</Button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </DataView>
+
+    <AdminPagination currentPage={meta.page} totalPages={totalPages} baseUrl={paginationUrl} />
   </div>
-  <nav class="mt-4 flex items-center gap-3 text-sm" aria-label="Pagination">
-    {meta.page > 1 ? <a class="rounded-md border px-3 py-1" href={qs({ page: String(meta.page - 1) })}>{t.prev}</a> : null}
-    <span>{meta.page} {t.of} {totalPages}</span>
-    {meta.page < totalPages ? <a class="rounded-md border px-3 py-1" href={qs({ page: String(meta.page + 1) })}>{t.next}</a> : null}
-  </nav>
-</section>
+</AdminResourceShell>
+
+<script>
+  document.querySelectorAll<HTMLSelectElement>("form[data-admin-filters] select[data-autosubmit]").forEach((select) => {
+    if (select.dataset.bound === "true") return;
+    select.dataset.bound = "true";
+    select.addEventListener("change", () => select.form?.requestSubmit());
+  });
+</script>

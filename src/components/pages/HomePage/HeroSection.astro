@@ -50,6 +50,9 @@ interface Props extends HTMLAttributes<"section"> {
   avatars?: AvatarData[];
   /** Array of carousel images */
   carouselImages?: CarouselImage[];
+  /** Libellés accessibles des flèches du carrousel (à traduire par l'appelant). */
+  previousLabel?: string;
+  nextLabel?: string;
 }
 
 const hero7Styles = tv({
@@ -70,6 +73,8 @@ const {
   socialProofSubtext = "Building the future of the web",
   avatars = [],
   carouselImages = [],
+  previousLabel = "Previous slide",
+  nextLabel = "Next slide",
   class: className,
   ...rest
 } = Astro.props;
@@ -166,20 +171,20 @@ const {
               data-slot="carousel-previous"
               variant="outline"
               size="icon-sm"
-              aria-label="Previous slide"
+              aria-label={previousLabel}
             >
               <IconArrowLeft class="rtl:-scale-x-100" />
-              <span class="sr-only">Previous slide</span>
+              <span class="sr-only">{previousLabel}</span>
             </Button>
             <Button
               class="starwind-carousel-next rounded-full"
               data-slot="carousel-next"
               variant="outline"
               size="icon-sm"
-              aria-label="Next slide"
+              aria-label={nextLabel}
             >
               <IconArrowRight class="rtl:-scale-x-100" />
-              <span class="sr-only">Next slide</span>
+              <span class="sr-only">{nextLabel}</span>
             </Button>
           </div>
 

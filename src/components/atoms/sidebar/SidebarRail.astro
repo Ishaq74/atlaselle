@@ -2,7 +2,10 @@
 import type { HTMLAttributes } from "astro/types";
 import { tv } from "tailwind-variants";
 
-type Props = HTMLAttributes<"button">;
+type Props = HTMLAttributes<"button"> & {
+  /** Libellé accessible (à traduire par l'appelant). */
+  label?: string;
+};
 
 export const sidebarRail = tv({
   base: [
@@ -22,14 +25,14 @@ export const sidebarRail = tv({
   ],
 });
 
-const { class: className, ...rest } = Astro.props;
+const { class: className, label = "Toggle Sidebar", ...rest } = Astro.props;
 ---
 
 <button
   type="button"
   class={sidebarRail({ class: className })}
   data-sidebar="rail"
-  aria-label="Toggle Sidebar"
+  aria-label={label}
   tabindex="-1"
   {...rest}
   data-slot="sidebar-rail"></button>

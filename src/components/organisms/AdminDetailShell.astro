@@ -1,0 +1,58 @@
+---
+/**
+ * AdminDetailShell — layout commun des écrans de détail admin (candidature,
+ * réservation, voyage…). Le même que `AdminResourceShell` mais, au lieu d'une
+ * carte unique, il expose un conteneur de sections : chaque bloc est une
+ * `Card` du design system.
+ *
+ * Usage :
+ * ```astro
+ * <AdminDetailShell title={…} backHref={listUrl} backLabel={t.backToList} data-trip-id={id}>
+ *   <Fragment slot="meta"><Badge …/></Fragment>
+ *   <Fragment slot="actions"><Button …/></Fragment>
+ *   <Card>…</Card>
+ * </AdminDetailShell>
+ * ```
+ */
+import type { HTMLAttributes } from "astro/types";
+import Button from "@atoms/button/Button.astro";
+
+type Props = HTMLAttributes<"section"> & {
+  /** Titre principal (H1). */
+  title: string;
+  /** Ligne de sous-titre (statut, voyage, voyageur…). */
+  description?: string;
+  /** Libellé du bouton de retour ; masqué si `backHref` est absent. */
+  backLabel?: string;
+  backHref?: string;
+};
+
+const {
+  title,
+  description,
+  backLabel,
+  backHref,
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<section class:list={["space-y-6", className]} data-admin-detail-shell {...rest}>
+  <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div class="min-w-0">
+      {backHref ? (
+        <Button size="sm" variant="outline" href={backHref} class="mb-3">{backLabel ?? ""}</Button>
+      ) : null}
+      <h1 class="font-heading text-2xl font-semibold">{title}</h1>
+      {description ? <p class="mt-1 text-sm text-muted-foreground">{description}</p> : null}
+      <slot name="meta" />
+    </div>
+    <div class="flex shrink-0 flex-wrap items-center gap-2" data-admin-detail-actions>
+      <slot name="actions" />
+    </div>
+  </header>
+
+  <div class="space-y-6">
+    <slot />
+  </div>
+</section>

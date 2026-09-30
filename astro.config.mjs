@@ -100,6 +100,21 @@ export default defineConfig({
     },
   },
 
+  // Le blog est stocké en HTML dans PostgreSQL : aucun fichier .md, aucune
+  // content collection, aucun composant <Code>. La coloration Shiki est donc
+  // activée par défaut alors qu'elle ne sert à rien — et elle est incompatible
+  // avec notre CSP, qui autorise les styles inline via `styleDirective` mais
+  // refuse les feuilles inline non hachées de Shiki. Astro émettait un
+  // avertissement à chaque build pour signaler exactement ce conflit.
+  //
+  // Désactiver la coloration supprime à la fois l'avertissement et le
+  // vecteur d'incohérence CSP. Si un jour on introduit du Markdown, il faudra
+  // choisir explicitement `syntaxHighlight: 'prism'` (classes CSS, donc
+  // compatible CSP) plutôt que de réactiver Shiki.
+  markdown: {
+    syntaxHighlight: false,
+  },
+
   integrations: [
     Icon({
       include: {
@@ -157,6 +172,39 @@ export default defineConfig({
         "form-action 'self'",
         "object-src 'none'",
       ],
+      // `style-src` est la SEULE directive relâchée, et de façon scopée :
+      // `'unsafe-inline'` est autorisé pour les `<style>` générés (kind
+      // "element") ET pour les attributs `style=""` (kind "attribute"), et
+      // rien d'autre. La variante « stricte » n'est pas exploitable ici :
+      // `unsafe-hashes` n'autorise PAS les attributs de style (il faudrait le
+      // hachage de chaque valeur), et le design system en produit partout —
+      // durées d'animation des dialogues, variables des carrousels, aperçu live
+      // de l'éditeur de thème. Sans cela, la console se remplit de violations et
+      // l'aperçu de thème s'affiche inerte.
+      //
+      // Le risque résiduel (exfiltration via CSS) est aujourd'hui considéré
+      // comme nul : `scriptDirective` reste strict, donc aucune injection de
+      // script n'est possible par ce canal. Les valeurs *dynamiques* (barre de
+      // lecture, atome `Progress`) n'utilisent d'ailleurs pas ce canal : elles
+      // passent par le CSSOM (`el.style.…`), que la CSP ne bloque pas — c'est
+      // verrouillé par `tests/unit/csp-contract.test.ts`.
+      styleDirective: {
+        // Pas d'entrée `'self'` générique : dès lors que `style-src-elem` et
+        // `style-src-attr` sont définis, ils REMPLACENT `style-src` pour leur
+        // périmètre (les navigateurs ne retombent pas dessus — d'où l'avertissement
+        // Astro `csp.styleDirective`). Toute source utile doit donc être
+        // déclarée explicitement par `kind`.
+        resources: [
+          // `style-src-elem` remplace le `style-src` générique pour les `<style>`
+          // et les `<link rel="stylesheet">` : sans `'self'` là-bas, les
+          // feuilles de style compilées par Astro sont bloquées et TOUTE la
+          // mise en page disparaît (on l'a vu : le bandeau cookies, masqué par
+          // une classe `hidden`, restait visible).
+          { resource: "'self'", kind: "element" },
+          { resource: "'unsafe-inline'", kind: "element" },
+          { resource: "'unsafe-inline'", kind: "attribute" },
+        ],
+      },
       // Stripe.js autorisé pour le module payments (script tiers éditorial : néant).
       scriptDirective: {
         // 'self' is required: without it the CSP blocks every bundled

@@ -1,13 +1,13 @@
 ---
 import { requirePermission } from "@/lib/auth-guards";
 import { getBlogTranslations } from "@i18n/utils";
-import { getBlogCategories, getBlogTags, getBlogModerationQueue } from "@database/loaders/blog.loader";
-import { getBlogAdminPostData, getBlogAdminAuthors, getBlogAdminTags } from "@database/loaders/blog-admin.loader";
-import { getBlogAdminModerationCount } from "@database/loaders/blog-admin-moderation.loader";
+import { getBlogCategories, getBlogTags, getBlogModerationQueue } from "@/modules/blog/loaders/blog.loader";
+import { getBlogAdminPostData, getBlogAdminAuthors, getBlogAdminTags, getBlogAdminCategories, countBlogTaxonomy } from "@/modules/blog/loaders/blog-admin.loader";
+import { getBlogAdminModerationCount, getBlogModerationTotals } from "@/modules/blog/loaders/admin/blog-admin-moderation.loader";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import AuthLayout from "@organisms/AuthLayout/AuthLayout.astro";
 import AdminSidebar from "@organisms/AdminSidebar/AdminSidebar.astro";
-import BlogAdminPage from "@/components/blog/BlogAdminPage.astro";
+import BlogAdminPage from "@/components/blog/admin/BlogAdminPage.astro";
 import { hasBlogPermission } from "@/actions/blog/_helpers";
 import { LOCALES, type Locale } from "@i18n/config";
 
@@ -42,22 +42,53 @@ const [canCreate, canUpdate, canPublish, canDelete] = await Promise.all([
   hasBlogPermission(Astro, { blog: ["publish"] }),
   hasBlogPermission(Astro, { blog: ["delete"] }),
 ]);
-const [{ rows, meta, stats }, categoryRows, tagRows, moderation, authors, adminTags, moderationCount] = await Promise.all([
+
+// Onglet actif (liaison profonde) + pagination de la file de modération.
+const TAB_VALUES = ["posts", "categories", "tags", "moderation", "stats"] as const;
+const requestedTab = p.get("tab") ?? "";
+const activeTab = (TAB_VALUES as readonly string[]).includes(requestedTab)
+  ? (requestedTab as (typeof TAB_VALUES)[number])
+  : "posts";
+const moderationLimit = 10;
+const TAXONOMY_PAGE_SIZE = 20;
+const [moderationTotals, taxonomyTotals] = await Promise.all([
+  getBlogModerationTotals(),
+  countBlogTaxonomy(),
+]);
+const moderationTotal = Math.max(moderationTotals.comments, moderationTotals.reviews, moderationTotals.reports);
+const moderationTotalPages = Math.max(1, Math.ceil(moderationTotal / moderationLimit));
+const moderationPage = Math.min(
+  Math.max(1, Number(p.get("modPage") ?? "1") || 1),
+  moderationTotalPages,
+);
+const categoriesTotalPages = Math.max(1, Math.ceil(taxonomyTotals.categories / TAXONOMY_PAGE_SIZE));
+const tagsTotalPages = Math.max(1, Math.ceil(taxonomyTotals.tags / TAXONOMY_PAGE_SIZE));
+const categoriesPage = Math.min(
+  Math.max(1, Number(p.get("catPage") ?? "1") || 1),
+  categoriesTotalPages,
+);
+const tagsPage = Math.min(
+  Math.max(1, Number(p.get("tagPage") ?? "1") || 1),
+  tagsTotalPages,
+);
+
+const [{ rows, meta, stats }, categoryRows, tagRows, moderation, authors, adminTags, adminCategories, moderationCount] = await Promise.all([
   getBlogAdminPostData(locale, filters),
-  getBlogCategories(locale),
-  getBlogTags(locale),
-  getBlogModerationQueue({ limit: 10 }),
+  getBlogCategories(locale, { limit: TAXONOMY_PAGE_SIZE, offset: (categoriesPage - 1) * TAXONOMY_PAGE_SIZE }),
+  getBlogTags(locale, { limit: TAXONOMY_PAGE_SIZE, offset: (tagsPage - 1) * TAXONOMY_PAGE_SIZE }),
+  getBlogModerationQueue({ page: moderationPage, limit: moderationLimit }),
   getBlogAdminAuthors(),
   getBlogAdminTags(locale),
+  getBlogAdminCategories(locale),
   getBlogAdminModerationCount(),
 ]);
 const categories = categoryRows.map((item) => ({ id: item.id, slug: item.slug, name: item.translation?.name ?? item.slug, description: item.translation?.description ?? null, color: item.color, icon: item.icon, parentId: item.parentId, sortOrder: item.sortOrder, postCount: item.postCount }));
 const tags = tagRows.map((item) => ({ id: item.id, slug: item.slug, name: item.translation?.name ?? item.slug, color: item.color, postCount: item.postCount }));
-const filterOptions = { categories: categories.map(({ id, name }) => ({ id, name })), tags: adminTags.map(({ id, name }) => ({ id, name })), authors };
+const filterOptions = { categories: adminCategories.map(({ id, name }) => ({ id, name })), tags: adminTags.map(({ id, name }) => ({ id, name })), authors };
 ---
 <BaseLayout title={blogT.admin.title} description={blogT.admin.title}>
   <AuthLayout title={blogT.admin.title}>
     <AdminSidebar slot="sidebar" t={authT} locale={locale} activeItem="blog" />
-    <BlogAdminPage locale={locale} blogT={blogT} title={blogT.admin.title} posts={rows} postsMeta={meta} stats={stats} moderationCount={moderationCount} categories={categories} tags={tags} moderation={moderation} baseAdminUrl={baseAdminUrl} basePublicUrl={basePublicUrl} userId={user.id} canCreate={canCreate} canUpdate={canUpdate} canPublish={canPublish} canDelete={canDelete} filterOptions={filterOptions} />
+    <BlogAdminPage locale={locale} blogT={blogT} title={blogT.admin.title} posts={rows} postsMeta={meta} stats={stats} moderationCount={moderationCount} categories={categories} tags={tags} categoriesPage={categoriesPage} categoriesTotalPages={categoriesTotalPages} tagsPage={tagsPage} tagsTotalPages={tagsTotalPages} taxonomyBaseUrl={new URL(Astro.url.href)} parentOptions={adminCategories} moderation={moderation} activeTab={activeTab} moderationPage={moderationPage} moderationTotalPages={moderationTotalPages} moderationBaseUrl={new URL(Astro.url.href)} baseAdminUrl={baseAdminUrl} basePublicUrl={basePublicUrl} userId={user.id} canCreate={canCreate} canUpdate={canUpdate} canPublish={canPublish} canDelete={canDelete} filterOptions={filterOptions} />
   </AuthLayout>
 </BaseLayout>

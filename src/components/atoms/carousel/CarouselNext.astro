@@ -9,22 +9,25 @@ export const carouselNext = tv({
   base: [
     "starwind-carousel-next absolute size-8 rounded-full",
     // Horizontal positioning
-    "group-data-[axis=x]/carousel:top-1/2 group-data-[axis=x]/carousel:-right-12 group-data-[axis=x]/carousel:-translate-y-1/2",
+    "group-data-[axis=x]/carousel:top-1/2 group-data-[axis=x]/carousel:-end-12 group-data-[axis=x]/carousel:-translate-y-1/2",
     // Vertical positioning
     "group-data-[axis=y]/carousel:-bottom-12 group-data-[axis=y]/carousel:left-1/2 group-data-[axis=y]/carousel:-translate-x-1/2 group-data-[axis=y]/carousel:rotate-90",
   ],
 });
 
-type Props = ComponentProps<typeof Button>;
+type Props = ComponentProps<typeof Button> & {
+  /** Libellé accessible (à traduire par l'appelant). */
+  label?: string;
+};
 
-const { class: className = "", variant = "outline", size = "icon", ...rest } = Astro.props;
+const { class: className = "", variant = "outline", size = "icon", label = "Next slide", ...rest } = Astro.props;
 ---
 
 <Button
   variant={variant}
   size={size}
   class={carouselNext({ class: className })}
-  aria-label="Next slide"
+  aria-label={label}
   {...rest}
   data-slot="carousel-next"
 >
@@ -32,6 +35,6 @@ const { class: className = "", variant = "outline", size = "icon", ...rest } = A
     <ArrowRight class="rtl:-scale-x-100" />
   </slot>
   <slot>
-    <span class="sr-only">Next slide</span>
+    <span class="sr-only">{label}</span>
   </slot>
 </Button>

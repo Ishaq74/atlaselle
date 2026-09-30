@@ -59,18 +59,6 @@ function run(cmd, label) {
   }
 }
 
-/** Run a command and return its stdout (still logs stderr) */
-function runCapture(cmd, label) {
-  log(`Running: ${label || cmd}`);
-  try {
-    return execSync(cmd, { encoding: 'utf-8', shell: true, cwd: process.cwd(), maxBuffer: 10 * 1024 * 1024 });
-  } catch (e) {
-    logError(`"${label || cmd}" exited with code ${e.status}`);
-    // pa11y-ci --json exits non-zero when URLs fail, but stdout still has the JSON
-    return e.stdout || '';
-  }
-}
-
 /** Ensure reports directory exists */
 function ensureReportsDir() {
   if (!fs.existsSync(REPORTS_DIR)) fs.mkdirSync(REPORTS_DIR, { recursive: true });
@@ -266,13 +254,16 @@ async function main() {
     log('Building project...');
     run('pnpm build', 'build');
 
-    // 3. Start preview server in background
-    log('Starting preview server...');
-    serverProcess = spawn('node', ['dist/server/entry.mjs'], {
+    // 3. Start preview server in background.
+    //    Use the compressed server (same wrapper as `pnpm preview`) so audits
+    //    measure what production serves: without gzip/brotli Lighthouse scores
+    //    "Enable text compression" at 0 on every page and tanks performance.
+    log('Starting preview server (with text compression)...');
+    serverProcess = spawn('node', ['scripts/serve-compressed.mjs'], {
       cwd: process.cwd(),
       stdio: 'ignore',
       detached: false,
-      env: { ...process.env, HOST: 'localhost', PORT: String(PORT) },
+      env: { ...process.env, HOST, PORT: String(PORT) },
     });
     weStartedServer = true;
 
@@ -294,12 +285,29 @@ async function main() {
 
     if (runPa11y) {
       log('─── Pa11y-ci ───');
-      const pa11yJson = runCapture('npx pa11y-ci --config .pa11yci.cjs --json', 'pa11y-ci --json');
-      if (pa11yJson) {
-        const hasFailures = savePa11yReport(pa11yJson);
+      // Parallélisme par POUVELLEMENT DE PROCESSUS : pa11y-ci partage une
+      // seule instance Chrome, donc sa concurrence interne casse l'audit (des
+      // pages ne sont pas couvertes). Chaque processus a son propre Chrome et
+      // les URL sont réparties entre eux — couverture intégrale, voir
+      // tests/a11y/run-pa11y-parallel.mjs.
+      const jobs = process.env.A11Y_JOBS || '4';
+      const jsonOut = path.join(REPORTS_DIR, 'pa11y-results.json');
+      // Le lanceur sort en 1 si des pages échouent — c'est NORMAL, le rapport
+      // doit quand même être produit pour diagnostiquer. `run` propage le code
+      // de sortie, donc on l'ignore ici et on tranche sur le contenu du JSON.
+      try {
+        execSync(`node tests/a11y/run-pa11y-parallel.mjs --jobs ${jobs} --out "${jsonOut}"`, {
+          stdio: 'inherit', shell: true, cwd: process.cwd(),
+        });
+      } catch {
+        log('pa11y signale des échecs — le rapport est produit ci-dessous.');
+      }
+
+      if (fs.existsSync(jsonOut)) {
+        const hasFailures = savePa11yReport(fs.readFileSync(jsonOut, 'utf-8'));
         if (hasFailures) exitCode = 1;
       } else {
-        logError('Pa11y produced no output');
+        logError('Pa11y produced no results file');
         exitCode = 1;
       }
     }

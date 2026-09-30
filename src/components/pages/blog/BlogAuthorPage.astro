@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@atoms/avatar";
 import Button from "@atoms/button/Button.astro";
 import { Input } from "@atoms/input";
 import PostGrid from "@/components/blog/grids/PostGrid.astro";
-import PostGridToggle from "@/components/blog/PostGridToggle.astro";
+import PostGridToggle from "@/components/blog/grids/PostGridToggle.astro";
 import CategorySidebar from "@/components/blog/sidebars/CategorySidebar.astro";
 import TagSidebar from "@/components/blog/sidebars/TagSidebar.astro";
 import NewsletterSidebar from "@/components/blog/sidebars/NewsletterSidebar.astro";
@@ -79,7 +79,7 @@ const currentView = (Astro.cookies.get("blog-view")?.value ?? "grid") as "grid" 
 <section class="mx-auto w-full max-w-7xl">
   {/* ── Header ──────────────────────────────────────────────────────── */}
   <header class="relative overflow-hidden border-b bg-linear-to-b from-muted/60 to-background px-4 py-12 md:px-6 md:py-16">
-    <div class="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:text-left">
+    <div class="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:text-start">
       <Avatar size="lg" variant="primary" class="size-20 shrink-0 text-2xl">
         {author.image && <AvatarImage src={author.image} alt={author.name} />}
         <AvatarFallback>{authorInitials}</AvatarFallback>
@@ -110,7 +110,7 @@ const currentView = (Astro.cookies.get("blog-view")?.value ?? "grid") as "grid" 
             </span>
           )}
           {author.website && (
-            <a href={author.website} target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-foreground transition-colors" aria-label="Site web">
+            <a href={author.website} target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-foreground transition-colors" aria-label={blogT.labels.authorWebsite}>
               <Icon name="mdi:web" class="size-5" />
             </a>
           )}
@@ -136,14 +136,14 @@ const currentView = (Astro.cookies.get("blog-view")?.value ?? "grid") as "grid" 
         <div class="relative flex-1">
           <Icon
             name="mdi:magnify"
-            class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none"
+            class="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none"
           />
           <Input
             type="search"
             name="q"
             placeholder={blogT.labels.search}
             value={searchQuery ?? ""}
-            class="pl-9 bg-background/80 backdrop-blur"
+            class="ps-9 bg-background/80 backdrop-blur"
           />
         </div>
         {hasFilters && (
@@ -162,7 +162,7 @@ const currentView = (Astro.cookies.get("blog-view")?.value ?? "grid") as "grid" 
       <div class="mb-6 flex items-center justify-between gap-3">
         <p class="text-sm text-muted-foreground">
           {blogT.labels.authorArticles}
-          {meta.total > 0 && <span class="ml-1.5 tabular-nums">({meta.total})</span>}
+          {meta.total > 0 && <span class="ms-1.5 tabular-nums">({meta.total})</span>}
         </p>
         <PostGridToggle blogT={blogT} />
       </div>

@@ -1,6 +1,7 @@
 import { eq, and, desc, asc, or, ilike, inArray, isNull, sql, count, gte } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { cached } from "@database/cache";
+import type { StoredImageVariant as MediaVariant } from "@media/variants";
 import {
   blogPosts,
   blogPostTranslations,
@@ -52,7 +53,7 @@ type BlogPostListRow = {
   post: typeof blogPosts.$inferSelect;
   translation: typeof blogPostTranslations.$inferSelect | null;
   author: { id: string; name: string; image: string | null } | null;
-  featuredImage: { id: string; url: string; width: number | null; height: number | null } | null;
+  featuredImage: { id: string; url: string; width: number | null; height: number | null; variants: MediaVariant[] | null } | null;
 };
 
 async function hydrateBlogPostListItems(
@@ -230,7 +231,7 @@ export const getBlogPostBySlug = cached(
       : null;
 
     const featuredImage = post.featuredImageId
-      ? await db.select({ id: mediaFiles.id, url: mediaFiles.url, width: mediaFiles.width, height: mediaFiles.height }).from(mediaFiles).where(eq(mediaFiles.id, post.featuredImageId)).limit(1).then(r => r[0] ?? null)
+      ? await db.select({ id: mediaFiles.id, url: mediaFiles.url, width: mediaFiles.width, height: mediaFiles.height, variants: mediaFiles.variants }).from(mediaFiles).where(eq(mediaFiles.id, post.featuredImageId)).limit(1).then(r => r[0] ?? null)
       : null;
 
     const ogImage = translation.ogImageId
@@ -427,7 +428,7 @@ export const getBlogPosts = cached(
         post: blogPosts,
         translation: blogPostTranslations,
         author: { id: user.id, name: user.name, image: user.image },
-        featuredImage: { id: mediaFiles.id, url: mediaFiles.url, width: mediaFiles.width, height: mediaFiles.height },
+        featuredImage: { id: mediaFiles.id, url: mediaFiles.url, width: mediaFiles.width, height: mediaFiles.height, variants: mediaFiles.variants },
       })
       .from(blogPosts)
       .innerJoin(blogPostTranslations, eq(blogPostTranslations.postId, blogPosts.id))
@@ -577,7 +578,7 @@ export const getRelatedBlogPosts = cached(
         post: blogPosts,
         translation: blogPostTranslations,
         author: { id: user.id, name: user.name, image: user.image },
-        featuredImage: { id: mediaFiles.id, url: mediaFiles.url, width: mediaFiles.width, height: mediaFiles.height },
+        featuredImage: { id: mediaFiles.id, url: mediaFiles.url, width: mediaFiles.width, height: mediaFiles.height, variants: mediaFiles.variants },
       })
       .from(blogPosts)
       .innerJoin(blogPostTranslations, eq(blogPostTranslations.postId, blogPosts.id))
@@ -638,11 +639,19 @@ function emptyMeta(filters: BlogPostFilters): BlogPaginationMeta {
 
 // ─── Categories ──────────────────────────────────────────────────────────────
 
+/** Optional windowing for taxonomy lists (admin pagination). Omit for the
+ *  legacy unbounded list used by public pages. */
+export interface TaxonomyPageOptions {
+  limit?: number;
+  offset?: number;
+}
+
 export const getBlogCategories = cached(
-  (locale: Locale) =>
-    `blog:categories:${locale}`,
+  (locale: Locale, opts?: TaxonomyPageOptions) =>
+    `blog:categories:${locale}:${opts?.limit ?? "all"}:${opts?.offset ?? 0}`,
   async (
     locale: Locale,
+    opts: TaxonomyPageOptions = {},
   ): Promise<Array<BlogCategory & { translation: BlogCategoryTranslation | null; postCount: number }>> => {
     if (!isValidLocale(locale)) return [];
     const db = getDrizzle();
@@ -650,7 +659,7 @@ export const getBlogCategories = cached(
     // Single round-trip: join categories → translations, then resolve published
     // post counts via one grouped subquery (avoids the previous N+1 of one
     // COUNT per category).
-    const categories = await db
+    let query = db
       .select({
         category: blogCategories,
         translation: blogCategoryTranslations,
@@ -663,7 +672,11 @@ export const getBlogCategories = cached(
           eq(blogCategoryTranslations.locale, locale),
         ),
       )
-      .orderBy(asc(blogCategories.sortOrder), asc(blogCategoryTranslations.name));
+      .orderBy(asc(blogCategories.sortOrder), asc(blogCategoryTranslations.name))
+      .$dynamic();
+    if (opts.limit != null) query = query.limit(opts.limit);
+    if (opts.offset != null) query = query.offset(opts.offset);
+    const categories = await query;
 
     const categoryIds = categories.map((c) => c.category.id);
     const postCounts = new Map<string, number>();
@@ -720,24 +733,29 @@ export const getBlogCategoryBySlug = cached(
 // ─── Tags ────────────────────────────────────────────────────────────────────
 
 export const getBlogTags = cached(
-  (locale: Locale) =>
-    `blog:tags:${locale}`,
+  (locale: Locale, opts?: TaxonomyPageOptions) =>
+    `blog:tags:${locale}:${opts?.limit ?? "all"}:${opts?.offset ?? 0}`,
   async (
     locale: Locale,
+    opts: TaxonomyPageOptions = {},
   ): Promise<Array<BlogTag & { translation: BlogTagTranslation | null; postCount: number }>> => {
     if (!isValidLocale(locale)) return [];
     const db = getDrizzle();
 
     // Single round-trip: join tags → translations → published post counts via
     // a grouped subquery (avoids the previous N+1 of one COUNT per tag).
-    const tags = await db
+    let query = db
       .select({ tag: blogTags, translation: blogTagTranslations })
       .from(blogTags)
       .leftJoin(
         blogTagTranslations,
         and(eq(blogTagTranslations.tagId, blogTags.id), eq(blogTagTranslations.locale, locale)),
       )
-      .orderBy(asc(blogTagTranslations.name));
+      .orderBy(asc(blogTagTranslations.name))
+      .$dynamic();
+    if (opts.limit != null) query = query.limit(opts.limit);
+    if (opts.offset != null) query = query.offset(opts.offset);
+    const tags = await query;
 
     const tagIds = tags.map((t) => t.tag.id);
     const postCounts = new Map<string, number>();

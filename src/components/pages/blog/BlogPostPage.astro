@@ -5,15 +5,12 @@ import type { BlogCommentWithAuthor, BlogReviewWithAuthor } from "@lib/blog/type
 import type { BlogPostListItem } from "@lib/blog/types";
 import type { BlogReactionType } from "@lib/blog/constants";
 import { extractHeadings } from "@/lib/blog/utils";
-import { getBlogValidLinkTargets } from "@database/loaders/blog.loader";
-import ArticleProgressBar from "@/components/blog/ArticleProgressBar.astro";
-import AuthorCard from "@/components/blog/AuthorCard.astro";
-import PostContent from "@/components/blog/PostContent.astro";
+import { getBlogValidLinkTargets } from "@/modules/blog/loaders/blog.loader";
+import ArticleProgressBar from "@/components/molecules/Reading/ArticleProgressBar.astro";
+import BlogEngagement from "@/components/blog/engagement/BlogEngagement.astro";
+import AuthorCard from "@/components/blog/detail/AuthorCard.astro";
+import PostContent from "@/components/blog/detail/PostContent.astro";
 import PostGrid from "@/components/blog/grids/PostGrid.astro";
-import ReactionBar from "@/components/blog/ReactionBar.astro";
-import ShareBar from "@/components/blog/ShareBar.astro";
-import CommentSection from "@/components/blog/CommentSection.astro";
-import ReviewSection from "@/components/blog/ReviewSection.astro";
 
 interface PostContentData {
   post: {
@@ -46,6 +43,8 @@ interface Props {
   reviews: BlogReviewWithAuthor[];
   reviewStats: { total: number; average: number; distribution: { rating: number; count: number }[] };
   reactionCounts: Record<BlogReactionType, number>;
+  /** Réaction du visiteur, pour rendre la barre dans le bon état au chargement. */
+  userReaction: BlogReactionType | null;
   relatedPosts: BlogPostListItem[];
   baseUrl: string;
   absoluteUrl: string;
@@ -60,6 +59,7 @@ const {
   reviews,
   reviewStats,
   reactionCounts,
+  userReaction,
   relatedPosts,
   baseUrl,
   absoluteUrl,
@@ -95,11 +95,6 @@ const hasToc = tocHeadings.length >= 2;
         baseUrl={baseUrl}
       />
 
-      {/* Reaction and Share Bar */}
-      <div class="flex flex-col gap-4 rounded-2xl border bg-card/60 px-5 py-4 shadow-sm backdrop-blur lg:flex-row lg:items-center lg:justify-between">
-        <ReactionBar blogT={blogT} postId={data.post.id} reactionCounts={reactionCounts} />
-        <ShareBar blogT={blogT} url={absoluteUrl} title={data.translation.title} />
-      </div>
 
       {/* Related Posts */}
       {relatedPosts.length > 0 && (
@@ -125,25 +120,21 @@ const hasToc = tocHeadings.length >= 2;
         </section>
       )}
 
-      {/* Comments Section */}
-      <CommentSection
+      {/* Engagement : barre (réactions + partage), commentaires, avis. */}
+      <BlogEngagement
         locale={locale}
         blogT={blogT}
         postId={data.post.id}
+        reactionCounts={reactionCounts}
+        userReaction={userReaction}
         comments={comments}
-        user={user}
         commentStatus={data.post.commentStatus}
-      />
-
-      {/* Reviews Section */}
-      <ReviewSection
-        locale={locale}
-        blogT={blogT}
-        postId={data.post.id}
         reviews={reviews}
-        stats={reviewStats}
-        user={user}
+        reviewStats={reviewStats}
         allowReviews={data.post.allowReviews}
+        user={user}
+        absoluteUrl={absoluteUrl}
+        title={data.translation.title}
       />
     </div>
 
@@ -156,11 +147,11 @@ const hasToc = tocHeadings.length >= 2;
           </p>
           <ul class="mt-3 space-y-2 border-l text-sm">
             {tocHeadings.map((heading) => (
-              <li class:list={[heading.depth === 3 && "pl-4"]}>
+              <li class:list={[heading.depth === 3 && "ps-4"]}>
                 <a
                   href={`#${heading.slug}`}
                   data-toc-link
-                  class="-ml-px block border-l-2 border-transparent py-1 pl-4 text-muted-foreground transition-colors hover:text-foreground data-active:border-primary data-active:font-medium data-active:text-foreground"
+                  class="-ms-px block border-s-2 border-transparent py-1 ps-4 text-muted-foreground transition-colors hover:text-foreground data-active:border-primary data-active:font-medium data-active:text-foreground"
                 >
                   {heading.text}
                 </a>

@@ -13,21 +13,29 @@ import {
   PaginationNext,
   PaginationEllipsis,
 } from '@atoms/pagination';
+import { getCommonTranslations, getLocaleFromPath } from '@i18n/utils';
 
 interface Props {
   currentPage: number;
   totalPages: number;
-  baseUrl: URL;
+  baseUrl?: URL;
+  /** Query parameter driving the page number (defaults to `page`). */
+  param?: string;
 }
 
-const { currentPage, totalPages, baseUrl } = Astro.props;
+const { currentPage, totalPages, baseUrl, param = 'page' } = Astro.props;
 
-if (totalPages <= 1) return undefined;
+// Libellés repris du dictionnaire commun : la locale est déduite de l'URL
+// courante (`/{locale}/admin/...`) pour éviter de la propager partout.
+const commonT = await getCommonTranslations(getLocaleFromPath(Astro.url.pathname));
+
+if (!baseUrl || totalPages <= 1) return undefined;
+const base: URL = baseUrl;
 
 /** Build a URL for the given page number, keeping other query params. */
 function pageUrl(page: number): string {
-  const url = new URL(baseUrl);
-  url.searchParams.set('page', String(page));
+  const url = new URL(base);
+  url.searchParams.set(param, String(page));
   return url.pathname + url.search;
 }
 
@@ -50,11 +58,11 @@ function getPageNumbers(): (number | 'ellipsis')[] {
 const items = getPageNumbers();
 ---
 
-<Pagination class="mt-6">
+<Pagination class="mt-6" label={commonT.a11y.pagination}>
   <PaginationContent>
     {currentPage > 1 && (
       <PaginationItem>
-        <PaginationPrevious href={pageUrl(currentPage - 1)} />
+        <PaginationPrevious href={pageUrl(currentPage - 1)} label={commonT.a11y.previousPage} />
       </PaginationItem>
     )}
 
@@ -74,7 +82,7 @@ const items = getPageNumbers();
 
     {currentPage < totalPages && (
       <PaginationItem>
-        <PaginationNext href={pageUrl(currentPage + 1)} />
+        <PaginationNext href={pageUrl(currentPage + 1)} label={commonT.a11y.nextPage} />
       </PaginationItem>
     )}
   </PaginationContent>

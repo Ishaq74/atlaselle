@@ -10,6 +10,7 @@ import { createTheme, updateTheme, deleteTheme } from "./admin/theme";
 import { updateConsentSettings } from "./admin/consent";
 import { createMediaFolder, updateMediaFolder, deleteMediaFolder, uploadMediaFile, renameMediaFile, moveMediaFile, deleteMediaFile, upsertMediaFileAlt, deleteMediaFileAlt } from "./admin/media";
 import { createPageVersion, listPageVersions, restorePageVersion } from "./admin/versions";
+import { adminSetUserRole, adminBanUser, adminUnbanUser, adminRemoveUser, adminLogImpersonation } from "./admin/users";
 import { createBlogPost, updateBlogPost, deleteBlogPost, publishBlogPost, unpublishBlogPost, archiveBlogPost, restoreBlogPost, duplicateBlogPost, restoreBlogPostRevision, lockBlogPost, unlockBlogPost, listBlogPostRevisions, recordBlogPostView, createBlogCategory, updateBlogCategory, deleteBlogCategory, createBlogTag, updateBlogTag, deleteBlogTag, createBlogComment, moderateBlogComment, createBlogReview, moderateBlogReview, voteBlogReviewHelpful, toggleBlogReaction, toggleBlogFavorite, createBlogReport, updateBlogReport, getBlogModerationQueue, markBlogNotificationRead, markAllBlogNotificationsRead, createBlogLink, updateBlogLink, deleteBlogLink, createBlogGallery, updateBlogGallery, deleteBlogGallery, addGalleryMedia, removeGalleryMedia, updateUserProfile, subscribeBlogNewsletter, confirmBlogSubscription, unsubscribeBlogNewsletter, checkBlogPostLinks, resolveBlogInternalLink } from "./blog";
 import { createService, updateService } from "./services/service";
 import { publishService, unpublishService, archiveService, restoreService, deleteService, duplicateService, lockService, unlockService, listServiceRevisions, restoreServiceRevision } from "./services/lifecycle";
@@ -23,7 +24,7 @@ import { createServiceCategory, updateServiceCategory, deleteServiceCategory, cr
 import { moderateServiceComment, moderateServiceReview, resolveServiceReport } from "./services/moderation";
 import { addServiceMedia, updateServiceMedia, removeServiceMedia } from "./services/media";
 import { resolveServiceInternalLink } from "./services/internal-link";
-import { createTrip, submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, restoreTripRevision, updateTrip, upsertTripTranslation } from "./voyage/trips";
+import { createTrip, submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, sendTripBackToDraft, restoreTripRevision, updateTrip, upsertTripTranslation } from "./voyage/trips";
 import { createTripComment, createTripReview, createTripReport, voteTripReviewHelpful, toggleTripFavorite, toggleTripReaction, recordTripView } from "./voyage/engagement";
 import { moderateTripComment, moderateTripReview, resolveTripReport, updateTripEngagementSettings } from "./voyage/moderation";
 import { createDeparture, updateDeparture, setDepartureStatus } from "./voyage/departures";
@@ -45,12 +46,13 @@ export const server = {
   createSection, updateSection, deleteSection, reorderSections, createTheme, updateTheme, deleteTheme, updateConsentSettings,
   createMediaFolder, updateMediaFolder, deleteMediaFolder, uploadMediaFile, renameMediaFile, moveMediaFile, deleteMediaFile, upsertMediaFileAlt, deleteMediaFileAlt,
   createPageVersion, listPageVersions, restorePageVersion,
+  adminSetUserRole, adminBanUser, adminUnbanUser, adminRemoveUser, adminLogImpersonation,
   createBlogPost, updateBlogPost, deleteBlogPost, publishBlogPost, unpublishBlogPost, archiveBlogPost, restoreBlogPost, duplicateBlogPost, restoreBlogPostRevision, lockBlogPost, unlockBlogPost, listBlogPostRevisions, recordBlogPostView, createBlogCategory, updateBlogCategory, deleteBlogCategory, createBlogTag, updateBlogTag, deleteBlogTag, createBlogComment, moderateBlogComment, createBlogReview, moderateBlogReview, voteBlogReviewHelpful, toggleBlogReaction, toggleBlogFavorite, createBlogReport, updateBlogReport, getBlogModerationQueue, markBlogNotificationRead, markAllBlogNotificationsRead, createBlogLink, updateBlogLink, deleteBlogLink, checkBlogPostLinks, resolveBlogInternalLink, createBlogGallery, updateBlogGallery, deleteBlogGallery, addGalleryMedia, removeGalleryMedia, updateUserProfile, subscribeBlogNewsletter, confirmBlogSubscription, unsubscribeBlogNewsletter,
   createService, updateService, publishService, unpublishService, archiveService, restoreService, deleteService, duplicateService, lockService, unlockService, listServiceRevisions, restoreServiceRevision,
   toggleServiceFavorite, createServiceReview, createServiceComment, createServiceReport, voteServiceReviewHelpful, createServiceAvailability, updateServiceAvailability, deleteServiceAvailability,
   toggleServiceReaction, listServiceNotifications, markServiceNotificationRead, markAllServiceNotificationsRead, recordServiceView, createServiceAttributeDefinition, setServiceAttributeValue,
   createServiceCategory, updateServiceCategory, deleteServiceCategory, createServiceTag, updateServiceTag, deleteServiceTag, moderateServiceComment, moderateServiceReview, resolveServiceReport, addServiceMedia, updateServiceMedia, removeServiceMedia, resolveServiceInternalLink,
-  createTrip, submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, restoreTripRevision, updateTrip, upsertTripTranslation,
+  createTrip, submitTripForReview, approveTrip, publishTrip, unpublishTrip, archiveTrip, restoreTrip, sendTripBackToDraft, restoreTripRevision, updateTrip, upsertTripTranslation,
   createTripComment, createTripReview, createTripReport, voteTripReviewHelpful, toggleTripFavorite, toggleTripReaction, recordTripView,
   moderateTripComment, moderateTripReview, resolveTripReport, updateTripEngagementSettings,
   createDeparture, updateDeparture, setDepartureStatus,

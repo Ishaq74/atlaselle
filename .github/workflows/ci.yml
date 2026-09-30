@@ -127,9 +127,22 @@ jobs:
           retention-days: 7
 
   e2e-tests:
-    name: E2E Tests
+    name: E2E Tests (${{ matrix.browser }})
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [lint-and-check, unit-tests]
+    strategy:
+      # fail-fast: false est indispensable : avec la valeur par défaut (true), un
+      # échec Chromium annule Firefox et WebKit en cours de route et on perd
+      # leurs rapports — le job de fusion refuserait alors de produire un rapport
+      # complet, ce qui est le comportement voulu, mais on perdrait l'information.
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    # Chaque cellule est une machine distincte avec son propre PostgreSQL : aucune
+    # isolation supplémentaire n'est nécessaire côté base ni côté port, et AUCUN
+    # spec n'a besoin d'être modifié. Le port 4322 et la base atlaselle_e2e sont
+    # conservés tels quels (voir env ci-dessous).
     services:
       postgres:
         image: postgres:16
@@ -181,8 +194,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Install Playwright Browser
+        run: npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run Migrations
         run: pnpm db:migrate
@@ -193,18 +206,65 @@ jobs:
       - name: Seed test data (idempotent)
         run: pnpm db:seed
 
-      - name: Build
-        run: pnpm build
+      # Pas d'étape "Build" ici : le webServer de Playwright exécute déjà
+      # `pnpm run build && node scripts/e2e-server.mjs` (playwright.config.ts),
+      # donc le build n'était fait qu'une fois de plus. Le retirer économise
+      # ~30 s par cellule ; `webServer.timeout` (180 s) doit couvrir ce build.
 
       - name: Run E2E Tests
-        run: pnpm test:e2e
+        env:
+          # Chaque cellule écrit un rapport `blob` dans son propre sous-dossier
+          # (`blob/<browser>/report.zip`) : aucun job ne peut écrire le rapport
+          # final, la fusion est faite plus bas par le job e2e-report.
+          E2E_BLOB: '1'
+          E2E_PROJECT: ${{ matrix.browser }}
+        run: pnpm exec playwright test --project=${{ matrix.browser }}
+
+      - name: Upload blob report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: blob-report-${{ matrix.browser }}
+          path: tests/reports/qa/playwright/blob/
+          retention-days: 1
+
+  e2e-report:
+    name: E2E Report (merge)
+    runs-on: ubuntu-latest
+    needs: [e2e-tests]
+    if: ${{ !cancelled() }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v5
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # `merge-multiple: true` rassemble les trois artefacts dans un seul dossier
+      # ; chaque archive garde son sous-dossier <browser>/.
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: blob-report-*
+          merge-multiple: true
+          path: tests/reports/qa/playwright/blob
+
+      # --expect=3 : si une cellule a été annulée ou n'a pas upload son blob, la
+      # fusion REFUSE de produire un rapport au lieu de livrer un rapport vert
+      # mais incomplet.
+      - name: Merge Playwright Reports
+        run: node scripts/merge-playwright-blobs.mjs --expect=3
 
       - name: Generate Playwright Report
-        if: ${{ !cancelled() }}
         run: pnpm test:e2e:report
 
-      - name: Upload Playwright Report
-        uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
@@ -332,7 +392,7 @@ jobs:
   deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
-    needs: [unit-tests, e2e-tests, a11y-perf]
+    needs: [unit-tests, e2e-tests, e2e-report, a11y-perf]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     env:
       # This is the only job that produces a deployable artifact, so SITE_URL
@@ -465,7 +525,7 @@ jobs:
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [lint-and-check, unit-tests, e2e-tests, a11y-perf]
+    needs: [lint-and-check, unit-tests, e2e-tests, e2e-report, a11y-perf]
     if: always()
     steps:
       - name: CI Status Report
@@ -476,7 +536,8 @@ jobs:
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Lint & Type Check | ${{ needs.lint-and-check.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Unit & Integration Tests | ${{ needs.unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| E2E Tests | ${{ needs.e2e-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests (chromium / firefox / webkit) | ${{ needs.e2e-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Report (merge) | ${{ needs.e2e-report.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Accessibility & Performance | ${{ needs.a11y-perf.result }} |" >> $GITHUB_STEP_SUMMARY
 
       - name: Fail if any job failed

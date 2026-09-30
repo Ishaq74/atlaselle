@@ -31,21 +31,19 @@ export const APPLY_SEGMENT: Record<Locale, string> = {
   es: 'postulacion',
 };
 
-/** `/fr/conditions` · `/en/terms` · `/ar/terms` · `/es/terminos` */
-export const TERMS_SEGMENT: Record<Locale, string> = {
-  fr: 'conditions',
-  en: 'terms',
-  ar: 'terms',
-  es: 'terminos',
-};
-
-/** `/fr/confidentialite` · `/en/privacy` · `/ar/privacy` · `/es/privacidad` */
-export const PRIVACY_SEGMENT: Record<Locale, string> = {
-  fr: 'confidentialite',
-  en: 'privacy',
-  ar: 'privacy',
-  es: 'privacidad',
-};
+/**
+ * Les segments `TERMS_SEGMENT` (`/fr/conditions`, `/en/terms`, …) et
+ * `PRIVACY_SEGMENT` ont été supprimés : ils n'étaient référencés nulle part et
+ * décrivaient des URL qui n'existent plus.
+ *
+ * Les conditions de réservation et l'assurance voyage sont désormais des pages
+ * CMS à slug localisé (`conditions-reservation` / `booking-terms` /
+ * `condiciones-reserva`, `assurance-voyage` / `travel-insurance` /
+ * `seguro-de-viaje`). Leurs URL sont résolues en base par
+ * `resolveLegalLinks()` et par identifiant de page pour le changeur de langue
+ * — jamais par une constante figée, qui dériverait à la première édition de
+ * contenu dans l'admin.
+ */
 
 /** `/fr/a-propos` · `/en/about` · `/ar/about` · `/es/acerca-de` */
 export const ABOUT_SEGMENT: Record<Locale, string> = {
@@ -127,14 +125,6 @@ export function getApplyPath(locale: Locale, tripSlug: string): string {
   return `/${locale}/${APPLY_SEGMENT[locale]}/${tripSlug}`;
 }
 
-
-export function getTermsPath(locale: Locale): string {
-  return `/${locale}/${TERMS_SEGMENT[locale]}`;
-}
-
-export function getPrivacyPath(locale: Locale): string {
-  return `/${locale}/${PRIVACY_SEGMENT[locale]}`;
-}
 
 export function getAboutPath(locale: Locale): string {
   return `/${locale}/${ABOUT_SEGMENT[locale]}`;

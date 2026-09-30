@@ -37,8 +37,23 @@ export default {
   },
   a11y: {
     openMenu: 'Open menu',
+    toggleTheme: 'Toggle theme',
     switchLanguage: 'Switch language',
     skipToContent: 'Skip to main content',
+    previousPage: 'Go to previous page',
+    nextPage: 'Go to next page',
+    previousItem: 'Previous item',
+    nextItem: 'Next item',
+    closeNotification: 'Close notification',
+    notifications: 'Notifications',
+    closeDialog: 'Close dialog',
+    toggleSidebar: 'Toggle sidebar',
+    loading: 'Loading',
+    selectField: 'Select a value',
+    iconPicker: 'Icon picker',
+    uploadedFiles: 'Uploaded files',
+    breadcrumb: 'Breadcrumb',
+    pagination: 'Pagination',
   },
   errors: {
     notFound: {

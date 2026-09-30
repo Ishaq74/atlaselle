@@ -9,15 +9,17 @@ import PaginationLink from "./PaginationLink.astro";
 
 type Props = HTMLAttributes<"a"> & {
   size?: VariantProps<typeof ButtonVariants.button>["size"];
+  /** Libellé accessible (à traduire par l'appelant). */
+  label?: string;
 };
 
 export const paginationNext = tv({ base: "group gap-1" });
 
-const { class: className, size = "md", ...rest } = Astro.props;
+const { class: className, size = "md", label = "Go to next page", ...rest } = Astro.props;
 ---
 
 <PaginationLink
-  aria-label="Go to next page"
+  aria-label={label}
   size={size}
   class={paginationNext({ class: className })}
   {...rest}
@@ -25,6 +27,6 @@ const { class: className, size = "md", ...rest } = Astro.props;
 >
   <slot />
   <slot name="icon">
-    <ChevronRight class="size-4 transition-transform group-hover:translate-x-1" />
+    <ChevronRight class="size-4 transition-transform group-hover:translate-x-1 rtl:rotate-180" />
   </slot>
 </PaginationLink>

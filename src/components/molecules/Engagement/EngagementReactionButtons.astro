@@ -2,10 +2,16 @@
 /**
  * EngagementReactionButtons — barre de réactions (favori + réactions).
  *
- * Cœur PRÉSENTATIONNEL, sans script : le blog et la fiche voyage rendent
- * exactement le même markup, et chacun branche ses propres actions
- * (`toggleBlogReaction` / `toggleTripReaction`). Un seul design par
- * construction, et chaque page ne charge que les actions de son domaine.
+ * Cœur PRÉSENTATIONNEL, sans script : le blog, la fiche voyage et la fiche
+ * prestation rendent exactement le même markup, et chacun branche ses propres
+ * actions dans `modules/<domaine>/client/`. Un seul design par construction, et
+ * chaque page ne charge que les actions de son domaine.
+ *
+ * L'état actif est porté par `aria-pressed`, et le style actif par des variants
+ * Tailwind `aria-pressed:*`. Le client se contente donc de retourner
+ * l'attribut : il ne manipule aucune classe, donc le rendu ne peut pas diverger
+ * de l'état accessible. C'est la correction du bug où un clic ne changeait rien
+ * à l'écran parce que les classes basculées n'existaient pas.
  */
 import { Icon } from "astro-icon/components";
 import { Button } from "@atoms/button";
@@ -59,10 +65,11 @@ const entries = Object.entries(ENGAGEMENT_REACTION_ICONS);
         data-unfavorite-label={labels.unfavorite}
         class:list={[
           "inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition",
-          {"border-primary bg-primary text-primary-foreground": isFavorite, "text-muted-foreground hover:bg-muted hover:text-foreground": !isFavorite},
+          "aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground",
+          "hover:bg-muted hover:text-foreground aria-pressed:hover:bg-primary/90",
         ]}
       >
-        <Icon name={isFavorite ? "mdi:bookmark" : "mdi:bookmark-outline"} class="size-4" />
+        <Icon name="mdi:bookmark" class="size-4" />
         <span data-engagement-favorite-label>{isFavorite ? labels.unfavorite : labels.favorite}</span>
       </button>
     )}
@@ -72,12 +79,17 @@ const entries = Object.entries(ENGAGEMENT_REACTION_ICONS);
       const count = counts?.[type] ?? 0;
       const isActive = activeReaction === type;
       return (
+        // La classe `reaction-btn` reste sur le bouton : c'est un point de
+        // crochage stable pour les tests et le CSS applicatif, indépendant des
+        // classes Tailwind qui, elles, changent avec le design. L'état actif est
+        // porté par aria-pressed, dont les variantes sont déclarées plus bas.
         <Button
           type="button"
-          variant={isActive ? "primary" : "outline"}
+          variant="outline"
           size="sm"
-          class="reaction-btn gap-1.5"
+          class="reaction-btn gap-1.5 aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground aria-pressed:hover:bg-primary/90"
           data-engagement-reaction={type}
+          data-engagement-reaction-label={`${labels.reactions} : ${type} ({count})`}
           aria-label={`${labels.reactions} : ${type} (${count})`}
           aria-pressed={isActive ? "true" : "false"}
         >

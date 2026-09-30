@@ -261,7 +261,8 @@ export const toggleTripReaction = defineAction({
 
 export const recordTripView = defineAction({
   input: z.object({ tripId: z.string().min(1).max(160), referrer: z.string().max(500).optional(), country: z.string().length(2).optional() }),
-  handler: async (input) => {
+  handler: async (input, context) => {
+    voyagePublicRateLimit(context, "trip-view", { window: 60, max: 60 });
     await assertPublishedTripExists(input.tripId);
     const now = new Date();
     const date = now.toISOString().slice(0, 10);

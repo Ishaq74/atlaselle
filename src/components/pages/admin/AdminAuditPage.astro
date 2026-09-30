@@ -6,6 +6,7 @@ import { Card, CardContent } from '@atoms/card';
 import Badge from '@atoms/badge/Badge.astro';
 import { NativeSelect, NativeSelectOption } from '@atoms/native-select';
 import { DataView } from '@molecules/DataView';
+import { getAdminDict } from '@i18n/admin';
 import AdminPagination from '@molecules/AdminPagination/AdminPagination.astro';
 
 interface Props {
@@ -19,6 +20,7 @@ interface Props {
 
 const { t, locale, adminAuditLogs, currentPage, totalPages, baseUrl } = Astro.props;
 const ta = t.admin;
+const dict = getAdminDict(locale);
 
 function formatDate(d: Date | string | null) {
   if (!d) return '—';
@@ -32,13 +34,33 @@ const uniqueActions = [...new Set(adminAuditLogs.map((l: any) => l.action))].sor
 
 <h1 class="font-heading mb-6 text-2xl font-semibold">{ta.tabs.auditLog}</h1>
 
-<DataView>
-  <NativeSelect slot="toolbar-start" id="audit-action-filter" class="max-w-xs text-sm">
+<DataView listLabel={dict.views.list} tableLabel={dict.views.table} cardsLabel={dict.views.cards}>
+  <NativeSelect slot="toolbar-start" id="audit-action-filter" class="max-w-xs text-sm" aria-label={ta.auditLog.allActions}>
     <NativeSelectOption value="">{ta.auditLog.allActions}</NativeSelectOption>
     {uniqueActions.map((action: string) => (
       <NativeSelectOption value={action}>{action}</NativeSelectOption>
     ))}
   </NativeSelect>
+
+  <!-- ─── List view ─── -->
+  <div slot="list" class="divide-y rounded-md border" id="audit-log-list">
+    {adminAuditLogs.length === 0 ? (
+      <p class="text-center text-muted-foreground py-8">{ta.auditLog.noResults}</p>
+    ) : (
+      adminAuditLogs.map((log: any) => (
+        <div class="audit-log-item flex items-start justify-between gap-3 px-4 py-3" data-action={log.action}>
+          <div class="min-w-0">
+            <p class="truncate text-sm"><Badge variant="outline" size="sm" class="me-2">{log.action}</Badge>{log.userName ?? '—'}</p>
+            <p class="truncate text-xs text-muted-foreground">{log.resource}{log.resourceId ? ` #${log.resourceId.slice(0, 8)}` : ''}</p>
+          </div>
+          <div class="shrink-0 text-end">
+            <p class="text-xs text-muted-foreground">{formatDate(log.createdAt)}</p>
+            <p class="text-xs text-muted-foreground">{ta.auditLog.columns.ip}: {log.ipAddress ?? '—'}</p>
+          </div>
+        </div>
+      ))
+    )}
+  </div>
 
   <!-- ─── Table view ─── -->
   <div slot="table" class="rounded-md border overflow-x-auto">
@@ -121,6 +143,10 @@ const uniqueActions = [...new Set(adminAuditLogs.map((l: any) => l.action))].sor
       // Filter cards
       document.querySelectorAll<HTMLElement>('.audit-log-card').forEach((card) => {
         card.style.display = !val || card.dataset.action === val ? '' : 'none';
+      });
+      // Filter list rows
+      document.querySelectorAll<HTMLElement>('.audit-log-item').forEach((item) => {
+        item.style.display = !val || item.dataset.action === val ? '' : 'none';
       });
     });
   }

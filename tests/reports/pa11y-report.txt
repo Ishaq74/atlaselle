@@ -1,198 +1,130 @@
 ════════════════════════════════════════════════════════════════════════════════
   PA11Y ACCESSIBILITY REPORT — WCAG 2.1 AAA
-  Generated: 2026-09-27 13:24:12
+  Generated: 2026-09-30 16:59:06
 ════════════════════════════════════════════════════════════════════════════════
 
-  Total URLs tested:  60
-  Passed:             56/60  ⚠️
-  Failed:             20/60
+  Total URLs tested:  112
+  Passed:             112/112  ✅
+  Failed:             0/112
 
 ────────────────────────────────────────────────────────────────────────────────
-
-  ISSUES BY RULE:
-────────────────────────────────────────────────────────────────────────────────
-  aria-prohibited-attr  (20 occurrences)
-
-════════════════════════════════════════════════════════════════════════════════
-  DETAILED FAILURES
-════════════════════════════════════════════════════════════════════════════════
-
-  URL: http://localhost:4321/fr/
-  Issues: 5
-────────────────────────────────────────────────────────────────────────────────
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > p:nth-child(3)
-    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="4.5/5"><span class="text-warning" aria...</p>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > p:nth-child(3)
-    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(5) > article > div:nth-child(2) > p:nth-child(3)
-    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(3) > span
-    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(2) > span
-    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
-
-
-  URL: http://localhost:4321/en/
-  Issues: 5
-────────────────────────────────────────────────────────────────────────────────
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > p:nth-child(3)
-    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="4.5/5"><span class="text-warning" aria...</p>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > p:nth-child(3)
-    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(5) > article > div:nth-child(2) > p:nth-child(3)
-    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(3) > span
-    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(2) > span
-    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
-
-
-  URL: http://localhost:4321/es/
-  Issues: 5
-────────────────────────────────────────────────────────────────────────────────
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > p:nth-child(3)
-    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="4.5/5"><span class="text-warning" aria...</p>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > p:nth-child(3)
-    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(5) > article > div:nth-child(2) > p:nth-child(3)
-    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(3) > span
-    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(2) > span
-    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
-
-
-  URL: http://localhost:4321/ar/
-  Issues: 5
-────────────────────────────────────────────────────────────────────────────────
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > p:nth-child(3)
-    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="4.5/5"><span class="text-warning" aria...</p>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > p:nth-child(3)
-    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(4) > div:nth-child(2) > div:nth-child(2) > div:nth-child(5) > article > div:nth-child(2) > p:nth-child(3)
-    Context:  <p class="mt-2 flex items-center gap-1.5 text-sm" aria-label="5/5"><span class="text-warning" aria...</p>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(3) > span
-    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
-
-    Rule:     aria-prohibited-attr
-    Message:  Elements must only use permitted ARIA attributes (https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axeAPI)
-    Selector: #main-content > section:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) > article > div:nth-child(2) > div:nth-child(3) > span:nth-child(2) > span
-    Context:  <span aria-label="5 / 5">5 <span class="text-xs">(1)</sp...</span>
-
 
 ════════════════════════════════════════════════════════════════════════════════
   PASSING URLS
 ════════════════════════════════════════════════════════════════════════════════
-  ✅ http://localhost:4321/fr/a-propos
-  ✅ http://localhost:4321/fr/contact
-  ✅ http://localhost:4321/fr/mentions-legales
+  ✅ http://localhost:4321/fr/
   ✅ http://localhost:4321/fr/blog
-  ✅ http://localhost:4321/fr/auth/connexion
-  ✅ http://localhost:4321/fr/auth/inscription
-  ✅ http://localhost:4321/fr/auth/mot-de-passe-oublie
-  ✅ http://localhost:4321/en/about
-  ✅ http://localhost:4321/en/contact
-  ✅ http://localhost:4321/en/legal-notice
+  ✅ http://localhost:4321/en/
   ✅ http://localhost:4321/en/blog
-  ✅ http://localhost:4321/en/auth/sign-in
-  ✅ http://localhost:4321/en/auth/sign-up
-  ✅ http://localhost:4321/en/auth/forgot-password
-  ✅ http://localhost:4321/es/acerca-de
-  ✅ http://localhost:4321/es/contacto
-  ✅ http://localhost:4321/es/aviso-legal
+  ✅ http://localhost:4321/es/
   ✅ http://localhost:4321/es/blog
-  ✅ http://localhost:4321/es/auth/iniciar-sesion
-  ✅ http://localhost:4321/es/auth/registro
-  ✅ http://localhost:4321/es/auth/contrasena-olvidada
-  ✅ http://localhost:4321/ar/about
-  ✅ http://localhost:4321/ar/contact
-  ✅ http://localhost:4321/ar/legal-notice
+  ✅ http://localhost:4321/ar/
   ✅ http://localhost:4321/ar/blog
-  ✅ http://localhost:4321/ar/auth/sign-in
-  ✅ http://localhost:4321/ar/auth/sign-up
-  ✅ http://localhost:4321/ar/auth/forgot-password
   ✅ http://localhost:4321/fr/auth/tableau-de-bord
-  ✅ http://localhost:4321/fr/auth/profil
-  ✅ http://localhost:4321/en/auth/dashboard
-  ✅ http://localhost:4321/en/auth/profile
   ✅ http://localhost:4321/es/auth/panel
-  ✅ http://localhost:4321/es/auth/perfil
-  ✅ http://localhost:4321/ar/auth/dashboard
-  ✅ http://localhost:4321/ar/auth/profile
   ✅ http://localhost:4321/fr/admin/stats
   ✅ http://localhost:4321/fr/admin/site
-  ✅ http://localhost:4321/fr/admin/navigation
-  ✅ http://localhost:4321/fr/admin/theme
-  ✅ http://localhost:4321/fr/admin/blog
-  ✅ http://localhost:4321/en/admin/stats
-  ✅ http://localhost:4321/en/admin/site
-  ✅ http://localhost:4321/en/admin/navigation
+  ✅ http://localhost:4321/fr/admin/media
+  ✅ http://localhost:4321/fr/admin/applications
+  ✅ http://localhost:4321/fr/admin/emails
+  ✅ http://localhost:4321/en/admin/users
   ✅ http://localhost:4321/en/admin/theme
-  ✅ http://localhost:4321/en/admin/blog
+  ✅ http://localhost:4321/en/admin/services
+  ✅ http://localhost:4321/en/admin/payments
   ✅ http://localhost:4321/es/admin/stats
   ✅ http://localhost:4321/es/admin/site
+  ✅ http://localhost:4321/es/admin/media
+  ✅ http://localhost:4321/es/admin/applications
+  ✅ http://localhost:4321/es/admin/emails
+  ✅ http://localhost:4321/ar/admin/users
+  ✅ http://localhost:4321/ar/admin/theme
+  ✅ http://localhost:4321/ar/admin/services
+  ✅ http://localhost:4321/ar/admin/payments
+  ✅ http://localhost:4321/fr/a-propos
+  ✅ http://localhost:4321/fr/auth/connexion
+  ✅ http://localhost:4321/en/about
+  ✅ http://localhost:4321/en/auth/sign-in
+  ✅ http://localhost:4321/es/acerca-de
+  ✅ http://localhost:4321/es/auth/iniciar-sesion
+  ✅ http://localhost:4321/ar/about
+  ✅ http://localhost:4321/ar/auth/sign-in
+  ✅ http://localhost:4321/fr/auth/profil
+  ✅ http://localhost:4321/es/auth/perfil
+  ✅ http://localhost:4321/fr/admin/audit
+  ✅ http://localhost:4321/fr/admin/navigation
+  ✅ http://localhost:4321/fr/admin/blog
+  ✅ http://localhost:4321/fr/admin/reservations
+  ✅ http://localhost:4321/fr/admin/policies
+  ✅ http://localhost:4321/en/admin/roles
+  ✅ http://localhost:4321/en/admin/pages
+  ✅ http://localhost:4321/en/admin/trips
+  ✅ http://localhost:4321/en/admin/travelers
+  ✅ http://localhost:4321/es/admin/audit
   ✅ http://localhost:4321/es/admin/navigation
-  ✅ http://localhost:4321/es/admin/theme
   ✅ http://localhost:4321/es/admin/blog
+  ✅ http://localhost:4321/es/admin/reservations
+  ✅ http://localhost:4321/es/admin/policies
+  ✅ http://localhost:4321/ar/admin/roles
+  ✅ http://localhost:4321/ar/admin/pages
+  ✅ http://localhost:4321/ar/admin/trips
+  ✅ http://localhost:4321/ar/admin/travelers
+  ✅ http://localhost:4321/fr/contact
+  ✅ http://localhost:4321/fr/auth/inscription
+  ✅ http://localhost:4321/en/contact
+  ✅ http://localhost:4321/en/auth/sign-up
+  ✅ http://localhost:4321/es/contacto
+  ✅ http://localhost:4321/es/auth/registro
+  ✅ http://localhost:4321/ar/contact
+  ✅ http://localhost:4321/ar/auth/sign-up
+  ✅ http://localhost:4321/en/auth/dashboard
+  ✅ http://localhost:4321/ar/auth/dashboard
+  ✅ http://localhost:4321/fr/admin/users
+  ✅ http://localhost:4321/fr/admin/theme
+  ✅ http://localhost:4321/fr/admin/services
+  ✅ http://localhost:4321/fr/admin/payments
+  ✅ http://localhost:4321/en/admin/stats
+  ✅ http://localhost:4321/en/admin/site
+  ✅ http://localhost:4321/en/admin/media
+  ✅ http://localhost:4321/en/admin/applications
+  ✅ http://localhost:4321/en/admin/emails
+  ✅ http://localhost:4321/es/admin/users
+  ✅ http://localhost:4321/es/admin/theme
+  ✅ http://localhost:4321/es/admin/services
+  ✅ http://localhost:4321/es/admin/payments
   ✅ http://localhost:4321/ar/admin/stats
   ✅ http://localhost:4321/ar/admin/site
+  ✅ http://localhost:4321/ar/admin/media
+  ✅ http://localhost:4321/ar/admin/applications
+  ✅ http://localhost:4321/ar/admin/emails
+  ✅ http://localhost:4321/fr/mentions-legales
+  ✅ http://localhost:4321/fr/auth/mot-de-passe-oublie
+  ✅ http://localhost:4321/en/legal-notice
+  ✅ http://localhost:4321/en/auth/forgot-password
+  ✅ http://localhost:4321/es/aviso-legal
+  ✅ http://localhost:4321/es/auth/contrasena-olvidada
+  ✅ http://localhost:4321/ar/legal-notice
+  ✅ http://localhost:4321/ar/auth/forgot-password
+  ✅ http://localhost:4321/en/auth/profile
+  ✅ http://localhost:4321/ar/auth/profile
+  ✅ http://localhost:4321/fr/admin/roles
+  ✅ http://localhost:4321/fr/admin/pages
+  ✅ http://localhost:4321/fr/admin/trips
+  ✅ http://localhost:4321/fr/admin/travelers
+  ✅ http://localhost:4321/en/admin/audit
+  ✅ http://localhost:4321/en/admin/navigation
+  ✅ http://localhost:4321/en/admin/blog
+  ✅ http://localhost:4321/en/admin/reservations
+  ✅ http://localhost:4321/en/admin/policies
+  ✅ http://localhost:4321/es/admin/roles
+  ✅ http://localhost:4321/es/admin/pages
+  ✅ http://localhost:4321/es/admin/trips
+  ✅ http://localhost:4321/es/admin/travelers
+  ✅ http://localhost:4321/ar/admin/audit
   ✅ http://localhost:4321/ar/admin/navigation
-  ✅ http://localhost:4321/ar/admin/theme
   ✅ http://localhost:4321/ar/admin/blog
+  ✅ http://localhost:4321/ar/admin/reservations
+  ✅ http://localhost:4321/ar/admin/policies
 
 ════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 56/60 passed
+  END OF REPORT — 112/112 passed
 ════════════════════════════════════════════════════════════════════════════════

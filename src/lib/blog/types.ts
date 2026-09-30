@@ -22,6 +22,7 @@ import type {
   blogPostLinks,
 } from "@database/schemas";
 import type { Locale } from "@i18n/config";
+import type { StoredImageVariant as MediaVariant } from "@media/variants";
 import type {
   BlogPostStatus,
   BlogReactionType,
@@ -54,7 +55,7 @@ export interface BlogPostWithRelations extends BlogPost {
   categories: { category: BlogCategory & { translations: BlogCategoryTranslation[] } }[];
   tags: { tag: BlogTag & { translations: BlogTagTranslation[] } }[];
   author: { id: string; name: string; email: string; image: string | null } | null;
-  featuredImage: { id: string; url: string; width: number | null; height: number | null } | null;
+  featuredImage: { id: string; url: string; width: number | null; height: number | null; variants: MediaVariant[] | null } | null;
   galleries: (BlogPostGallery & { media: (BlogPostGalleryMedia & { file: { id: string; url: string } })[] })[];
   seo: BlogPostSeo[];
   reactions: BlogPostReaction[];
@@ -64,7 +65,7 @@ export interface BlogPostListItem {
   post: BlogPost;
   translation: BlogPostTranslation | null;
   author: { id: string; name: string; image: string | null } | null;
-  featuredImage: { id: string; url: string; width: number | null; height: number | null } | null;
+  featuredImage: { id: string; url: string; width: number | null; height: number | null; variants: MediaVariant[] | null } | null;
   categories: { id: string; slug: string; name: string | null }[];
   tags: { id: string; slug: string; name: string | null }[];
   commentCount: number;

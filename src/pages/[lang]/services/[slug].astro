@@ -1,8 +1,8 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { getServices, getServiceCategories, getServiceBySlug } from "@/modules/services/loaders";
-import ServicesListingPage from "@/modules/services/components/lists/ServicesListingPage.astro";
-import { ServiceDetail } from "@/modules/services/components/single";
+import ServicesListingPage from "@/components/services/listing/ServicesListingPage.astro";
+import ServiceDetail from "@/components/services/detail/ServiceDetail.astro";
 import { buildServiceJsonLd } from "@/modules/services/seo";
 import { buildServiceUrl } from "@/modules/services/utils";
 import { getServiceTranslations } from "@/modules/services/i18n";

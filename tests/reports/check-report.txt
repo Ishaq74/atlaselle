@@ -2,25 +2,14 @@
 > atlaselle@0.0.1 check C:\Users\Utilisateur\Documents\t3code\atlaselle
 > astro check
 
-◇ injected env (13) from .env // tip: ⌘ suppress logs { quiet: true }
-[2m14:20:34[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
-[2m14:20:34[22m [34m[vite][39m Re-optimizing dependencies because vite config has changed
-[2m14:20:35[22m [34m[content][39m Syncing content
-[2m14:20:35[22m [34m[content][39m Synced content
-[2m14:20:35[22m [34m[types][39m Generated [2m965ms[22m
-[2m14:20:35[22m [34m[check][39m Getting diagnostics for Astro files in C:\Users\Utilisateur\Documents\t3code\atlaselle...
-[96msrc/components/molecules/Engagement/CommentThread.astro[0m:[93m9[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'Icon' is declared but its value is never read.
-
-[7m9[0m import { Icon } from "astro-icon/components";
-[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
-
-[96msrc/pages/index.astro[0m:[93m2[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'DEFAULT_LOCALE' is declared but its value is never read.
-
-[7m2[0m import { DEFAULT_LOCALE } from '@/i18n/config';
-[7m [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
-
-Result (1162 files): 
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+[2m18:35:53[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
+[2m18:35:53[22m [34m[content][39m Syncing content
+[2m18:35:53[22m [34m[content][39m Synced content
+[2m18:35:53[22m [34m[types][39m Generated [2m376ms[22m
+[2m18:35:53[22m [34m[check][39m Getting diagnostics for Astro files in C:\Users\Utilisateur\Documents\t3code\atlaselle...
+Result (1228 files): 
 - 0 errors
 - 0 warnings
-- 2 hints
+- 0 hints
 

@@ -1,77 +1,220 @@
 ---
 /**
  * DataView — responsive data display molecule.
- * Cards are the mobile fallback; tables are the desktop fallback.
- * An explicit mode selector is opt-in so localized admin resources can provide
+ * Three optional views: `list` (compact rows), `table` (full columns) and
+ * `cards` (grid). Views without a provided slot are not offered.
+ * In `auto` mode the table wins on desktop (>=768px) and the cards win on
+ * mobile, unless the user explicitly picks a mode.
+ * The mode selector is opt-in so localized admin resources can provide
  * their own labels without leaking hard-coded English UI into the platform.
+ * The selector itself is the shared `Select` atom (not a raw/native select),
+ * so every admin list drives the same control.
  */
-import { NativeSelect, NativeSelectOption } from '@atoms/native-select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@atoms/select';
 
 interface Props {
   tableLabel?: string;
   cardsLabel?: string;
+  listLabel?: string;
   showModeSelector?: boolean;
+  /** Libellé accessible du sélecteur de vue. */
+  selectorLabel?: string;
   class?: string;
 }
 
 const {
   tableLabel = 'Table',
   cardsLabel = 'Cards',
+  listLabel = 'List',
   showModeSelector = true,
+  selectorLabel,
   class: className,
 } = Astro.props;
+
+const hasList = Astro.slots.has('list');
+const hasTable = Astro.slots.has('table');
+const hasCards = Astro.slots.has('cards');
+const modes: { value: string; label: string }[] = [];
+if (hasList) modes.push({ value: 'list', label: listLabel });
+if (hasTable) modes.push({ value: 'table', label: tableLabel });
+if (hasCards) modes.push({ value: 'cards', label: cardsLabel });
+// `Select` name → l'atome en dérive un `<select>` caché, que le script lit
+// pour connaître les modes proposés et poser la préférence mémorisée.
+const selectName = `data-view-mode-${Math.random().toString(36).slice(2, 8)}`;
+const firstMode = modes[0]?.value ?? 'table';
+
+/**
+ * Vue rendue active avant l'intervention du CSS et du script.
+ *
+ * La visibilité reposait uniquement sur le `<style>` scopé du composant
+ * (`.data-view[data-mode="…"] [data-view="…"]`). Or ce style est inliné par
+ * Astro au moment de la réponse : s'il est absent — réponse servie depuis un
+ * cache HTML partiel, stylesheet pas encore arrivé, feuille de style d'un
+ * chunk non chargée — les TROIS vues s'empilent à la suite, et l'atome `Select`
+ * non stylé devient illisible. Le rapport était alors injuste : on ne pouvait
+ * pas distinguer « bug de rendu » d'« asset manquant ».
+ *
+ * `hidden` sur les vues inactives rend la page correcte DÈS le HTML, sans
+ * CSS et sans JS. C'est de l'amélioration progressive : dès que le CSS est là,
+ * ses règles (`[data-mode="…"]`, spécificité 0,3,0) priment sur le style de
+ * l'agent utilisateur pour `[hidden]` (0,1,0) et la vue choisie s'affiche.
+ */
+const serverDefaultView = firstMode;
+const isDefaultView = (view: string) => view === serverDefaultView;
 ---
 
-<div class:list={['data-view', className]} data-mode="auto">
+<div class:list={['data-view', className]} data-mode="auto" data-has-list={hasList ? 'true' : 'false'}>
   <div class="mb-4 flex flex-wrap items-center gap-3">
     <slot name="toolbar-start" />
-    {showModeSelector ? (
-      <div class="ml-auto flex items-center gap-3">
+    {showModeSelector && modes.length > 1 ? (
+      <div class="ms-auto flex items-center gap-3">
         <slot name="toolbar-end" />
-        <NativeSelect class="data-view-mode w-auto text-sm" aria-label={`${tableLabel} / ${cardsLabel}`}>
-          <NativeSelectOption value="table">{tableLabel}</NativeSelectOption>
-          <NativeSelectOption value="cards">{cardsLabel}</NativeSelectOption>
-        </NativeSelect>
+        <Select name={selectName} defaultValue={firstMode} class="data-view-mode w-auto">
+          <SelectTrigger
+            size="sm"
+            class="w-auto min-w-36"
+            label={selectorLabel ?? `${tableLabel} / ${cardsLabel}`}
+          >
+            <SelectValue>{modes[0].label}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {modes.map((mode) => <SelectItem value={mode.value}>{mode.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
       </div>
-    ) : <slot name="toolbar-end" />}
+    ) : <div class="ms-auto"><slot name="toolbar-end" /></div>}
   </div>
 
-  <div class="data-view-table" data-view="table"><slot name="table" /></div>
-  <div class="data-view-cards" data-view="cards"><slot name="cards" /></div>
+  {hasList && <div class="data-view-list" data-view="list" hidden={!isDefaultView('list')}><slot name="list" /></div>}
+  {hasTable && <div class="data-view-table" data-view="table" hidden={!isDefaultView('table')}><slot name="table" /></div>}
+  {hasCards && <div class="data-view-cards" data-view="cards" hidden={!isDefaultView('cards')}><slot name="cards" /></div>}
 </div>
 
 <style>
+  /*
+   * Toute règle ci-dessous doit battre le style de l'agent utilisateur pour
+   * `[hidden]` (spécificité 0,1,0), sinon la vue choisie par l'utilisateur
+   * resterait masquée par l'attribut rendu côté serveur. Ces sélecteurs sont
+   * à 0,3,0 — ils gagnent.
+   */
+  .data-view[data-mode="auto"] [data-view="list"] { display: none; }
   .data-view[data-mode="auto"] [data-view="table"] { display: none; }
   .data-view[data-mode="auto"] [data-view="cards"] { display: block; }
   @media (min-width: 768px) {
     .data-view[data-mode="auto"] [data-view="table"] { display: block; }
     .data-view[data-mode="auto"] [data-view="cards"] { display: none; }
   }
+  :global(.data-view[data-mode="list"]) [data-view="list"] { display: block; }
+  :global(.data-view[data-mode="list"]) [data-view="table"] { display: none; }
+  :global(.data-view[data-mode="list"]) [data-view="cards"] { display: none; }
+  :global(.data-view[data-mode="table"]) [data-view="list"] { display: none; }
   :global(.data-view[data-mode="table"]) [data-view="table"] { display: block; }
   :global(.data-view[data-mode="table"]) [data-view="cards"] { display: none; }
+  :global(.data-view[data-mode="cards"]) [data-view="list"] { display: none; }
   :global(.data-view[data-mode="cards"]) [data-view="table"] { display: none; }
   :global(.data-view[data-mode="cards"]) [data-view="cards"] { display: block; }
 </style>
 
 <script>
+  const STORAGE_KEY = 'atlaselle:admin:data-view';
+
+  function readStoredMode(): string | null {
+    try {
+      return window.localStorage.getItem(STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  function writeStoredMode(mode: string) {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, mode);
+    } catch {
+      /* private mode / quota — la préférence reste en mémoire */
+    }
+  }
+
+  /**
+   * Le `<select>` caché de l'atome `Select` : c'est lui qui porte la valeur
+   * courante et la liste des modes. L'atome construit ce champ dans son
+   * `initSelects()`, donc il peut ne pas exister au premier tour — on
+   * réessaie à la frame suivante.
+   */
+  function readModeSelect(container: HTMLElement): HTMLSelectElement | null {
+    const root = container.querySelector<HTMLElement>('[data-slot="select"].data-view-mode');
+    return root?.querySelector<HTMLSelectElement>('select') ?? null;
+  }
+
+  /** Applique un mode au conteneur et le reflète dans le sélecteur. */
+  function applyMode(container: HTMLElement, mode: string, selectEl: HTMLSelectElement | null) {
+    container.dataset.mode = mode;
+    // L'attribut `hidden` rendu côté serveur ne doit pas survivre au choix de
+    // l'utilisateur : sans cette ligne, la vue sélectionnée resterait masquée
+    // dans un navigateur où le CSS scopé n'a pas (encore) été appliqué.
+    for (const view of container.querySelectorAll<HTMLElement>('[data-view]')) {
+      view.hidden = view.getAttribute('data-view') !== mode;
+    }
+    if (!selectEl || selectEl.value === mode) return;
+    // L'atome n'écoute pas le `change` d'un `<select>` qu'on modifie par
+    // script : on lui demande de se resélectionner, ce qui met le trigger,
+    // `aria-selected` et le champ caché en cohérence.
+    const root = selectEl.closest<HTMLElement>('[data-slot="select"]');
+    const name = root?.getAttribute('data-name');
+    if (name) {
+      document.dispatchEvent(
+        new CustomEvent('starwind-select:select', { detail: { selectName: name, value: mode } }),
+      );
+    } else {
+      selectEl.value = mode;
+    }
+  }
+
+  function initContainer(container: HTMLElement, stored: string | null, attempt: number) {
+    const hasList = container.dataset.hasList === 'true';
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+    const selectEl = readModeSelect(container);
+    const available = selectEl ? new Set([...selectEl.options].map((option) => option.value)) : new Set<string>();
+    const preferred = stored && available.has(stored) ? stored : null;
+    const initialMode = preferred ?? (isDesktop ? 'table' : hasList ? 'list' : 'cards');
+
+    applyMode(container, available.has(initialMode) ? initialMode : (available.values().next().value ?? initialMode), selectEl);
+
+    if (container.dataset.bound === 'true') return;
+    container.dataset.bound = 'true';
+
+    if (selectEl) {
+      // `Select` émet `starwind-select:change` (bulles) sur son champ caché.
+      container.addEventListener('starwind-select:change', (event) => {
+        const value = (event as CustomEvent<{ value?: string }>).detail?.value;
+        if (!value) return;
+        container.dataset.mode = value;
+        for (const view of container.querySelectorAll<HTMLElement>('[data-view]')) {
+          view.hidden = view.getAttribute('data-view') !== value;
+        }
+        writeStoredMode(value);
+      });
+    }
+
+    // Filet de sécurité : si l'atome n'a pas encore construit son champ caché,
+    // on retente une frame plus tard plutôt que de figer sur le mode auto.
+    if (!selectEl && attempt < 5) {
+      requestAnimationFrame(() => {
+        if (!container.dataset.bound) initContainer(container, stored, attempt + 1);
+      });
+    }
+  }
+
   function initDataViews() {
+    const stored = readStoredMode();
     document.querySelectorAll<HTMLElement>('.data-view').forEach((container) => {
-      const select = container.querySelector('.data-view-mode');
-      const nativeSelect = select?.closest('[data-slot="native-select-wrapper"]')?.querySelector('select') ?? select;
-      if (!nativeSelect) {
-        const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-        container.dataset.mode = isDesktop ? 'table' : 'cards';
+      if (container.dataset.bound === 'true') {
+        // Déjà câblé (retour dans le cache, `astro:after-swap`) : on se
+        // contente de rejouer la préférence, le listener est déjà en place.
+        const selectEl = readModeSelect(container);
+        if (selectEl) applyMode(container, selectEl.value, selectEl);
         return;
       }
-      const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-      const initialMode = isDesktop ? 'table' : 'cards';
-      (nativeSelect as HTMLSelectElement).value = initialMode;
-      container.dataset.mode = initialMode;
-      if (container.dataset.bound === 'true') return;
-      container.dataset.bound = 'true';
-      nativeSelect.addEventListener('change', () => {
-        container.dataset.mode = (nativeSelect as HTMLSelectElement).value;
-      });
+      initContainer(container, stored, 0);
     });
   }
   initDataViews();

@@ -4,9 +4,9 @@ import { LOCALES, type Locale } from '@i18n/config';
 import { getTripsBasePath, getContactPath } from '@i18n/routes';
 import { loadTripsList, type TripSummaryDTO } from '@/modules/trips/loaders/trip.loader';
 import BaseLayout from '@layouts/BaseLayout.astro';
-import TripSearchBar from '@/modules/trips/components/TripSearchBar.astro';
-import TripResults from '@/modules/trips/components/TripResults.astro';
-import TripSidebar from '@/modules/trips/components/TripSidebar.astro';
+import TripSearchBar from '@/components/trips/search/TripSearchBar.astro';
+import TripResults from '@/components/trips/listing/TripResults.astro';
+import TripSidebar from '@/components/trips/layout/TripSidebar.astro';
 import HomeAmbient from '@pages/HomePage/HomeAmbient.astro';
 
 export const prerender = false;

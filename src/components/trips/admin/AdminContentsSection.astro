@@ -27,7 +27,7 @@ const blocks = [
   { kind: "exclusion", title: t.exclusions, items: contents.exclusions.map((e) => ({ id: e.exclusion.id, title: e.translations.find((x) => x.locale === locale)?.text ?? e.exclusion.id.slice(0, 8), translations: e.translations })) },
 ] as const;
 ---
-<section class="space-y-8" data-trip-id={tripId}>
+<section class="space-y-8" data-trip-contents data-trip-id={tripId}>
   {blocks.map((block) => (
     <div>
       <h2 class="font-heading text-xl font-semibold">{block.title} ({block.items.length})</h2>
@@ -84,65 +84,8 @@ const blocks = [
 </section>
 
 <script>
-  import { actions } from "astro:actions";
-  import type { Locale } from "@i18n/config";
-  import { toast } from "@atoms/toast";
-  import { confirmAdminAction } from "@/core/admin";
+  import { initAdminContentsSection } from "@/modules/trips/client/admin-contents";
 
-  const root = document.querySelector("section[data-trip-id]");
-  const tripId = root?.getAttribute("data-trip-id") ?? "";
-  const i18n = document.querySelector<HTMLInputElement>("[data-contents-i18n]");
-  const opt = (v: FormDataEntryValue | null): string | null => {
-    const s = String(v ?? "");
-    return s === "" ? null : s;
-  };
-  const fail = (message: string | null | undefined) => toast.error(message ?? i18n?.dataset.error ?? "");
-
-  document.querySelectorAll<HTMLFormElement>("[data-content-add]").forEach((form) => {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const kind = form.getAttribute("data-content-add") as "highlight" | "inclusion" | "exclusion";
-      const { error } = await actions.createTripContent({ tripId, kind, sortOrder: 0 });
-      if (error) fail(error.message);
-      else window.location.reload();
-    });
-  });
-
-  document.querySelectorAll<HTMLButtonElement>("[data-content-delete]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const box = btn.closest<HTMLElement>("[data-content-id]");
-      const id = box?.getAttribute("data-content-id") ?? "";
-      const kind = (box?.getAttribute("data-kind") ?? "highlight") as "highlight" | "inclusion" | "exclusion";
-      if (!id) return;
-      const ok = await confirmAdminAction({
-        title: btn.dataset.confirm ?? "",
-        message: btn.dataset.confirm ?? "",
-        confirmLabel: i18n?.dataset.confirmLabel ?? "OK",
-        cancelLabel: i18n?.dataset.cancelLabel ?? "",
-      });
-      if (!ok) return;
-      const { error } = await actions.deleteTripContent({ kind, id });
-      if (error) fail(error.message);
-      else window.location.reload();
-    });
-  });
-
-  document.querySelectorAll<HTMLFormElement>("[data-content-tr]").forEach((form) => {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const data = new FormData(form);
-      const kind = (form.getAttribute("data-kind") ?? "highlight") as "highlight" | "inclusion" | "exclusion";
-      const { error } = await actions.upsertTripContentTranslation({
-        kind,
-        id: form.getAttribute("data-id") ?? "",
-        expectedUpdatedAt: String(data.get("expectedUpdatedAt") ?? "") || null,
-        locale: (form.getAttribute("data-locale") ?? "en") as Locale,
-        title: opt(data.get("title")) ?? undefined,
-        description: opt(data.get("description")) ?? undefined,
-        text: opt(data.get("text")) ?? undefined,
-      });
-      if (error) fail(error.message);
-      else window.location.reload();
-    });
-  });
+  initAdminContentsSection();
+  document.addEventListener("astro:after-swap", initAdminContentsSection);
 </script>

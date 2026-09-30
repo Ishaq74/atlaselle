@@ -6,9 +6,11 @@ import { Toggle } from "@atoms/toggle";
 
 interface Props {
   class?: string;
+  /** Libellé accessible du bouton — à traduire par l'appelant. */
+  label?: string;
 }
 
-const { class: className } = Astro.props as Props;
+const { class: className, label = "Toggle theme" } = Astro.props as Props;
 ---
 
 <Toggle
@@ -17,7 +19,7 @@ const { class: className } = Astro.props as Props;
     "data-[state=on]:text-muted-foreground data-[state=on]:hover:text-foreground data-[state=on]:bg-transparent",
     className,
   ]}
-  aria-label="Toggle theme"
+  aria-label={label}
   data-theme-toggle-02
 >
   <span class="size-5" data-theme-icon-wrapper>

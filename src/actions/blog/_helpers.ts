@@ -29,6 +29,8 @@ export async function assertBlogPermission(context: ActionAPIContext, permission
   if (!user) throw new ActionError({ code: "UNAUTHORIZED", message: "Vous devez être connecté pour effectuer cette action." });
   if (user.banned) throw new ActionError({ code: "FORBIDDEN", message: "Compte suspendu." });
   if (!(await hasBlogPermission(context, permissions))) throw new ActionError({ code: "FORBIDDEN", message: "Permissions insuffisantes." });
+  // Filet de sécurité global : certaines actions n'ont pas de blogRateLimit propre.
+  blogRateLimit(context, user.id, `guard:${Object.keys(permissions).join("_") || "blog"}`, { window: 60, max: 120 });
   return user;
 }
 

@@ -30,6 +30,10 @@ type Props = HTMLAttributes<"div"> & {
   gap?: string;
   peek?: string;
   duration?: number;
+  /** Libellé accessible du bouton de fermeture (à traduire par l'appelant). */
+  closeLabel?: string;
+  /** Libellé accessible de la région de notifications. */
+  viewportLabel?: string;
 };
 
 const {
@@ -39,6 +43,8 @@ const {
   peek = "1rem",
   limit = 3,
   duration = 5000,
+  closeLabel = "Close notification",
+  viewportLabel = "Notifications",
   ...rest
 } = Astro.props;
 ---
@@ -52,7 +58,7 @@ const {
   aria-live="polite"
   aria-atomic="false"
   aria-relevant="additions text"
-  aria-label="Notifications"
+  aria-label={viewportLabel}
   tabindex={-1}
   style={`--gap: ${gap}; --peek: ${peek};`}
   {...rest}
@@ -60,12 +66,12 @@ const {
 >
   <!-- Hidden templates for each variant - JS will clone these -->
   <slot>
-    <ToastTemplate variant="default" />
-    <ToastTemplate variant="success" />
-    <ToastTemplate variant="error" />
-    <ToastTemplate variant="warning" />
-    <ToastTemplate variant="info" />
-    <ToastTemplate variant="loading" />
+    <ToastTemplate variant="default" closeLabel={closeLabel} />
+    <ToastTemplate variant="success" closeLabel={closeLabel} />
+    <ToastTemplate variant="error" closeLabel={closeLabel} />
+    <ToastTemplate variant="warning" closeLabel={closeLabel} />
+    <ToastTemplate variant="info" closeLabel={closeLabel} />
+    <ToastTemplate variant="loading" closeLabel={closeLabel} />
   </slot>
 </div>
 

@@ -1,0 +1,101 @@
+---
+/**
+ * Section « questions » d'un voyage.
+ *
+ * Gabarit identique à `components/services/engagement/ServiceCommentSection.astro`
+ * et `components/blog/engagement/BlogCommentSection.astro`, y compris les trois
+ * états du statut de commentaires : désactivé, fermé (lecture seule), ouvert
+ * (lecture + écriture sous onglets).
+ */
+import { Icon } from "astro-icon/components";
+import type { Locale } from "@i18n/config";
+import type { TripEngagementDTO } from "@/modules/trips/loaders/trip-engagement.loader";
+import { getTripEngagementTranslations } from "@/modules/trips/i18n/engagement";
+import { toCommentItem } from "@/modules/trips/engagement/adapter";
+import EngagementTabs from "@/components/molecules/Engagement/EngagementTabs.astro";
+import EngagementCommentThread from "@/components/molecules/Engagement/EngagementCommentThread.astro";
+import TripCommentForm from "@/components/trips/engagement/TripCommentForm.astro";
+import { Card, CardContent } from "@atoms/card";
+
+interface Props {
+  tripId: string;
+  locale: Locale;
+  commentStatus: "OPEN" | "CLOSED" | "DISABLED";
+  engagement: TripEngagementDTO;
+  isSignedIn: boolean;
+}
+
+const { tripId, locale, commentStatus, engagement, isSignedIn } = Astro.props as Props;
+const t = getTripEngagementTranslations(locale);
+const { comments } = engagement;
+
+const hasComments = comments.length > 0;
+const threadLabels = { reply: t.reply, pending: "…", anonymous: "—" };
+---
+
+<section class="flex flex-col gap-6" aria-labelledby="trip-comments-title">
+  <h2 id="trip-comments-title" class="font-heading flex items-center gap-2 text-lg font-semibold">
+    <Icon name="mdi:comment-outline" class="size-5 text-muted-foreground" />
+    {t.commentTitle} (<bdi>{comments.length}</bdi>)
+  </h2>
+
+  {commentStatus === "DISABLED" ? (
+    <Card>
+      <CardContent class="py-8 text-center text-sm text-muted-foreground">{t.commentsDisabled}</CardContent>
+    </Card>
+  ) : commentStatus === "CLOSED" ? (
+    /* Fermé : lecture seule, pas d'onglets — on ne propose pas d'écrire. */
+    hasComments ? (
+      <div class="flex flex-col gap-6">
+        {comments.map((comment) => (
+          <EngagementCommentThread
+            locale={locale}
+            comment={toCommentItem(comment)}
+            canReply={false}
+            labels={threadLabels}
+          />
+        ))}
+      </div>
+    ) : (
+      <Card>
+        <CardContent class="py-8 text-center text-sm text-muted-foreground">{t.noComments}</CardContent>
+      </Card>
+    )
+  ) : (
+    <EngagementTabs
+      defaultTab={hasComments ? "list" : "write"}
+      listLabel={t.commentTitle}
+      listCount={comments.length}
+      writeLabel={t.writeComment}
+    >
+      <div slot="list" class="flex flex-col gap-6">
+        {hasComments ? (
+          comments.map((comment) => (
+            <EngagementCommentThread
+              locale={locale}
+              comment={toCommentItem(comment)}
+              canReply
+              labels={threadLabels}
+            />
+          ))
+        ) : (
+          <Card>
+            <CardContent class="py-8 text-center text-sm text-muted-foreground">{t.noComments}</CardContent>
+          </Card>
+        )}
+      </div>
+
+      <div slot="write">
+        {isSignedIn ? (
+          <TripCommentForm tripId={tripId} locale={locale} action={Astro.url.pathname} />
+        ) : (
+          <Card>
+            <CardContent class="py-8 text-center text-sm text-muted-foreground">
+              {t.signInRequired}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </EngagementTabs>
+  )}
+</section>

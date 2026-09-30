@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { getBlogValidLinkTargets } from '@database/loaders/blog.loader';
+import { getBlogValidLinkTargets } from '@/modules/blog/loaders/blog.loader';
 import { blogInternalLinkResolver } from '@/lib/blog/blog-internal-link';
 import { detectDeadInternalLinks, markDeadInternalLinks } from '@/lib/content/editor-helpers';
 import type { Locale } from '@i18n/config';

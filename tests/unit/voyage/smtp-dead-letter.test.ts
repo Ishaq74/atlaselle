@@ -21,6 +21,10 @@ import { sendEmail } from '@smtp/send';
 describe('sendEmail — dead-letter forensique', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Ce test DOIT atteindre le provider (mocké) pour exercer la boucle de
+    // retry et l'écriture du dead-letter : on désactive donc explicitement le
+    // garde-fou « aucun envoi réel en test » de src/smtp/send.ts.
+    process.env.SMTP_ALLOW_REAL_SEND_IN_TEST = 'true';
   });
 
   it('enregistre le MESSAGE (pas seulement le nom) + tentatives', async () => {

@@ -5,6 +5,7 @@ import { user } from "@database/schemas";
 import { userProfileSchema } from "@/lib/blog/validation";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { logAuditEvent, extractIp } from "@/lib/audit";
+import { blogRateLimit } from "./_helpers";
 
 /**
  * Updates the current user's public profile (bio + social links).
@@ -18,6 +19,7 @@ export const updateUserProfile = defineAction({
     if (!currentUser) {
       throw new ActionError({ code: "UNAUTHORIZED", message: "Vous devez être connecté." });
     }
+    blogRateLimit(context, currentUser.id, "profile-update", { window: 60, max: 20 });
 
     const db = getDrizzle();
 

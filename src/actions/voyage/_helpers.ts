@@ -24,9 +24,11 @@ export async function hasVoyagePermission(context: VoyagePermissionContext, perm
 
 export async function assertVoyagePermission(context: ActionAPIContext, permissions: VoyagePermissions) {
   const currentUser = context.locals.user;
-  if (!currentUser) throw new ActionError({ code: "UNAUTHORIZED", message: "Vous devez être connecté pour effectuer cette action." });
+  if (!currentUser) throw new ActionError({ code: "UNAUTHORIZED", message: "Vous devez �tre connect� pour effectuer cette action." });
   if (currentUser.banned) throw new ActionError({ code: "FORBIDDEN", message: "Compte suspendu." });
   if (!(await hasVoyagePermission(context, permissions))) throw new ActionError({ code: "FORBIDDEN", message: "Permissions insuffisantes." });
+  // Filet de sécurité global : certaines actions n'ont pas de voyageRateLimit propre.
+  voyageRateLimit(context, currentUser.id, `guard:${Object.keys(permissions).join("_") || "voyage"}`, { window: 60, max: 120 });
   return currentUser;
 }
 

@@ -11,7 +11,7 @@ import type { TripStatus } from "@database/schemas/trips.schema";
 
 const idInput = z.object({ id: z.string().min(1).max(160) });
 
-type TripTransition = "review" | "approved" | "published" | "unpublished" | "archived" | "restored";
+type TripTransition = "review" | "approved" | "published" | "unpublished" | "archived" | "restored" | "draft";
 const TRANSITION_TARGET: Record<TripTransition, TripStatus> = {
   review: "review",
   approved: "approved",
@@ -19,6 +19,7 @@ const TRANSITION_TARGET: Record<TripTransition, TripStatus> = {
   unpublished: "unpublished",
   archived: "archived",
   restored: "unpublished",
+  draft: "draft",
 };
 const TRANSITION_PERMISSION: Record<TripTransition, "update" | "publish"> = {
   review: "update",
@@ -27,6 +28,7 @@ const TRANSITION_PERMISSION: Record<TripTransition, "update" | "publish"> = {
   unpublished: "publish",
   archived: "update",
   restored: "update",
+  draft: "update",
 };
 const TRANSITION_AUDIT = {
   review: "TRIP_UPDATE",
@@ -35,6 +37,7 @@ const TRANSITION_AUDIT = {
   unpublished: "TRIP_UNPUBLISH",
   archived: "TRIP_ARCHIVE",
   restored: "TRIP_RESTORE",
+  draft: "TRIP_UPDATE",
 } as const;
 
 async function transitionTrip(id: string, to: TripTransition, context: ActionAPIContext) {
@@ -89,6 +92,7 @@ export const publishTrip = defineAction({ input: idInput, handler: (input, conte
 export const unpublishTrip = defineAction({ input: idInput, handler: (input, context) => transitionTrip(input.id, "unpublished", context) });
 export const archiveTrip = defineAction({ input: idInput, handler: (input, context) => transitionTrip(input.id, "archived", context) });
 export const restoreTrip = defineAction({ input: idInput, handler: (input, context) => transitionTrip(input.id, "restored", context) });
+export const sendTripBackToDraft = defineAction({ input: idInput, handler: (input, context) => transitionTrip(input.id, "draft", context) });
 
 export const restoreTripRevision = defineAction({
   input: z.object({ id: z.string().min(1).max(160) }),

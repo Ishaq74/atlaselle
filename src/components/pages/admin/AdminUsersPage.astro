@@ -10,17 +10,25 @@ import Button from '@atoms/button/Button.astro';
 import { Input } from '@atoms/input';
 import { NativeSelect, NativeSelectOption } from '@atoms/native-select';
 import { DataView } from '@molecules/DataView';
+import AdminPagination from '@molecules/AdminPagination/AdminPagination.astro';
 import { safeUrl } from '@lib/sanitize';
+import { getAdminDict } from '@i18n/admin';
 
 interface Props {
   t: AuthTranslations;
   locale: Locale;
   user: AppUser;
   adminUsers: AdminUser[];
+  page: number;
+  total: number;
+  pageSize: number;
+  baseUrl: URL;
 }
 
-const { t, locale, user, adminUsers } = Astro.props;
+const { t, locale, user, adminUsers, page, total, pageSize, baseUrl } = Astro.props;
+const totalPages = Math.max(1, Math.ceil(total / pageSize));
 const ta = t.admin;
+const dict = getAdminDict(locale);
 const roles = Object.entries(ta.users.roles) as [string, string][];
 
 function formatShortDate(d: Date | string | null) {
@@ -42,21 +50,22 @@ function initials(name?: string) {
 
 <h1 class="font-heading mb-6 text-2xl font-semibold">{ta.tabs.users}</h1>
 
-<DataView>
+<DataView listLabel={dict.views.list} tableLabel={dict.views.table} cardsLabel={dict.views.cards}>
   <Fragment slot="toolbar-start">
     <Input
       type="search"
       id="admin-user-search"
+      aria-label={ta.users.searchPlaceholder}
       placeholder={ta.users.searchPlaceholder}
       class="max-w-xs"
     />
-    <NativeSelect id="admin-filter-role" class="w-auto text-sm">
+    <NativeSelect id="admin-filter-role" aria-label={ta.users.filter.allRoles} class="w-auto text-sm">
       <NativeSelectOption value="">{ta.users.filter.allRoles}</NativeSelectOption>
       {roles.map(([value, label]) => (
         <NativeSelectOption value={value}>{label}</NativeSelectOption>
       ))}
     </NativeSelect>
-    <NativeSelect id="admin-filter-status" class="w-auto text-sm">
+    <NativeSelect id="admin-filter-status" aria-label={ta.users.filter.allStatuses} class="w-auto text-sm">
       <NativeSelectOption value="">{ta.users.filter.allStatuses}</NativeSelectOption>
       <NativeSelectOption value="active">{ta.users.status.active}</NativeSelectOption>
       <NativeSelectOption value="banned">{ta.users.status.banned}</NativeSelectOption>
@@ -64,7 +73,7 @@ function initials(name?: string) {
   </Fragment>
 
   <Fragment slot="toolbar-end">
-    <NativeSelect id="admin-sort" class="w-auto text-sm">
+    <NativeSelect id="admin-sort" aria-label={ta.users.sort.newest} class="w-auto text-sm">
       <NativeSelectOption value="newest">{ta.users.sort.newest}</NativeSelectOption>
       <NativeSelectOption value="oldest">{ta.users.sort.oldest}</NativeSelectOption>
       <NativeSelectOption value="name-asc">{ta.users.sort.nameAsc}</NativeSelectOption>
@@ -77,12 +86,12 @@ function initials(name?: string) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>{ta.users.columns.name}</TableHead>
-          <TableHead>{ta.users.columns.email}</TableHead>
-          <TableHead>{ta.users.columns.role}</TableHead>
-          <TableHead>{ta.users.columns.status}</TableHead>
-          <TableHead>{ta.users.columns.joined}</TableHead>
-          <TableHead class="text-right">{ta.users.columns.actions}</TableHead>
+          <TableHead scope="col">{ta.users.columns.name}</TableHead>
+          <TableHead scope="col">{ta.users.columns.email}</TableHead>
+          <TableHead scope="col">{ta.users.columns.role}</TableHead>
+          <TableHead scope="col">{ta.users.columns.status}</TableHead>
+          <TableHead scope="col">{ta.users.columns.joined}</TableHead>
+          <TableHead scope="col" class="text-end">{ta.users.columns.actions}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody id="admin-users-tbody">
@@ -118,14 +127,16 @@ function initials(name?: string) {
               <TableCell class="text-sm">{u.email}</TableCell>
               <TableCell>
                 {u.id !== user.id ? (
-                  <select
-                    class="admin-role-select rounded border bg-transparent px-2 py-1 text-xs"
+                  <NativeSelect
+                    size="sm"
+                    class="admin-role-select"
                     data-user-id={u.id}
+                    aria-label={`${ta.users.columns.name}: ${u.name ?? u.email} — ${ta.users.columns.role}`}
                   >
                     {roles.map(([value, label]) => (
-                      <option value={value} selected={u.role === value}>{label}</option>
+                      <NativeSelectOption value={value} selected={u.role === value}>{label}</NativeSelectOption>
                     ))}
-                  </select>
+                  </NativeSelect>
                 ) : (
                   <Badge variant={u.role === 'admin' ? 'primary' : 'outline'} size="sm">
                     {ta.users.roles[u.role as keyof typeof ta.users.roles] ?? u.role}
@@ -142,7 +153,7 @@ function initials(name?: string) {
               <TableCell class="text-sm text-muted-foreground">
                 {formatShortDate(u.createdAt)}
               </TableCell>
-              <TableCell class="text-right">
+              <TableCell class="text-end">
                 {u.id !== user.id && (
                   <div class="flex gap-1 justify-end flex-wrap">
                     {u.banned ? (
@@ -209,14 +220,16 @@ function initials(name?: string) {
             </div>
             {u.id !== user.id && (
               <div class="flex gap-2 flex-wrap items-center">
-                <select
-                  class="admin-role-select rounded border bg-transparent px-2 py-1 text-xs"
+                <NativeSelect
+                  size="sm"
+                  class="admin-role-select"
                   data-user-id={u.id}
+                  aria-label={`${ta.users.columns.name}: ${u.name ?? u.email} — ${ta.users.columns.role}`}
                 >
                   {roles.map(([value, label]) => (
-                    <option value={value} selected={u.role === value}>{label}</option>
+                    <NativeSelectOption value={value} selected={u.role === value}>{label}</NativeSelectOption>
                   ))}
-                </select>
+                </NativeSelect>
                 {u.banned ? (
                   <Button size="sm" variant="outline" class="admin-unban-btn" data-user-id={u.id}>
                     {ta.users.actions.unban}
@@ -239,7 +252,67 @@ function initials(name?: string) {
       ))
     )}
   </div>
+
+  <!-- ─── List view ─── -->
+  <div slot="list" class="divide-y rounded-md border" id="admin-users-list">
+    {adminUsers.length === 0 ? (
+      <p class="py-8 text-center text-muted-foreground">{ta.users.noResults}</p>
+    ) : (
+      adminUsers.map((u: any) => (
+        <div
+          class="admin-user-item flex flex-wrap items-center gap-3 px-4 py-3"
+          data-name={u.name?.toLowerCase() ?? ''}
+          data-email={u.email?.toLowerCase() ?? ''}
+          data-role={u.role ?? 'user'}
+          data-banned={u.banned ? 'true' : 'false'}
+          data-date={isoDate(u.createdAt)}
+          data-user-id={u.id}
+        >
+          <Avatar size="sm">
+            {u.image && safeUrl(u.image) && <AvatarImage src={safeUrl(u.image)!} alt={u.name ?? ''} />}
+            <AvatarFallback>{initials(u.name)}</AvatarFallback>
+          </Avatar>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-medium">{u.name}</p>
+            <p class="truncate text-xs text-muted-foreground">{u.email}</p>
+          </div>
+          <span class="hidden text-xs text-muted-foreground sm:inline">{formatShortDate(u.createdAt)}</span>
+          {u.id !== user.id ? (
+            <NativeSelect
+              size="sm"
+              class="admin-role-select"
+              data-user-id={u.id}
+              aria-label={`${ta.users.columns.name}: ${u.name ?? u.email} — ${ta.users.columns.role}`}
+            >
+              {roles.map(([value, label]) => (
+                <NativeSelectOption value={value} selected={u.role === value}>{label}</NativeSelectOption>
+              ))}
+            </NativeSelect>
+          ) : (
+            <Badge variant={u.role === 'admin' ? 'primary' : 'outline'} size="sm">
+              {ta.users.roles[u.role as keyof typeof ta.users.roles] ?? u.role}
+            </Badge>
+          )}
+          {u.banned ? (
+            <>
+              <Badge variant="error" size="sm">{ta.users.status.banned}</Badge>
+              <Button size="sm" variant="outline" class="admin-unban-btn" data-user-id={u.id}>{ta.users.actions.unban}</Button>
+            </>
+          ) : (
+            <>
+              <Badge variant="success" size="sm">{ta.users.status.active}</Badge>
+              <Button size="sm" variant="outline" class="admin-ban-btn" data-user-id={u.id}>{ta.users.actions.ban}</Button>
+            </>
+          )}
+          <Button size="sm" variant="ghost" class="admin-impersonate-btn" data-user-id={u.id}>{ta.users.actions.impersonate}</Button>
+          <Button size="sm" variant="error" class="admin-delete-btn" data-user-id={u.id}>{ta.users.actions.delete}</Button>
+        </div>
+      ))
+    )}
+  </div>
 </DataView>
+
+<AdminPagination currentPage={page} totalPages={totalPages} baseUrl={baseUrl} />
 
 <div
   id="admin-users-data"
@@ -251,17 +324,23 @@ function initials(name?: string) {
   data-t-confirm-ban={ta.users.confirmBan}
   data-t-confirm-delete={ta.users.confirmDelete}
   data-t-error={t.admin.cms.common.error}
+  data-confirm-label={getAdminDict(locale).common.confirm}
+  data-cancel-label={getAdminDict(locale).common.cancel}
 ></div>
 
 <script>
   import { authClient } from '@/lib/auth-client';
+  import { actions } from 'astro:actions';
   import { toast } from '@atoms/toast';
+  import { confirmAdminAction } from '@/core/admin';
 
   function init() {
     const d = document.getElementById('admin-users-data')?.dataset ?? {};
+    const ask = (message: string) => confirmAdminAction({ title: message, message, confirmLabel: d.confirmLabel || 'OK', cancelLabel: d.cancelLabel || '' });
     const rows = () => document.querySelectorAll<HTMLElement>('.admin-user-row');
     const cards = () => document.querySelectorAll<HTMLElement>('.admin-user-card');
-    const items = () => [...rows(), ...cards()];
+    const list = () => document.querySelectorAll<HTMLElement>('.admin-user-item');
+    const items = () => [...rows(), ...cards(), ...list()];
 
     // ─── Helpers ───
     function getSelect(id: string): HTMLSelectElement | null {
@@ -314,6 +393,7 @@ function initials(name?: string) {
 
       sortContainer(document.getElementById('admin-users-tbody'), '.admin-user-row');
       sortContainer(document.getElementById('admin-users-cards'), '.admin-user-card');
+      sortContainer(document.getElementById('admin-users-list'), '.admin-user-item');
     }
 
     searchInput?.addEventListener('input', applyFilters);
@@ -327,7 +407,7 @@ function initials(name?: string) {
       sel.addEventListener('change', async () => {
         const userId = sel.dataset.userId;
         if (!userId) return;
-        const { error } = await authClient.admin.setRole({ userId, role: sel.value as 'user' | 'admin' });
+        const { error } = await actions.adminSetUserRole({ userId, role: sel.value as 'admin' | 'editor' | 'user' });
         if (!error) {
           toast.success(d.tRoleChanged ?? '');
           location.reload();
@@ -342,8 +422,8 @@ function initials(name?: string) {
     document.querySelectorAll<HTMLElement>('.admin-ban-btn').forEach((btn) => {
       btn.addEventListener('click', async () => {
         const userId = btn.dataset.userId;
-        if (!userId || !confirm(d.tConfirmBan ?? '')) return;
-        const { error } = await authClient.admin.banUser({ userId });
+        if (!userId || !(await ask(d.tConfirmBan ?? ''))) return;
+        const { error } = await actions.adminBanUser({ userId });
         if (!error) { toast.success(d.tBanned ?? ''); location.reload(); }
         else toast.error(error.message ?? d.tError ?? '');
       });
@@ -354,7 +434,7 @@ function initials(name?: string) {
       btn.addEventListener('click', async () => {
         const userId = btn.dataset.userId;
         if (!userId) return;
-        const { error } = await authClient.admin.unbanUser({ userId });
+        const { error } = await actions.adminUnbanUser({ userId });
         if (!error) { toast.success(d.tUnbanned ?? ''); location.reload(); }
         else toast.error(error.message ?? d.tError ?? '');
       });
@@ -366,7 +446,10 @@ function initials(name?: string) {
         const userId = btn.dataset.userId;
         if (!userId) return;
         const { error } = await authClient.admin.impersonateUser({ userId });
-        if (!error) location.reload();
+        if (!error) {
+          await actions.adminLogImpersonation({ userId });
+          location.reload();
+        }
         else toast.error(error.message ?? d.tError ?? '');
       });
     });
@@ -375,8 +458,8 @@ function initials(name?: string) {
     document.querySelectorAll<HTMLElement>('.admin-delete-btn').forEach((btn) => {
       btn.addEventListener('click', async () => {
         const userId = btn.dataset.userId;
-        if (!userId || !confirm(d.tConfirmDelete ?? '')) return;
-        const { error } = await authClient.admin.removeUser({ userId });
+        if (!userId || !(await ask(d.tConfirmDelete ?? ''))) return;
+        const { error } = await actions.adminRemoveUser({ userId });
         if (!error) { toast.success(d.tDeleted ?? ''); location.reload(); }
         else toast.error(error.message ?? d.tError ?? '');
       });

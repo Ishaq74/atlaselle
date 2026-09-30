@@ -131,6 +131,37 @@ describe('Content Locking', () => {
 
   describe('unlockPage', () => {
     it('releases the lock', async () => {
+      mockSelect.mockReturnValueOnce(
+        selectChain([{ lockedBy: 'admin-1', lockedAt: new Date() }]),
+      );
+      mockUpdate.mockReturnValue(updateChain());
+
+      const result = await unlockPage.handler({ id: 'p1' }, adminCtx());
+      expect(result.success).toBe(true);
+      expect(mockUpdate).toHaveBeenCalled();
+    });
+
+    it('rejects unlock by another user while the lock is fresh', async () => {
+      mockSelect.mockReturnValueOnce(
+        selectChain([{ lockedBy: 'admin-2', lockedAt: new Date() }]),
+      );
+      const editorCtx = {
+        locals: { user: { id: 'editor-1', role: 'editor', email: 'e@test.com' } },
+        request: { headers: new Headers() },
+        clientAddress: '127.0.0.1',
+      } as any;
+
+      await expect(unlockPage.handler({ id: 'p1' }, editorCtx)).rejects.toThrow(
+        'verrouill',
+      );
+      expect(mockUpdate).not.toHaveBeenCalled();
+    });
+
+    it('allows anyone to clear a stale lock', async () => {
+      const staleLock = new Date(Date.now() - 30 * 60 * 1000); // 30 min old
+      mockSelect.mockReturnValueOnce(
+        selectChain([{ lockedBy: 'admin-2', lockedAt: staleLock }]),
+      );
       mockUpdate.mockReturnValue(updateChain());
 
       const result = await unlockPage.handler({ id: 'p1' }, adminCtx());

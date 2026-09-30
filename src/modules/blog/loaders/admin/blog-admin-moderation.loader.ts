@@ -18,3 +18,19 @@ export async function getBlogAdminModerationCount() {
     + Number(commentReports[0]?.count ?? 0)
     + Number(reviewReports[0]?.count ?? 0);
 }
+
+/** Pending totals per queue column — mirrors getBlogModerationQueue filters,
+ *  used to size the moderation pagination. */
+export async function getBlogModerationTotals() {
+  const db = getDrizzle();
+  const [comments, reviews, reports] = await Promise.all([
+    db.select({ count: count() }).from(blogComments).innerJoin(blogPosts, eq(blogPosts.id, blogComments.postId)).where(eq(blogComments.status, "PENDING")),
+    db.select({ count: count() }).from(blogPostReviews).innerJoin(blogPosts, eq(blogPosts.id, blogPostReviews.postId)).where(eq(blogPostReviews.status, "PENDING")),
+    db.select({ count: count() }).from(blogReports).where(eq(blogReports.status, "PENDING")),
+  ]);
+  return {
+    comments: Number(comments[0]?.count ?? 0),
+    reviews: Number(reviews[0]?.count ?? 0),
+    reports: Number(reports[0]?.count ?? 0),
+  };
+}

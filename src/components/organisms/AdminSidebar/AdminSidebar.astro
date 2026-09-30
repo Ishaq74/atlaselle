@@ -1,8 +1,9 @@
 ---
 import type { AuthTranslations, Locale } from '@i18n/config';
-import { getAuthUrl, getAdminUrl } from '@i18n/utils';
+import { getAuthUrl, getAdminUrl, getDirection, getCommonTranslations } from '@i18n/utils';
 import type { AdminSubpage } from '@i18n/utils';
 import { getModuleLabel } from '@/core/localization/module-labels';
+import { getAdminDict } from '@i18n/admin';
 import ArrowLeftIcon from '@tabler/icons/outline/arrow-left.svg';
 import ChartBarIcon from '@tabler/icons/outline/chart-bar.svg';
 import UsersIcon from '@tabler/icons/outline/users.svg';
@@ -16,6 +17,7 @@ import PhotoIcon from '@tabler/icons/outline/photo.svg';
 import PaletteIcon from '@tabler/icons/outline/palette.svg';
 import BriefcaseIcon from '@tabler/icons/outline/briefcase.svg';
 import MapIcon from '@tabler/icons/outline/map.svg';
+import FlagIcon from '@tabler/icons/outline/flag.svg';
 import InboxIcon from '@tabler/icons/outline/inbox.svg';
 import TicketIcon from '@tabler/icons/outline/ticket.svg';
 import CreditCardIcon from '@tabler/icons/outline/credit-card.svg';
@@ -26,6 +28,9 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 
 interface Props { t: AuthTranslations; locale: Locale; activeItem?: AdminSubpage; }
 const { t, locale, activeItem } = Astro.props;
+// En RTL le rail de navigation se place du côté droit (mise en miroir du layout).
+const isRtl = getDirection(locale) === 'rtl';
+const commonT = await getCommonTranslations(locale);
 const dashboardUrl = getAuthUrl(locale, 'dashboard', t);
 const contentGroupLabel = t.admin.contentGroup;
 const navItems: { id: AdminSubpage; title: string; url: string; icon: typeof ChartBarIcon }[] = [
@@ -37,6 +42,7 @@ const navItems: { id: AdminSubpage; title: string; url: string; icon: typeof Cha
 const cmsItems: { id: AdminSubpage; title: string; url: string; icon: typeof SettingsIcon }[] = [
   { id: 'blog', title: t.admin.tabs.blog, url: getAdminUrl(locale, 'blog'), icon: FileTextIcon },
   { id: 'trips', title: t.admin.tabs.trips, url: getAdminUrl(locale, 'trips'), icon: MapIcon },
+  { id: 'moderation', title: getAdminDict(locale).moderation.title, url: `${getAdminUrl(locale, 'trips')}/moderation`, icon: FlagIcon },
   { id: 'applications', title: t.admin.tabs.applications, url: getAdminUrl(locale, 'applications'), icon: InboxIcon },
   { id: 'reservations', title: t.admin.tabs.reservations, url: getAdminUrl(locale, 'reservations'), icon: TicketIcon },
   { id: 'payments', title: t.admin.tabs.payments, url: getAdminUrl(locale, 'payments'), icon: CreditCardIcon },
@@ -51,13 +57,14 @@ const cmsItems: { id: AdminSubpage; title: string; url: string; icon: typeof Set
   { id: 'theme', title: t.admin.tabs.theme, url: getAdminUrl(locale, 'theme'), icon: PaletteIcon },
 ];
 ---
-<Sidebar collapsible="icon">
-  <SidebarHeader><SidebarMenu><SidebarMenuItem><SidebarMenuButton size="lg" href={dashboardUrl}><div class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-10 items-center justify-center rounded-lg"><ShieldIcon class="size-5" /></div><div class="grid flex-1 text-left text-sm leading-tight"><span class="truncate font-semibold">{t.admin.title}</span><span class="text-sidebar-foreground/70 truncate text-xs">{t.userMenu.dashboard}</span></div></SidebarMenuButton></SidebarMenuItem></SidebarMenu></SidebarHeader>
+
+<Sidebar collapsible="icon" side={isRtl ? 'right' : 'left'} mobileTitle={t.admin.navigation.title} mobileDescription={t.admin.navigation.description} mobileCloseLabel={commonT.a11y.closeDialog}>
+  <SidebarHeader><SidebarMenu><SidebarMenuItem><SidebarMenuButton size="lg" href={dashboardUrl}><div class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-10 items-center justify-center rounded-lg"><ShieldIcon class="size-5" /></div><div class="grid flex-1 text-start text-sm leading-tight"><span class="truncate font-semibold">{t.admin.title}</span><span class="text-sidebar-foreground/70 truncate text-xs">{t.userMenu.dashboard}</span></div></SidebarMenuButton></SidebarMenuItem></SidebarMenu></SidebarHeader>
   <SidebarSeparator />
   <SidebarContent>
     <SidebarGroup><SidebarGroupContent><SidebarMenu><SidebarMenuItem><SidebarMenuButton href={dashboardUrl} tooltip={t.userMenu.dashboard}><ArrowLeftIcon class="size-4" /><span>{t.userMenu.dashboard}</span></SidebarMenuButton></SidebarMenuItem></SidebarMenu></SidebarGroupContent></SidebarGroup>
     <SidebarGroup><SidebarGroupLabel>{t.admin.title}</SidebarGroupLabel><SidebarGroupContent><SidebarMenu>{navItems.map((item) => <SidebarMenuItem><SidebarMenuButton href={item.url} isActive={activeItem === item.id} tooltip={item.title}><item.icon class="size-4" /><span>{item.title}</span></SidebarMenuButton></SidebarMenuItem>)}</SidebarMenu></SidebarGroupContent></SidebarGroup>
     <SidebarGroup><SidebarGroupLabel>{contentGroupLabel}</SidebarGroupLabel><SidebarGroupContent><SidebarMenu>{cmsItems.map((item) => <SidebarMenuItem><SidebarMenuButton href={item.url} isActive={activeItem === item.id} tooltip={item.title}><item.icon class="size-4" /><span>{item.title}</span></SidebarMenuButton></SidebarMenuItem>)}</SidebarMenu></SidebarGroupContent></SidebarGroup>
   </SidebarContent>
-  <SidebarRail />
+  <SidebarRail label={commonT.a11y.toggleSidebar} />
 </Sidebar>

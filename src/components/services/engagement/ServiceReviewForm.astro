@@ -1,0 +1,44 @@
+---
+/**
+ * Formulaire d'avis sur une prestation.
+ *
+ * Même découpage que `components/blog/engagement/BlogReviewForm.astro` : le markup
+ * vient de l'atome partagé, la soumission de `client/engagement-forms.ts`, et
+ * ce composant ne porte que les libellés du domaine.
+ */
+import type { Locale } from "@i18n/config";
+import { getServiceEngagementTranslations } from "@/modules/services/i18n/engagement";
+import EngagementReviewFormCard from "@/components/molecules/Engagement/EngagementReviewFormCard.astro";
+
+interface Props {
+  locale: Locale;
+  /** URL courante : le formulaire.interrompt la soumission native, c'est une première barrière. */
+  action: string;
+}
+
+const { locale, action } = Astro.props as Props;
+const t = getServiceEngagementTranslations(locale);
+---
+
+<EngagementReviewFormCard
+  formId="service-review-form"
+  action={action}
+  labels={{
+    title: t.submitReview,
+    yourRating: t.reviewRating,
+    titlePlaceholder: t.reviewTitlePlaceholder,
+    content: t.reviewContent,
+    recommend: t.reviewRecommended,
+    submit: t.submitReview,
+    error: t.error,
+    submitted: t.success,
+    ratingRequired: t.ratingRequired,
+  }}
+/>
+
+<script>
+  import { initServiceEngagementForms } from "@/modules/services/client/engagement-forms";
+
+  initServiceEngagementForms();
+  document.addEventListener("astro:after-swap", initServiceEngagementForms);
+</script>

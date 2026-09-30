@@ -1,7 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import type { BlogTranslations } from "@i18n/config";
-import { getBlogNotifications, getUnreadBlogNotificationCount } from "@database/loaders/blog.loader";
+import { getBlogNotifications, getUnreadBlogNotificationCount } from "@/modules/blog/loaders/blog.loader";
 import { Dropdown, DropdownContent, DropdownItem, DropdownLabel, DropdownTrigger } from "@atoms/dropdown";
 import { Separator } from "@atoms/separator";
 
@@ -78,25 +78,8 @@ function formatRelative(date: Date): string {
 </Dropdown>
 
 <script>
-  import { actions } from "astro:actions";
+  import { initNotificationBell } from "@/modules/blog/client/notification-bell";
 
-  function init() {
-    document.querySelectorAll<HTMLAnchorElement>(".notification-item").forEach((item) => {
-      item.addEventListener("click", () => {
-        const id = item.dataset.notificationId;
-        if (id) {
-          void actions.markBlogNotificationRead({ id });
-        }
-      });
-    });
-
-    document.getElementById("notification-mark-all")?.addEventListener("click", async (e) => {
-      e.preventDefault();
-      await actions.markAllBlogNotificationsRead({});
-      window.location.reload();
-    });
-  }
-
-  init();
-  document.addEventListener("astro:after-swap", init);
+  initNotificationBell();
+  document.addEventListener("astro:after-swap", initNotificationBell);
 </script>

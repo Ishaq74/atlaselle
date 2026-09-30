@@ -1,6 +1,6 @@
 ════════════════════════════════════════════════════════════════════════════════
   VITEST UNIT & INTEGRATION TEST REPORT
-  Generated: 2026-09-27 12:25:28
+  Generated: 2026-09-30 16:42:07
 ════════════════════════════════════════════════════════════════════════════════
 
   ✅ tests\integration\admin-trips.test.ts  (4/4 passed)
@@ -50,9 +50,10 @@
   ✅ tests\integration\voyage-services.test.ts  (16/16 passed)
   ✅ tests\unit\admin-consent.test.ts  (5/5 passed)
   ✅ tests\unit\admin-contact.test.ts  (10/10 passed)
+  ✅ tests\unit\admin-dirty-guard.test.ts  (6/6 passed)
   ✅ tests\unit\admin-helpers.test.ts  (7/7 passed)
   ✅ tests\unit\admin-hours.test.ts  (13/13 passed)
-  ✅ tests\unit\admin-media.test.ts  (26/26 passed)
+  ✅ tests\unit\admin-media.test.ts  (27/27 passed)
   ✅ tests\unit\admin-menus.test.ts  (13/13 passed)
   ✅ tests\unit\admin-navigation-items.test.ts  (11/11 passed)
   ✅ tests\unit\admin-pages-theme.test.ts  (9/9 passed)
@@ -78,6 +79,7 @@
   ✅ tests\unit\blog-post-actions.test.ts  (7/7 passed)
   ✅ tests\unit\blog-profile.test.ts  (3/3 passed)
   ✅ tests\unit\blog-public-visibility.test.ts  (1/1 passed)
+  ✅ tests\unit\blog-route-segments.test.ts  (10/10 passed)
   ✅ tests\unit\blog-subscription.test.ts  (6/6 passed)
   ✅ tests\unit\blog-taxonomy-actions.test.ts  (9/9 passed)
   ✅ tests\unit\blog-validation.test.ts  (3/3 passed)
@@ -88,26 +90,32 @@
   ✅ tests\unit\cms-i18n.test.ts  (16/16 passed)
   ✅ tests\unit\cms-schemas.test.ts  (85/85 passed)
   ✅ tests\unit\cms-seeds.test.ts  (12/12 passed)
+  ✅ tests\unit\component-architecture.test.ts  (14/14 passed)
   ✅ tests\unit\contact-api.test.ts  (12/12 passed)
   ✅ tests\unit\contact-form-template.test.ts  (15/15 passed)
   ✅ tests\unit\content-editor-helpers.test.ts  (14/14 passed)
   ✅ tests\unit\content-import-schema.test.ts  (10/10 passed)
-  ✅ tests\unit\content-locking.test.ts  (6/6 passed)
+  ✅ tests\unit\content-locking.test.ts  (8/8 passed)
+  ✅ tests\unit\csp-contract.test.ts  (3/3 passed)
+  ✅ tests\unit\dataview-slots-contract.test.ts  (17/17 passed)
   ✅ tests\unit\db-env.test.ts  (16/16 passed)
   ✅ tests\unit\demote-level-one-headings.test.ts  (47/47 passed)
   ✅ tests\unit\editor-dom-safety.test.ts  (4/4 passed)
   ✅ tests\unit\export-data.test.ts  (4/4 passed)
   ✅ tests\unit\extract-ip.test.ts  (19/19 passed)
   ✅ tests\unit\i18n-key-completeness.test.ts  (7/7 passed)
+  ✅ tests\unit\i18n-locale-from-path.test.ts  (4/4 passed)
   ✅ tests\unit\i18n-routes.test.ts  (20/20 passed)
-  ✅ tests\unit\i18n-switch.test.ts  (11/11 passed)
+  ✅ tests\unit\i18n-switch.test.ts  (8/8 passed)
   ✅ tests\unit\i18n-translations.test.ts  (12/12 passed)
   ✅ tests\unit\i18n-urls.test.ts  (34/34 passed)
   ✅ tests\unit\i18n-utils.test.ts  (6/6 passed)
+  ✅ tests\unit\legal-seed-consistency.test.ts  (12/12 passed)
   ✅ tests\unit\loaders.test.ts  (9/9 passed)
   ✅ tests\unit\mask-utils.test.ts  (10/10 passed)
   ✅ tests\unit\media-list.test.ts  (4/4 passed)
   ✅ tests\unit\media-loader.test.ts  (12/12 passed)
+  ✅ tests\unit\media-variants.test.ts  (15/15 passed)
   ✅ tests\unit\navigation-loader.test.ts  (7/7 passed)
   ✅ tests\unit\navigation-menus.test.ts  (10/10 passed)
   ✅ tests\unit\navigation-tree.test.ts  (10/10 passed)
@@ -123,7 +131,7 @@
   ✅ tests\unit\section-content-xss.test.ts  (18/18 passed)
   ✅ tests\unit\section-schemas.test.ts  (48/48 passed)
   ✅ tests\unit\sections-sanitize.test.ts  (10/10 passed)
-  ✅ tests\unit\send-email.test.ts  (17/17 passed)
+  ✅ tests\unit\send-email.test.ts  (19/19 passed)
   ✅ tests\unit\seo.test.ts  (31/31 passed)
   ✅ tests\unit\services-contract.test.ts  (16/16 passed)
   ✅ tests\unit\services-validation.test.ts  (7/7 passed)
@@ -133,7 +141,7 @@
   ✅ tests\unit\smtp-providers.test.ts  (11/11 passed)
   ✅ tests\unit\theme-tokens.test.ts  (34/34 passed)
   ✅ tests\unit\upload-api.test.ts  (9/9 passed)
-  ✅ tests\unit\upload.test.ts  (19/19 passed)
+  ✅ tests\unit\upload.test.ts  (24/24 passed)
   ✅ tests\unit\blog\status-transitions.test.ts  (17/17 passed)
   ✅ tests\unit\cms\admin-filter-contract.test.ts  (2/2 passed)
   ✅ tests\unit\cms\admin-module-contract.test.ts  (3/3 passed)
@@ -144,8 +152,8 @@
   ✅ tests\unit\cms\resource-contract.test.ts  (6/6 passed)
   ✅ tests\unit\cms\workflow.test.ts  (4/4 passed)
   ✅ tests\unit\database\migration-sql.test.ts  (13/13 passed)
-  ✅ tests\unit\database\seed-data-contract.test.ts  (2/2 passed)
-  ✅ tests\unit\database\seed-manifest.test.ts  (3/3 passed)
+  ✅ tests\unit\database\seed-data-contract.test.ts  (3/3 passed)
+  ✅ tests\unit\database\seed-manifest.test.ts  (4/4 passed)
   ✅ tests\unit\database\services-data-invariants.test.ts  (5/5 passed)
   ✅ tests\unit\database\services-data-shape.test.ts  (1/1 passed)
   ✅ tests\unit\services\admin-actions.test.ts  (4/4 passed)
@@ -181,11 +189,11 @@
   SUMMARY
 ════════════════════════════════════════════════════════════════════════════════
 
-  Total tests:   1907
-  Passed:        1907  ✅
+  Total tests:   1997
+  Passed:        1997  ✅
   Failed:        0  
-  Duration:      145s
+  Duration:      141s
 
 ════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 1907/1907 passed
+  END OF REPORT — 1997/1997 passed
 ════════════════════════════════════════════════════════════════════════════════

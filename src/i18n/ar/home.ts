@@ -116,4 +116,8 @@ export default {
     primaryButton: { text: 'انضم إلى كلان', href: '#' },
     secondaryButton: { text: '← اعرف المزيد', href: '#' },
   },
+  a11y: {
+    previousSlide: 'الشريحة السابقة',
+    nextSlide: 'الشريحة التالية',
+  },
 } satisfies HomeTranslations;

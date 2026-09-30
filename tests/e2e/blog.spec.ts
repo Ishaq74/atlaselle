@@ -2,12 +2,13 @@ import { randomUUID } from 'node:crypto';
 import { test, expect } from '@playwright/test';
 import type { BlogReactionType } from '../../src/lib/blog/constants';
 import { SEED_EMAIL, SEED_PASSWORD } from './global-setup';
+import { confirmAdminAction } from '../helpers/admin-ui';
 
 // Single-tenant (TODO §30.3 hors périmètre) : surfaces globales uniquement.
 
 type StorageState = Awaited<ReturnType<import('@playwright/test').BrowserContext['storageState']>>;
 
-const BASE_URL = 'http://localhost:4322';
+import { BASE_URL } from '../helpers/e2e-env';
 
 interface WorkflowPostState {
   slug: string;
@@ -420,9 +421,11 @@ test.describe.serial('Blog surfaces', () => {
     await dismissCookieDialog(page);
 
     await page.locator('#comment-form').scrollIntoViewIfNeeded();
-    await page.locator('#comment-guest-name').fill('E2E Guest');
-    await page.locator('#comment-guest-email').fill('guest-e2e@test.com');
-    await page.locator('#comment-content').fill(seeded.globalCommentText);
+    // Le formulaire partagé (`Engagement/CommentFormCard`) espace ses ids par
+    // `formId` : on cible les `name` des champs, stables quel que soit l'id.
+    await page.locator('#comment-form [name="guestName"]').fill('E2E Guest');
+    await page.locator('#comment-form [name="guestEmail"]').fill('guest-e2e@test.com');
+    await page.locator('#comment-form [name="content"]').fill(seeded.globalCommentText);
     await page.locator('#comment-form button[type="submit"]').click();
 
     await expect.poll(async () => {
@@ -466,9 +469,17 @@ test.describe.serial('Blog surfaces', () => {
       await authedPage.goto(buildGlobalPostUrl(seeded.globalWorkflow.slug), { waitUntil: 'networkidle' });
       await dismissCookieDialog(authedPage);
 
+      // Le formulaire d'avis vit dans l'onglet « écrire » des sections
+      // d'engagement, pas dans le flux de la page. On cible l'onglet par son
+      // `data-value`, qui est le contrat stable des Tabs, plutôt que par son
+      // libellé : celui-ci change avec la locale.
+      const writeTab = authedPage.locator('[data-value="write"]').last();
+      await writeTab.click();
+      await expect(authedPage.locator('#review-form')).toBeVisible();
+
       await authedPage.locator('#review-form').scrollIntoViewIfNeeded();
-      await authedPage.locator('#review-title').fill(seeded.globalReviewTitle);
-      await authedPage.locator('#review-content').fill(seeded.globalReviewContent);
+      await authedPage.locator('#review-form [name="title"]').fill(seeded.globalReviewTitle);
+      await authedPage.locator('#review-form [name="content"]').fill(seeded.globalReviewContent);
       // The rating is a mandatory control of this form, and picking it is a user
       // step, not a formality: `ReviewForm` renders `StarRating` with `required`,
       // so the group holds five required radios and none of them is checked on
@@ -499,7 +510,9 @@ test.describe.serial('Blog surfaces', () => {
 
       await authedPage.goto(buildGlobalPostUrl(seeded.globalWorkflow.slug), { waitUntil: 'networkidle' });
       await dismissCookieDialog(authedPage);
-      await authedPage.locator('.reaction-btn[data-reaction-type="LIKE"]').click();
+      // Le bouton de réaction vient du cours partagé `ReactionButtons.astro`,
+      // qui expose le type via `data-engagement-reaction`.
+      await authedPage.locator('.reaction-btn[data-engagement-reaction="LIKE"]').click();
 
       await expect.poll(async () => getReactionCount(seeded.globalWorkflow.id!, 'LIKE')).toBe(1);
     } finally {
@@ -538,7 +551,12 @@ test.describe.serial('Blog surfaces', () => {
 
       const publicReview = authedPage.locator('[data-review-id]').filter({ hasText: seeded.globalReviewTitle }).first();
       await expect(publicReview).toBeVisible();
-      await publicReview.locator('.review-helpful-btn[data-value="true"]').click();
+      // Le bouton « utile » vient du cours partagé `ReviewCard.astro`, qui
+      // l'identifie par `data-engagement-helpful` ; `data-value` porte l'état
+      // du vote (il vaut "false" tant que le visiteur n'a pas voté).
+      const helpfulButton = publicReview.locator(`[data-engagement-helpful]`);
+      await expect(helpfulButton, 'the review must expose its helpful button').toBeVisible();
+      await helpfulButton.click();
 
       await expect.poll(async () => {
         const record = await getReviewRecord(seeded.globalWorkflow.id!, seeded.globalReviewTitle);
@@ -560,8 +578,11 @@ test.describe.serial('Blog surfaces', () => {
       await adminPage.goto('/fr/admin/blog', { waitUntil: 'networkidle' });
       const row = adminPage.locator('tbody tr').filter({ hasText: seeded.globalWorkflow.editedTitle }).first();
       await expect(row).toBeVisible();
-      adminPage.once('dialog', (dialog) => dialog.accept());
+      // La suppression est destructive : le back-office ouvre son dialogue de
+      // confirmation (`confirmAdminAction`), ce n'est plus le dialogue natif
+      // `window.confirm` que `page.once('dialog')` attendait.
       await row.locator('.delete-btn').click();
+      await confirmAdminAction(adminPage);
 
       await expect.poll(async () => getPostStatus(seeded.globalWorkflow.id!)).toBe('DELETED');
     } finally {

@@ -68,20 +68,16 @@ export default [
   { id: "6955e32d-8152-4e4e-abec-d56509ebb1b9", menuId: "menu-footer-legal", locale: "fr", label: "Mentions légales", url: "/fr/mentions-legales", icon: null, showIcon: false, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
   { id: "6feb5a0d-b7e3-4c71-8f35-f6cd9c335361", menuId: "menu-footer-legal", locale: "fr", label: "Conditions de réservation", url: "/fr/conditions-reservation", icon: null, showIcon: false, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
   { id: "922334fe-1af0-44a7-89c0-8c3eda4466f2", menuId: "menu-footer-legal", locale: "fr", label: "Assurance voyage", url: "/fr/assurance-voyage", icon: null, showIcon: false, sortOrder: 2, parentId: null, isActive: true, openInNewTab: false },
-  { id: "1a50ecb9-5a2d-4311-b2e6-5a71d85382bd", menuId: "menu-footer-legal", locale: "fr", label: "Conditions générales", url: "/fr/terms", icon: null, showIcon: false, sortOrder: 3, parentId: null, isActive: true, openInNewTab: false },
   // ═══════════ FOOTER LEGAL (en) ═══════════
   { id: "ac06e7b1-0b71-4774-892d-50e57fc92529", menuId: "menu-footer-legal", locale: "en", label: "Legal Notice", url: "/en/legal-notice", icon: null, showIcon: false, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
   { id: "f3460cd2-0342-46d4-920d-ae8a73dcd366", menuId: "menu-footer-legal", locale: "en", label: "Booking Terms", url: "/en/booking-terms", icon: null, showIcon: false, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
   { id: "33b53fc1-51d9-4dee-baa7-1191ed7bd99d", menuId: "menu-footer-legal", locale: "en", label: "Travel Insurance", url: "/en/travel-insurance", icon: null, showIcon: false, sortOrder: 2, parentId: null, isActive: true, openInNewTab: false },
-  { id: "466146e6-02db-47d6-8505-c7762968955a", menuId: "menu-footer-legal", locale: "en", label: "Terms & Conditions", url: "/en/terms", icon: null, showIcon: false, sortOrder: 3, parentId: null, isActive: true, openInNewTab: false },
   // ═══════════ FOOTER LEGAL (es) ═══════════
   { id: "178e0614-04e0-40eb-99bc-68d04510abec", menuId: "menu-footer-legal", locale: "es", label: "Aviso Legal", url: "/es/aviso-legal", icon: null, showIcon: false, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
   { id: "45e042bf-141c-4291-b402-d53381ff6d6f", menuId: "menu-footer-legal", locale: "es", label: "Condiciones de Reserva", url: "/es/condiciones-reserva", icon: null, showIcon: false, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
   { id: "f4bb12cc-c081-4c81-aba2-8210c4203a6c", menuId: "menu-footer-legal", locale: "es", label: "Seguro de Viaje", url: "/es/seguro-de-viaje", icon: null, showIcon: false, sortOrder: 2, parentId: null, isActive: true, openInNewTab: false },
-  { id: "12a2644b-53d2-4e7b-86aa-eb3f3b474d83", menuId: "menu-footer-legal", locale: "es", label: "Términos y Condiciones", url: "/es/terms", icon: null, showIcon: false, sortOrder: 3, parentId: null, isActive: true, openInNewTab: false },
   // ═══════════ FOOTER LEGAL (ar) ═══════════
   { id: "e35cfe29-c033-4053-ad98-317df8a95291", menuId: "menu-footer-legal", locale: "ar", label: "إشعار قانوني", url: "/ar/legal-notice", icon: null, showIcon: false, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
   { id: "0f806baa-57bc-4ae0-890c-e862bfbc8fce", menuId: "menu-footer-legal", locale: "ar", label: "شروط الحجز", url: "/ar/booking-terms", icon: null, showIcon: false, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
   { id: "f36f7139-fa6d-4f74-8dbe-8ac9fb5b9de5", menuId: "menu-footer-legal", locale: "ar", label: "تأمين السفر", url: "/ar/travel-insurance", icon: null, showIcon: false, sortOrder: 2, parentId: null, isActive: true, openInNewTab: false },
-  { id: "29068f1e-5003-4ea8-bd91-800ef548fc42", menuId: "menu-footer-legal", locale: "ar", label: "الشروط والأحكام", url: "/ar/terms", icon: null, showIcon: false, sortOrder: 3, parentId: null, isActive: true, openInNewTab: false },
 ];

@@ -3,6 +3,7 @@ import { z } from "astro/zod";
 import { eq, and } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { blogNotifications } from "@database/schemas";
+import { blogRateLimit } from "./_helpers";
 
 /** Marks a single notification as read. Scoped to the requesting user — cannot mark another user's notification. */
 export const markBlogNotificationRead = defineAction({
@@ -12,6 +13,7 @@ export const markBlogNotificationRead = defineAction({
   handler: async (input, context) => {
     const user = context.locals.user;
     if (!user) throw new ActionError({ code: "UNAUTHORIZED", message: "Connexion requise." });
+    blogRateLimit(context, user.id, "notification-read", { window: 60, max: 60 });
 
     const db = getDrizzle();
     await db
@@ -34,6 +36,7 @@ export const markAllBlogNotificationsRead = defineAction({
   handler: async (_input, context) => {
     const user = context.locals.user;
     if (!user) throw new ActionError({ code: "UNAUTHORIZED", message: "Connexion requise." });
+    blogRateLimit(context, user.id, "notification-read-all", { window: 60, max: 30 });
 
     const db = getDrizzle();
     await db

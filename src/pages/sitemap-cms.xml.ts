@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { getPagesList } from "@database/loaders/page.loader";
-import { getBlogCategories, getBlogTags, getBlogPosts } from "@database/loaders/blog.loader";
+import { getBlogCategories, getBlogTags, getBlogPosts } from "@/modules/blog/loaders/blog.loader";
 import { getServices, getServiceCategories, getServiceTags } from "@/modules/services/loaders";
 import { loadTripsList } from "@/modules/trips/loaders/trip.loader";
 import { LOCALES, type Locale } from "@i18n/config";

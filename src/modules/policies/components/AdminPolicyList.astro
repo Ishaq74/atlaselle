@@ -1,6 +1,11 @@
 ---
 import type { Locale } from "@i18n/config";
 import type { loadAdminPolicies } from "@/modules/policies/loaders/admin-policies.loader";
+import { getAdminDict } from "@i18n/admin";
+import { AdminResourceShell, DataView } from "@/core/admin";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@atoms/table";
+import { Badge } from "@atoms/badge";
+import Button from "@atoms/button/Button.astro";
 
 type Doc = Awaited<ReturnType<typeof loadAdminPolicies>>[number];
 
@@ -11,73 +16,195 @@ interface Props {
 }
 
 const { docs, locale, canPublish } = Astro.props;
-const t = locale === "fr"
-  ? { title: "Politiques", published: "publiée", draft: "brouillon", publish: "Publier", reviewNote: "Publication = révision juridique qualifiée.", newVersion: "Nouvelle version", save: "Enregistrer" }
-  : { title: "Policies", published: "published", draft: "draft", publish: "Publish", reviewNote: "Publishing = qualified legal review.", newVersion: "New version", save: "Save" };
+const dict = getAdminDict(locale);
+const t = dict.policies;
+const c = dict.common;
+const col = dict.columns;
+const rows = docs.map(({ document: doc, versions, published }) => ({
+  id: doc.id,
+  type: doc.type,
+  locale: doc.locale,
+  versions,
+  published,
+  draft: versions.find((v) => !v.published) ?? null,
+}));
+
+/*
+ * Chaque formulaire de version utilise method="post" + action explicite :
+ * première barrière structurelle contre la soumission native en GET vers
+ * l'URL courante — c'est ce GET qui exposait le titre et le corps intégral du
+ * projet de version dans la chaîne de requête, donc dans l'historique de
+ * navigation, dans l'en-tête Referer et dans le journal d'accès du serveur.
+ * Le traitement réel est un appel astro:actions (createPolicyVersion), sans
+ * route serveur de repli : l'action pointe vers la page courante, qui
+ * n'exporte aucun POST, donc une soumission native y est rejetée sans
+ * mutation. preventDefault (script) = seconde barrière. L'identifiant compose
+ * l'id du document : un id statique dupliquerait le même nom sur chaque bloc
+ * de version.
+ */
 ---
-<section class="mx-auto max-w-6xl space-y-8 px-6 py-10">
-  <h1 class="text-3xl font-bold">{t.title}</h1>
-  <p class="text-sm text-muted-foreground">{t.reviewNote}</p>
-  {docs.map(({ document: doc, versions, published }) => (
-    <div class="rounded-xl border p-6" data-document-id={doc.id} data-doc-type={doc.type} data-doc-locale={doc.locale}>
-      <h2 class="font-bold">{doc.type} · {doc.locale} {published ? <span class="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">v{published.version} {t.published}</span> : <span class="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs">{t.draft}</span>}</h2>
-      <ul class="mt-3 space-y-2 text-sm">
-        {versions.map((v) => (
-          <li class="flex items-center justify-between gap-4 border-b py-1" data-version-id={v.id}>
-            <span>v{v.version} — {v.title}{v.published ? "" : ` (${t.draft})`}</span>
-            {canPublish && !v.published ? <button type="button" class="text-primary underline" data-publish>{t.publish}</button> : null}
-          </li>
-        ))}
-      </ul>
-      {canPublish ? (
-        /* method="post" + action explicite : première barrière structurelle contre la
-           soumission native en GET vers l'URL courante — c'est ce GET qui exposait le titre
-           et le corps intégral du projet de version dans la chaîne de requête, donc dans
-           l'historique de navigation, dans l'en-tête Referer des navigations suivantes et
-           dans le journal d'accès du serveur. Le traitement réel est un appel
-           astro:actions (createPolicyVersion), sans route serveur de repli : l'action
-           pointe vers la page courante, qui n'exporte aucun POST, donc une soumission
-           native y est rejetée sans mutation. preventDefault (script) = seconde barrière.
-           L'identifiant compose l'id du document : un id statique dupliquerait le même
-           nom sur chaque bloc de version. */
-        <form id={`policy-version-form-${doc.id}`} name={`policy-version-form-${doc.id}`} method="post" action={Astro.url.pathname} data-version-form class="mt-4 grid gap-3 text-sm">
-          <h3 class="font-semibold">{t.newVersion}</h3>
-          <input name="title" required maxlength="300" placeholder="Title" class="rounded-md border bg-background p-2" />
-          <textarea name="content" required rows="4" class="rounded-md border bg-background p-2"></textarea>
-          <div><button type="submit" class="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">{t.save}</button></div>
-        </form>
-      ) : null}
-    </div>
-  ))}
-</section>
+
+<AdminResourceShell title={t.title}>
+  <div class="space-y-8 p-4 md:p-6">
+    <p class="text-sm text-muted-foreground">{t.reviewNote}</p>
+
+    <input type="hidden" data-policies-i18n data-error={c.error} data-publish-title={t.publish} data-publish-confirm={t.publishConfirm} data-confirm-label={c.confirm} data-cancel-label={c.cancel} data-saved={t.published} />
+
+    {rows.length === 0 ? (
+      <div class="rounded-lg border border-dashed p-10 text-center">
+        <p class="font-medium">{c.noResults}</p>
+        <p class="mt-1 text-sm text-muted-foreground">{c.noResultsHint}</p>
+      </div>
+    ) : (
+      <DataView listLabel={dict.views.list} tableLabel={dict.views.table} cardsLabel={dict.views.cards}>
+        <div slot="table">
+          <Table aria-label={t.title}>
+            <TableHeader>
+              <TableRow>
+                <TableHead scope="col">{col.type}</TableHead>
+                <TableHead scope="col">{col.locale}</TableHead>
+                <TableHead scope="col">{t.publishedVersion}</TableHead>
+                <TableHead scope="col">{t.versions}</TableHead>
+                <TableHead scope="col"><span class="sr-only">{c.actions}</span></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow>
+                  <TableCell class="font-medium">{row.type}</TableCell>
+                  <TableCell>{row.locale}</TableCell>
+                  <TableCell class="whitespace-nowrap">{row.published ? `v${row.published.version}` : "—"}</TableCell>
+                  <TableCell>{row.versions.length}</TableCell>
+                  <TableCell class="text-end">
+                    <div class="flex flex-wrap justify-end gap-1">
+                      {canPublish && row.draft ? (
+                        <Button size="sm" variant="primary" data-publish data-version-id={row.draft.id}>{t.publish}</Button>
+                      ) : null}
+                      <Button size="sm" variant="ghost" href={`#policy-doc-${row.id}`}>{c.open}</Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div slot="list" class="divide-y rounded-lg border">
+          {rows.map((row) => (
+            <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+              <div class="min-w-0">
+                <p class="truncate font-medium">{row.type} · {row.locale}</p>
+                <p class="truncate text-xs text-muted-foreground">
+                  {row.published ? `${t.publishedVersion}: v${row.published.version}` : t.draftBadge} · {row.versions.length} {t.versions.toLowerCase()}
+                </p>
+              </div>
+              <div class="flex items-center gap-3">
+                {row.published
+                  ? <Badge variant="success" size="sm">v{row.published.version} {t.publishedBadge}</Badge>
+                  : <Badge variant="secondary" size="sm">{t.draftBadge}</Badge>}
+                {canPublish && row.draft ? (
+                  <Button size="sm" variant="primary" data-publish data-version-id={row.draft.id}>{t.publish}</Button>
+                ) : null}
+                <Button size="sm" variant="ghost" href={`#policy-doc-${row.id}`}>{c.open}</Button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div slot="cards" class="space-y-8">
+          {rows.map((row) => (
+            <div id={`policy-doc-${row.id}`} class="rounded-xl border p-6" data-document-id={row.id} data-doc-type={row.type} data-doc-locale={row.locale}>
+              <h2 class="font-heading flex flex-wrap items-center gap-2 text-lg font-semibold">
+                <span>{row.type} · {row.locale}</span>
+                {row.published
+                  ? <Badge variant="success" size="sm">v{row.published.version} {t.publishedBadge}</Badge>
+                  : <Badge variant="secondary" size="sm">{t.draftBadge}</Badge>}
+              </h2>
+              <ul class="mt-3 space-y-2 text-sm">
+                {row.versions.map((v) => (
+                  <li class="flex flex-wrap items-center justify-between gap-4 border-b py-1" data-version-id={v.id}>
+                    <span>v{v.version} — {v.title}{v.published ? "" : ` (${t.draftBadge})`}</span>
+                    {canPublish && !v.published ? <Button size="sm" variant="primary" data-publish>{t.publish}</Button> : null}
+                  </li>
+                ))}
+              </ul>
+              {canPublish ? (
+                <form id={`policy-version-form-${row.id}`} name={`policy-version-form-${row.id}`} method="post" action={Astro.url.pathname} data-version-form class="mt-4 grid gap-3 text-sm">
+                  <h3 class="font-semibold">{t.newVersion}</h3>
+                  <div class="flex flex-col gap-1">
+                    <label for={`policy-version-title-${row.id}`} class="font-medium">{col.title}</label>
+                    <input id={`policy-version-title-${row.id}`} name="title" required maxlength="300" placeholder={t.versionTitlePlaceholder} class="rounded-md border bg-background p-2" />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <label for={`policy-version-content-${row.id}`} class="font-medium">{t.versionContentPlaceholder}</label>
+                    <textarea id={`policy-version-content-${row.id}`} name="content" required rows="4" class="rounded-md border bg-background p-2"></textarea>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <Button type="submit" size="sm" variant="primary">{c.save}</Button>
+                    <Button type="reset" size="sm" variant="ghost">{c.cancel}</Button>
+                  </div>
+                </form>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      </DataView>
+    )}
+  </div>
+</AdminResourceShell>
 
 <script>
   import { actions } from "astro:actions";
-  document.querySelectorAll("[data-publish]")?.forEach((btn) => {
+  import { toast } from "@atoms/toast";
+  import { confirmAdminAction } from "@/core/admin";
+
+  const i18n = document.querySelector<HTMLInputElement>("[data-policies-i18n]");
+
+  document.querySelectorAll<HTMLButtonElement>("[data-publish]").forEach((btn) => {
+    if (btn.dataset.bound === "true") return;
+    btn.dataset.bound = "true";
     btn.addEventListener("click", async () => {
-      const li = (btn as HTMLElement).closest("[data-version-id]");
-      const id = li?.getAttribute("data-version-id") ?? "";
+      const id = btn.closest<HTMLElement>("[data-version-id]")?.getAttribute("data-version-id") ?? "";
       if (!id) return;
+      const ok = await confirmAdminAction({
+        title: i18n?.dataset.publishTitle ?? "",
+        message: i18n?.dataset.publishConfirm ?? "",
+        confirmLabel: i18n?.dataset.confirmLabel ?? "OK",
+        cancelLabel: i18n?.dataset.cancelLabel ?? "",
+      });
+      if (!ok) return;
       const { error } = await actions.publishPolicyVersion({ id });
-      if (error) alert(error.message);
-      else window.location.reload();
+      if (error) toast.error(error.message ?? i18n?.dataset.error ?? "");
+      else {
+        toast.success(i18n?.dataset.saved ?? "");
+        window.location.reload();
+      }
     });
   });
-  document.querySelectorAll("[data-version-form]")?.forEach((form) => {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const target = e.currentTarget as HTMLFormElement | null;
-      if (!target) return;
-      const doc = target.closest("[data-document-id]");
-      const data = new FormData(target);
+
+  document.querySelectorAll<HTMLFormElement>("[data-version-form]").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const doc = form.closest("[data-document-id]");
+      const data = new FormData(form);
       const { error } = await actions.createPolicyVersion({
         type: (doc?.getAttribute("data-doc-type") ?? "booking_terms") as "booking_terms" | "cancellation" | "privacy" | "terms" | "accessibility" | "photo_consent",
         locale: (doc?.getAttribute("data-doc-locale") ?? "en") as "fr" | "en" | "es" | "ar",
         title: String(data.get("title") ?? ""),
         content: String(data.get("content") ?? ""),
       });
-      if (error) alert(error.message);
-      else window.location.reload();
+      if (error) toast.error(error.message ?? i18n?.dataset.error ?? "");
+      else {
+        toast.success(i18n?.dataset.saved ?? "");
+        window.location.reload();
+      }
     });
   });
+</script>
+
+<script>
+  import { registerAdminDirtyGuard } from "@/core/admin/dirty-guard";
+
+  registerAdminDirtyGuard();
+  document.addEventListener("astro:after-swap", () => registerAdminDirtyGuard());
 </script>

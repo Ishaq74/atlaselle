@@ -28,6 +28,8 @@ export async function assertServicePermission(context: ActionAPIContext, permiss
   if (!currentUser) throw new ActionError({ code: "UNAUTHORIZED", message: "Vous devez être connecté pour effectuer cette action." });
   if (currentUser.banned) throw new ActionError({ code: "FORBIDDEN", message: "Compte suspendu." });
   if (!(await hasServicePermission(context, permissions))) throw new ActionError({ code: "FORBIDDEN", message: "Permissions insuffisantes." });
+  // Filet de sécurité global : certaines actions n'ont pas de serviceRateLimit propre.
+  serviceRateLimit(context, currentUser.id, `guard:${Object.keys(permissions).join("_") || "service"}`, { window: 60, max: 120 });
   return currentUser;
 }
 
@@ -73,8 +75,16 @@ export async function assertServiceLockOwner(serviceId: string, userId: string, 
   }
 }
 
-export function serviceRateLimit(_context: ActionAPIContext, userId: string, scope: string) {
-  const result = checkRateLimit(`service-${scope.replace(/:/g, "_")}:${userId}`, { window: 60, max: 30 });
+export function serviceRateLimit(_context: ActionAPIContext, userId: string, scope: string, opts = { window: 60, max: 30 }) {
+  const result = checkRateLimit(`service-${scope.replace(/:/g, "_")}:${userId}`, opts);
+  if (!result.allowed) throw new ActionError({ code: "TOO_MANY_REQUESTS", message: "Trop de requêtes. Veuillez réessayer dans quelques instants." });
+}
+
+/** Limite par IP pour les actions de services accessibles sans session. */
+export function servicePublicRateLimit(context: ActionAPIContext, scope: string, opts = { window: 300, max: 30 }) {
+  const ip = extractIp(context.request.headers, context.clientAddress ?? null);
+  const key = `service-${scope.replace(/:/g, "_")}:${ip ?? "__global__"}`;
+  const result = checkRateLimit(key, ip ? opts : { window: opts.window, max: Math.max(1, Math.floor(opts.max / 3)) });
   if (!result.allowed) throw new ActionError({ code: "TOO_MANY_REQUESTS", message: "Trop de requêtes. Veuillez réessayer dans quelques instants." });
 }
 

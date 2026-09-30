@@ -3,6 +3,7 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import { Icon } from 'astro-icon/components';
 import { LOCALES, LOCALE_LABELS, type Locale } from '@i18n/config';
 import { toLocale, mapStaticSlugPath, type StaticSlugMaps } from '@i18n/utils';
+import { getCmsPageIdBySlug, getCmsPageSlugById } from '@database/loaders/page.loader';
 import frCommon from '@/i18n/fr/common';
 import enCommon from '@/i18n/en/common';
 import esCommon from '@/i18n/es/common';
@@ -50,7 +51,7 @@ const STATIC_MAPS: StaticSlugMaps = {
   authRoutes: { fr: frAuth.routes, en: enAuth.routes, es: esAuth.routes, ar: arAuth.routes },
 };
 
-function localizedHref(loc: Locale): string {
+async function localizedHref(loc: Locale): Promise<string> {
   const tripSegments = [...new Set(Object.values(TRIP_LIST_SEGMENT))].join('|');
   const tripMatch = currentPath.match(new RegExp(`^/(?:en|fr|es|ar)/(?:${tripSegments})/([^/]+)$`));
   if (tripMatch) {
@@ -63,7 +64,21 @@ function localizedHref(loc: Locale): string {
     const tripId = resolveTripSlug(currentLocale, isApply[1]);
     if (tripId) return getApplyPath(loc, getTripSlug(tripId, loc));
   }
-  // Slugs structurels (about/contact/legal, auth, universelle terms — TODO §7.6 : page équivalente ou repli, jamais de contenu d'une autre langue)
+  // Pages CMS (mentions légales, conditions de réservation, assurance voyage…) :
+  // le slug est localisé, donc on passe par l'identifiant stable de la page.
+  // Sans cela, passer de `/fr/conditions-reservation` à l'anglais produirait
+  // `/en/conditions-reservation` — un 404, puisque le slug anglais est
+  // `booking-terms`.
+  const cmsSlug = pathWithoutLocale.replace(/^\//, '');
+  if (cmsSlug && !cmsSlug.includes('/')) {
+    const pageId = await getCmsPageIdBySlug(currentLocale, cmsSlug);
+    if (pageId) {
+      const targetSlug = await getCmsPageSlugById(pageId, loc);
+      if (targetSlug) return `/${loc}/${targetSlug}`;
+    }
+  }
+
+  // Slugs structurels (about/contact/legal, auth)
   const mapped = mapStaticSlugPath(currentLocale, loc, pathWithoutLocale, STATIC_MAPS);
   if (mapped) return mapped;
   return getRelativeLocaleUrl(loc, pathWithoutLocale);
@@ -78,19 +93,21 @@ function localizedHref(loc: Locale): string {
       <Icon name={FLAG_ICONS[currentLocale]} class="size-5 rounded-sm" />
   </DropdownTrigger>
   <DropdownContent align="end">
-    {LOCALES.map((loc: Locale) => {
-      const isActive = loc === currentLocale;
-      const href = localizedHref(loc);
-      return (
-        <DropdownItem
-          as="a"
-          href={href}
-          class:list={[isActive && 'bg-accent font-medium']}
-        >
-          <Icon name={FLAG_ICONS[loc]} class="size-4 shrink-0 rounded-sm" />
-          {LOCALE_LABELS[loc]}
-        </DropdownItem>
-      );
-    })}
+    {await Promise.all(
+      LOCALES.map(async (loc: Locale) => {
+        const isActive = loc === currentLocale;
+        const href = await localizedHref(loc);
+        return (
+          <DropdownItem
+            as="a"
+            href={href}
+            class:list={[isActive && 'bg-accent font-medium']}
+          >
+            <Icon name={FLAG_ICONS[loc]} class="size-4 shrink-0 rounded-sm" />
+            {LOCALE_LABELS[loc]}
+          </DropdownItem>
+        );
+      }),
+    )}
   </DropdownContent>
 </Dropdown>

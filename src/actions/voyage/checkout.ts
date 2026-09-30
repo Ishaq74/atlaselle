@@ -10,7 +10,7 @@ import { normalizeEmail } from "@/modules/travelers/domain/traveler-email";
 import { toVoyageActionError } from "./transition-errors";
 import { cancelReservation as cancelReservationService } from "@/modules/reservations/domain/reservation-service";
 import { refundReservationPayments } from "@/modules/payments/domain/refund-service";
-import { assertVoyagePermission, auditVoyage } from "./_helpers";
+import { assertVoyagePermission, auditVoyage, voyagePublicRateLimit } from "./_helpers";
 
 export const checkoutInitiateInput = z.object({
   checkoutSessionId: z.uuid(),
@@ -27,6 +27,7 @@ export const checkoutInitiateInput = z.object({
 export const initiateCheckout = defineAction({
   input: checkoutInitiateInput,
   handler: async (input, context) => {
+    voyagePublicRateLimit(context, "checkout-initiate", { window: 300, max: 6 });
     const origin = new URL(context.request.url).origin;
     const valid = await getValidCheckoutSession(input.checkoutSessionId);
     if (!valid) {

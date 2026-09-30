@@ -1,12 +1,16 @@
 ---
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@atoms/sidebar';
 import Separator from '@atoms/separator/Separator.astro';
+import { getCommonTranslations, getLocaleFromPath } from '@i18n/utils';
 
 interface Props {
   title?: string;
 }
 
 const { title } = Astro.props;
+// La locale est déduite de l'URL (`/{locale}/admin/...`) pour traduire le
+// libellé du bouton sans prop supplémentaire.
+const commonT = await getCommonTranslations(getLocaleFromPath(Astro.url.pathname));
 ---
 
 <div class="auth-layout">
@@ -14,7 +18,7 @@ const { title } = Astro.props;
     <slot name="sidebar" />
     <SidebarInset aria-labelledby={title ? "auth-layout-title" : undefined}>
       <header class="flex h-12 shrink-0 items-center gap-2 border-b px-4 sticky top-16 z-10 bg-background">
-        <SidebarTrigger />
+        <SidebarTrigger label={commonT.a11y.toggleSidebar} />
         {title && (
           <>
             <Separator orientation="vertical" class="mx-2 h-4" />

@@ -13,6 +13,8 @@
  *  - image insertion via the shared MediaPicker
  */
 import type { Locale } from "@i18n/config";
+import { getAdminDict } from "@i18n/admin";
+import { getCommonTranslations } from "@i18n/utils";
 import { Icon } from "astro-icon/components";
 import { Textarea } from "@atoms/textarea";
 import { Label } from "@atoms/label";
@@ -51,6 +53,9 @@ interface Props {
     linkInsert?: string;
     linkNoResult?: string;
     imageAlt?: string;
+    imageAltTitle?: string;
+    imageAltMissing?: string;
+    selectionPlaceholder?: string;
   };
 }
 
@@ -85,10 +90,14 @@ const t = {
   linkInsert: i18n.linkInsert ?? "Insérer",
   linkNoResult: i18n.linkNoResult ?? "Aucun résultat.",
   imageAlt: i18n.imageAlt ?? "Texte alternatif (alt)",
+  imageAltTitle: i18n.imageAltTitle ?? "Texte alternatif de l'image",
+  imageAltMissing: i18n.imageAltMissing ?? "Aucun sélecteur de médias n'est configuré pour cet éditeur.",
+  selectionPlaceholder: i18n.selectionPlaceholder ?? "texte",
 };
 
-const editorId = `content-editor-${name}`;
-const textareaId = `${editorId}-textarea`;
+const adminDict = getAdminDict(locale);
+const commonT = await getCommonTranslations(locale);
+const editorId = `content-editor-${name}`;const textareaId = `${editorId}-textarea`;
 const previewId = `${editorId}-preview`;
 const linkDialogId = `${editorId}-link-dialog`;
 const resolverAttr = resolverName ?? "";
@@ -101,6 +110,12 @@ const resolverAttr = resolverName ?? "";
   data-locale={locale}
   data-media-picker-target={mediaPickerId ?? ""}
   data-t-noresult={t.linkNoResult}
+  data-t-image-alt={t.imageAlt}
+  data-t-image-alt-title={t.imageAltTitle}
+  data-t-image-alt-missing={t.imageAltMissing}
+  data-t-selection-placeholder={t.selectionPlaceholder}
+  data-confirm-label={adminDict.common.confirm}
+  data-cancel-label={adminDict.common.cancel}
 >
   <div class="flex items-center justify-between gap-3">
     {label && <Label for={textareaId}>{label}{required && <span class="text-destructive"> *</span>}</Label>}
@@ -125,7 +140,7 @@ const resolverAttr = resolverName ?? "";
 
   <!-- Link dialog -->
   <Dialog id={linkDialogId}>
-    <DialogContent>
+    <DialogContent closeLabel={commonT.a11y.closeDialog}>
       <DialogHeader>
         <DialogTitle>{t.linkDialogTitle}</DialogTitle>
         <DialogDescription></DialogDescription>
@@ -157,6 +172,7 @@ const resolverAttr = resolverName ?? "";
 <script>
   import { actions } from 'astro:actions';
   import { toast } from '@atoms/toast';
+  import { promptAdminAction } from '@/core/admin';
   import {
     wrapSelection,
     formatHeadingSelection,
@@ -178,6 +194,12 @@ const resolverAttr = resolverName ?? "";
     const resolverName = root.getAttribute('data-resolver') ?? '';
     const locale = root.getAttribute('data-locale') ?? 'fr';
     const mediaPickerId = root.getAttribute('data-media-picker-target') ?? '';
+    const tImageAlt = root.getAttribute('data-t-image-alt') ?? '';
+    const tImageAltTitle = root.getAttribute('data-t-image-alt-title') ?? '';
+    const tImageAltMissing = root.getAttribute('data-t-image-alt-missing') ?? '';
+    const tSelectionPlaceholder = root.getAttribute('data-t-selection-placeholder') ?? '';
+    const confirmLabel = root.getAttribute('data-confirm-label') ?? 'OK';
+    const cancelLabel = root.getAttribute('data-cancel-label') ?? '';
 
     function refreshPreview() {
       if (preview) preview.innerHTML = previewHtml(textarea!.value);
@@ -201,8 +223,8 @@ const resolverAttr = resolverName ?? "";
         const e = textarea!.selectionEnd;
         const val = textarea!.value;
         switch (cmd) {
-          case 'bold': return applyEdit(wrapSelection(val, s, e, '<strong>', '</strong>', 'texte'));
-          case 'italic': return applyEdit(wrapSelection(val, s, e, '<em>', '</em>', 'texte'));
+          case 'bold': return applyEdit(wrapSelection(val, s, e, '<strong>', '</strong>', tSelectionPlaceholder));
+          case 'italic': return applyEdit(wrapSelection(val, s, e, '<em>', '</em>', tSelectionPlaceholder));
           case 'h2': return applyEdit(formatHeadingSelection(val, s, e));
           case 'ul': return applyEdit(formatUnorderedListSelection(val, s, e));
           case 'link': return openLinkDialog();
@@ -214,14 +236,21 @@ const resolverAttr = resolverName ?? "";
     // ── Image insertion via MediaPicker ──────────────────────────────
     function openImagePicker() {
       if (!mediaPickerId) {
-        toast.error('Aucun sélecteur de médias configuré.');
+        toast.error(tImageAltMissing);
         return;
       }
       const picker = document.getElementById(mediaPickerId);
       if (!picker) return;
-      const handler = (ev: Event) => {
+      const handler = async (ev: Event) => {
         const detail = (ev as CustomEvent).detail;
-        const alt = window.prompt('Texte alternatif (alt) :', '') ?? '';
+        const alt =
+          (await promptAdminAction({
+            title: tImageAltTitle,
+            inputLabel: tImageAlt,
+            confirmLabel,
+            cancelLabel,
+            maxlength: 300,
+          })) ?? '';
         const token = buildImageToken(detail.url ?? '', alt);
         const s = textarea!.selectionStart;
         const e = textarea!.selectionEnd;
@@ -276,7 +305,7 @@ const resolverAttr = resolverName ?? "";
       results.forEach((r: { id: string; label: string; href: string }) => {
         const item = document.createElement('button');
         item.type = 'button';
-        item.className = 'block w-full rounded px-2 py-1.5 text-left hover:bg-muted';
+        item.className = 'block w-full rounded px-2 py-1.5 text-start hover:bg-muted';
         item.textContent = r.label;
         item.addEventListener('click', () => {
           insertInternalLink(r.href, r.label, r.id);

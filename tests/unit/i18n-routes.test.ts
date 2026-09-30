@@ -3,16 +3,12 @@ import {
   ABOUT_SEGMENT,
   APPLY_SEGMENT,
   CONTACT_SEGMENT,
-  PRIVACY_SEGMENT,
-  TERMS_SEGMENT,
   TRIP_LIST_SEGMENT,
   TRIP_SLUGS,
   getApplyPath,
   getTripPath,
   getTripSlug,
   getTripsBasePath,
-  getTermsPath,
-  getPrivacyPath,
   getAboutPath,
   getContactPath,
   isTripDetailPath,
@@ -35,9 +31,6 @@ describe('ROUTE_SEGMENTS (TODO Annexe A)', () => {
   });
 
   it('exposes terms / privacy / about / contact segments per locale', () => {
-
-    expect(TERMS_SEGMENT).toEqual({ fr: 'conditions', en: 'terms', ar: 'terms', es: 'terminos' });
-    expect(PRIVACY_SEGMENT).toEqual({ fr: 'confidentialite', en: 'privacy', ar: 'privacy', es: 'privacidad' });
     expect(ABOUT_SEGMENT).toEqual({ fr: 'a-propos', en: 'about', ar: 'about', es: 'acerca-de' });
     expect(CONTACT_SEGMENT).toEqual({ fr: 'contact', en: 'contact', ar: 'contact', es: 'contacto' });
   });
@@ -123,11 +116,6 @@ describe('resolveLocalizedRoute (middleware rewrite → routes physiques)', () =
 
 describe('structural path getters', () => {
   it('terms/privacy/about/contact paths per locale', () => {
-
-    expect(getTermsPath('fr')).toBe('/fr/conditions');
-    expect(getTermsPath('es')).toBe('/es/terminos');
-    expect(getPrivacyPath('fr')).toBe('/fr/confidentialite');
-    expect(getPrivacyPath('es')).toBe('/es/privacidad');
     expect(getAboutPath('fr')).toBe('/fr/a-propos');
     expect(getAboutPath('es')).toBe('/es/acerca-de');
     expect(getContactPath('es')).toBe('/es/contacto');

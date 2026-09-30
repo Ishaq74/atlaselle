@@ -1,0 +1,60 @@
+---
+/**
+ * TripEngagementBar — favoris et réactions d'un voyage.
+ *
+ * Rendu AVEC le cœur partagé `EngagementReactionButtons` : l'affichage est donc
+ * identique à celui du blog et des services, seule l'action branchée diffère
+ * (`toggleTripReaction` au lieu de `toggleBlogReaction`).
+ *
+ * Le script est dans `modules/trips/client/engagement-bar.ts`.
+ */
+import type { Locale } from "@i18n/config";
+import type { TripEngagementDTO } from "@/modules/trips/loaders/trip-engagement.loader";
+import { getTripEngagementTranslations } from "@/modules/trips/i18n/engagement";
+import EngagementReactionButtons from "@/components/molecules/Engagement/EngagementReactionButtons.astro";
+
+interface Props {
+  tripId: string;
+  locale: Locale;
+  engagement: TripEngagementDTO;
+  isSignedIn: boolean;
+}
+
+const { tripId, locale, engagement, isSignedIn } = Astro.props as Props;
+const t = getTripEngagementTranslations(locale);
+
+/** Compteurs de réactions d'un voyage, ramenés au type partagé. */
+const counts: Record<string, number> = {
+  LIKE: engagement.favoritesCount,
+  LOVE: 0,
+  FIRE: 0,
+  CLAP: 0,
+};
+---
+
+<div
+  data-trip-reaction-bar
+  data-trip-id={tripId}
+  data-t-error={t.error}
+  data-t-updated={t.success}
+>
+  <EngagementReactionButtons
+    activeReaction={engagement.viewerReaction}
+    counts={counts}
+    isFavorite={engagement.viewerFavorite}
+    isSignedIn={isSignedIn}
+    labels={{
+      favorite: t.favorite,
+      unfavorite: t.unfavorite,
+      reactions: t.reactionLabel,
+      reaction: t.reactionLabel,
+    }}
+  />
+</div>
+
+<script>
+  import { bindTripEngagementBar } from "@/modules/trips/client/engagement-bar";
+
+  bindTripEngagementBar();
+  document.addEventListener("astro:after-swap", bindTripEngagementBar);
+</script>

@@ -3,6 +3,7 @@ import { z } from "astro/zod";
 import { isValidLocale } from "@i18n/utils";
 import { registerInternalLinkResolver } from "@/lib/content/internal-link-resolver";
 import { serviceInternalLinkResolver } from "@/lib/services/services-internal-link";
+import { servicePublicRateLimit } from "./_helpers";
 
 registerInternalLinkResolver(serviceInternalLinkResolver);
 
@@ -13,7 +14,8 @@ export const resolveServiceInternalLink = defineAction({
     query: z.string().trim().max(120).optional(),
     locale: z.string().refine(isValidLocale, "Unsupported locale"),
   }),
-  handler: async (input) => {
+  handler: async (input, context) => {
+    servicePublicRateLimit(context, "internal-link", { window: 300, max: 60 });
     const ctx = { locale: input.locale };
     if (input.mode === "search") return { results: await serviceInternalLinkResolver.search(input.query ?? "", { ...ctx, limit: 10 }) };
     return { resolution: await serviceInternalLinkResolver.resolve(input.target, ctx) };

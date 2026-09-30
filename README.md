@@ -26,13 +26,13 @@ SSR multi-language web application with complete authentication, organisation ma
 - ⚡ **Astro 7.3.1** (SSR, `@astrojs/node`) — Server-side rendering, Tailwind CSS 4, TypeScript
 - 🔐 **better-auth** — Email/password, email verification, organisations, roles, admin impersonation
 - 🗄️ **Drizzle ORM** + **PostgreSQL 16** — Type-safe migrations, loaders, full-text search
-- 🎨 **Starwind** — 48 accessible Astro UI components
+- 🎨 **Starwind** — 49 accessible Astro UI components
 - 🌍 **i18n** — fr, en, es, ar (RTL) with localised routes
 - 📋 **CMS** — Pages, typed JSON sections, navigation, scheduling, versioning, import/export
 - 📁 **Media** — Upload, Sharp image processing, folder organisation
 - 📧 **SMTP** — Brevo / Resend / Nodemailer + dead-letter queue
 - 🛡️ **Security** — Audit trail, rate limiting, input sanitization
-- ✅ **Testing** — 173 Vitest + 29 E2E Playwright scenarios × 3 browsers
+- ✅ **Testing** — 181 Vitest + 29 E2E Playwright scenarios × 3 browsers
 
 ### Tech Stack
 
@@ -41,7 +41,7 @@ SSR multi-language web application with complete authentication, organisation ma
 | **Astro 7.3.1** (`@astrojs/node`) | SSR framework |
 | **better-auth** | Auth, organisations, sessions |
 | **Drizzle ORM** + **PostgreSQL 16** | Database |
-| **Tailwind CSS 4** + **Starwind** | Design system (48 components) |
+| **Tailwind CSS 4** + **Starwind** | Design system (49 components) |
 | **Vitest** + **Playwright** | Unit, integration & E2E tests |
 | **GitHub Actions** | CI/CD |
 
@@ -147,6 +147,7 @@ atoms/
   skeleton/
   slider/
   spinner/
+  star-rating/
   switch/
   table/
   tabs/
@@ -157,30 +158,13 @@ atoms/
   tooltip/
   video/
 blog/
-  AdminModerationQueue.astro
-  AdminPostForm.astro
-  AdminPostList.astro
-  AdminTaxonomyManager.astro
-  ArticleProgressBar.astro
-  AuthorCard.astro
-  BlogAdminPage.astro
+  admin/
   cards/
-  CategoryFilterBar.astro
-  CommentForm.astro
-  comments/
-  CommentSection.astro
-  CommentThreadItem.astro
+  detail/
+  engagement/
   grids/
-  NotificationBell.astro
-  PostCard.astro
-  PostContent.astro
-  PostGridToggle.astro
-  ReactionBar.astro
-  ReviewForm.astro
-  ReviewSection.astro
-  ShareBar.astro
+  layout/
   sidebars/
-  TagCloud.astro
 content/
   ContentEditor.astro
   RichContent.astro
@@ -190,7 +174,9 @@ molecules/
   DataView/
   Engagement/
   MediaGallery.astro
+  Reading/
 organisms/
+  AdminDetailShell.astro
   AdminFormShell.astro
   AdminResourceList.astro
   AdminResourceShell.astro
@@ -215,9 +201,18 @@ pages/
   LegalPage.astro
   TripPage.astro
 services/
-  AdminServiceForm.astro
-  AdminServiceList.astro
-  ServicesAdminPage.astro
+  admin/
+  detail/
+  engagement/
+  listing/
+  ui/
+trips/
+  admin/
+  detail/
+  engagement/
+  layout/
+  listing/
+  search/
 wow/
   AsyncButton.astro
   FallingParticles.astro
@@ -239,9 +234,9 @@ images/
 
 ### Components
 
-- **atoms/** — 48 components
-- **molecules/** — 5 components
-- **organisms/** — 11 components
+- **atoms/** — 49 components
+- **molecules/** — 6 components
+- **organisms/** — 12 components
 - **pages/** — 11 components
 - **wow/** — 9 components
 
@@ -276,6 +271,7 @@ images/
 src/database/
 cache.ts
 commands/
+  db.backfill-variants.ts
   db.check.ts
   db.clean-media.ts
   db.cleanup-audit.ts
@@ -304,6 +300,8 @@ data/
   08-theme.data.ts
   09-legal-pages.data.ts
   09b-legal-sections.data.ts
+  09c-legal-terms-sections.data.ts
+  09d-legal-insurance-sections.data.ts
   10-consent-settings.data.ts
   11-blog-categories.data.ts
   11b-blog-category-translations.data.ts
@@ -385,10 +383,6 @@ infra/
   02-indexes.sql
   03-constraints.sql
 loaders/
-  blog-admin-editor.loader.ts
-  blog-admin-moderation.loader.ts
-  blog-admin.loader.ts
-  blog.loader.ts
   consent.loader.ts
   media.loader.ts
   navigation.loader.ts
@@ -401,6 +395,7 @@ migrations/
   0002_trip_engagement.sql
   0003_trip_media.sql
   0004_gallery_caption_i18n.sql
+  0005_media_responsive_variants.sql
   meta/
     0000_snapshot.json
     0001_snapshot.json
@@ -462,7 +457,7 @@ schemas.ts
 
 **media.schema.ts**
 - `media_folders`: `id`, `name`, `parentId`, `sortOrder`, `createdAt`, `updatedAt` _(parent: one, children: many, files: many)_
-- `media_files`: `id`, `folderId`, `filename`, `url`, `mimeType`, `size`, `width`, `height`, `createdAt`, `updatedAt` _(folder: one, alts: many)_
+- `media_files`: `id`, `folderId`, `filename`, `url`, `mimeType`, `size`, `width`, `height`, `variants`, `updatedAt` _(folder: one, alts: many)_
 - `media_file_alts`: `id`, `fileId`, `locale`, `alt`, `title` _(file: one)_
 
 **consent.schema.ts**
@@ -594,6 +589,7 @@ schemas.ts
 - `0002_trip_engagement.sql`
 - `0003_trip_media.sql`
 - `0004_gallery_caption_i18n.sql`
+- `0005_media_responsive_variants.sql`
 
 ### Commands
 
@@ -609,6 +605,7 @@ schemas.ts
 | `pnpm db:seed-media` |
 | `pnpm db:sync` |
 | `pnpm db:cleanup-audit` |
+| `pnpm db:backfill-variants` |
 
 ### Tests
 
@@ -703,9 +700,11 @@ src/middleware.ts
 src/core/
 admin/
   confirmation.ts
+  dirty-guard.ts
   filter-contract.ts
   index.ts
   resource-contract.ts
+  status.ts
 attributes/
   index.ts
 audit/
@@ -718,6 +717,9 @@ content/
   index.ts
   text.ts
 engagement/
+  client/
+    binding.ts
+    form.ts
   index.ts
 index.ts
 localization/
@@ -777,6 +779,12 @@ blog/
     index.ts
     resource.ts
   capabilities.ts
+  client/
+    admin-post-form.ts
+    admin-post-list.ts
+    engagement-bar.ts
+    engagement-forms.ts
+    notification-bell.ts
   components/
     cards/
       index.ts
@@ -788,11 +796,19 @@ blog/
       index.ts
   domain/
     index.ts
+  engagement/
+    adapter.ts
   i18n/
     index.ts
   index.ts
   loaders/
+    admin/
+      blog-admin-editor.loader.ts
+      blog-admin-moderation.loader.ts
+    blog-admin.loader.ts
+    blog.loader.ts
     index.ts
+    viewer-reaction.loader.ts
   module.ts
   permissions/
     index.ts
@@ -890,24 +906,18 @@ services/
     loader.ts
     resource.ts
   capabilities.ts
-  components/
-    cards/
-      index.ts
-      ServiceCard.astro
-    lists/
-      index.ts
-      ServiceGrid.astro
-      ServicesListingPage.astro
-    single/
-      index.ts
-      ServiceDetail.astro
-      ServiceEngagement.astro
-    ui/
-      index.ts
-      ServiceLocaleSwitcher.astro
-      ServiceMeta.astro
+  client/
+    admin-service-form.ts
+    admin-service-list.ts
+    detail.ts
+    engagement-bar.ts
+    engagement-forms.ts
+    engagement.ts
+    services-admin.ts
   domain/
     index.ts
+  engagement/
+    adapter.ts
   i18n/
     engagement.ts
     form.ts
@@ -917,6 +927,7 @@ services/
   index.ts
   loaders/
     index.ts
+    service-engagement.loader.ts
   module.ts
   permissions/
     index.ts
@@ -949,30 +960,25 @@ travelers/
   repositories/
     traveler.repository.ts
 trips/
+  actions/
+    index.ts
   admin/
     resource.ts
-  components/
-    AdminContentsSection.astro
-    AdminFaqSection.astro
-    AdminTripForm.astro
-    AdminTripList.astro
-    TripBookingCard.astro
-    TripCard.astro
-    TripEngagement.astro
-    TripFilterCard.astro
-    TripFilterPill.astro
-    TripHighlights.astro
-    TripItinerary.astro
-    TripPageHero.astro
-    TripReactionBar.astro
-    TripResults.astro
-    TripSearchBar.astro
-    TripSidebar.astro
-    TripViewToggle.astro
+  capabilities.ts
+  client/
+    admin-contents.ts
+    admin-faq.ts
+    admin-trip-form.ts
+    admin-trip-list.ts
+    engagement-bar.ts
+    engagement-forms.ts
+    engagement.ts
   domain/
     trip-engagement-workflow.ts
     trip-engagement.ts
     trip-transitions.ts
+  engagement/
+    adapter.ts
   i18n/
     engagement.ts
   loaders/
@@ -981,6 +987,7 @@ trips/
     admin-moderation.loader.ts
     admin-reporting.loader.ts
     admin-trips.loader.ts
+    index.ts
     trip-engagement.loader.ts
     trip.loader.ts
   module.ts
@@ -1058,7 +1065,6 @@ sitemap-cms.xml.ts
     tags/
     [categorySlug]/
     [slug].astro
-  terms.astro
   trips/
     index.astro
     [slug].astro
@@ -1114,6 +1120,7 @@ Atlaselle CMS is organized around shared CMS/platform capabilities and first-cla
 - `tests/unit/blog-post-actions.test.ts`
 - `tests/unit/blog-profile.test.ts`
 - `tests/unit/blog-public-visibility.test.ts`
+- `tests/unit/blog-route-segments.test.ts`
 - `tests/unit/blog-subscription.test.ts`
 - `tests/unit/blog-taxonomy-actions.test.ts`
 - `tests/unit/blog-validation.test.ts`
@@ -1140,6 +1147,7 @@ delete.ts
 list.ts
 types.ts
 upload.ts
+variants.ts
 public/
 favicon.ico
 favicon.svg
@@ -1230,6 +1238,12 @@ i18n email templates for: email verification, password reset, organisation invit
 
 ```
 src/i18n/
+admin/
+  ar.ts
+  en.ts
+  es.ts
+  fr.ts
+  index.ts
 ar/
   about.ts
   auth.ts
@@ -1283,6 +1297,7 @@ All routes are prefixed with the locale: `/fr/`, `/en/`, `/es/`, `/ar/`. Default
 - `tests/unit/booking-consent-i18n.test.ts`
 - `tests/unit/cms-i18n.test.ts`
 - `tests/unit/i18n-key-completeness.test.ts`
+- `tests/unit/i18n-locale-from-path.test.ts`
 - `tests/unit/i18n-routes.test.ts`
 - `tests/unit/i18n-switch.test.ts`
 - `tests/unit/i18n-translations.test.ts`
@@ -1542,5 +1557,8 @@ GitHub Actions pipeline on every push/PR to `main`:
 | `pnpm a11y:pa11y-only` |
 | `pnpm a11y:lighthouse-only` |
 | `pnpm qa` |
+| `pnpm qa:serial` |
 | `pnpm qa:offline` |
+| `pnpm qa:db` |
+| `pnpm qa:db:drop` |
 

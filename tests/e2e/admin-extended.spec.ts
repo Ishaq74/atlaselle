@@ -11,7 +11,7 @@ import { SEED_EMAIL, SEED_PASSWORD } from './global-setup';
  *   - /fr/admin/applications/[id] and /fr/admin/reservations/[id] 404 handling
  */
 
-const BASE_URL = 'http://localhost:4322';
+import { BASE_URL } from '../helpers/e2e-env';
 
 /** Signs in the seeded admin via the auth API and returns a storage state. */
 async function adminState(browser: import('@playwright/test').Browser) {

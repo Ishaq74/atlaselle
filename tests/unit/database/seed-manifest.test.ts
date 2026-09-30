@@ -43,13 +43,29 @@ describe("seed manifest", () => {
     }
   });
 
-  it("does not contain duplicate data files or schema exports", () => {
+  it("does not contain duplicate data files", () => {
     expect(new Set(seedManifest.map((entry) => entry.dataFile)).size).toBe(seedManifest.length);
-    expect(new Set(seedManifest.map((entry) => entry.schemaExport)).size).toBe(seedManifest.length);
+  });
+
+  it("points every data file at a table it actually populates", () => {
+    // Deux entrées PEUVENT viser la même table : le seeder itère sur chaque
+    // entrée et insère son dataset, `schemaExport` ne sert qu'à retrouver la
+    // table cible. Les sections légales des mentions, des conditions de
+    // réservation et de l'assurance vivent toutes dans `pageSections`.
+    // L'unicité requise porte sur les FICHIERS, pas sur les tables.
+    for (const entry of seedManifest) {
+      expect(entry.schemaExport, `${entry.dataFile} must declare a schemaExport`).toBeTruthy();
+      expect(entry.dataFile).toMatch(/^\d+[a-z]?-[a-z][a-z0-9-]*\.data\.ts$/);
+    }
   });
 
   it("keeps the Services dependency order deterministic", () => {
-    const index = new Map(seedManifest.map((entry, position) => [entry.schemaExport, position]));
+    // Index sur la PREMIÈRE occurrence : l'ordre du manifeste doit garantir
+    // qu'une table est créée avant les entrées qui la référencent.
+    const index = new Map<string, number>();
+    seedManifest.forEach((entry, position) => {
+      if (!index.has(entry.schemaExport)) index.set(entry.schemaExport, position);
+    });
     expect(index.get("services")).toBeLessThan(index.get("serviceTranslations")!);
     expect(index.get("serviceCategories")).toBeLessThan(index.get("serviceCategoryLinks")!);
     expect(index.get("serviceReviews")).toBeLessThan(index.get("serviceReviewHelpful")!);

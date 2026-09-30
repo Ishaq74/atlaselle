@@ -16,6 +16,8 @@ import { Badge } from '@atoms/badge';
 import Button from '@atoms/button/Button.astro';
 import { IconPicker } from '@atoms/icon-picker';
 import { PROTECTED_MENU_NAMES } from '@/actions/admin/menus';
+import { getAdminDict } from '@i18n/admin';
+import { getCommonTranslations } from '@i18n/utils';
 
 type MenuRow = typeof navigationMenus.$inferSelect;
 type ItemRow = typeof navigationItems.$inferSelect;
@@ -30,6 +32,7 @@ interface Props {
 }
 
 const { t, locale, menus, items, selectedMenu, selectedLocale } = Astro.props;
+const commonT = await getCommonTranslations(locale);
 const cms = t.admin.cms.navigation;
 const currentMenu = menus.find((m) => m.id === selectedMenu);
 
@@ -41,6 +44,7 @@ const childItems = items.filter((i) => !!i.parentId);
 
 <div
   id="cms-nav-data"
+  data-dirty-scope
   data-locale={locale}
   data-selected-menu={selectedMenu}
   data-selected-locale={selectedLocale}
@@ -51,6 +55,8 @@ const childItems = items.filter((i) => !!i.parentId);
   data-t-error={t.admin.cms.common.error}
   data-t-confirm-delete={cms.confirmDelete}
   data-t-confirm-delete-menu={cms.confirmDeleteMenu}
+  data-confirm-label={getAdminDict(locale).common.confirm}
+  data-cancel-label={getAdminDict(locale).common.cancel}
   data-t-save-all={cms.saveAll}
   data-t-menu-visible={cms.menuVisible}
   data-t-add-item-label={cms.addItem}
@@ -302,6 +308,7 @@ const childItems = items.filter((i) => !!i.parentId);
                           placeholder={cms.selectIcon}
                           searchPlaceholder={cms.searchIcon}
                           clearLabel={cms.clearIcon}
+                          label={commonT.a11y.iconPicker}
                         />
                       </div>
                       <div class="grid gap-1.5">
@@ -329,7 +336,7 @@ const childItems = items.filter((i) => !!i.parentId);
 
                   {/* ── Children ── */}
                   {children.length > 0 && (
-                    <div class="ml-6 mt-1 grid gap-1.5 border-l-2 border-muted pl-4">
+                    <div class="ms-6 mt-1 grid gap-1.5 border-s-2 border-muted ps-4">
                       {children.map((child, cidx) => (
                         <div
                           class="nav-item-row rounded-lg border bg-muted/30 p-3 grid gap-3"
@@ -424,6 +431,7 @@ const childItems = items.filter((i) => !!i.parentId);
 <script>
   import { actions } from 'astro:actions';
   import { toast } from '@atoms/toast';
+  import { confirmAdminAction } from '@/core/admin';
 
   function init() {
     const root = document.getElementById('cms-nav-data');
@@ -438,6 +446,7 @@ const childItems = items.filter((i) => !!i.parentId);
     const tConfirmDelete = root.dataset.tConfirmDelete ?? '';
     const tConfirmDeleteMenu = root.dataset.tConfirmDeleteMenu ?? '';
     const tAddItemLabel = root.dataset.tAddItemLabel ?? '';
+    const ask = (message: string) => confirmAdminAction({ title: message, message, confirmLabel: root.dataset.confirmLabel || 'OK', cancelLabel: root.dataset.cancelLabel || '' });
 
     // ─── Menu Select ───
     document.querySelectorAll<HTMLElement>('[data-menu-select]').forEach((el) => {
@@ -512,7 +521,7 @@ const childItems = items.filter((i) => !!i.parentId);
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const id = btn.dataset.menuId;
-        if (!id || !confirm(tConfirmDeleteMenu)) return;
+        if (!id || !(await ask(tConfirmDeleteMenu))) return;
         const { error } = await actions.deleteNavigationMenu({ id });
         if (!error) { toast.success(tMenuDeleted); location.reload(); }
         else toast.error(error.message ?? tError);
@@ -584,7 +593,7 @@ const childItems = items.filter((i) => !!i.parentId);
         const row = btn.closest('.nav-item-row') as HTMLElement;
         const id = row?.dataset.id;
         if (!id) return;
-        if (!confirm(tConfirmDelete)) return;
+        if (!(await ask(tConfirmDelete))) return;
         const { error } = await actions.deleteNavigationItem({ id });
         if (!error) { toast.success(tDeleted); row.remove(); }
         else toast.error(error.message ?? tError);
@@ -647,4 +656,11 @@ const childItems = items.filter((i) => !!i.parentId);
 
   init();
   document.addEventListener('astro:after-swap', init);
+</script>
+
+<script>
+  import { registerAdminDirtyGuard } from "@/core/admin/dirty-guard";
+
+  registerAdminDirtyGuard();
+  document.addEventListener("astro:after-swap", () => registerAdminDirtyGuard());
 </script>

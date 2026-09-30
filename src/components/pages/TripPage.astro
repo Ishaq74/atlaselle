@@ -9,18 +9,19 @@
  */
 import type { Locale } from "@i18n/config";
 import { getApplyPath, getTripsBasePath } from "@i18n/routes";
+import { getCommonTranslations } from "@i18n/utils";
 import type { TripPageDTO } from "@/modules/trips/loaders/trip.loader";
 import type { TripEngagementDTO } from "@/modules/trips/loaders/trip-engagement.loader";
 import type { TripSummaryDTO } from "@/modules/trips/loaders/trip.loader";
-import ArticleProgressBar from "@/components/blog/ArticleProgressBar.astro";
-import ShareBar from "@/components/blog/ShareBar.astro";
-import TripPageHero from "@/modules/trips/components/TripPageHero.astro";
-import TripBookingCard from "@/modules/trips/components/TripBookingCard.astro";
-import TripHighlights from "@/modules/trips/components/TripHighlights.astro";
-import TripItinerary from "@/modules/trips/components/TripItinerary.astro";
-import TripEngagement from "@/modules/trips/components/TripEngagement.astro";
-import TripReactionBar from "@/modules/trips/components/TripReactionBar.astro";
-import TripCard from "@/modules/trips/components/TripCard.astro";
+import ArticleProgressBar from "@/components/molecules/Reading/ArticleProgressBar.astro";
+import EngagementShareBar from "@/components/molecules/Engagement/EngagementShareBar.astro";
+import TripPageHero from "@/components/trips/detail/TripPageHero.astro";
+import TripBookingCard from "@/components/trips/detail/TripBookingCard.astro";
+import TripHighlights from "@/components/trips/detail/TripHighlights.astro";
+import TripItinerary from "@/components/trips/detail/TripItinerary.astro";
+import TripEngagement from "@/components/trips/engagement/TripEngagement.astro";
+import TripEngagementBar from "@/components/trips/engagement/TripEngagementBar.astro";
+import TripCard from "@/components/trips/listing/TripCard.astro";
 import MediaGallery from "@/components/molecules/MediaGallery.astro";
 import type { TripMediaItem } from "@/modules/trips/loaders/trip.loader";
 import ScrollReveal from "@wow/ScrollReveal.astro";
@@ -36,6 +37,7 @@ interface Props {
 }
 
 const { trip, locale, engagement, relatedTrips, media, absoluteUrl, isSignedIn } = Astro.props as Props;
+const commonT = await getCommonTranslations(locale);
 const copy = trip.translations[locale];
 const applyUrl = getApplyPath(locale, copy.slug);
 const tripsBase = getTripsBasePath(locale);
@@ -44,7 +46,7 @@ const pricePrefix = trip.currency === "EUR" ? "€" : `${trip.currency} `;
 const t = {
   fr: {
     list: "Nos voyages", highlights: "Ce qui est prévu", itinerary: "Le programme", day: (i: number) => `Jour ${i + 1}`,
-    related: "Autres voyages", gallery: "La galerie", share: "Partager", linkCopied: "Lien copié.", copyLinkError: "Impossible de copier le lien.", rating: "avis", ratingLabel: "Avis voyageuses",
+    related: "Autres voyages", gallery: "La galerie", share: "Partager", shareOnX: "Partager sur X", shareOnFacebook: "Partager sur Facebook", shareOnLinkedIn: "Partager sur LinkedIn", copyLink: "Copier le lien", linkCopied: "Lien copié.", copyLinkError: "Impossible de copier le lien.", rating: "avis", ratingLabel: "Avis voyageuses",
     status: "Statut", open: "Disponible", interest: "Liste d'intérêt", places: "Places restantes",
     priceFrom: "par voyageuse", deposit: "Acompte à la réservation", balance: "Solde dû avant le",
     lodging: "Hébergement", difficulty: "Difficulté", apply: "Déposer ma candidature",
@@ -53,7 +55,7 @@ const t = {
   },
   en: {
     list: "Our journeys", highlights: "What awaits", itinerary: "The itinerary", day: (i: number) => `Day ${i + 1}`,
-    related: "Other journeys", gallery: "The gallery", share: "Share", linkCopied: "Link copied.", copyLinkError: "Could not copy link.", rating: "reviews", ratingLabel: "Traveller reviews",
+    related: "Other journeys", gallery: "The gallery", share: "Share", shareOnX: "Share on X", shareOnFacebook: "Share on Facebook", shareOnLinkedIn: "Share on LinkedIn", copyLink: "Copy link", linkCopied: "Link copied.", copyLinkError: "Could not copy link.", rating: "reviews", ratingLabel: "Traveller reviews",
     status: "Status", open: "Available", interest: "Interest list", places: "Places remaining",
     priceFrom: "per traveller", deposit: "Deposit on booking", balance: "Balance due before",
     lodging: "Lodging", difficulty: "Difficulty", apply: "Apply for this journey",
@@ -62,7 +64,7 @@ const t = {
   },
   es: {
     list: "Nuestros viajes", highlights: "Lo que te espera", itinerary: "El itinerario", day: (i: number) => `Día ${i + 1}`,
-    related: "Otros viajes", gallery: "La galería", share: "Compartir", linkCopied: "Enlace copiado.", copyLinkError: "No se pudo copiar el enlace.", rating: "opiniones", ratingLabel: "Opiniones de viajeras",
+    related: "Otros viajes", gallery: "La galería", share: "Compartir", shareOnX: "Compartir en X", shareOnFacebook: "Compartir en Facebook", shareOnLinkedIn: "Compartir en LinkedIn", copyLink: "Copiar enlace", linkCopied: "Enlace copiado.", copyLinkError: "No se pudo copiar el enlace.", rating: "opiniones", ratingLabel: "Opiniones de viajeras",
     status: "Estado", open: "Disponible", interest: "Lista de interés", places: "Plazas restantes",
     priceFrom: "por viajera", deposit: "Anticipo al reservar", balance: "Saldo antes del",
     lodging: "Alojamiento", difficulty: "Dificultad", apply: "Enviar mi solicitud",
@@ -71,7 +73,7 @@ const t = {
   },
   ar: {
     list: "رحلاتنا", highlights: "ما الذي ينتظرك", itinerary: "البرنامج", day: (i: number) => `اليوم ${i + 1}`,
-    related: "رحلات أخرى", gallery: "معرض الصور", share: "مشاركة", linkCopied: "تم نسخ الرابط.", copyLinkError: "تعذر نسخ الرابط.", rating: "تقييمات", ratingLabel: "تقييمات المسافرات",
+    related: "رحلات أخرى", gallery: "معرض الصور", share: "مشاركة", shareOnX: "المشاركة على X", shareOnFacebook: "المشاركة على فيسبوك", shareOnLinkedIn: "المشاركة على لينكدإن", copyLink: "نسخ الرابط", linkCopied: "تم نسخ الرابط.", copyLinkError: "تعذر نسخ الرابط.", rating: "تقييمات", ratingLabel: "تقييمات المسافرات",
     status: "الحالة", open: "متاح", interest: "قائمة الاهتمام", places: "المقاعد المتبقية",
     priceFrom: "للمسافرة", deposit: "الدفعة المقدمة عند الحجز", balance: "الرصيد قبل",
     lodging: "الإقامة", difficulty: "الصعوبة", apply: "قدّم طلبك",
@@ -112,6 +114,7 @@ const facts = [
     { label: t.list, href: tripsBase },
     { label: copy.title, href: "" },
   ]}
+  breadcrumbLabel={commonT.a11y.breadcrumb}
   facts={facts}
   ratingLabel={t.ratingLabel}
 />
@@ -163,16 +166,16 @@ const facts = [
 
     {/* Réactions + partage dans la même bande que l'article du blog */}
     <div class="flex flex-col gap-4 rounded-2xl border bg-card/60 px-5 py-4 shadow-sm backdrop-blur lg:flex-row lg:items-center lg:justify-between">
-      <TripReactionBar tripId={trip.id} locale={locale} engagement={engagement} isSignedIn={isSignedIn} />
-      <ShareBar
+      <TripEngagementBar tripId={trip.id} locale={locale} engagement={engagement} isSignedIn={isSignedIn} />
+      <EngagementShareBar
         url={absoluteUrl}
         title={copy.title}
         labels={{
           share: t.share,
-          shareOnX: t.share,
-          shareOnFacebook: t.share,
-          shareOnLinkedIn: t.share,
-          copyLink: t.share,
+          shareOnX: t.shareOnX,
+          shareOnFacebook: t.shareOnFacebook,
+          shareOnLinkedIn: t.shareOnLinkedIn,
+          copyLink: t.copyLink,
           linkCopied: t.linkCopied,
           copyLinkError: t.copyLinkError,
         }}

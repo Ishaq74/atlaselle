@@ -2,9 +2,12 @@
 import type { HTMLAttributes } from "astro/types";
 import { tv } from "tailwind-variants";
 
-type Props = HTMLAttributes<"div">;
+type Props = HTMLAttributes<"div"> & {
+  /** Libellé accessible (à traduire par l'appelant). */
+  label?: string;
+};
 
-const { class: className, ...rest } = Astro.props;
+const { class: className, label = "Uploaded files", ...rest } = Astro.props;
 
 export const dropzoneFilesList = tv({
   base: [
@@ -18,8 +21,9 @@ export const dropzoneFilesList = tv({
 
 <div
   class={dropzoneFilesList({ class: className })}
+  role="status"
   aria-live="polite"
-  aria-label="Uploaded files"
+  aria-label={label}
   {...rest}
   data-slot="dropzone-files-list"
 >

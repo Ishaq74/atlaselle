@@ -128,7 +128,7 @@ const galleryImages: GalleryImage[] = Array.isArray(content.images)
     {content.title && <h2 class="text-3xl font-bold text-center mb-8">{content.title}</h2>}
     <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
       {Array.isArray(content.items) && (content.items as { quote: string; author: string; role?: string }[]).map((item) => (
-        <blockquote class="border-l-4 border-primary pl-4 py-2">
+        <blockquote class="border-s-4 border-primary ps-4 py-2">
           <p class="italic mb-2">"{item.quote}"</p>
           <footer class="text-sm text-muted-foreground">— {item.author}{item.role ? `, ${item.role}` : ''}</footer>
         </blockquote>

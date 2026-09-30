@@ -6,6 +6,47 @@ import { join } from 'node:path';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_RETRIES = 3;
 
+/**
+ * Garde-fou « aucun envoi réel pendant les tests ».
+ *
+ * Les tests d'intégration et E2E exercent le chemin complet du formulaire de
+ * contact jusqu'à `sendEmail`. Sans ce filet, un `.env` de développement
+ * contenant de vraies identifiants SMTP déclenche de vrais emails (facturation
+ * de fournisseur, bouncefile, réputation du domaine) à chaque run.
+ *
+ * Règle : en test, on ne fait JAMAIS d'appel réseau sortant. On écrit
+ * l'email dans un fichier local pour pouvoir l'inspecter, et on considère
+ * l'envoi réussi — les assertions portent sur le contrat HTTP, pas sur la
+ * délivrabilité.
+ */
+const TEST_EMAIL_CAPTURE_DIR = 'logs/test-emails';
+
+async function captureEmailInTest(payload: EmailPayload, provider: SmtpProvider, from: EmailFrom): Promise<void> {
+  const { appendFile, mkdir } = await import('node:fs/promises');
+  const { join } = await import('node:path');
+  const dir = join(process.cwd(), TEST_EMAIL_CAPTURE_DIR);
+  await mkdir(dir, { recursive: true, mode: 0o700 });
+  const record = JSON.stringify({
+    timestamp: new Date().toISOString(),
+    to: payload.to,
+    from,
+    subject: payload.subject,
+    provider,
+    captured: true,
+  });
+  await appendFile(join(dir, 'captured.jsonl'), record + '\n', { mode: 0o600 });
+}
+
+/** Vrai si l'on est dans un environnement de test (jamais en production). */
+function isTestRun(): boolean {
+  return process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
+}
+
+/** Opt-out explicite pour valider un vrai envoi depuis un test local. */
+function allowsRealSendInTest(): boolean {
+  return process.env.SMTP_ALLOW_REAL_SEND_IN_TEST === 'true';
+}
+
 async function callProvider(provider: SmtpProvider, payload: EmailPayload, from: EmailFrom): Promise<void> {
   switch (provider) {
     case 'BREVO': {
@@ -45,6 +86,12 @@ export async function sendEmail(payload: EmailPayload): Promise<void> {
   }
   const provider = getSmtpProvider();
   const from = getSmtpFrom();
+
+  // Filet de sécurité : aucun appel réseau sortant en test (cf. commentaire).
+  if (isTestRun() && !allowsRealSendInTest()) {
+    await captureEmailInTest(payload, provider, from);
+    return;
+  }
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {

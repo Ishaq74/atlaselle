@@ -8,6 +8,8 @@ type Props = HTMLAttributes<"dialog"> & {
    * Open and close animation duration in milliseconds
    */
   animationDuration?: number;
+  /** Libellé accessible du bouton de fermeture (à traduire par l'appelant). */
+  closeLabel?: string;
 };
 
 export const dialogBackdrop = tv({
@@ -35,12 +37,12 @@ export const dialogContent = tv({
 export const dialogCloseButton = tv({
   base: [
     "starwind-dialog-close text-muted-foreground",
-    "absolute top-5.5 right-5.5 rounded-sm [&>svg]:opacity-70 hover:[&>svg]:opacity-100",
+    "absolute top-5.5 end-5.5 rounded-sm [&>svg]:opacity-70 hover:[&>svg]:opacity-100",
     "focus-visible:ring-outline/50 transition-[color,box-shadow] outline-none focus-visible:ring-3",
   ],
 });
 
-const { class: className, animationDuration = 200, ...rest } = Astro.props;
+const { class: className, animationDuration = 200, closeLabel = "Close dialog", ...rest } = Astro.props;
 ---
 
 <!-- dialog overlay -->
@@ -62,7 +64,7 @@ const { class: className, animationDuration = 200, ...rest } = Astro.props;
   data-slot="dialog-content"
 >
   <slot />
-  <button type="button" class={dialogCloseButton()} data-dialog-close aria-label="Close dialog">
+  <button type="button" class={dialogCloseButton()} data-dialog-close aria-label={closeLabel}>
     <slot name="icon">
       <X class="size-5 transition-opacity" />
     </slot>

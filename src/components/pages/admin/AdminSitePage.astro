@@ -15,6 +15,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@atoms/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@atoms/card';
 import { Input } from '@atoms/input';
 import { Label } from '@atoms/label';
+import { NativeSelect, NativeSelectOption } from '@atoms/native-select';
 import { Textarea } from '@atoms/textarea';
 import { Switch } from '@atoms/switch';
 import Button from '@atoms/button/Button.astro';
@@ -236,14 +237,14 @@ const cms = t.admin.cms.site;
               return (
                 <div class="social-link-row border rounded-lg p-4 grid grid-cols-1 gap-3 sm:grid-cols-5 sm:items-end" data-id={link.id}>
                   <div class="grid gap-1">
-                    <Label>{cms.platform}</Label>
-                    <select name="platform" class="social-platform border-input dark:bg-input/30 text-foreground ring-offset-background w-full rounded-md border bg-transparent shadow-xs h-9 px-2 text-sm focus-visible:border-outline focus-visible:ring-outline/50 transition-[color,box-shadow] outline-none focus-visible:ring-3">
-                      <option value="" disabled>{cms.selectPlatform}</option>
+                    <Label for={`social-platform-${link.id}`}>{cms.platform}</Label>
+                    <NativeSelect id={`social-platform-${link.id}`} name="platform" size="sm" class="social-platform">
+                      <NativeSelectOption value="" disabled>{cms.selectPlatform}</NativeSelectOption>
                       {SOCIAL_PLATFORMS.map((p) => (
-                        <option value={p.key} selected={p.key === link.platform}>{p.label}</option>
+                        <NativeSelectOption value={p.key} selected={p.key === link.platform}>{p.label}</NativeSelectOption>
                       ))}
-                      <option value="__other" selected={!isKnown}>{cms.otherPlatform}</option>
-                    </select>
+                      <NativeSelectOption value="__other" selected={!isKnown}>{cms.otherPlatform}</NativeSelectOption>
+                    </NativeSelect>
                   </div>
                   <div class="grid gap-1" style={isKnown ? 'display:none' : ''} data-custom-wrap>
                     <Label>{cms.customPlatformName}</Label>
@@ -265,6 +266,39 @@ const cms = t.admin.cms.site;
               );
             })}
           </div>
+          {/* Gabarit de la ligne "lien social" ajoutée côté client : rendu par Astro
+              pour que la ligne neuve utilise exactement les mêmes primitives
+              (Label / NativeSelect / Input / Button) que les lignes serveur. */}
+          <template id="social-row-template">
+            <div class="social-link-row border rounded-lg p-4 grid grid-cols-1 gap-3 sm:grid-cols-5 sm:items-end">
+              <div class="grid gap-1">
+                <Label>{cms.platform}</Label>
+                <NativeSelect name="platform" size="sm" class="social-platform">
+                  <NativeSelectOption value="" disabled selected>{cms.selectPlatform}</NativeSelectOption>
+                  {SOCIAL_PLATFORMS.map((p) => (
+                    <NativeSelectOption value={p.key}>{p.label}</NativeSelectOption>
+                  ))}
+                  <NativeSelectOption value="__other">{cms.otherPlatform}</NativeSelectOption>
+                </NativeSelect>
+              </div>
+              <div class="grid gap-1" style="display:none" data-custom-wrap>
+                <Label>{cms.customPlatformName}</Label>
+                <Input name="customPlatform" value="" class="social-custom-platform" />
+              </div>
+              <div class="grid gap-1">
+                <Label>{cms.url}</Label>
+                <Input name="url" type="url" value="https://" class="social-url" />
+              </div>
+              <div class="grid gap-1">
+                <Label>{cms.label}</Label>
+                <Input name="label" value="" class="social-label" />
+              </div>
+              <div class="flex gap-2 items-end">
+                <Button size="sm" class="social-save-btn">{cms.save}</Button>
+                <Button size="sm" variant="error" class="social-delete-btn">{t.admin.cms.common.delete}</Button>
+              </div>
+            </div>
+          </template>
         </CardContent>
       </Card>
     </TabsContent>
@@ -751,47 +785,12 @@ const cms = t.admin.cms.site;
       if (!list) return;
       document.getElementById('social-no-links')?.remove();
 
-      const tSelectPlatform = root.dataset.tSelectPlatform ?? '';
-      const tOtherPlatform = root.dataset.tOtherPlatform ?? '';
-      const tCustomPlatform = root.dataset.tCustomPlatform ?? '';
-      const tUrl = root.dataset.tUrl ?? '';
-      const tLabel = root.dataset.tLabel ?? '';
-      const tSaveBtn = root.dataset.tSave ?? '';
-      const tDeleteBtn = root.dataset.tDelete ?? '';
-      const tPlatform = root.dataset.tPlatform ?? '';
-
-      const options = platforms.map((p) =>
-        `<option value="${p.key}">${p.label}</option>`
-      ).join('');
-
-      const row = document.createElement('div');
-      row.className = 'social-link-row border rounded-lg p-4 grid grid-cols-1 gap-3 sm:grid-cols-5 sm:items-end';
-      row.innerHTML = `
-        <div class="grid gap-1">
-          <label class="text-sm font-medium">${tPlatform}</label>
-          <select name="platform" class="social-platform border-input dark:bg-input/30 text-foreground ring-offset-background w-full rounded-md border bg-transparent shadow-xs h-9 px-2 text-sm focus-visible:border-outline focus-visible:ring-outline/50 transition-[color,box-shadow] outline-none focus-visible:ring-3">
-            <option value="" disabled selected>${tSelectPlatform}</option>
-            ${options}
-            <option value="__other">${tOtherPlatform}</option>
-          </select>
-        </div>
-        <div class="grid gap-1" style="display:none" data-custom-wrap>
-          <label class="text-sm font-medium">${tCustomPlatform}</label>
-          <input name="customPlatform" class="social-custom-platform border-input dark:bg-input/30 text-foreground ring-offset-background w-full rounded-md border bg-transparent shadow-xs h-9 px-3 text-sm focus-visible:border-outline focus-visible:ring-outline/50 transition-[color,box-shadow] outline-none focus-visible:ring-3" />
-        </div>
-        <div class="grid gap-1">
-          <label class="text-sm font-medium">${tUrl}</label>
-          <input name="url" type="url" value="https://" class="social-url border-input dark:bg-input/30 text-foreground ring-offset-background w-full rounded-md border bg-transparent shadow-xs h-9 px-3 text-sm focus-visible:border-outline focus-visible:ring-outline/50 transition-[color,box-shadow] outline-none focus-visible:ring-3" />
-        </div>
-        <div class="grid gap-1">
-          <label class="text-sm font-medium">${tLabel}</label>
-          <input name="label" value="" class="social-label border-input dark:bg-input/30 text-foreground ring-offset-background w-full rounded-md border bg-transparent shadow-xs h-9 px-3 text-sm focus-visible:border-outline focus-visible:ring-outline/50 transition-[color,box-shadow] outline-none focus-visible:ring-3" />
-        </div>
-        <div class="flex gap-2 items-end">
-          <button type="button" class="social-save-btn inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 cursor-pointer">${tSaveBtn}</button>
-          <button type="button" class="social-delete-btn inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-3 bg-error text-error-foreground shadow-xs hover:bg-error/90 cursor-pointer">${tDeleteBtn}</button>
-        </div>
-      `;
+      // La ligne est clonée depuis un <template> rendu par Astro : elle réutilise
+      // les mêmes primitives (Label / NativeSelect / Input / Button) que les
+      // lignes serveur, au lieu de dupliquer les classes du design system.
+      const template = document.getElementById('social-row-template') as HTMLTemplateElement | null;
+      const row = template?.content.firstElementChild?.cloneNode(true) as HTMLElement | undefined;
+      if (!row) return;
       list.appendChild(row);
       bindPlatformSelect(row);
       bindSaveBtn(row.querySelector('.social-save-btn') as HTMLElement);
@@ -929,4 +928,11 @@ const cms = t.admin.cms.site;
 
   init();
   document.addEventListener('astro:after-swap', init);
+</script>
+
+<script>
+  import { registerAdminDirtyGuard } from "@/core/admin/dirty-guard";
+
+  registerAdminDirtyGuard();
+  document.addEventListener("astro:after-swap", () => registerAdminDirtyGuard());
 </script>
