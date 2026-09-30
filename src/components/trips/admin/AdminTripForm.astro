@@ -1,0 +1,450 @@
+---
+import { NativeSelect, NativeSelectOption } from "@atoms/native-select";
+import type { Locale } from "@i18n/config";
+import { LOCALES } from "@i18n/config";
+import type { AdminTripDetail } from "@/modules/trips/loaders/admin-trips.loader";
+import type { TripStatus } from "@database/schemas/trips.schema";
+import type { DepartureStatus } from "@database/schemas/departures.schema";
+import { getAdminDict, adminStatusLabel } from "@i18n/admin";
+import AdminFormShell from "@organisms/AdminFormShell.astro";
+import Button from "@atoms/button/Button.astro";
+
+interface Props {
+  detail: AdminTripDetail;
+  revisions: { id: string; createdAt: Date }[];
+  locale: Locale;
+  baseUrl: string;
+  canUpdate: boolean;
+  canPublish: boolean;
+}
+
+const { detail, revisions, locale, baseUrl, canUpdate, canPublish } = Astro.props;
+const { trip, translations, departures } = detail;
+const dict = getAdminDict(locale);
+const f = dict.tripForm.fields;
+const lc = dict.tripForm.lifecycle;
+const c = dict.common;
+const col = dict.columns;
+const t = dict.tripForm;
+const trByLocale = new Map(translations.map((tr) => [tr.locale, tr]));
+
+interface Transition { to: string; label: string; confirm: string; publish: boolean; }
+const nextTransitions: Record<TripStatus, Transition[]> = {
+  draft: [{ to: "review", label: lc.submitForReview, confirm: lc.confirmSubmitForReview, publish: false }],
+  review: [
+    { to: "approved", label: lc.approve, confirm: lc.confirmApprove, publish: false },
+    { to: "draft", label: lc.sendBackToDraft, confirm: lc.confirmSendBackToDraft, publish: false },
+  ],
+  approved: [{ to: "published", label: lc.publish, confirm: lc.confirmPublish, publish: true }],
+  published: [
+    { to: "unpublished", label: lc.unpublish, confirm: lc.confirmUnpublish, publish: true },
+    { to: "archived", label: lc.archive, confirm: lc.confirmArchive, publish: false },
+  ],
+  unpublished: [
+    { to: "published", label: lc.publish, confirm: lc.confirmPublish, publish: true },
+    { to: "archived", label: lc.archive, confirm: lc.confirmArchive, publish: false },
+  ],
+  archived: [{ to: "restored", label: lc.restore, confirm: lc.confirmRestore, publish: false }],
+};
+const transitions = nextTransitions[trip.status as TripStatus] ?? [];
+const departureStatuses: DepartureStatus[] = ["draft", "open", "limited", "waitlist", "closed", "cancelled"];
+const fid = (formId: string, name: string) => `${formId}-${name}`;
+const inputClass = "mt-1 w-full rounded-md border bg-background p-2";
+---
+
+<AdminFormShell>
+  <div class="mx-auto max-w-6xl space-y-10 p-4 md:p-6" data-trip-id={trip.id}>
+    <header>
+      <Button size="sm" variant="outline" href={baseUrl}>{t.backToList}</Button>
+      <h1 class="font-heading mt-3 text-2xl font-semibold">{trByLocale.get(locale)?.title ?? trip.id}</h1>
+      <p class="mt-1 text-sm text-muted-foreground">{col.status}: <span class="font-semibold">{adminStatusLabel(dict, trip.status)}</span></p>
+    </header>
+
+    <input type="hidden" data-trip-form-i18n data-error={c.error} data-error-prefix={`${c.erreur} : `} data-invalid-json={t.invalidJson} data-confirm-label={c.confirm} data-cancel-label={c.cancel} data-saved={t.saved} />
+
+    {transitions.length > 0 ? (
+      <div class="flex flex-wrap gap-2">
+        {transitions.map((tr) =>
+          (tr.publish ? canPublish : canUpdate) ? (
+            <Button type="button" variant={tr.publish ? "primary" : "outline"} size="sm" data-transition={tr.to} data-confirm={tr.confirm}>{tr.label}</Button>
+          ) : null,
+        )}
+      </div>
+    ) : null}
+
+    {canUpdate ? (
+      <form id="trip-facts-form" name="trip-facts-form" method="post" action={Astro.url.pathname} data-facts-form class="space-y-4 rounded-xl border p-6">
+        <h2 class="font-heading text-xl font-semibold">{t.facts}</h2>
+        <input type="hidden" name="expectedUpdatedAt" value={trip.updatedAt.toISOString()} />
+        <div class="grid gap-4 sm:grid-cols-3">
+          <div class="flex flex-col"><label class="text-sm font-medium" for={fid("trip-facts", "countryCode")}>{f.countryCode}</label><input id={fid("trip-facts", "countryCode")} name="countryCode" value={trip.countryCode} maxlength="2" class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for={fid("trip-facts", "defaultCurrency")}>{f.defaultCurrency}</label><input id={fid("trip-facts", "defaultCurrency")} name="defaultCurrency" value={trip.defaultCurrency} maxlength="3" class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for={fid("trip-facts", "difficulty")}>{f.difficulty}</label><input id={fid("trip-facts", "difficulty")} name="difficulty" value={trip.difficulty} class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for={fid("trip-facts", "difficultyLevel")}>{f.difficultyLevel}</label><input id={fid("trip-facts", "difficultyLevel")} name="difficultyLevel" type="number" min="1" max="5" value={trip.difficultyLevel} class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for={fid("trip-facts", "durationDays")}>{f.durationDays}</label><input id={fid("trip-facts", "durationDays")} name="durationDays" type="number" min="1" value={trip.durationDays} class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for={fid("trip-facts", "durationNights")}>{f.durationNights}</label><input id={fid("trip-facts", "durationNights")} name="durationNights" type="number" min="0" value={trip.durationNights} class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for={fid("trip-facts", "groupMin")}>{f.groupMin}</label><input id={fid("trip-facts", "groupMin")} name="groupMin" type="number" min="1" value={trip.groupMin} class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for={fid("trip-facts", "groupMax")}>{f.groupMax}</label><input id={fid("trip-facts", "groupMax")} name="groupMax" type="number" min="1" value={trip.groupMax} class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for={fid("trip-facts", "arrivalAirport")}>{f.arrivalAirport}</label><input id={fid("trip-facts", "arrivalAirport")} name="arrivalAirport" value={trip.arrivalAirport ?? ""} class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for={fid("trip-facts", "departureAirport")}>{f.departureAirport}</label><input id={fid("trip-facts", "departureAirport")} name="departureAirport" value={trip.departureAirport ?? ""} class={inputClass} /></div>
+          <div class="flex flex-col sm:col-span-3"><label class="text-sm font-medium" for={fid("trip-facts", "accommodationStyle")}>{f.accommodationStyle}</label><input id={fid("trip-facts", "accommodationStyle")} name="accommodationStyle" value={trip.accommodationStyle ?? ""} class={inputClass} /></div>
+        </div>
+        <div class="flex flex-wrap gap-2 pt-2">
+          <Button type="submit" variant="primary" size="sm">{t.save}</Button>
+          <Button variant="ghost" size="sm" href={baseUrl}>{c.cancel}</Button>
+          <output class="w-full text-sm" aria-live="polite" data-form-message></output>
+        </div>
+      </form>
+    ) : null}
+
+    {canUpdate ? (
+      <form id="trip-engagement-form" name="trip-engagement-form" method="post" action={Astro.url.pathname} data-engagement-form class="space-y-4 rounded-xl border p-6">
+        <h2 class="font-heading text-xl font-semibold">{t.engagement}</h2>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="flex flex-col">
+            <label class="text-sm font-medium" for={fid("trip-engagement", "commentStatus")}>{f.commentStatus}</label>
+            <NativeSelect id={fid("trip-engagement", "commentStatus")} name="commentStatus" size="sm">
+              {(["OPEN", "CLOSED", "DISABLED"] as const).map((s) => (
+                <NativeSelectOption value={s} selected={(trip.commentStatus ?? "OPEN") === s}>{s}</NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </div>
+          <label class="inline-flex items-center gap-2 self-end text-sm"><input type="checkbox" name="allowReviews" checked={trip.allowReviews ?? true} /> {f.allowReviews}</label>
+        </div>
+        <p class="text-xs text-muted-foreground">{t.statsLine}: <bdi>{trip.ratingCount}</bdi> · {t.statsAverage} <bdi>{trip.ratingCount > 0 ? Math.round((trip.ratingAverage100 / 100) * 10) / 10 : 0}/5</bdi> · <bdi>{trip.viewCount}</bdi> {t.statsViews}</p>
+        <div class="flex flex-wrap gap-2 pt-2">
+          <Button type="submit" variant="primary" size="sm">{t.save}</Button>
+          <Button variant="ghost" size="sm" href={baseUrl}>{c.cancel}</Button>
+          <output class="w-full text-sm" aria-live="polite" data-form-message></output>
+        </div>
+      </form>
+    ) : null}
+
+    <div class="space-y-6">
+      <h2 class="font-heading text-xl font-semibold">{t.translations}</h2>
+      {LOCALES.map((loc: Locale) => {
+        const tr = trByLocale.get(loc);
+        return (
+          <form id={`trip-translation-form-${loc}`} name={`trip-translation-form-${loc}`} method="post" action={Astro.url.pathname} data-translation-form={loc} class="space-y-3 rounded-xl border p-6">
+            <h3 class="font-semibold uppercase">{loc}{tr?.localeVisible ? ` · ${adminStatusLabel(dict, "visible")}` : ""}</h3>
+            <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt.toISOString() ?? ""} />
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="flex flex-col"><label class="text-sm font-medium" for={fid(`trip-translation-${loc}`, "slug")}>{f.slug}</label><input id={fid(`trip-translation-${loc}`, "slug")} name="slug" value={tr?.slug ?? ""} required class={inputClass} /></div>
+              <div class="flex flex-col"><label class="text-sm font-medium" for={fid(`trip-translation-${loc}`, "title")}>{f.title}</label><input id={fid(`trip-translation-${loc}`, "title")} name="title" value={tr?.title ?? ""} required class={inputClass} /></div>
+              <div class="flex flex-col"><label class="text-sm font-medium" for={fid(`trip-translation-${loc}`, "shortTitle")}>{f.shortTitle}</label><input id={fid(`trip-translation-${loc}`, "shortTitle")} name="shortTitle" value={tr?.shortTitle ?? ""} class={inputClass} /></div>
+              <div class="flex flex-col"><label class="text-sm font-medium" for={fid(`trip-translation-${loc}`, "metaTitle")}>{f.metaTitle}</label><input id={fid(`trip-translation-${loc}`, "metaTitle")} name="metaTitle" value={tr?.metaTitle ?? ""} class={inputClass} /></div>
+              <div class="flex flex-col sm:col-span-2"><label class="text-sm font-medium" for={fid(`trip-translation-${loc}`, "summary")}>{f.summary}</label><textarea id={fid(`trip-translation-${loc}`, "summary")} name="summary" required rows="2" class={inputClass}>{tr?.summary ?? ""}</textarea></div>
+              <div class="flex flex-col sm:col-span-2"><label class="text-sm font-medium" for={fid(`trip-translation-${loc}`, "overview")}>{f.overview}</label><textarea id={fid(`trip-translation-${loc}`, "overview")} name="overview" required rows="4" class={inputClass}>{tr?.overview ?? ""}</textarea></div>
+              <div class="flex flex-col sm:col-span-2"><label class="text-sm font-medium" for={fid(`trip-translation-${loc}`, "metaDescription")}>{f.metaDescription}</label><textarea id={fid(`trip-translation-${loc}`, "metaDescription")} name="metaDescription" rows="2" class={inputClass}>{tr?.metaDescription ?? ""}</textarea></div>
+              <label class="inline-flex items-center gap-2 text-sm"><input type="checkbox" name="localeVisible" checked={tr?.localeVisible ?? false} /> {f.localeVisible}</label>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              {canUpdate ? <Button type="submit" variant="primary" size="sm">{t.save} ({loc})</Button> : null}
+              <Button variant="ghost" size="sm" href={baseUrl}>{c.cancel}</Button>
+              <output class="w-full text-sm" aria-live="polite" data-form-message></output>
+            </div>
+          </form>
+        );
+      })}
+    </div>
+
+    <div class="space-y-4">
+      <h2 class="font-heading text-xl font-semibold">{t.revisions} ({revisions.length})</h2>
+      {revisions.length > 0 ? (
+        <ul class="space-y-2 text-sm">
+          {revisions.map((r) => (
+            <li class="flex flex-wrap items-center justify-between gap-4 rounded-xl border px-4 py-2" data-revision-id={r.id}>
+              <span class="font-mono text-xs">{r.id.slice(0, 8)} · {r.createdAt.toISOString().slice(0, 16).replace("T", " ")}</span>
+              {canUpdate ? <Button size="sm" variant="outline" data-restore data-confirm={t.restoreRevisionConfirm}>{t.restoreRevision}</Button> : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+
+    <div class="space-y-4">
+      <h2 class="font-heading text-xl font-semibold">{t.departures} ({departures.length})</h2>
+      {departures.map((d) => (
+        <details class="rounded-xl border p-4" data-departure-id={d.id}>
+          <summary class="cursor-pointer text-sm font-semibold">
+            {d.startDate.toISOString().slice(0, 10)} → {d.endDate.toISOString().slice(0, 10)} · {d.priceAmount} {d.currency} · {adminStatusLabel(dict, d.status)}
+          </summary>
+          <div class="mt-3 flex flex-wrap items-center gap-3 text-sm">
+            <label for={fid(`trip-departure-status-${d.id}`, "status")}>{t.departureStatusLabel}:</label>
+            {canUpdate ? (
+              <>
+                <NativeSelect id={fid(`trip-departure-status-${d.id}`, "status")} data-departure-status size="sm">
+                  {departureStatuses.map((s) => (
+                    <NativeSelectOption value={s} selected={d.status === s}>{adminStatusLabel(dict, s)}</NativeSelectOption>
+                  ))}
+                </NativeSelect>
+                <Button size="sm" variant="outline" data-departure-save>{c.apply}</Button>
+              </>
+            ) : adminStatusLabel(dict, d.status)}
+          </div>
+          {canUpdate ? (
+            <form id={`trip-departure-edit-form-${d.id}`} name={`trip-departure-edit-form-${d.id}`} method="post" action={Astro.url.pathname} data-departure-edit class="mt-4 grid gap-3 text-sm sm:grid-cols-3">
+              <input type="hidden" name="expectedUpdatedAt" value={d.updatedAt.toISOString()} />
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "startDate")}>{t.start}</label><input id={fid(`trip-departure-edit-${d.id}`, "startDate")} name="startDate" type="date" value={d.startDate.toISOString().slice(0, 10)} class={inputClass} /></div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "endDate")}>{t.end}</label><input id={fid(`trip-departure-edit-${d.id}`, "endDate")} name="endDate" type="date" value={d.endDate.toISOString().slice(0, 10)} class={inputClass} /></div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "priceAmount")}>{t.price}</label><input id={fid(`trip-departure-edit-${d.id}`, "priceAmount")} name="priceAmount" type="number" min="0" value={d.priceAmount} class={inputClass} /></div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "currency")}>{f.currency}</label><input id={fid(`trip-departure-edit-${d.id}`, "currency")} name="currency" value={d.currency} maxlength="3" class={inputClass} /></div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "capacityMin")}>{f.capacityMin}</label><input id={fid(`trip-departure-edit-${d.id}`, "capacityMin")} name="capacityMin" type="number" min="1" value={d.capacityMin} class={inputClass} /></div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "capacityMax")}>{f.capacityMax}</label><input id={fid(`trip-departure-edit-${d.id}`, "capacityMax")} name="capacityMax" type="number" min="1" value={d.capacityMax} class={inputClass} /></div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "depositAmount")}>{f.deposit}</label><input id={fid(`trip-departure-edit-${d.id}`, "depositAmount")} name="depositAmount" type="number" min="0" value={d.depositAmount} class={inputClass} /></div>
+              <div class="flex flex-col">
+                <label for={fid(`trip-departure-edit-${d.id}`, "depositType")}>{f.depositType}</label>
+                <NativeSelect id={fid(`trip-departure-edit-${d.id}`, "depositType")} name="depositType" size="sm">
+                  {(["fixed", "percent", "none"] as const).map((o) => (
+                    <NativeSelectOption value={o} selected={d.depositType === o}>{o}</NativeSelectOption>
+                  ))}
+                </NativeSelect>
+              </div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "depositPercent")}>{f.depositPercent}</label><input id={fid(`trip-departure-edit-${d.id}`, "depositPercent")} name="depositPercent" type="number" min="0" max="100" value={d.depositPercent} class={inputClass} /></div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "singleSupplementAmount")}>{f.singleSupplement}</label><input id={fid(`trip-departure-edit-${d.id}`, "singleSupplementAmount")} name="singleSupplementAmount" type="number" min="0" value={d.singleSupplementAmount} class={inputClass} /></div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "taxAmount")}>{f.tax}</label><input id={fid(`trip-departure-edit-${d.id}`, "taxAmount")} name="taxAmount" type="number" min="0" value={d.taxAmount} class={inputClass} /></div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "feeAmount")}>{f.fee}</label><input id={fid(`trip-departure-edit-${d.id}`, "feeAmount")} name="feeAmount" type="number" min="0" value={d.feeAmount} class={inputClass} /></div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "discountAmount")}>{f.discount}</label><input id={fid(`trip-departure-edit-${d.id}`, "discountAmount")} name="discountAmount" type="number" min="0" value={d.discountAmount} class={inputClass} /></div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "balanceDueDate")}>{f.balanceDueDate}</label><input id={fid(`trip-departure-edit-${d.id}`, "balanceDueDate")} name="balanceDueDate" type="date" value={d.balanceDueDate?.toISOString().slice(0, 10) ?? ""} class={inputClass} /></div>
+              <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "bookingDeadline")}>{f.bookingDeadline}</label><input id={fid(`trip-departure-edit-${d.id}`, "bookingDeadline")} name="bookingDeadline" type="date" value={d.bookingDeadline?.toISOString().slice(0, 10) ?? ""} class={inputClass} /></div>
+              <div class="flex flex-col sm:col-span-3"><label for={fid(`trip-departure-edit-${d.id}`, "pricingRules")}>{f.pricingRules}</label><textarea id={fid(`trip-departure-edit-${d.id}`, "pricingRules")} name="pricingRules" rows="2" class={`${inputClass} font-mono text-xs`}>{JSON.stringify(d.pricingRules ?? {})}</textarea></div>
+              <div class="flex flex-wrap gap-2 sm:col-span-3">
+                <Button type="submit" variant="primary" size="sm">{t.save}</Button>
+                <Button variant="ghost" size="sm" href={baseUrl}>{c.cancel}</Button>
+                <output class="w-full text-sm" aria-live="polite" data-form-message></output>
+              </div>
+            </form>
+          ) : null}
+        </details>
+      ))}
+      {canUpdate ? (
+        <form id="trip-departure-create-form" name="trip-departure-create-form" method="post" action={Astro.url.pathname} data-departure-form class="grid gap-4 rounded-xl border p-6 sm:grid-cols-3">
+          <h3 class="font-heading font-semibold sm:col-span-3">{t.newDeparture}</h3>
+          <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-startDate">{t.start}</label><input id="trip-departure-create-startDate" name="startDate" type="date" required class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-endDate">{t.end}</label><input id="trip-departure-create-endDate" name="endDate" type="date" required class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-priceAmount">{t.price}</label><input id="trip-departure-create-priceAmount" name="priceAmount" type="number" min="0" required class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-capacityMin">{f.capacityMin}</label><input id="trip-departure-create-capacityMin" name="capacityMin" type="number" min="1" value="6" class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-capacityMax">{f.capacityMax}</label><input id="trip-departure-create-capacityMax" name="capacityMax" type="number" min="1" value="12" class={inputClass} /></div>
+          <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-currency">{f.currency}</label><input id="trip-departure-create-currency" name="currency" value="EUR" maxlength="3" class={inputClass} /></div>
+          <div class="flex flex-wrap gap-2 sm:col-span-3">
+            <Button type="submit" variant="primary" size="sm">{t.addDeparture}</Button>
+            <Button variant="ghost" size="sm" href={baseUrl}>{c.cancel}</Button>
+            <output class="w-full text-sm" aria-live="polite" data-form-message></output>
+          </div>
+        </form>
+      ) : null}
+    </div>
+  </div>
+</AdminFormShell>
+
+<script>
+  import { actions } from "astro:actions";
+  import type { Locale } from "@i18n/config";
+  import { toast } from "@atoms/toast";
+  import { confirmAdminAction } from "@/core/admin";
+
+  const root = document.querySelector<HTMLElement>("div[data-trip-id]");
+  const tripId = root?.getAttribute("data-trip-id") ?? "";
+  const i18n = document.querySelector<HTMLInputElement>("[data-trip-form-i18n]");
+  const errorPrefix = i18n?.dataset.errorPrefix ?? "";
+
+  const say = (form: HTMLFormElement | null, ok: boolean, text: string): void => {
+    const el = form?.querySelector("[data-form-message]");
+    if (el) el.textContent = ok ? "" : errorPrefix + text;
+    if (!ok) toast.error(errorPrefix + text);
+  };
+  const num = (v: FormDataEntryValue | null): number | undefined => (v === "" || v == null ? undefined : Number(v));
+  const str = (v: FormDataEntryValue | null): string | undefined => {
+    const s = String(v ?? "");
+    return s === "" ? undefined : s;
+  };
+  const nulStr = (v: FormDataEntryValue | null): string | null => {
+    const s = String(v ?? "");
+    return s === "" ? null : s;
+  };
+  const asForm = (e: Event): HTMLFormElement | null => e.currentTarget as HTMLFormElement | null;
+  const ask = async (message: string): Promise<boolean> =>
+    confirmAdminAction({
+      title: message,
+      message,
+      confirmLabel: i18n?.dataset.confirmLabel ?? "OK",
+      cancelLabel: i18n?.dataset.cancelLabel ?? "",
+    });
+
+  document.querySelector("[data-facts-form]")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = asForm(e);
+    if (!form) return;
+    const data = new FormData(form);
+    const { error } = await actions.updateTrip({
+      id: tripId,
+      expectedUpdatedAt: String(data.get("expectedUpdatedAt") ?? "") || null,
+      countryCode: str(data.get("countryCode"))?.toUpperCase(),
+      defaultCurrency: str(data.get("defaultCurrency"))?.toUpperCase(),
+      durationDays: num(data.get("durationDays")),
+      durationNights: num(data.get("durationNights")),
+      groupMin: num(data.get("groupMin")),
+      groupMax: num(data.get("groupMax")),
+      difficulty: str(data.get("difficulty")),
+      difficultyLevel: num(data.get("difficultyLevel")),
+      arrivalAirport: nulStr(data.get("arrivalAirport")),
+      departureAirport: nulStr(data.get("departureAirport")),
+      accommodationStyle: nulStr(data.get("accommodationStyle")),
+    });
+    if (error) say(form, false, error.message);
+    else window.location.reload();
+  });
+
+  document.querySelectorAll("[data-translation-form]").forEach((form) => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const target = asForm(e);
+      if (!target) return;
+      const data = new FormData(target);
+      const locale = (target.getAttribute("data-translation-form") ?? "") as Locale;
+      const { error } = await actions.upsertTripTranslation({
+        tripId,
+        expectedUpdatedAt: String(data.get("expectedUpdatedAt") ?? "") || null,
+        locale,
+        slug: String(data.get("slug") ?? ""),
+        title: String(data.get("title") ?? ""),
+        shortTitle: str(data.get("shortTitle")) ?? null,
+        summary: String(data.get("summary") ?? ""),
+        overview: String(data.get("overview") ?? ""),
+        metaTitle: str(data.get("metaTitle")) ?? null,
+        metaDescription: str(data.get("metaDescription")) ?? null,
+        localeVisible: target.querySelector<HTMLInputElement>('input[name="localeVisible"]')?.checked ?? false,
+      });
+      if (error) say(target, false, error.message);
+      else window.location.reload();
+    });
+  });
+
+  const TRANSITION_ACTIONS: Record<string, () => ReturnType<typeof actions.publishTrip>> = {
+    review: () => actions.submitTripForReview({ id: tripId }),
+    approved: () => actions.approveTrip({ id: tripId }),
+    published: () => actions.publishTrip({ id: tripId }),
+    unpublished: () => actions.unpublishTrip({ id: tripId }),
+    archived: () => actions.archiveTrip({ id: tripId }),
+    restored: () => actions.restoreTrip({ id: tripId }),
+    draft: () => actions.sendTripBackToDraft({ id: tripId }),
+  };
+
+  document.querySelectorAll<HTMLButtonElement>("[data-transition]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const to = btn.getAttribute("data-transition") ?? "";
+      const fn = TRANSITION_ACTIONS[to];
+      if (!fn) return;
+      const message = btn.dataset.confirm ?? "";
+      if (message && !(await ask(message))) return;
+      const { error } = await fn();
+      if (error) toast.error(error.message ?? i18n?.dataset.error ?? "");
+      else {
+        toast.success(i18n?.dataset.saved ?? "");
+        window.location.reload();
+      }
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>("[data-departure-save]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const row = btn.closest("[data-departure-id]");
+      const id = row?.getAttribute("data-departure-id") ?? "";
+      const to = row?.querySelector<HTMLSelectElement>("[data-departure-status]")?.value ?? "";
+      const { error } = await actions.setDepartureStatus({ id, to: to as "open" });
+      if (error) toast.error(error.message ?? i18n?.dataset.error ?? "");
+      else window.location.reload();
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>("[data-restore]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.closest<HTMLElement>("[data-revision-id]")?.getAttribute("data-revision-id") ?? "";
+      if (!id) return;
+      const message = btn.dataset.confirm ?? "";
+      if (message && !(await ask(message))) return;
+      const { error } = await actions.restoreTripRevision({ id });
+      if (error) toast.error(error.message ?? i18n?.dataset.error ?? "");
+      else window.location.reload();
+    });
+  });
+
+  document.querySelectorAll<HTMLFormElement>("[data-departure-edit]").forEach((form) => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const target = asForm(e);
+      if (!target) return;
+      const box = target.closest("[data-departure-id]");
+      const id = box?.getAttribute("data-departure-id") ?? "";
+      const data = new FormData(target);
+      const el = target.querySelector("[data-form-message]");
+      const dateOrNull = (v: FormDataEntryValue | null): Date | null => {
+        const s = String(v ?? "");
+        return s ? new Date(`${s}T00:00:00.000Z`) : null;
+      };
+      let pricingRules: Record<string, unknown> | undefined;
+      try {
+        const raw = String(data.get("pricingRules") ?? "{}").trim() || "{}";
+        pricingRules = JSON.parse(raw) as Record<string, unknown>;
+      } catch {
+        say(target, false, i18n?.dataset.invalidJson ?? "");
+        if (el) el.textContent = i18n?.dataset.invalidJson ?? "";
+        return;
+      }
+      const { error } = await actions.updateDeparture({
+        id,
+        expectedUpdatedAt: String(data.get("expectedUpdatedAt") ?? "") || null,
+        startDate: dateOrNull(data.get("startDate")) ?? undefined,
+        endDate: dateOrNull(data.get("endDate")) ?? undefined,
+        capacityMin: num(data.get("capacityMin")),
+        capacityMax: num(data.get("capacityMax")),
+        priceAmount: num(data.get("priceAmount")),
+        currency: str(data.get("currency")),
+        depositAmount: num(data.get("depositAmount")),
+        depositType: (String(data.get("depositType") ?? "none") || "none") as "fixed" | "percent" | "none",
+        depositPercent: num(data.get("depositPercent")),
+        singleSupplementAmount: num(data.get("singleSupplementAmount")),
+        taxAmount: num(data.get("taxAmount")),
+        feeAmount: num(data.get("feeAmount")),
+        discountAmount: num(data.get("discountAmount")),
+        balanceDueDate: dateOrNull(data.get("balanceDueDate")),
+        bookingDeadline: dateOrNull(data.get("bookingDeadline")),
+        pricingRules,
+      });
+      if (error) say(target, false, error.message);
+      else window.location.reload();
+    });
+  });
+
+  document.querySelector("[data-engagement-form]")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = asForm(e);
+    if (!form) return;
+    const data = new FormData(form);
+    const { error } = await actions.updateTripEngagementSettings({
+      tripId,
+      commentStatus: String(data.get("commentStatus") ?? "OPEN") as "OPEN" | "CLOSED" | "DISABLED",
+      allowReviews: form.querySelector<HTMLInputElement>('input[name="allowReviews"]')?.checked ?? true,
+    });
+    if (error) say(form, false, error.message);
+    else window.location.reload();
+  });
+
+  document.querySelector("[data-departure-form]")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = asForm(e);
+    if (!form) return;
+    const data = new FormData(form);
+    const { error } = await actions.createDeparture({
+      tripId,
+      startDate: new Date(String(data.get("startDate"))),
+      endDate: new Date(String(data.get("endDate"))),
+      capacityMin: Number(data.get("capacityMin")),
+      capacityMax: Number(data.get("capacityMax")),
+      priceAmount: Number(data.get("priceAmount")),
+      currency: String(data.get("currency") || "EUR"),
+    });
+    if (error) say(form, false, error.message);
+    else window.location.reload();
+  });
+</script>

@@ -1,0 +1,135 @@
+---
+import { Icon } from "astro-icon/components";
+import type { BlogTranslations, Locale } from "@i18n/config";
+import type { BlogReviewWithAuthor } from "@/lib/blog/types";
+import type { AppUser } from "@lib/types";
+import { Card, CardContent } from "@atoms/card";
+import EngagementTabs from "@/components/molecules/Engagement/EngagementTabs.astro";
+import EngagementReviewStats from "@/components/molecules/Engagement/EngagementReviewStats.astro";
+import EngagementReviewCard, {
+  type EngagementReviewItem,
+} from "@/components/molecules/Engagement/EngagementReviewCard.astro";
+import ReviewForm from "./ReviewForm.astro";
+
+interface Props {
+  locale: Locale;
+  blogT: BlogTranslations;
+  postId: string;
+  reviews: BlogReviewWithAuthor[];
+  stats: { total: number; average: number; distribution: { rating: number; count: number }[] };
+  user: AppUser | null;
+  allowReviews: boolean;
+}
+
+const { locale, blogT, postId, reviews, stats, user, allowReviews } = Astro.props;
+const hasReviews = reviews.length > 0;
+const defaultTab = hasReviews ? "list" : "write";
+
+const cardLabels = {
+  recommended: "Recommended",
+  notRecommended: "Not recommended",
+  helpful: "Helpful",
+  helpfulMark: "Helpful",
+  helpfulUnmark: "Not helpful",
+  report: "Report",
+  reply: "Reply",
+};
+
+/** Adapte le modèle blog au cœur présentationnel partagé. */
+const toItem = (review: BlogReviewWithAuthor): EngagementReviewItem => {
+  const name = review.author?.name ?? "Anonymous";
+  return {
+    id: review.id,
+    rating: review.rating,
+    title: review.title,
+    content: review.content,
+    isRecommended: review.isRecommended,
+    helpfulCount: review.helpfulCount,
+    createdAt: review.createdAt,
+    authorName: name,
+    authorImage: review.author?.image ?? null,
+    viewerHelpful: review.userVote ?? null,
+  };
+};
+---
+
+<section class="flex flex-col gap-6" id="reviews-section">
+  <h2 class="font-heading flex items-center gap-2 text-lg font-semibold">
+    <Icon name="mdi:star-outline" class="size-5 text-muted-foreground" />
+    {blogT.labels.reviews} ({reviews.length})
+  </h2>
+
+  {!allowReviews ? (
+    <Card>
+      <CardContent class="py-8 text-center text-sm text-muted-foreground">
+        {blogT.errors.reviewDisabled}
+      </CardContent>
+    </Card>
+  ) : (
+    <>
+      {/* Résumé toujours visible, au-dessus des onglets */}
+      <EngagementReviewStats
+        average={stats.average}
+        total={stats.total}
+        distribution={stats.distribution.map((d) => ({ rating: d.rating, count: Number(d.count) }))}
+        ratingLabel={blogT.labels.reviews}
+      />
+
+      <EngagementTabs
+        defaultTab={defaultTab}
+        listLabel={blogT.labels.reviews}
+        listCount={reviews.length}
+        writeLabel={blogT.labels.writeReview}
+        listIcon="mdi:message-star-outline"
+      >
+        <div slot="list" class="flex flex-col gap-4">
+          {hasReviews ? (
+            reviews.map((review) => (
+              <EngagementReviewCard
+                locale={locale}
+                review={toItem(review)}
+                isSignedIn={Boolean(user)}
+                labels={cardLabels}
+              />
+            ))
+          ) : (
+            <Card>
+              <CardContent class="py-8 text-center text-sm text-muted-foreground">
+                {blogT.labels.noReviews}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        <div slot="write">
+          <ReviewForm locale={locale} blogT={blogT} postId={postId} user={user} />
+        </div>
+      </EngagementTabs>
+    </>
+  )}
+</section>
+
+<script>
+  import { actions } from 'astro:actions';
+  import { toast } from '@atoms/toast';
+
+  function init() {
+    document.querySelectorAll<HTMLButtonElement>('[data-engagement-helpful]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const reviewId = btn.dataset.engagementHelpful;
+        const isHelpful = btn.dataset.value !== 'true';
+        if (!reviewId) return;
+
+        const { error } = await actions.voteBlogReviewHelpful({ reviewId, isHelpful });
+        if (error) {
+          toast.error(error.message ?? 'Error');
+        } else {
+          toast.success('Vote recorded');
+        }
+      });
+    });
+  }
+
+  init();
+  document.addEventListener('astro:after-swap', init);
+</script>

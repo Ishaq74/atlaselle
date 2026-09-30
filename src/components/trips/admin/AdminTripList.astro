@@ -1,0 +1,242 @@
+---
+import { NativeSelect, NativeSelectOption } from "@atoms/native-select";
+import type { Locale } from "@i18n/config";
+import type { AdminTripRow } from "@/modules/trips/loaders/admin-trips.loader";
+import type { TripStatus } from "@database/schemas/trips.schema";
+import { getAdminDict, adminStatusLabel } from "@i18n/admin";
+import { AdminResourceShell, DataView, statusTone } from "@/core/admin";
+import AdminPagination from "@molecules/AdminPagination/AdminPagination.astro";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@atoms/table";
+import { Badge } from "@atoms/badge";
+import Button from "@atoms/button/Button.astro";
+
+interface Props {
+  rows: AdminTripRow[];
+  meta: { total: number; page: number; pageSize: number };
+  locale: Locale;
+  baseUrl: string;
+  search?: string;
+  status?: string;
+  countryCode?: string;
+  statuses: TripStatus[];
+  canCreate: boolean;
+}
+
+const { rows, meta, locale, baseUrl, search, status, countryCode, statuses, canCreate } = Astro.props;
+const totalPages = Math.max(1, Math.ceil(meta.total / meta.pageSize));
+const dict = getAdminDict(locale);
+const t = dict.trips;
+const c = dict.common;
+const col = dict.columns;
+const hasFilters = Boolean(search || status || countryCode);
+const statusLabel = (value: string) => adminStatusLabel(dict, value);
+const updatedAt = (date: Date) => date.toISOString().slice(0, 10);
+const paginationUrl = new URL(Astro.url.href);
+---
+
+<AdminResourceShell title={`${t.title} (${meta.total})`}>
+  <div class="space-y-4 p-4 md:p-6">
+    <form method="get" class="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4" data-admin-filters aria-label={c.search}>
+      <div class="flex flex-col gap-1">
+        <label for="trip-filter-search" class="text-sm font-medium">{c.search}</label>
+        <input
+          id="trip-filter-search"
+          type="search"
+          name="search"
+          value={search ?? ""}
+          placeholder={c.searchPlaceholder}
+          class="h-9 rounded-md border bg-background px-3"
+        />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label for="trip-filter-status" class="text-sm font-medium">{col.status}</label>
+        <NativeSelect id="trip-filter-status" name="status" size="sm" data-autosubmit>
+          <NativeSelectOption value="">{c.all}</NativeSelectOption>
+          {statuses.map((s) => (
+            <NativeSelectOption value={s} selected={status === s}>{statusLabel(s)}</NativeSelectOption>
+          ))}
+        </NativeSelect>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label for="trip-filter-country" class="text-sm font-medium">{col.country}</label>
+        <input
+          id="trip-filter-country"
+          name="countryCode"
+          value={countryCode ?? ""}
+          maxlength="2"
+          class="h-9 w-24 rounded-md border bg-background px-3 uppercase"
+        />
+      </div>
+      <div class="flex items-end gap-2">
+        <Button type="submit" size="sm" variant="primary">{c.apply}</Button>
+        <Button size="sm" variant="outline" href={baseUrl}>{c.reset}</Button>
+      </div>
+    </form>
+
+    <DataView
+      listLabel={dict.views.list}
+      tableLabel={dict.views.table}
+      cardsLabel={dict.views.cards}
+      showModeSelector={rows.length > 0}
+    >
+    {/*
+      Les slots doivent être des enfants DIRECTS de <DataView>.
+
+      Ils étaient enveloppés dans un ternaire (`rows.length === 0 ? … : …`) :
+      Astro n'enregistre alors qu'un seul slot « default », et
+      `Astro.slots.has('list'|'table'|'cards')` renvoie `false`. Conséquence
+      observée sur /admin/trips : aucun sélecteur de vue, et les trois vues
+      empilées à la suite. La condition est donc déplacée à l'INTERIEUR de
+      chaque slot, ce qui laisse Astro voir trois slots nommés.
+    */}
+    <div slot="table">
+      {rows.length === 0 ? (
+        <div class="rounded-lg border border-dashed p-10 text-center">
+          <p class="font-medium">{c.noResults}</p>
+          <p class="mt-1 text-sm text-muted-foreground">{c.noResultsHint}</p>
+          {hasFilters ? <Button class="mt-4" size="sm" variant="outline" href={baseUrl}>{c.clearFilters}</Button> : null}
+        </div>
+      ) : (
+        <Table aria-label={t.title}>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">{col.title}</TableHead>
+              <TableHead scope="col">{col.status}</TableHead>
+              <TableHead scope="col">{col.country}</TableHead>
+              <TableHead scope="col">{col.departures}</TableHead>
+              <TableHead scope="col">{col.updated}</TableHead>
+              <TableHead scope="col"><span class="sr-only">{c.actions}</span></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow>
+                <TableCell class="font-medium">{row.title ?? row.id}</TableCell>
+                <TableCell><Badge variant={statusTone(row.status)} size="sm">{statusLabel(row.status)}</Badge></TableCell>
+                <TableCell>{row.countryCode}</TableCell>
+                <TableCell>{row.departuresCount}</TableCell>
+                <TableCell class="whitespace-nowrap">{updatedAt(row.updatedAt)}</TableCell>
+                <TableCell class="text-end">
+                  <Button size="sm" variant="ghost" href={`${baseUrl}/${row.id}`}>{c.open}</Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+    </div>
+
+    <div slot="list" class="divide-y rounded-lg border" hidden={rows.length === 0}>
+      {rows.map((row) => (
+        <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <div class="min-w-0">
+            <p class="truncate font-medium">{row.title ?? row.id}</p>
+            <p class="truncate text-xs text-muted-foreground">
+              {row.countryCode} · {row.departuresCount} {col.departures.toLowerCase()} · {updatedAt(row.updatedAt)}
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <Badge variant={statusTone(row.status)} size="sm">{statusLabel(row.status)}</Badge>
+            <Button size="sm" variant="ghost" href={`${baseUrl}/${row.id}`}>{c.open}</Button>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div slot="cards" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" hidden={rows.length === 0}>
+      {rows.map((row) => (
+        <article class="flex flex-col gap-3 rounded-lg border p-4">
+          <div class="flex items-start justify-between gap-2">
+            <h3 class="min-w-0 truncate font-medium">{row.title ?? row.id}</h3>
+            <Badge variant={statusTone(row.status)} size="sm">{statusLabel(row.status)}</Badge>
+          </div>
+          <dl class="grid grid-cols-2 gap-2 text-sm">
+            <div><dt class="text-muted-foreground">{col.country}</dt><dd>{row.countryCode}</dd></div>
+            <div><dt class="text-muted-foreground">{col.departures}</dt><dd>{row.departuresCount}</dd></div>
+            <div class="col-span-2"><dt class="text-muted-foreground">{col.updated}</dt><dd>{updatedAt(row.updatedAt)}</dd></div>
+          </dl>
+          <div class="mt-auto flex justify-end">
+            <Button size="sm" variant="outline" href={`${baseUrl}/${row.id}`}>{c.open}</Button>
+          </div>
+        </article>
+      ))}
+    </div>
+    </DataView>
+
+    <AdminPagination currentPage={meta.page} totalPages={totalPages} baseUrl={paginationUrl} />
+  </div>
+
+  {canCreate ? (
+    <div class="border-t p-4 md:p-6">
+      <form
+        id="trip-create-form"
+        name="trip-create-form"
+        method="post"
+        action={Astro.url.pathname}
+        data-trip-create
+        class="grid gap-4 text-sm sm:grid-cols-4"
+      >
+        <h2 class="font-heading text-lg font-semibold sm:col-span-4">{t.create}</h2>
+        <p class="text-sm text-muted-foreground sm:col-span-4">{t.createHint}</p>
+        <div class="flex flex-col gap-1">
+          <label for="trip-country" class="font-medium">{t.fields.countryCode}</label>
+          <input id="trip-country" name="countryCode" value="FR" maxlength="2" required class="h-9 rounded-md border bg-background px-3 uppercase" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="trip-duration-days" class="font-medium">{t.fields.durationDays}</label>
+          <input id="trip-duration-days" name="durationDays" type="number" min="1" value="7" required class="h-9 rounded-md border bg-background px-3" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="trip-duration-nights" class="font-medium">{t.fields.durationNights}</label>
+          <input id="trip-duration-nights" name="durationNights" type="number" min="0" value="6" required class="h-9 rounded-md border bg-background px-3" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="trip-group-min" class="font-medium">{t.fields.groupMin}</label>
+          <input id="trip-group-min" name="groupMin" type="number" min="1" value="6" required class="h-9 rounded-md border bg-background px-3" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="trip-group-max" class="font-medium">{t.fields.groupMax}</label>
+          <input id="trip-group-max" name="groupMax" type="number" min="1" value="12" required class="h-9 rounded-md border bg-background px-3" />
+        </div>
+        <div class="flex items-center gap-3 sm:col-span-4">
+          <Button type="submit" variant="primary">{t.createButton}</Button>
+          <output class="text-sm" data-form-message aria-live="polite"></output>
+        </div>
+      </form>
+    </div>
+  ) : null}
+</AdminResourceShell>
+
+<script>
+  import { actions } from "astro:actions";
+  import { toast } from "@atoms/toast";
+
+  document.querySelectorAll<HTMLSelectElement>("form[data-admin-filters] select[data-autosubmit]").forEach((select) => {
+    if (select.dataset.bound === "true") return;
+    select.dataset.bound = "true";
+    select.addEventListener("change", () => select.form?.requestSubmit());
+  });
+
+  const form = document.querySelector<HTMLFormElement>("[data-trip-create]");
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const target = e.currentTarget as HTMLFormElement | null;
+    if (!target) return;
+    const data = new FormData(target);
+    const message = target.querySelector<HTMLElement>("[data-form-message]");
+    const { data: result, error } = await actions.createTrip({
+      countryCode: String(data.get("countryCode") ?? "FR").toUpperCase(),
+      durationDays: Number(data.get("durationDays")),
+      durationNights: Number(data.get("durationNights")),
+      groupMin: Number(data.get("groupMin")),
+      groupMax: Number(data.get("groupMax")),
+    });
+    if (error || !result) {
+      const text = error?.message ?? "Error";
+      if (message) message.textContent = text;
+      toast.error(text);
+      return;
+    }
+    window.location.href = `${window.location.pathname}/${result.id}`;
+  });
+</script>

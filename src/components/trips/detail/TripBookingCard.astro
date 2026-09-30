@@ -1,0 +1,141 @@
+---
+/**
+ * TripBookingCard — la carte de réservation collante.
+ *
+ * C'est la seule action de la page : elle reste donc visible en permanence
+ * pendant que le voyageur lit le programme. Le prix, l'acompte et la date
+ * limite du solde sont affichés ensemble — c'est la transparence qui fait
+ * accepter la candidature.
+ */
+import { Icon } from "astro-icon/components";
+import { Card, CardContent } from "@atoms/card";
+import { Button } from "@atoms/button";
+
+interface Props {
+  locale: string;
+  price: number;
+  pricePrefix: string;
+  dates: string;
+  remainingPlaces: number;
+  capacity: number;
+  status: "open" | "interest-list";
+  deposit: number;
+  finalPaymentDue: string;
+  roomRule: string;
+  difficulty: string;
+  applyUrl: string;
+  labels: {
+    status: string;
+    open: string;
+    interest: string;
+    places: string;
+    priceFrom: string;
+    deposit: string;
+    balance: string;
+    lodging: string;
+    difficulty: string;
+    apply: string;
+    reassurance: string;
+  };
+}
+
+const {
+  price,
+  pricePrefix,
+  dates,
+  remainingPlaces,
+  capacity,
+  status,
+  deposit,
+  finalPaymentDue,
+  roomRule,
+  difficulty,
+  applyUrl,
+  labels,
+} = Astro.props as Props;
+
+const open = status === "open";
+---
+
+<Card class="overflow-hidden">
+  <CardContent>
+    <div class="flex flex-col gap-5">
+      {/* Statut + prix — l'information la plus scrutée */}
+      <div>
+        <span
+          class:list={[
+            "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold",
+            {"bg-success/10 text-success": open, "bg-primary/15 text-primary": !open},
+          ]}
+        >
+          <Icon name={open ? "mdi:calendar-check" : "mdi:calendar-clock"} class="size-3.5" />
+          {open ? labels.open : labels.interest}
+        </span>
+        <p class="mt-3 flex items-baseline gap-2">
+          <span class="text-3xl font-bold tracking-tight">
+            <bdi>{pricePrefix}{price.toLocaleString("en")}</bdi>
+          </span>
+          <span class="text-sm text-muted-foreground">{labels.priceFrom}</span>
+        </p>
+        <p class="mt-1 text-sm text-muted-foreground"><bdi>{dates}</bdi></p>
+      </div>
+
+      {/* Places restantes — la rareté rend la décision */}
+      {open && (
+        <div>
+          <div class="flex items-center justify-between gap-3 text-sm">
+            <span class="text-muted-foreground">{labels.places}</span>
+            <span class="font-semibold tabular-nums">
+              <bdi>{remainingPlaces}</bdi>&nbsp;/&nbsp;<bdi>{capacity}</bdi>
+            </span>
+          </div>
+          <progress
+            class="h-1.5 w-full overflow-hidden rounded-full"
+            value={remainingPlaces}
+            max={capacity}
+            aria-label={labels.places}
+            style="accent-color: var(--color-primary)"
+          >
+            {remainingPlaces} / {capacity}
+          </progress>
+        </div>
+      )}
+
+      {/* Détails financiers — la transparence avant l'engagement */}
+      <dl class="flex flex-col gap-3 border-t border-border/60 pt-4 text-sm">
+        <div class="flex items-baseline justify-between gap-3">
+          <dt class="text-muted-foreground">{labels.deposit}</dt>
+          <dd class="font-semibold"><bdi>{pricePrefix}{deposit.toLocaleString("en")}</bdi></dd>
+        </div>
+        {finalPaymentDue && (
+          <div class="flex items-baseline justify-between gap-3">
+            <dt class="text-muted-foreground">{labels.balance}</dt>
+            <dd class="text-end font-semibold"><bdi>{finalPaymentDue}</bdi></dd>
+          </div>
+        )}
+        {difficulty && (
+          <div class="flex items-baseline justify-between gap-3">
+            <dt class="text-muted-foreground">{labels.difficulty}</dt>
+            <dd class="font-semibold"><bdi>{difficulty}</bdi></dd>
+          </div>
+        )}
+        {roomRule && (
+          <div class="flex items-baseline justify-between gap-3">
+            <dt class="text-muted-foreground">{labels.lodging}</dt>
+            <dd class="text-end font-semibold">{roomRule}</dd>
+          </div>
+        )}
+      </dl>
+
+      <Button href={applyUrl} variant="primary" size="lg" class="w-full rounded-full">
+        {labels.apply}
+        <Icon name="mdi:arrow-right" class="size-4 rtl:rotate-180" />
+      </Button>
+
+      <p class="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
+        <Icon name="mdi:shield-check-outline" class="mt-0.5 size-4 shrink-0 text-primary" />
+        {labels.reassurance}
+      </p>
+    </div>
+  </CardContent>
+</Card>

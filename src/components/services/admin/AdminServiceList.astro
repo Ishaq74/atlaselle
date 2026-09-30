@@ -1,0 +1,153 @@
+---
+import AdminResourceList from "@organisms/AdminResourceList.astro";
+import AdminResourceStats from "@molecules/AdminResourceStats.astro";
+import Button from "@atoms/button/Button.astro";
+import { NativeSelect, NativeSelectOption } from "@atoms/native-select";
+import ServiceCard from "@/components/services/listing/ServiceCard.astro";
+import ServiceRowActions from "@/components/services/admin/ServiceRowActions.astro";
+import { DataView } from "@/core/admin";
+import AdminPagination from "@molecules/AdminPagination/AdminPagination.astro";
+import { getServiceTranslations } from "@/modules/services/i18n";
+import { getServiceEngagementTranslations } from "@/modules/services/i18n/engagement";
+import { getServiceSortTranslations } from "@/modules/services/i18n/sort";
+import { formatServicePrice } from "@/modules/services/utils";
+import type { Locale } from "@i18n/config";
+import type { ServiceListItem } from "@/modules/services/domain";
+import { getAdminDict } from "@i18n/admin";
+
+const { locale, items, total, published, draft, archived, deleted, featured, views, reviews, comments, page, totalPages, baseUrl, canCreate, canUpdate, canPublish, canDelete, categoryOptions, tagOptions, providerOptions, localeOptions } = Astro.props as {
+  locale: Locale; items: ServiceListItem[]; total: number; published: number; draft: number; archived: number; deleted: number; featured: number; views: number; reviews: number; comments: number; page: number; totalPages: number; baseUrl: string;
+  canCreate: boolean; canUpdate: boolean; canPublish: boolean; canDelete: boolean;
+  categoryOptions: { category: { id: string; slug: string }; translation: { name: string } | null }[];
+  tagOptions: { tag: { id: string; slug: string }; translation: { name: string } | null }[];
+  providerOptions: { id: string; name: string | null }[];
+  localeOptions: readonly string[];
+};
+const t = getServiceTranslations(locale);
+const engagementT = getServiceEngagementTranslations(locale);
+const sortT = getServiceSortTranslations(locale);
+const dict = getAdminDict(locale);
+const c = dict.common;
+const p = Astro.url.searchParams;
+function selected(name: string, value: string) { return p.get(name) === value; }
+const paginationUrl = new URL(Astro.url.href);
+function formatPublishedAt(value: Date | null): string { return value ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(value) : "—"; }
+const stats = [
+  { label: t.labels.services, value: total }, { label: t.admin.status.PUBLISHED, value: published }, { label: t.admin.status.DRAFT, value: draft }, { label: t.admin.status.ARCHIVED, value: archived }, { label: t.admin.status.DELETED, value: deleted }, { label: t.labels.featured, value: featured }, { label: t.labels.views, value: views }, { label: t.labels.reviews, value: reviews }, { label: engagementT.commentTitle, value: comments },
+] as const;
+const actionProps = { locale, baseUrl, canCreate, canUpdate, canPublish, canDelete } as const;
+---
+<div data-service-admin-root data-confirm-delete={t.admin.confirmDelete} data-confirm-archive={t.admin.confirmArchive} data-action-error={t.admin.actionError} data-confirm-label={dict.common.confirm} data-cancel-label={dict.common.cancel} data-locale={locale}>
+  <AdminResourceList resourceId="service">
+    <div slot="header" class="flex w-full flex-wrap items-center justify-between gap-3"><div><p class="text-sm text-muted-foreground">{total} {t.labels.services.toLowerCase()}</p></div>{canCreate && <Button href={`${baseUrl}/new`}>{t.admin.newService}</Button>}</div>
+    <div slot="filters" class="space-y-3">
+      <form method="get" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+        <input class="h-10 rounded-md border bg-background px-3 text-sm xl:col-span-2" name="search" aria-label={t.labels.search} placeholder={t.labels.search} value={p.get("search") ?? ""} />
+        <NativeSelect name="status" size="sm" aria-label={t.admin.fields.publication}><NativeSelectOption value="">{t.labels.allStatuses}</NativeSelectOption>{["PUBLISHED","DRAFT","ARCHIVED","DELETED"].map((status) => <NativeSelectOption value={status} selected={selected("status", status)}>{t.admin.status[status]}</NativeSelectOption>)}</NativeSelect>
+        <NativeSelect name="categoryId" size="sm" aria-label={t.labels.categories}><NativeSelectOption value="">{t.labels.allCategories}</NativeSelectOption>{categoryOptions.map((option) => <NativeSelectOption value={option.category.id} selected={selected("categoryId", option.category.id)}>{option.translation?.name ?? option.category.slug}</NativeSelectOption>)}</NativeSelect>
+        <NativeSelect name="tagId" size="sm" aria-label={t.labels.allTags}><NativeSelectOption value="">{t.labels.allTags}</NativeSelectOption>{tagOptions.map((option) => <NativeSelectOption value={option.tag.id} selected={selected("tagId", option.tag.id)}>{option.translation?.name ?? option.tag.slug}</NativeSelectOption>)}</NativeSelect>
+        <NativeSelect name="providerId" size="sm" aria-label={t.labels.allProviders}><NativeSelectOption value="">{t.labels.allProviders}</NativeSelectOption>{providerOptions.map((option) => <NativeSelectOption value={option.id} selected={selected("providerId", option.id)}>{option.name ?? option.id}</NativeSelectOption>)}</NativeSelect>
+        <NativeSelect name="locale" size="sm" aria-label={t.admin.fields.locale}><NativeSelectOption value="">{t.admin.fields.locale}</NativeSelectOption>{localeOptions.map((itemLocale) => <NativeSelectOption value={itemLocale} selected={selected("locale", itemLocale)}>{itemLocale.toUpperCase()}</NativeSelectOption>)}</NativeSelect>
+        <label class="flex h-10 items-center gap-2 rounded-md border px-3 text-sm"><input type="checkbox" name="featured" value="true" checked={p.get("featured") === "true"} />{t.labels.featured}</label>
+        <label class="flex h-10 items-center gap-2 rounded-md border px-3 text-sm"><input type="checkbox" name="mobile" value="true" checked={p.get("mobile") === "true"} />{t.labels.mobile}</label>
+        <NativeSelect name="sortBy" size="sm" aria-label={sortT.label}><NativeSelectOption value="updatedAt" selected={p.get("sortBy") === "updatedAt" || !p.get("sortBy")}>{`${sortT.label}: ${sortT.updatedAt}`}</NativeSelectOption><NativeSelectOption value="createdAt" selected={selected("sortBy", "createdAt")}>{sortT.createdAt}</NativeSelectOption><NativeSelectOption value="publishedAt" selected={selected("sortBy", "publishedAt")}>{sortT.publishedAt}</NativeSelectOption><NativeSelectOption value="title" selected={selected("sortBy", "title")}>{sortT.title}</NativeSelectOption><NativeSelectOption value="priceMinor" selected={selected("sortBy", "priceMinor")}>{sortT.priceMinor}</NativeSelectOption><NativeSelectOption value="ratingAverage100" selected={selected("sortBy", "ratingAverage100")}>{sortT.ratingAverage100}</NativeSelectOption><NativeSelectOption value="viewCount" selected={selected("sortBy", "viewCount")}>{sortT.viewCount}</NativeSelectOption></NativeSelect>
+        <NativeSelect name="sortOrder" size="sm" aria-label={t.labels.ascending}><NativeSelectOption value="desc" selected={p.get("sortOrder") !== "asc"}>{t.labels.descending}</NativeSelectOption><NativeSelectOption value="asc" selected={p.get("sortOrder") === "asc"}>{t.labels.ascending}</NativeSelectOption></NativeSelect>
+        <input type="hidden" name="page" value="1" />
+        <Button type="submit" variant="outline">{t.labels.search}</Button>
+      </form>
+    </div>
+    <div slot="content" class="space-y-6">
+      <AdminResourceStats stats={stats} />
+      {items.length === 0 ? (
+        <div class="rounded-lg border border-dashed p-10 text-center">
+          <p class="font-medium">{c.noResults}</p>
+          <p class="mt-1 text-sm text-muted-foreground">{c.noResultsHint}</p>
+        </div>
+      ) : (
+        <DataView listLabel={dict.views.list} tableLabel={dict.views.table} cardsLabel={dict.views.cards}>
+          <div slot="table" class="overflow-x-auto rounded-xl border">
+            <table class="w-full min-w-[1380px] text-sm">
+              <thead class="bg-muted/40">
+                <tr>
+                  <th class="p-3 text-start">{t.admin.fields.title}</th>
+                  <th class="p-3 text-start">{t.labels.categories}</th>
+                  <th class="p-3 text-start">{t.labels.provider}</th>
+                  <th class="p-3 text-start">{t.admin.fields.publication}</th>
+                  <th class="p-3 text-start">{t.admin.fields.price}</th>
+                  <th class="p-3 text-start">{t.admin.fields.duration}</th>
+                  <th class="p-3 text-start">{t.admin.fields.seo}</th>
+                  <th class="p-3 text-start">{t.labels.views}</th>
+                  <th class="p-3 text-start">{t.labels.featured}/{t.labels.mobile}</th>
+                  <th class="p-3 text-end">{t.labels.actions}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr class="border-t align-top">
+                    <td class="p-3 font-medium">
+                      <a class="hover:underline" href={`${baseUrl}/${item.service.id}/edit`}>{item.translation?.title ?? item.service.slug}</a>
+                      <div class="mt-1 text-xs text-muted-foreground">{t.admin.status[item.service.status]}</div>
+                    </td>
+                    <td class="p-3">{item.categories.map((category) => <span class="me-1 inline-block rounded-full bg-muted px-2 py-0.5 text-xs">{category.name ?? category.slug}</span>)}</td>
+                    <td class="p-3">{item.provider?.name ?? "—"}</td>
+                    <td class="p-3">{formatPublishedAt(item.service.publishedAt)}</td>
+                    <td class="p-3">{formatServicePrice(item.service.priceMinor, item.service.currency, locale) ?? "—"}</td>
+                    <td class="p-3">{item.service.durationMinutes ?? "—"}</td>
+                    <td class="p-3">{item.service.seoScore === null ? "—" : `${item.service.seoScore}/100`}</td>
+                    <td class="p-3">{item.service.viewCount}</td>
+                    <td class="p-3">
+                      <div class="flex flex-wrap gap-1">
+                        {item.service.isFeatured && <span class="rounded-full bg-muted px-2 py-0.5 text-xs">{t.labels.featured}</span>}
+                        {item.service.isMobile && <span class="rounded-full bg-muted px-2 py-0.5 text-xs">{t.labels.mobile}</span>}
+                      </div>
+                    </td>
+                    <td class="p-3"><ServiceRowActions item={item} {...actionProps} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div slot="list" class="divide-y rounded-lg border">
+            {items.map((item) => (
+              <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                <div class="min-w-0">
+                  <p class="truncate font-medium">{item.translation?.title ?? item.service.slug}</p>
+                  <p class="truncate text-xs text-muted-foreground">
+                    {t.admin.status[item.service.status]} · {formatServicePrice(item.service.priceMinor, item.service.currency, locale) ?? "—"} · {formatPublishedAt(item.service.publishedAt)}{item.provider?.name ? ` · ${item.provider.name}` : ""}
+                  </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                  <span class="rounded-full bg-muted px-2 py-0.5 text-xs">{item.service.viewCount} {t.labels.views.toLowerCase()}</span>
+                  <ServiceRowActions item={item} {...actionProps} size="list" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div slot="cards" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {items.map((item) => (
+              <div class="space-y-2">
+                <ServiceCard item={item} locale={locale} variant="compact" />
+                <ServiceRowActions item={item} {...actionProps} size="list" />
+              </div>
+            ))}
+          </div>
+        </DataView>
+      )}
+    </div>
+    <div slot="pagination"><AdminPagination currentPage={page} totalPages={totalPages} baseUrl={paginationUrl} /></div>
+  </AdminResourceList>
+</div>
+<script>
+  import { actions } from "astro:actions";
+  import { toast } from "@atoms/toast";
+  import { getServiceErrorMessage } from "@/modules/services/i18n";
+  import { confirmAdminAction } from "@/core/admin";
+  for (const root of document.querySelectorAll<HTMLElement>("[data-service-admin-root]")) {
+    const confirmDelete = root.dataset.confirmDelete ?? ""; const confirmArchive = root.dataset.confirmArchive ?? ""; const actionError = root.dataset.actionError ?? ""; const locale = root.dataset.locale ?? "fr"; const confirmLabel = root.dataset.confirmLabel || "OK"; const cancelLabel = root.dataset.cancelLabel || "";
+    const ask = (message: string) => confirmAdminAction({ title: message, message, confirmLabel, cancelLabel });
+    async function runServiceAction(id: string, action: string) { switch (action) { case "publish": return actions.publishService({ id }); case "unpublish": return actions.unpublishService({ id }); case "archive": return actions.archiveService({ id }); case "restore": return actions.restoreService({ id }); case "delete": return actions.deleteService({ id }); case "duplicate": return actions.duplicateService({ id }); default: return null; } }
+    root.querySelectorAll<HTMLButtonElement>(".service-row-action").forEach((button) => button.addEventListener("click", async () => { const action = button.dataset.action ?? ""; const id = button.dataset.id; if (!id) return; const destructive = action === "delete" || action === "archive"; if (destructive && !(await ask(action === "delete" ? confirmDelete : confirmArchive))) return; button.disabled = true; try { const result = await runServiceAction(id, action); if (result?.error) { toast.error(getServiceErrorMessage(locale, result.error.code)); button.disabled = false; return; } window.location.reload(); } catch { button.disabled = false; toast.error(actionError); } }));
+  }
+</script>

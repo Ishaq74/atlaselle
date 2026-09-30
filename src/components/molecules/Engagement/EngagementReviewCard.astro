@@ -1,0 +1,105 @@
+---
+/**
+ * EngagementReviewCard — carte d'un avis.
+ *
+ * Cœur présentationnel partagé blog / fiche voyage. Les actions « utile » et
+ * « signaler » sont exposées en `data-*` : chaque domaine branche son propre
+ * script dessus, le markup reste identique.
+ */
+import { Icon } from "astro-icon/components";
+import { Card, CardContent, CardHeader } from "@atoms/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@atoms/avatar";
+import { Badge } from "@atoms/badge";
+import StarRating from "@/components/atoms/star-rating/StarRating.astro";
+
+export interface EngagementReviewItem {
+  id: string;
+  rating: number;
+  title: string | null;
+  content: string;
+  isRecommended: boolean | null;
+  helpfulCount: number;
+  createdAt: Date;
+  authorName: string;
+  authorImage?: string | null;
+  viewerHelpful?: boolean | null;
+}
+
+interface Props {
+  locale: string;
+  review: EngagementReviewItem;
+  isSignedIn: boolean;
+  labels: { recommended: string; notRecommended: string; helpful: string; helpfulMark: string; helpfulUnmark: string; report: string; reply: string };
+}
+
+const { locale, review, isSignedIn, labels } = Astro.props as Props;
+
+const formatDate = (d: Date) =>
+  d.toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" });
+
+const initials = review.authorName
+  .split(" ")
+  .map((w) => w[0])
+  .join("")
+  .toUpperCase()
+  .slice(0, 2);
+---
+
+<Card data-review-id={review.id}>
+  <CardHeader>
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <Avatar size="sm">
+          {review.authorImage && <AvatarImage src={review.authorImage} alt={review.authorName} />}
+          <AvatarFallback>{initials}</AvatarFallback>
+        </Avatar>
+        <div>
+          <p class="text-sm font-medium">{review.authorName}</p>
+          <time class="text-xs text-muted-foreground" datetime={new Date(review.createdAt).toISOString()}>
+            {formatDate(review.createdAt)}
+          </time>
+        </div>
+      </div>
+      <div class="text-end">
+        <div class="inline-flex text-warning">
+          <StarRating rating={review.rating} size="sm" readOnly showValue={false} />
+        </div>
+        {review.isRecommended !== null && (
+          <Badge variant={review.isRecommended ? "success" : "error"} size="sm" class="mt-1">
+            {review.isRecommended ? labels.recommended : labels.notRecommended}
+          </Badge>
+        )}
+      </div>
+    </div>
+  </CardHeader>
+  <CardContent class="flex flex-col gap-2">
+    {review.title && <p class="font-medium">{review.title}</p>}
+    <p class="text-sm text-muted-foreground">{review.content}</p>
+    {isSignedIn && (
+      <div class="flex items-center gap-2 pt-2">
+        <span class="text-xs text-muted-foreground">
+          <span data-helpful-count={review.id}><bdi>{review.helpfulCount}</bdi>&nbsp;{labels.helpful}</span>
+        </span>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs transition hover:bg-muted"
+          data-engagement-helpful={review.id}
+          data-value={review.viewerHelpful === true ? "true" : "false"}
+          aria-pressed={review.viewerHelpful === true}
+        >
+          <Icon name="mdi:thumb-up" class="size-3" />
+          <span data-engagement-helpful-label>
+            {review.viewerHelpful === true ? labels.helpfulUnmark : labels.helpfulMark}
+          </span>
+        </button>
+        <button
+          type="button"
+          class="rounded-md px-2 py-1 text-xs text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          data-engagement-report-review={review.id}
+        >
+          {labels.report}
+        </button>
+      </div>
+    )}
+  </CardContent>
+</Card>

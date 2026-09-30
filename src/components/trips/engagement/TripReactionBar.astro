@@ -1,0 +1,125 @@
+---
+/**
+ * TripReactionBar — favoris et réactions d'un voyage.
+ *
+ * Rendu AVEC le cœur partagé `ReactionButtons` : l'affichage est donc
+ * identique à celui du blog, seule l'action branchée diffère
+ * (`toggleTripReaction` au lieu de `toggleBlogReaction`).
+ */
+import type { Locale } from "@i18n/config";
+import type { TripEngagementDTO } from "@/modules/trips/loaders/trip-engagement.loader";
+import { getTripEngagementTranslations } from "@/modules/trips/i18n/engagement";
+import EngagementReactionButtons from "@/components/molecules/Engagement/EngagementReactionButtons.astro";
+
+interface Props {
+  tripId: string;
+  locale: Locale;
+  engagement: TripEngagementDTO;
+  isSignedIn: boolean;
+}
+
+const { tripId, locale, engagement, isSignedIn } = Astro.props as Props;
+const t = getTripEngagementTranslations(locale);
+
+/** Compteurs de réactions d'un voyage, ramenés au type partagé. */
+const counts: Record<string, number> = {
+  LIKE: engagement.favoritesCount,
+  LOVE: 0,
+  FIRE: 0,
+  CLAP: 0,
+};
+---
+
+<div
+  data-trip-reaction-bar
+  data-trip-id={tripId}
+  data-t-error={t.error}
+  data-t-updated={t.success}
+>
+  <EngagementReactionButtons
+    activeReaction={engagement.viewerReaction}
+    counts={counts}
+    isFavorite={engagement.viewerFavorite}
+    isSignedIn={isSignedIn}
+    labels={{
+      favorite: t.favorite,
+      unfavorite: t.unfavorite,
+      reactions: t.reactionLabel,
+      reaction: t.reactionLabel,
+    }}
+  />
+</div>
+
+<script>
+  import { actions } from "astro:actions";
+  import { toast } from "@atoms/toast";
+
+  function init() {
+    document.querySelectorAll<HTMLElement>("[data-trip-reaction-bar]").forEach((bar) => {
+      if (bar.dataset.bound === "true") return;
+      bar.dataset.bound = "true";
+
+      const tripId = bar.dataset.tripId;
+      if (!tripId) return;
+      const errorText = bar.dataset.tError ?? "";
+      const updatedText = bar.dataset.tUpdated ?? "";
+
+      const favBtn = bar.querySelector<HTMLButtonElement>("[data-engagement-favorite]");
+      favBtn?.addEventListener("click", async () => {
+        favBtn.disabled = true;
+        const { error, data } = await actions.toggleTripFavorite({ tripId });
+        favBtn.disabled = false;
+        if (error) {
+          toast.error(error.message ?? errorText);
+          return;
+        }
+        const active = data?.active ?? favBtn.getAttribute("aria-pressed") !== "true";
+        favBtn.setAttribute("aria-pressed", String(active));
+        const label = favBtn.querySelector("[data-engagement-favorite-label]");
+        if (label) {
+          label.textContent = active
+            ? (favBtn.dataset.unfavoriteLabel ?? "")
+            : (favBtn.dataset.favoriteLabel ?? "");
+        }
+        toast.success(updatedText);
+      });
+
+      bar.querySelectorAll<HTMLButtonElement>("[data-engagement-reaction]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const reactionType = btn.getAttribute("data-engagement-reaction") as
+            | "LIKE"
+            | "LOVE"
+            | "FIRE"
+            | "CLAP"
+            | null;
+          if (!reactionType) return;
+          const wasActive = btn.getAttribute("aria-pressed") === "true";
+          btn.disabled = true;
+          const { error } = await actions.toggleTripReaction({ tripId, reactionType });
+          btn.disabled = false;
+          if (error) {
+            toast.error(error.message ?? errorText);
+            return;
+          }
+          // Une seule réaction à la fois, comme sur le blog.
+          const next = wasActive ? null : reactionType;
+          bar.querySelectorAll<HTMLButtonElement>("[data-engagement-reaction]").forEach((other) => {
+            const isNext = other.getAttribute("data-engagement-reaction") === next;
+            other.setAttribute("aria-pressed", String(isNext));
+            other.classList.toggle("variant-primary", isNext);
+            other.classList.toggle("variant-outline", !isNext);
+            const count = other.querySelector("span");
+            if (count) {
+              const current = parseInt(count.textContent ?? "0", 10) || 0;
+              count.textContent = String(isNext ? current + 1 : Math.max(0, current - (other === btn ? 0 : 1)));
+            }
+          });
+          toast.success(updatedText);
+        });
+      });
+    });
+  }
+
+  init();
+  document.addEventListener("astro:after-swap", init);
+</script>

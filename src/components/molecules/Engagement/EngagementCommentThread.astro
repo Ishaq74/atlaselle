@@ -1,0 +1,117 @@
+---
+/**
+ * EngagementCommentThread — un commentaire et ses réponses, récursif.
+ *
+ * Cœur présentationnel partagé blog / fiche voyage : même avatar, même badge
+ * de modération, même indentation des réponses. La réponse en ligne est
+ * ouverte par le script du domaine (`.reply-toggle`).
+ */
+import { Avatar, AvatarFallback, AvatarImage } from "@atoms/avatar";
+import { Badge } from "@atoms/badge";
+
+export interface EngagementCommentItem {
+  id: string;
+  content: string;
+  createdAt: Date;
+  authorName: string;
+  authorImage?: string | null;
+  status?: string;
+  replies?: EngagementCommentItem[];
+}
+
+interface Props {
+  locale: string;
+  comment: EngagementCommentItem;
+  canReply: boolean;
+  labels: { reply: string; pending: string; anonymous: string };
+  isReply?: boolean;
+  /**
+   * Affiche le bouton « signaler ». Les trois domaines disposent de l'action
+   * correspondante, mais seul services l'exposait jusqu'ici ; le bouton est donc
+   * opt-in pour ne rien changer au rendu du blog et des voyages.
+   */
+  showReport?: boolean;
+  /** Libellé du bouton de signalement (requis si `showReport`). */
+  reportLabel?: string;
+}
+
+const {
+  locale,
+  comment,
+  canReply,
+  labels,
+  isReply = false,
+  showReport = false,
+  reportLabel = "",
+} = Astro.props as Props;
+
+const formatDate = (d: Date) =>
+  d.toLocaleDateString(locale, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+const authorName = comment.authorName ?? labels.anonymous;
+const initials = authorName
+  .split(" ")
+  .map((w) => w[0])
+  .join("")
+  .toUpperCase()
+  .slice(0, 2);
+---
+
+<div class:list={["space-y-3", { "ms-8 border-s-2 ps-4": isReply }]} data-comment-id={comment.id}>
+  <div class="flex items-start gap-3">
+    <Avatar size="sm">
+      {comment.authorImage && <AvatarImage src={comment.authorImage} alt={authorName} />}
+      <AvatarFallback>{initials}</AvatarFallback>
+    </Avatar>
+    <div class="flex-1 space-y-1">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-sm font-medium">{authorName}</span>
+        {comment.status === "PENDING" && <Badge variant="warning" size="sm">{labels.pending}</Badge>}
+        <time class="text-xs text-muted-foreground" datetime={new Date(comment.createdAt).toISOString()}>
+          {formatDate(comment.createdAt)}
+        </time>
+      </div>
+      <p class="text-sm whitespace-pre-wrap">{comment.content}</p>
+      {canReply && (
+        <button
+          type="button"
+          class="reply-toggle text-xs text-muted-foreground hover:text-foreground"
+          data-parent-id={comment.id}
+        >
+          {labels.reply}
+        </button>
+      )}
+      {showReport && (
+        <button
+          type="button"
+          class="text-xs text-muted-foreground hover:text-foreground"
+          data-engagement-report-comment={comment.id}
+        >
+          {reportLabel}
+        </button>
+      )}
+    </div>
+  </div>
+
+  {comment.replies && comment.replies.length > 0 && (
+    <div class="space-y-4">
+      {comment.replies.map((reply) => (
+        <Astro.self
+          locale={locale}
+          comment={reply}
+          canReply={canReply}
+          labels={labels}
+          isReply={true}
+          showReport={showReport}
+          reportLabel={reportLabel}
+        />
+      ))}
+    </div>
+  )}
+</div>

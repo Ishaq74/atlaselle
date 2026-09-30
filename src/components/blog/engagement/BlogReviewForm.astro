@@ -1,0 +1,81 @@
+---
+import type { Locale } from "@i18n/config";
+import type { BlogTranslations } from "@i18n/config";
+import type { AppUser } from "@/lib/types";
+import EngagementReviewFormCard from "@/components/molecules/Engagement/EngagementReviewFormCard.astro";
+
+interface Props {
+  locale: Locale;
+  blogT: BlogTranslations;
+  postId: string;
+  user: AppUser | null;
+}
+
+const { blogT, postId } = Astro.props;
+const ratingRequiredText = "ratingRequired" in blogT.errors ? String(blogT.errors.ratingRequired) : undefined;
+---
+
+{/* Le formulaire vient du cœur partagé : même markup que la fiche voyage,
+    seul le script d'action ci-dessous est propre au blog. */}
+<EngagementReviewFormCard
+  formId="review-form"
+  action={Astro.url.pathname}
+  labels={{
+    title: blogT.labels.submitReview,
+    yourRating: blogT.labels.yourRating,
+    titlePlaceholder: blogT.labels.reviewTitlePlaceholder,
+    content: blogT.labels.writeComment,
+    recommend: blogT.labels.recommendLabel,
+    submit: blogT.labels.submitReview,
+    error: blogT.labels.genericError,
+    submitted: blogT.labels.reviewSubmitted,
+    ratingRequired: ratingRequiredText,
+  }}
+>
+  <input type="hidden" name="postId" value={postId} slot="hidden" />
+</EngagementReviewFormCard>
+
+<script>
+  import { actions } from 'astro:actions';
+  import { toast } from '@atoms/toast';
+
+  function init() {
+    document.querySelectorAll<HTMLFormElement>('#review-form').forEach((form) => {
+      if (form.dataset.bound === 'true') return;
+      form.dataset.bound = 'true';
+
+      const errorText = form.dataset.tError ?? 'Error';
+      const submittedText = form.dataset.tSubmitted ?? 'Review submitted';
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const postId = String(formData.get('postId') ?? '');
+        const rating = Number(formData.get('rating') ?? '5');
+        const title = String(formData.get('title') ?? '');
+        const content = String(formData.get('content') ?? '').trim();
+        const isRecommended = formData.get('isRecommended') === 'true';
+
+        if (!postId || !content) return;
+
+        const { error } = await actions.createBlogReview({
+          postId,
+          rating,
+          title,
+          content,
+          isRecommended,
+        });
+
+        if (error) {
+          toast.error(error.message ?? errorText);
+        } else {
+          toast.success(submittedText);
+          form.reset();
+        }
+      });
+    });
+  }
+
+  init();
+  document.addEventListener('astro:after-swap', init);
+</script>

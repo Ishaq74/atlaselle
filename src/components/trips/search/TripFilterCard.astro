@@ -1,0 +1,109 @@
+---
+/**
+ * TripFilterCard — les filtres à valeurs fermées, dans la colonne de droite.
+ *
+ * Chaque filtre est un LIEN : l'état des filtres vit dans l'URL, donc il se
+ * partage, se met en favori et fonctionne sans JavaScript. C'est le même
+ * mécanisme que la barre de catégories du blog.
+ */
+import type { Locale } from "@i18n/config";
+import type { TripSummaryDTO } from "@/modules/trips/loaders/trip.loader";
+import { Card, CardContent } from "@atoms/card";
+import TripFilterPill from "@/components/trips/search/TripFilterPill.astro";
+
+interface Props {
+  locale: Locale;
+  trips: TripSummaryDTO[];
+  hrefFor: (key: string, value: string) => string;
+  active: { availability: string; difficulty: string; duration: string; price: string; month: string };
+  baseUrl: string;
+  months: { value: string; label: string }[];
+}
+
+const { locale, trips, hrefFor, active, baseUrl, months } = Astro.props as Props;
+
+const t = {
+  fr: { title: "Filtrer", availability: "Disponibilité", all: "Tous", open: "Disponibles", interest: "Liste d'intérêt", difficulty: "Difficulté", duration: "Durée", price: "Prix maximum", departure: "Départ", any: "Tous", days: "j et +", reset: "Réinitialiser" },
+  en: { title: "Filter", availability: "Availability", all: "All", open: "Available", interest: "Interest list", difficulty: "Difficulty", duration: "Duration", price: "Max price", departure: "Departure", any: "All", days: "days and +", reset: "Reset" },
+  es: { title: "Filtrar", availability: "Disponibilidad", all: "Todos", open: "Disponibles", interest: "Lista de interés", difficulty: "Dificultad", duration: "Duración", price: "Precio máximo", departure: "Salida", any: "Todos", days: "días y +", reset: "Restablecer" },
+  ar: { title: "تصفية", availability: "التوفر", all: "الكل", open: "متاح", interest: "قائمة الاهتمام", difficulty: "الصعوبة", duration: "المدة", price: "السعر الأقصى", departure: "المغادرة", any: "الكل", days: "أيام فأكثر", reset: "إعادة تعيين" },
+}[locale];
+
+const activeCount = [active.availability, active.difficulty, active.duration, active.price, active.month].filter(Boolean).length;
+
+/** Bornes dérivées du catalogue : inutile d'afficher un prix au-delà du maximum réel. */
+const maxPrice = Math.max(1000, ...trips.map((trip) => trip.priceFrom));
+const maxDuration = Math.max(7, ...trips.map((trip) => trip.durationDays));
+const priceSteps = [1500, 2000, 2500, 3000, 4000].filter((step) => step < maxPrice);
+const durationSteps = [5, 7, 10, 14].filter((step) => step <= maxDuration);
+---
+
+<Card>
+  <CardContent>
+    <div class="flex flex-col gap-5">
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="font-heading text-base font-bold">{t.title}</h2>
+        {activeCount > 0 && (
+          <a
+            href={baseUrl}
+            class="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            {t.reset}
+            <span class="tabular-nums">({activeCount})</span>
+          </a>
+        )}
+      </div>
+
+      <fieldset>
+        <legend class="mb-2 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">{t.availability}</legend>
+        <div class="flex flex-wrap gap-1.5">
+          <TripFilterPill href={hrefFor("availability", "")} label={t.all} active={active.availability === ""} showCheck={false} />
+          <TripFilterPill href={hrefFor("availability", "open")} label={t.open} active={active.availability === "open"} />
+          <TripFilterPill href={hrefFor("availability", "interest")} label={t.interest} active={active.availability === "interest"} />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="mb-2 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">{t.difficulty}</legend>
+        <div class="flex flex-wrap gap-1.5">
+          <TripFilterPill href={hrefFor("difficulty", "")} label={t.any} active={active.difficulty === ""} showCheck={false} />
+          {[1, 2, 3, 4, 5].map((n) => (
+            <TripFilterPill href={hrefFor("difficulty", String(n))} label={`${n}/5`} active={active.difficulty === String(n)} />
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="mb-2 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">{t.duration}</legend>
+        <div class="flex flex-wrap gap-1.5">
+          <TripFilterPill href={hrefFor("duration", "")} label={t.any} active={active.duration === ""} showCheck={false} />
+          {durationSteps.map((n) => (
+            <TripFilterPill href={hrefFor("duration", String(n))} label={`${n} ${t.days}`} active={active.duration === String(n)} />
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="mb-2 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">{t.price}</legend>
+        <div class="flex flex-wrap gap-1.5">
+          <TripFilterPill href={hrefFor("price", "")} label={t.any} active={active.price === ""} showCheck={false} />
+          {priceSteps.map((n) => (
+            <TripFilterPill href={hrefFor("price", String(n))} label={`≤ ${n} €`} active={active.price === String(n)} />
+          ))}
+        </div>
+      </fieldset>
+
+      {months.length > 0 && (
+        <fieldset>
+          <legend class="mb-2 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">{t.departure}</legend>
+          <div class="flex flex-wrap gap-1.5">
+            <TripFilterPill href={hrefFor("month", "")} label={t.any} active={active.month === ""} showCheck={false} />
+            {months.map((m) => (
+              <TripFilterPill href={hrefFor("month", m.value)} label={m.label} active={active.month === m.value} />
+            ))}
+          </div>
+        </fieldset>
+      )}
+    </div>
+  </CardContent>
+</Card>

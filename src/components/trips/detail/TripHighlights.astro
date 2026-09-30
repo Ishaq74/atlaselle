@@ -1,0 +1,40 @@
+---
+/**
+ * TripHighlights — ce qui attend la voyageuse, en cartes.
+ *
+ * Les points forts sont l'argument commercial principal : ils sont donc
+ * given en propre plutôt qu'en liste à puces dans un paragraphe.
+ */
+import { Icon } from "astro-icon/components";
+import { Card, CardContent } from "@atoms/card";
+
+interface Props {
+  highlights: string[];
+  title: string;
+}
+
+const { highlights, title } = Astro.props as Props;
+---
+
+<section aria-labelledby="trip-highlights">
+  <h2 id="trip-highlights" class="font-heading text-2xl font-semibold tracking-tight">{title}</h2>
+  <ul class="mt-6 grid gap-4 sm:grid-cols-2">
+    {highlights.map((item, index) => (
+      <li>
+        <Card class="h-full transition hover:-translate-y-0.5 hover:shadow-md">
+          <CardContent>
+            <div class="flex gap-3">
+              <span class="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary" aria-hidden="true">
+                <Icon name="mdi:check-bold" class="size-4" />
+              </span>
+              <p class="text-sm leading-relaxed">
+                <span class="sr-only">{String(index + 1)}. </span>
+                {item}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </li>
+    ))}
+  </ul>
+</section>
