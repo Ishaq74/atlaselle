@@ -75,7 +75,7 @@
     "gsap": "^3.15.0",
     "isomorphic-dompurify": "^3.23.0",
     "motion": "^12.43.0",
-    "nodemailer": "^9.1.1",
+    "nodemailer": "^10.1.4",
     "pg": "^8.23.1",
     "resend": "^6.34.1",
     "sharp": "^0.35.5",
@@ -89,7 +89,6 @@
     "@astrojs/check": "^0.9.12",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.64.1",
-    "@types/nodemailer": "^7.0.12",
     "@types/pg": "^8.23.1",
     "@typescript-eslint/parser": "^8.72.0",
     "@vitest/coverage-v8": "^4.1.12",
@@ -100,12 +99,14 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "pa11y-ci": "^4.1.1",
     "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.12",
     "wait-on": "^9.5.1"
   },
   "pnpm": {
     "overrides": {
-      "axe-core": "4.12.1"
+      "axe-core": "4.12.1",
+      "@esbuild-kit/core-utils>esbuild": "0.28.2"
     },
     "onlyBuiltDependencies": [
       "esbuild",
