@@ -1,4 +1,4 @@
-import { and, eq, inArray, lte } from "drizzle-orm";
+import { and, eq, gt, inArray, lte } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { invalidateCache } from "@database/cache";
 import { seatHolds, SEAT_HOLD_TTL_MINUTES } from "@database/schemas/departures.schema";
@@ -14,6 +14,8 @@ import { codedError } from "@/lib/voyage-codes";
 // Sans override, `getDrizzle()` est utilisé (comportement inchangé).
 
 type Db = ReturnType<typeof getDrizzle>;
+export type AvailabilityTransaction = Parameters<Parameters<Db["transaction"]>[0]>[0];
+type DbScope = Db | AvailabilityTransaction;
 
 const BOOKABLE_STATUSES = ["open", "limited"] as const;
 
@@ -27,7 +29,7 @@ export interface AvailabilitySnapshot {
   bookable: boolean;
 }
 
-export async function getAvailability(departureId: string, now = new Date(), dbOverride?: Db): Promise<AvailabilitySnapshot | null> {
+export async function getAvailability(departureId: string, now = new Date(), dbOverride?: DbScope): Promise<AvailabilitySnapshot | null> {
   const db = dbOverride ?? getDrizzle();
   const dep = await getDepartureById(departureId, db);
   if (!dep) return null;
@@ -52,47 +54,70 @@ export interface HoldSeatsInput {
   quantity?: number;
   ttlMinutes?: number;
   now?: Date;
+  allowWaitlist?: boolean;
 }
 
 // Transaction + verrou FOR UPDATE : deux holds concurrents sur la dernière
 // place → un seul réussit (TODO §10.4, §26.5).
 export async function holdSeats(departureId: string, input: HoldSeatsInput = {}) {
+  return getDrizzle().transaction((tx) => holdSeatsInTransaction(departureId, input, tx));
+}
+
+export async function holdSeatsInTransaction(
+  departureId: string,
+  input: HoldSeatsInput,
+  tx: AvailabilityTransaction,
+) {
   const quantity = input.quantity ?? 1;
   const now = input.now ?? new Date();
   const ttl = input.ttlMinutes ?? SEAT_HOLD_TTL_MINUTES;
-  return getDrizzle().transaction(async (tx) => {
-    const dep = await lockDepartureForUpdate(departureId, tx);
-    if (!dep) throw codedError("DEPARTURE_SOLD_OUT", "Départ introuvable.");
-    if (!(BOOKABLE_STATUSES as readonly string[]).includes(dep.status)) {
-      throw codedError("DEPARTURE_SOLD_OUT", "Départ non réservable.");
-    }
-    const confirmedSeats = await countConfirmedByDeparture(departureId, tx);
-    const holds = await getActiveHoldsByDeparture(departureId, tx);
-    const heldSeats = holds
-      .filter((h) => h.expiresAt.getTime() > now.getTime())
-      .reduce((n, h) => n + h.quantity, 0);
-    if (!canHold({ capacityMax: dep.capacityMax, confirmedSeats, heldSeats }, quantity)) {
-      throw codedError("DEPARTURE_SOLD_OUT", "Plus de place disponible sur ce départ.");
-    }
-    const [hold] = await tx
-      .insert(seatHolds)
-      .values({
-        departureId,
-        applicationId: input.applicationId ?? null,
-        quantity,
-        expiresAt: new Date(now.getTime() + ttl * 60_000),
-      })
-      .returning();
-    if (!hold) throw new Error("Hold creation failed");
-    return hold;
-  });
+  const dep = await lockDepartureForUpdate(departureId, tx);
+  if (!dep) throw codedError("DEPARTURE_SOLD_OUT", "Départ introuvable.");
+  if (!(BOOKABLE_STATUSES as readonly string[]).includes(dep.status) && !(input.allowWaitlist && dep.status === "waitlist")) {
+    throw codedError("DEPARTURE_SOLD_OUT", "Départ non réservable.");
+  }
+  if (input.applicationId) {
+    const [existing] = await tx
+      .select()
+      .from(seatHolds)
+      .where(
+        and(
+          eq(seatHolds.departureId, departureId),
+          eq(seatHolds.applicationId, input.applicationId),
+          eq(seatHolds.status, "active"),
+          gt(seatHolds.expiresAt, now),
+        ),
+      )
+      .for("update")
+      .limit(1);
+    if (existing && existing.expiresAt > now) return existing;
+  }
+  const confirmedSeats = await countConfirmedByDeparture(departureId, tx);
+  const holds = await getActiveHoldsByDeparture(departureId, tx);
+  const heldSeats = holds
+    .filter((h) => h.expiresAt.getTime() > now.getTime())
+    .reduce((n, h) => n + h.quantity, 0);
+  if (!canHold({ capacityMax: dep.capacityMax, confirmedSeats, heldSeats }, quantity)) {
+    throw codedError("DEPARTURE_SOLD_OUT", "Plus de place disponible sur ce départ.");
+  }
+  const [hold] = await tx
+    .insert(seatHolds)
+    .values({
+      departureId,
+      applicationId: input.applicationId ?? null,
+      quantity,
+      expiresAt: new Date(now.getTime() + ttl * 60_000),
+    })
+    .returning();
+  if (!hold) throw new Error("Hold creation failed");
+  return hold;
 }
 
 export async function releaseHold(holdId: string) {
   const [hold] = await getDrizzle()
     .update(seatHolds)
     .set({ status: "released", releasedAt: new Date() })
-    .where(eq(seatHolds.id, holdId))
+    .where(and(eq(seatHolds.id, holdId), eq(seatHolds.status, "active")))
     .returning();
   return hold ?? null;
 }
@@ -101,7 +126,7 @@ export async function convertHold(holdId: string) {
   const [hold] = await getDrizzle()
     .update(seatHolds)
     .set({ status: "converted" })
-    .where(eq(seatHolds.id, holdId))
+    .where(and(eq(seatHolds.id, holdId), eq(seatHolds.status, "active")))
     .returning();
   return hold ?? null;
 }

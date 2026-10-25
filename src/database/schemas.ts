@@ -22,3 +22,4 @@ export * from "./schemas/payments.schema";
 export * from "./schemas/policies.schema";
 export * from "./schemas/outbox.schema";
 export * from "./schemas/email-voyage.schema";
+export * from "./schemas/waitlist.schema";

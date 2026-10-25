@@ -3,6 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import { expireHolds, purgeTerminalHolds } from "@/modules/availability/domain/availability-service";
 import { expireCheckoutSessions, purgeExpiredCheckoutSessions } from "@/modules/payments/domain/checkout-service";
 import { expireApplications } from "@/modules/applications/domain/application-service";
+import { expireWaitlistOffers, promoteWaitingApplicants } from "@/modules/applications/domain/waitlist-service";
 import { markBalanceDue } from "@/modules/reservations/domain/reservation-service";
 import { processEmailOutboxBatch } from "@/modules/email-voyage/domain/voyage-email-worker";
 import { sendBalanceReminders, sendTripReminders } from "@/modules/email-voyage/domain/reminders";
@@ -43,6 +44,8 @@ export const POST: APIRoute = async ({ request }) => {
   const expiredHolds = await run("expireHolds", 0, () => expireHolds());
   const expiredCheckouts = await run("expireCheckouts", 0, () => expireCheckoutSessions());
   const expiredApplications = await run("expireApplications", 0, () => expireApplications());
+  const expiredWaitlistOffers = await run("expireWaitlistOffers", 0, () => expireWaitlistOffers());
+  const promotedWaitlistApplicants = await run("promoteWaitlistApplicants", 0, () => promoteWaitingApplicants());
   const balanceDueMarked = await run("balanceDueMarked", 0, () => markBalanceDue());
   const outbox = await run("outbox", { done: 0, failed: 0, skipped: 0 }, () => processEmailOutboxBatch());
   const balanceReminders = await run("balanceReminders", 0, () => sendBalanceReminders());
@@ -52,5 +55,17 @@ export const POST: APIRoute = async ({ request }) => {
     checkouts: await purgeExpiredCheckoutSessions(),
     holds: await purgeTerminalHolds(),
   }));
-  return Response.json({ expiredHolds, expiredCheckouts, expiredApplications, balanceDueMarked, outbox, balanceReminders, tripReminders, retention, errors });
+  return Response.json({
+    expiredHolds,
+    expiredCheckouts,
+    expiredApplications,
+    expiredWaitlistOffers,
+    promotedWaitlistApplicants,
+    balanceDueMarked,
+    outbox,
+    balanceReminders,
+    tripReminders,
+    retention,
+    errors,
+  });
 };

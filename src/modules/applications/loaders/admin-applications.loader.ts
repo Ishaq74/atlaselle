@@ -5,6 +5,8 @@ import { getDrizzle } from "@database/drizzle";
 import { applications, applicationDecisions, applicationEvents } from "@database/schemas/applications.schema";
 import { travelers } from "@database/schemas/travelers.schema";
 import { checkoutSessions } from "@database/schemas/payments.schema";
+import { waitlistEntries } from "@database/schemas/waitlist.schema";
+import type { WaitlistStatus } from "@database/schemas/waitlist.schema";
 import type { ApplicationStatus } from "@database/schemas/applications.schema";
 
 export const adminApplicationFiltersSchema = z.object({
@@ -24,6 +26,8 @@ export interface AdminApplicationRow {
   departureId: string;
   submittedAt: Date | null;
   createdAt: Date;
+  waitlistStatus: WaitlistStatus | null;
+  waitlistExpiresAt: Date | null;
 }
 
 export async function loadAdminApplications(raw: Record<string, string | undefined>): Promise<{
@@ -44,9 +48,10 @@ export async function loadAdminApplications(raw: Record<string, string | undefin
 
   const [{ count }] = await db.select({ count: sql<number>`count(*)::int` }).from(applications).where(where);
   const rows = await db
-    .select({ application: applications, travelerEmail: travelers.email })
+    .select({ application: applications, travelerEmail: travelers.email, waitlist: waitlistEntries })
     .from(applications)
     .innerJoin(travelers, eq(applications.travelerId, travelers.id))
+    .leftJoin(waitlistEntries, eq(waitlistEntries.applicationId, applications.id))
     .where(where)
     .orderBy(order)
     .limit(filters.pageSize)
@@ -61,6 +66,8 @@ export async function loadAdminApplications(raw: Record<string, string | undefin
       departureId: r.application.departureId,
       submittedAt: r.application.submittedAt,
       createdAt: r.application.createdAt,
+      waitlistStatus: r.waitlist?.status ?? null,
+      waitlistExpiresAt: r.waitlist?.expiresAt ?? null,
     })),
     meta: { total: count, page: filters.page, pageSize: filters.pageSize },
   };
@@ -87,5 +94,6 @@ export async function loadAdminApplication(id: string) {
     .where(eq(checkoutSessions.applicationId, id))
     .orderBy(desc(checkoutSessions.createdAt))
     .limit(5);
-  return { application, traveler, decisions, events, checkouts };
+  const [waitlistEntry] = await db.select().from(waitlistEntries).where(eq(waitlistEntries.applicationId, id)).limit(1);
+  return { application, traveler, decisions, events, checkouts, waitlistEntry: waitlistEntry ?? null };
 }

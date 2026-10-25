@@ -40,12 +40,12 @@ const alternateUrls = Object.fromEntries(
 );
 const l =
   locale === "fr"
-    ? { title: "Déposer ma candidature", departure: "Départ", name: "Nom complet", email: "E-mail", phone: "Téléphone (optionnel)", room: "Chambre", shared: "Double partagée", single: "Individuelle (+ supplément)", diet: "Régime alimentaire (optionnel)", access: "Besoins d'accessibilité (optionnel)", activity: "Je reconnais avoir lu le niveau d'activité du voyage.", motivation: "Motivation (optionnel)", expectations: "Attentes (optionnel)", consent: "J'accepte que mes données servent à traiter ma candidature.", submit: "Envoyer ma candidature", sent: "Candidature envoyée. Nous revenons vers vous par e-mail.", nodate: "Aucun départ ouvert pour le moment — revenez bientôt." }
+    ? { title: "Déposer ma candidature", departure: "Départ", name: "Nom complet", email: "E-mail", phone: "Téléphone (optionnel)", room: "Chambre", shared: "Double partagée", single: "Individuelle (+ supplément)", diet: "Régime alimentaire (optionnel)", access: "Besoins d'accessibilité (optionnel)", activity: "Je reconnais avoir lu le niveau d'activité du voyage.", motivation: "Motivation (optionnel)", expectations: "Attentes (optionnel)", consent: "J'accepte que mes données servent à traiter ma candidature.", submit: "Envoyer ma candidature", sent: "Candidature enregistrée. Consultez votre e-mail pour la suite.", waitlisted: "Départ complet : votre demande est inscrite sur la liste d'attente.", nodate: "Aucun départ ouvert pour le moment — revenez bientôt." }
     : locale === "es"
-      ? { title: "Enviar mi solicitud", departure: "Salida", name: "Nombre completo", email: "Correo electrónico", phone: "Teléfono (opcional)", room: "Habitación", shared: "Doble compartida", single: "Individual (+ suplemento)", diet: "Dieta (opcional)", access: "Necesidades de accesibilidad (opcional)", activity: "Reconozco haber leído el nivel de actividad del viaje.", motivation: "Motivación (opcional)", expectations: "Expectativas (opcional)", consent: "Acepto que mis datos se usen para tramitar mi solicitud.", submit: "Enviar mi solicitud", sent: "Solicitud enviada. Le contactaremos por correo.", nodate: "Sin salidas abiertas por ahora." }
+      ? { title: "Enviar mi solicitud", departure: "Salida", name: "Nombre completo", email: "Correo electrónico", phone: "Teléfono (opcional)", room: "Habitación", shared: "Doble compartida", single: "Individual (+ suplemento)", diet: "Dieta (opcional)", access: "Necesidades de accesibilidad (opcional)", activity: "Reconozco haber leído el nivel de actividad del viaje.", motivation: "Motivación (opcional)", expectations: "Expectativas (opcional)", consent: "Acepto que mis datos se usen para tramitar mi solicitud.", submit: "Enviar mi solicitud", sent: "Solicitud registrada. Consulte su correo para continuar.", waitlisted: "La salida está completa: su solicitud está en la lista de espera.", nodate: "Sin salidas abiertas por ahora." }
       : locale === "ar"
-        ? { title: "قدّم طلبك", departure: "الموعد", name: "الاسم الكامل", email: "البريد الإلكتروني", phone: "الهاتف (اختياري)", room: "الغرفة", shared: "مزدوجة مشتركة", single: "مفردة (+ رسوم)", diet: "النظام الغذائي (اختياري)", access: "احتياجات الوصول (اختياري)", activity: "أقر بأنني قرأت مستوى نشاط الرحلة.", motivation: "الدافع (اختياري)", expectations: "التوقعات (اختياري)", consent: "أوافق على استخدام بياناتي لمعالجة طلبي.", submit: "إرسال الطلب", sent: "تم إرسال الطلب. سنعاود الاتصال بك.", nodate: "لا مواعيد مفتوحة حاليا." }
-        : { title: "Submit my application", departure: "Departure", name: "Full name", email: "Email", phone: "Phone (optional)", room: "Room", shared: "Shared twin", single: "Single (+ supplement)", diet: "Dietary requirements (optional)", access: "Accessibility needs (optional)", activity: "I acknowledge the trip activity level.", motivation: "Motivation (optional)", expectations: "Expectations (optional)", consent: "I agree my data is used to process my application.", submit: "Send my application", sent: "Application sent. We will contact you by email.", nodate: "No open departures right now." };
+        ? { title: "قدّم طلبك", departure: "الموعد", name: "الاسم الكامل", email: "البريد الإلكتروني", phone: "الهاتف (اختياري)", room: "الغرفة", shared: "مزدوجة مشتركة", single: "مفردة (+ رسوم)", diet: "النظام الغذائي (اختياري)", access: "احتياجات الوصول (اختياري)", activity: "أقر بأنني قرأت مستوى نشاط الرحلة.", motivation: "الدافع (اختياري)", expectations: "التوقعات (اختياري)", consent: "أوافق على استخدام بياناتي لمعالجة طلبي.", submit: "إرسال الطلب", sent: "تم تسجيل الطلب. تحقق من بريدك الإلكتروني للمتابعة.", waitlisted: "اكتمل موعد الرحلة: أُضيف طلبك إلى قائمة الانتظار.", nodate: "لا مواعيد مفتوحة حاليا." }
+        : { title: "Submit my application", departure: "Departure", name: "Full name", email: "Email", phone: "Phone (optional)", room: "Room", shared: "Shared twin", single: "Single (+ supplement)", diet: "Dietary requirements (optional)", access: "Accessibility needs (optional)", activity: "I acknowledge the trip activity level.", motivation: "Motivation (optional)", expectations: "Expectations (optional)", consent: "I agree my data is used to process my application.", submit: "Send my application", sent: "Application recorded. Check your email for next steps.", waitlisted: "This departure is full; your request is on the waiting list.", nodate: "No open departures right now." };
 // Checkbox légale : liens vers les pages CMS « conditions de réservation » et
 // « assurance voyage » (slugs DB, fallback seed — jamais de page cassée).
 const legalLinks = await resolveLegalLinks(locale);
@@ -61,7 +61,7 @@ const termsLabel =
         : `I accept the ${legalLink(legalLinks.terms, "booking terms")} and confirm I have read the mandatory ${legalLink(legalLinks.insurance, "travel insurance")} page.`;
 ---
 <BaseLayout title={`${l.title} — ${copy.title}`} description={copy.summary} canonicalPath={canonicalPath} alternateUrls={alternateUrls}>
-  <section class="mx-auto max-w-xl px-6 py-14" data-apply-page data-trip-id={dto.id} data-sent={l.sent}>
+  <section class="mx-auto max-w-xl px-6 py-14" data-apply-page data-trip-id={dto.id} data-sent={l.sent} data-waitlisted={l.waitlisted}>
     <a class="text-sm text-primary underline" href={getTripPath(locale, copy.slug)}>← {copy.title}</a>
     <h1 class="mt-4 text-4xl font-bold">{l.title}</h1>
     {departures.length === 0 ? (
@@ -124,6 +124,7 @@ const termsLabel =
   const root = document.querySelector("[data-apply-page]");
   const tripId = root?.getAttribute("data-trip-id") ?? "";
   const sentText = root?.getAttribute("data-sent") ?? "OK";
+  const waitlistedText = root?.getAttribute("data-waitlisted") ?? sentText;
   const form = document.querySelector<HTMLFormElement>("[data-apply-form]");
   // Hors du <form> : survit au chemin de succès, contrairement à l'ancien nœud
   // placé dans le formulaire et détruit par replaceChildren().
@@ -163,8 +164,12 @@ const termsLabel =
     if (error) {
       report(error.message, "error");
     } else if (result) {
-      report(sentText, "success");
-      form.hidden = true;
+      if (result.checkoutUrl) {
+        window.location.href = result.checkoutUrl;
+      } else {
+        report(result.status === "waitlisted" ? waitlistedText : sentText, "success");
+        form.hidden = true;
+      }
     }
   });
 </script>

@@ -1,15 +1,17 @@
 import { and, eq, lte, sql } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { invalidateCache } from "@database/cache";
-import { reservations, reservationPriceSnapshots } from "@database/schemas";
+import { reservations, reservationPriceSnapshots, outboxEvents } from "@database/schemas";
 import { getDepartureById } from "@/modules/departures/repositories/departure.repository";
 import { cancelOpenCheckoutsForReservation } from "@/modules/payments/repositories/payment.repository";
 import { getReservationById } from "@/modules/reservations/repositories/reservation.repository";
 import { assertTransitionReservation } from "./reservation-transitions";
 import type { ReservationStatus } from "@database/schemas/reservations.schema";
 import type { PricingBreakdown } from "@/modules/pricing/domain/pricing";
+import { subtractCalendarMonths } from "@/modules/pricing/domain/pricing";
 import { quoteCancellation } from "./cancellation-policy";
 import { emitOutboxEvent } from "@/modules/outbox/domain/outbox";
+import { promoteNextWaitlistApplicant } from "@/modules/applications/domain/waitlist-service";
 
 // Numéro lisible unique : ATL-2027-XXXXXX.
 export function newReservationNumber(now = new Date()): string {
@@ -26,11 +28,17 @@ export interface CreateReservationInput {
   agreementVersionId?: string | null;
 }
 
+type Db = ReturnType<typeof getDrizzle>;
+type Transaction = Parameters<Parameters<Db["transaction"]>[0]>[0];
+type DbScope = Db | Transaction;
+
 // Crée la réservation + snapshot immuable du prix (TODO §12.3).
 // Rejoue le numéro en cas de collision d'unicité (aléatoire 6 chars).
 export async function createReservation(input: CreateReservationInput) {
   const db = getDrizzle();
   const departure = await getDepartureById(input.departureId, db);
+  const configuredDueDate = departure?.balanceDueDate ?? subtractCalendarMonths(departure?.startDate, 2);
+  const balanceDueDate = configuredDueDate && configuredDueDate < new Date() ? new Date() : configuredDueDate;
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -52,7 +60,7 @@ export async function createReservation(input: CreateReservationInput) {
           totalAmount: input.quote.totalAmount,
           amountPaid: 0,
           amountDue: input.quote.totalAmount,
-          balanceDueDate: departure?.balanceDueDate ?? null,
+          balanceDueDate,
           agreementVersionId: input.agreementVersionId ?? null,
           acceptedAt: input.agreementVersionId ? new Date() : null,
         })
@@ -77,16 +85,19 @@ function isUniqueViolation(err: unknown): boolean {
   return e?.code === "23505" || e?.cause?.code === "23505";
 }
 
-export async function confirmReservation(reservationId: string, paidAmount: number) {
-  return applyPaymentToReservation(reservationId, paidAmount);
+export async function confirmReservation(reservationId: string, paidAmount: number, dbOverride?: DbScope) {
+  return applyPaymentToReservation(reservationId, paidAmount, dbOverride);
 }
 
 // Paiements cumulatifs (acompte puis solde, TODO §12.1) :
 // awaiting_payment → confirmed (solde restant) → completed (soldée).
-export async function applyPaymentToReservation(reservationId: string, paidAmount: number) {
-  const db = getDrizzle();
+export async function applyPaymentToReservation(reservationId: string, paidAmount: number, dbOverride?: DbScope) {
+  const db = dbOverride ?? getDrizzle();
   const current = await getReservationById(reservationId, db);
   if (!current) throw new Error("Reservation introuvable.");
+  if (!Number.isInteger(paidAmount) || paidAmount <= 0 || paidAmount > current.amountDue) {
+    throw new Error("Montant du paiement invalide pour le solde restant.");
+  }
   const from = current.status as ReservationStatus;
   const amountPaid = current.amountPaid + paidAmount;
   const amountDue = Math.max(0, current.totalAmount - amountPaid);
@@ -102,7 +113,15 @@ export async function applyPaymentToReservation(reservationId: string, paidAmoun
   }
   const [updated] = await db
     .update(reservations)
-    .set({ status, amountPaid, amountDue, confirmedAt: current.confirmedAt ?? new Date() })
+    .set({
+      status,
+      amountPaid,
+      amountDue,
+      confirmedAt: current.confirmedAt ?? new Date(),
+      ...(from === "awaiting_payment" && amountDue > 0 && current.balanceDueDate && current.balanceDueDate < new Date()
+        ? { balanceDueDate: new Date() }
+        : {}),
+    })
     .where(eq(reservations.id, reservationId))
     .returning();
   return updated;
@@ -134,6 +153,7 @@ export async function cancelReservation(reservationId: string, now = new Date())
     aggregateId: reservationId,
     payload: { reservationId, refundAmount: quote?.refundAmount ?? 0, tier: quote?.tier ?? "none" },
   });
+  if (updated) await promoteNextWaitlistApplicant(current.departureId, now);
   return { reservation: updated, refundAmount: quote?.refundAmount ?? 0, tier: quote?.tier ?? "none" as const };
 }
 
@@ -150,8 +170,24 @@ export async function markBalanceDue(now = new Date()): Promise<number> {
         sql`${reservations.amountDue} > 0`,
       ),
     );
+  let updated = 0;
   for (const row of due) {
-    await db.update(reservations).set({ status: "balance_due" }).where(eq(reservations.id, row.id));
+    const changed = await db.transaction(async (tx) => {
+      const [reservation] = await tx
+        .update(reservations)
+        .set({ status: "balance_due" })
+        .where(and(eq(reservations.id, row.id), eq(reservations.status, "confirmed"), sql`${reservations.amountDue} > 0`))
+        .returning({ id: reservations.id });
+      if (!reservation) return false;
+      await tx.insert(outboxEvents).values({
+        eventType: "reservation.balance_due",
+        aggregateType: "reservation",
+        aggregateId: reservation.id,
+        payload: { reservationId: reservation.id },
+      });
+      return true;
+    });
+    if (changed) updated += 1;
   }
-  return due.length;
+  return updated;
 }

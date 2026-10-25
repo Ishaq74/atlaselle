@@ -26,6 +26,13 @@ const t = dict.applications;
 const c = dict.common;
 const col = dict.columns;
 const statusLabel = (value: string) => adminStatusLabel(dict, value);
+const waitlistLabel = (status: string) =>
+  ({
+    en: { waiting: "Waiting list", offered: "Place offered", promoted: "Promoted", expired: "Offer expired", removed: "Removed" },
+    fr: { waiting: "Liste d’attente", offered: "Place proposée", promoted: "Promue", expired: "Offre expirée", removed: "Retirée" },
+    es: { waiting: "Lista de espera", offered: "Plaza ofrecida", promoted: "Promovida", expired: "Oferta caducada", removed: "Retirada" },
+    ar: { waiting: "قائمة الانتظار", offered: "مقعد معروض", promoted: "تمت الترقية", expired: "انتهى العرض", removed: "تمت الإزالة" },
+  }[locale][status as "waiting" | "offered" | "promoted" | "expired" | "removed"] ?? status);
 const hasFilters = Boolean(status);
 const paginationUrl = new URL(Astro.url.href);
 ---
@@ -79,7 +86,10 @@ const paginationUrl = new URL(Astro.url.href);
               {rows.map((row) => (
                 <TableRow>
                   <TableCell class="font-medium">{row.travelerEmail}</TableCell>
-                  <TableCell><Badge variant={statusTone(row.status)} size="sm">{statusLabel(row.status)}</Badge></TableCell>
+                  <TableCell class="space-x-1">
+                    <Badge variant={statusTone(row.status)} size="sm">{statusLabel(row.status)}</Badge>
+                    {row.waitlistStatus ? <Badge variant="outline" size="sm">{waitlistLabel(row.waitlistStatus)}</Badge> : null}
+                  </TableCell>
                   <TableCell class="whitespace-nowrap">{row.submittedAt?.toISOString().slice(0, 10) ?? "—"}</TableCell>
                   <TableCell class="text-end">
                     <Button size="sm" variant="ghost" href={`${baseUrl}/${row.id}`}>{c.open}</Button>
@@ -98,6 +108,7 @@ const paginationUrl = new URL(Astro.url.href);
               <p class="truncate font-medium">{row.travelerEmail}</p>
               <p class="truncate text-xs text-muted-foreground">
                 {row.submittedAt?.toISOString().slice(0, 10) ?? "—"}
+                {row.waitlistStatus ? ` · ${waitlistLabel(row.waitlistStatus)}` : ""}
               </p>
             </div>
             <div class="flex items-center gap-3">
@@ -117,6 +128,7 @@ const paginationUrl = new URL(Astro.url.href);
             </div>
             <dl class="grid grid-cols-2 gap-2 text-sm">
               <div class="col-span-2"><dt class="text-muted-foreground">{col.submitted}</dt><dd>{row.submittedAt?.toISOString().slice(0, 10) ?? "—"}</dd></div>
+              {row.waitlistStatus ? <div class="col-span-2"><dt class="text-muted-foreground">{waitlistLabel(row.waitlistStatus)}</dt><dd>{row.waitlistExpiresAt?.toISOString().slice(0, 16).replace("T", " ") ?? "—"}</dd></div> : null}
             </dl>
             <div class="mt-auto flex justify-end">
               <Button size="sm" variant="outline" href={`${baseUrl}/${row.id}`}>{c.open}</Button>
