@@ -42,11 +42,6 @@ interface EmailContext {
   providerSessionId: string;
 }
 
-function fmtMoney(cents: number, currency: string): string {
-  const major = (cents / 100).toLocaleString("en");
-  return currency === "EUR" ? `€${major}` : `${major} ${currency}`;
-}
-
 async function loadContext(payload: Record<string, unknown>): Promise<EmailContext | null> {
   const db = getDrizzle();
   const applicationId = typeof payload.applicationId === "string" ? payload.applicationId : null;

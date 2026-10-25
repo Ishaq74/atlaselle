@@ -13,6 +13,8 @@ export interface VoyageEmailVars {
   number?: string;
   dates?: string;
   amount?: string;
+  paid?: string;
+  balance?: string;
   date?: string;
   url?: string;
 }
@@ -74,10 +76,10 @@ const T: Pack = {
     ar: { subject: "مقعد متاح — {trip}", heading: "نعرض عليك مقعدا", greeting: "مرحبا {name}،", body: "يتوفر لك مقعد في رحلة «{trip}» حتى {date}. ادفع العربون عبر الرابط لتأكيد الحجز.", buttonText: "دفع العربون", footnote: FOOT.ar },
   },
   checkout_started: {
-    fr: { subject: "Finalisez votre réservation — {trip}", heading: "Plus qu'une étape", greeting: "Bonjour {name},", body: "Votre place pour « {trip} » est mise de côté 30 minutes. Terminez votre paiement via le lien ci-dessous.", buttonText: "Payer", extra: "Sans paiement, la place est libérée.", footnote: FOOT.fr },
-    en: { subject: "Complete your booking — {trip}", heading: "One step left", greeting: "Hello {name},", body: "Your seat for “{trip}” is held for 30 minutes. Finish payment with the link below.", buttonText: "Pay now", extra: "Without payment, the seat is released.", footnote: FOOT.en },
-    es: { subject: "Complete su reserva — {trip}", heading: "Solo un paso", greeting: "Hola {name},", body: "Su plaza para «{trip}» está reservada 30 minutos. Complete el pago con el enlace.", buttonText: "Pagar", extra: "Sin pago, la plaza se libera.", footnote: FOOT.es },
-    ar: { subject: "أكمل حجزك — {trip}", heading: "خطوة واحدة", greeting: "مرحبا {name}،", body: "مقعدك لرحلة «{trip}» محجوز 30 دقيقة. أكمل الدفع عبر الرابط.", buttonText: "ادفع", extra: "بدون دفع يُحرر المقعد.", footnote: FOOT.ar },
+    fr: { subject: "Finalisez votre réservation — {trip}", heading: "Plus qu'une étape", greeting: "Bonjour {name},", body: "Votre lien de paiement pour « {trip} » reste valable 35 minutes. Terminez votre paiement via le lien ci-dessous.", buttonText: "Payer", extra: "Sans paiement, la place est libérée.", footnote: FOOT.fr },
+    en: { subject: "Complete your booking — {trip}", heading: "One step left", greeting: "Hello {name},", body: "Your payment link for “{trip}” is valid for 35 minutes. Finish payment with the link below.", buttonText: "Pay now", extra: "Without payment, the seat is released.", footnote: FOOT.en },
+    es: { subject: "Complete su reserva — {trip}", heading: "Solo un paso", greeting: "Hola {name},", body: "Su enlace de pago para «{trip}» es válido durante 35 minutos. Complete el pago con el enlace.", buttonText: "Pagar", extra: "Sin pago, la plaza se libera.", footnote: FOOT.es },
+    ar: { subject: "أكمل حجزك — {trip}", heading: "خطوة واحدة", greeting: "مرحبا {name}،", body: "رابط الدفع لرحلة «{trip}» صالح لمدة 35 دقيقة. أكمل الدفع عبر الرابط.", buttonText: "ادفع", extra: "بدون دفع يُحرر المقعد.", footnote: FOOT.ar },
   },
   payment_received: {
     fr: { subject: "Paiement reçu — {trip}", heading: "Paiement reçu", greeting: "Bonjour {name},", body: "Nous avons reçu votre paiement de {amount} pour « {trip} ». Votre réservation est en cours de confirmation.", footnote: FOOT.fr },

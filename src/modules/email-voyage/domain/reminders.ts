@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, inArray, lte } from "drizzle-orm";
+import { and, desc, eq, gt, gte, inArray } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { reservations } from "@database/schemas";
 import { departures } from "@database/schemas";

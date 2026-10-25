@@ -21,7 +21,7 @@ const PAYMENT_SESSION_TTL_MINUTES = 35;
 const PAYMENT_HOLD_BUFFER_MINUTES = 5;
 
 // Tunnel : hold → snapshot prix → session provider (TODO §13.4).
-// Hold orphelin en cas d'échec provider : expiré par job (TTL 30 min).
+// Hold orphelin : TTL standard de 30 min, prolongé jusqu'à 5 min après expiration du checkout provider.
 export async function initiateCheckout(input: {
   checkoutSessionId: string;
   travelerEmail: string;

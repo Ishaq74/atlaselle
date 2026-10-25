@@ -2,7 +2,7 @@ import { ActionError, defineAction } from "astro:actions";
 import { and, eq, inArray } from "drizzle-orm";
 import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
-import { applications, applicationDecisions, applicationEvents, checkoutSessions, outboxEvents, waitlistEntries } from "@database/schemas";
+import { applications, applicationDecisions, applicationEvents, checkoutSessions, waitlistEntries } from "@database/schemas";
 import { travelers } from "@database/schemas";
 import { departures } from "@database/schemas";
 import { trips } from "@database/schemas";
