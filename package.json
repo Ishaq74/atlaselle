@@ -68,7 +68,7 @@
     "astro": "7.4.2",
     "astro-icon": "^1.2.0",
     "better-auth": "^1.7.12",
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.8",
     "drizzle-orm": "^0.45.4",
     "embla-carousel": "^8.6.0",
     "embla-carousel-autoplay": "^8.6.0",
