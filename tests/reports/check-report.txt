@@ -2,14 +2,19 @@
 > atlaselle@0.0.1 check C:\Users\Utilisateur\Documents\t3code\atlaselle
 > astro check
 
-◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
-[2m18:35:53[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
-[2m18:35:53[22m [34m[content][39m Syncing content
-[2m18:35:53[22m [34m[content][39m Synced content
-[2m18:35:53[22m [34m[types][39m Generated [2m376ms[22m
-[2m18:35:53[22m [34m[check][39m Getting diagnostics for Astro files in C:\Users\Utilisateur\Documents\t3code\atlaselle...
-Result (1228 files): 
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+[2m15:58:45[22m [34m[@astrojs/node][39m Enabling sessions with filesystem storage
+[2m15:58:46[22m [34m[content][39m Syncing content
+[2m15:58:46[22m [34m[content][39m Synced content
+[2m15:58:46[22m [34m[types][39m Generated [2m363ms[22m
+[2m15:58:46[22m [34m[check][39m Getting diagnostics for Astro files in C:\Users\Utilisateur\Documents\t3code\atlaselle...
+[96mtests/integration/voyage-early-bird.test.ts[0m:[93m27[0m:[93m1[0m - [93mwarning[0m[90m ts(6133): [0m'invalidateCache' is declared but its value is never read.
+
+[7m27[0m import { invalidateCache } from '@database/cache';
+[7m  [0m [93m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+Result (1231 files): 
 - 0 errors
 - 0 warnings
-- 0 hints
+- 1 hint
 

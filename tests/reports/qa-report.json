@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-30 17:27:39",
+  "generatedAt": "2026-10-25 15:50:35",
   "overall": "red",
   "reportsAvailable": 6,
   "sections": [
@@ -17,10 +17,10 @@
     {
       "key": "lint",
       "title": "Lint (ESLint)",
-      "ok": false,
-      "summary": "2 errors, 19 warnings",
+      "ok": true,
+      "summary": "0 errors, 19 warnings",
       "metrics": {
-        "errors": 2,
+        "errors": 0,
         "warnings": 19
       }
     },
@@ -28,10 +28,10 @@
       "key": "vitest",
       "title": "Unit & Integration Tests (Vitest)",
       "ok": true,
-      "summary": "1997/1997 passed",
+      "summary": "2029/2029 passed",
       "metrics": {
-        "total": 1997,
-        "passed": 1997,
+        "total": 2029,
+        "passed": 2029,
         "failed": 0,
         "skipped": 0
       }
@@ -40,12 +40,12 @@
       "key": "playwright",
       "title": "End-to-End Tests (Playwright)",
       "ok": false,
-      "summary": "1629/1632 passed, 3 failed",
+      "summary": "951/1644 passed, 54 skipped, 639 failed",
       "metrics": {
-        "total": 1632,
-        "passed": 1629,
-        "failed": 3,
-        "skipped": 0
+        "total": 1644,
+        "passed": 951,
+        "failed": 639,
+        "skipped": 54
       }
     },
     {
@@ -64,10 +64,10 @@
       "key": "lighthouse",
       "title": "Performance & Quality Audit (Lighthouse CI)",
       "ok": false,
-      "summary": "52 page(s) audited, 8 below threshold (≥90)",
+      "summary": "52 page(s) audited, 9 below threshold (≥90)",
       "metrics": {
         "pages": 52,
-        "belowThreshold": 8
+        "belowThreshold": 9
       }
     }
   ]

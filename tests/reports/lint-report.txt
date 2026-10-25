@@ -24,12 +24,5 @@ C:\Users\Utilisateur\Documents\t3code\atlaselle\src\components\blog\cards\PostCa
   358:3  warning  Unused CSS selector `.post-card--modern .post-card__image-wrap`       astro/no-unused-css-selector
   363:3  warning  Unused CSS selector `.post-card--modern .post-card__badges`           astro/no-unused-css-selector
 
-C:\Users\Utilisateur\Documents\t3code\atlaselle\src\components\molecules\Engagement\EngagementReactionButtons.astro
-  86:10  error  Parsing error: Unknown token at 2856, expected: "*", actual: "/* `reacti"
+✖ 19 problems (0 errors, 19 warnings)
 
-C:\Users\Utilisateur\Documents\t3code\atlaselle\src\components\pages\AboutPage\ValuesSection.astro
-  104:14  error  Parsing error: Unknown token at 3942, expected: "*", actual: "/* La gril"
-
-✖ 21 problems (2 errors, 19 warnings)
-
- ELIFECYCLE  Command failed with exit code 1.

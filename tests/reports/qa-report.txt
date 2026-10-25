@@ -1,36 +1,1306 @@
 ══════════════════════════════════════════════════════════════════════════════════
   ATOMIC — GLOBAL QA REPORT
-  Generated: 2026-09-30 17:27:39
+  Generated: 2026-10-25 15:50:35
 ══════════════════════════════════════════════════════════════════════════════════
 
   ✅ Type & Template Check (astro check)
      0 errors, 0 warnings, 0 hints
 
-  ❌ Lint (ESLint)
-     2 errors, 19 warnings
-
-  • See tests/reports/lint-report.txt for details
+  ✅ Lint (ESLint)
+     0 errors, 19 warnings
 
   ✅ Unit & Integration Tests (Vitest)
-     1997/1997 passed
+     2029/2029 passed
 
   ❌ End-to-End Tests (Playwright)
-     1629/1632 passed, 3 failed
+     951/1644 passed, 54 skipped, 639 failed
 
-  • admin-pages.spec.ts > Admin — Media page › media page has upload UI
-    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
-  • admin-pages.spec.ts > Admin — Media page › media page has upload UI
-    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
-  • admin-pages.spec.ts > Admin — Media page › media page has upload UI
-    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+  • actions-admin.spec.ts > Admin actions — page validation (authenticated) › createPage rejects a reserved slug
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-admin.spec.ts > Admin actions — page validation (authenticated) › createPage rejects a reserved slug
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-admin.spec.ts > Admin actions — page validation (authenticated) › createPage rejects a reserved slug
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-admin.spec.ts > Admin actions — page validation (authenticated) › createPage rejects an uppercase slug
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-admin.spec.ts > Admin actions — page validation (authenticated) › createPage rejects an uppercase slug
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-admin.spec.ts > Admin actions — page validation (authenticated) › createPage rejects an uppercase slug
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-admin.spec.ts > Admin actions — page validation (authenticated) › createPage rejects an invalid locale
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-admin.spec.ts > Admin actions — page validation (authenticated) › createPage rejects an invalid locale
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-admin.spec.ts > Admin actions — page validation (authenticated) › createPage rejects an invalid locale
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-admin.spec.ts > Admin actions — page workflow (DB fixture) › create → publish → lock → unlock → trash → restore → permanent delete
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-admin.spec.ts > Admin actions — page workflow (DB fixture) › create → publish → lock → unlock → trash → restore → permanent delete
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-admin.spec.ts > Admin actions — page workflow (DB fixture) › create → publish → lock → unlock → trash → restore → permanent delete
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-admin.spec.ts > Admin actions — page workflow (DB fixture) › createPage with a duplicate slug is rejected
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-admin.spec.ts > Admin actions — page workflow (DB fixture) › createPage with a duplicate slug is rejected
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-admin.spec.ts > Admin actions — page workflow (DB fixture) › createPage with a duplicate slug is rejected
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-admin.spec.ts > Admin actions — settings & structure › createNavigationItem rejects invalid payload
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-admin.spec.ts > Admin actions — settings & structure › createNavigationItem rejects invalid payload
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-admin.spec.ts > Admin actions — settings & structure › createNavigationItem rejects invalid payload
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-admin.spec.ts > Admin actions — settings & structure › reorderNavigationItems rejects malformed input
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-admin.spec.ts > Admin actions — settings & structure › reorderNavigationItems rejects malformed input
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-admin.spec.ts > Admin actions — settings & structure › reorderNavigationItems rejects malformed input
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-admin.spec.ts > Admin actions — settings & structure › listPageVersions on unknown page → empty or NOT_FOUND
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-admin.spec.ts > Admin actions — settings & structure › listPageVersions on unknown page → empty or NOT_FOUND
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-admin.spec.ts > Admin actions — settings & structure › listPageVersions on unknown page → empty or NOT_FOUND
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-admin.spec.ts > Admin actions — settings & structure › createMediaFolder rejects invalid payload
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-admin.spec.ts > Admin actions — settings & structure › createMediaFolder rejects invalid payload
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-admin.spec.ts > Admin actions — settings & structure › createMediaFolder rejects invalid payload
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-blog.spec.ts > Blog actions — public comment workflow (DB fixture) › guest comment on a published post goes to moderation, admin approves it
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-blog.spec.ts > Blog actions — public comment workflow (DB fixture) › guest comment on a published post goes to moderation, admin approves it
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-blog.spec.ts > Blog actions — public comment workflow (DB fixture) › guest comment on a published post goes to moderation, admin approves it
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-blog.spec.ts > Blog actions — public comment workflow (DB fixture) › reply deeper than 1 level is rejected
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-blog.spec.ts > Blog actions — public comment workflow (DB fixture) › reply deeper than 1 level is rejected
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-blog.spec.ts > Blog actions — public comment workflow (DB fixture) › reply deeper than 1 level is rejected
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-blog.spec.ts > Blog actions — authenticated engagement › markAllBlogNotificationsRead succeeds for a signed-in user
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-blog.spec.ts > Blog actions — authenticated engagement › markAllBlogNotificationsRead succeeds for a signed-in user
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-blog.spec.ts > Blog actions — authenticated engagement › markAllBlogNotificationsRead succeeds for a signed-in user
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-blog.spec.ts > Blog actions — authenticated engagement › updateUserProfile rejects an invalid website URL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-blog.spec.ts > Blog actions — authenticated engagement › updateUserProfile rejects an invalid website URL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-blog.spec.ts > Blog actions — authenticated engagement › updateUserProfile rejects an invalid website URL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-blog.spec.ts > Blog actions — authenticated engagement › updateUserProfile accepts a valid bio
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-blog.spec.ts > Blog actions — authenticated engagement › updateUserProfile accepts a valid bio
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-blog.spec.ts > Blog actions — authenticated engagement › updateUserProfile accepts a valid bio
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › toggleBlogFavorite — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › toggleBlogFavorite — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › toggleBlogFavorite — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › recordBlogPostView — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › recordBlogPostView — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › recordBlogPostView — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › recordServiceView — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › recordServiceView — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › recordServiceView — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › recordTripView — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › recordTripView — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › recordTripView — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › markAllBlogNotificationsRead — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › markAllBlogNotificationsRead — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › markAllBlogNotificationsRead — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › markAllServiceNotificationsRead — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › markAllServiceNotificationsRead — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › markAllServiceNotificationsRead — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › resolveBlogInternalLink — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › resolveBlogInternalLink — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › resolveBlogInternalLink — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › resolveServiceInternalLink — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › resolveServiceInternalLink — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-matrix.spec.ts > Authenticated user engagement — never 500 › resolveServiceInternalLink — authenticated call never 500s
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-services.spec.ts > Service actions — lifecycle state machine (DB fixture) › DRAFT → PUBLISHED → DRAFT → ARCHIVED → DRAFT via actions
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-services.spec.ts > Service actions — lifecycle state machine (DB fixture) › DRAFT → PUBLISHED → DRAFT → ARCHIVED → DRAFT via actions
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-services.spec.ts > Service actions — lifecycle state machine (DB fixture) › DRAFT → PUBLISHED → DRAFT → ARCHIVED → DRAFT via actions
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-services.spec.ts > Service actions — lifecycle state machine (DB fixture) › publishService on unknown id → NOT_FOUND
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-services.spec.ts > Service actions — lifecycle state machine (DB fixture) › publishService on unknown id → NOT_FOUND
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-services.spec.ts > Service actions — lifecycle state machine (DB fixture) › publishService on unknown id → NOT_FOUND
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-services.spec.ts > Service actions — notifications & views › markAllServiceNotificationsRead succeeds for a signed-in user
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-services.spec.ts > Service actions — notifications & views › markAllServiceNotificationsRead succeeds for a signed-in user
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-services.spec.ts > Service actions — notifications & views › markAllServiceNotificationsRead succeeds for a signed-in user
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-voyage.spec.ts > Voyage actions — input validation (admin) › createTrip rejects invalid country code
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-voyage.spec.ts > Voyage actions — input validation (admin) › createTrip rejects invalid country code
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-voyage.spec.ts > Voyage actions — input validation (admin) › createTrip rejects invalid country code
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-voyage.spec.ts > Voyage actions — input validation (admin) › createTrip rejects groupMax < groupMin
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-voyage.spec.ts > Voyage actions — input validation (admin) › createTrip rejects groupMax < groupMin
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-voyage.spec.ts > Voyage actions — input validation (admin) › createTrip rejects groupMax < groupMin
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-voyage.spec.ts > Voyage actions — input validation (admin) › publishTrip on unknown id returns NOT_FOUND
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-voyage.spec.ts > Voyage actions — input validation (admin) › publishTrip on unknown id returns NOT_FOUND
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-voyage.spec.ts > Voyage actions — input validation (admin) › publishTrip on unknown id returns NOT_FOUND
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture) › draft → submitForReview → approve → publish → unpublish → archive → restore
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture) › draft → submitForReview → approve → publish → unpublish → archive → restore
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture) › draft → submitForReview → approve → publish → unpublish → archive → restore
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture) › approveTrip from draft is rejected (invalid transition)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture) › approveTrip from draft is rejected (invalid transition)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • actions-voyage.spec.ts > Voyage actions — trip lifecycle state machine (DB fixture) › approveTrip from draft is rejected (invalid transition)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-extended.spec.ts > Admin — dashboard home › admin index loads after sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-extended.spec.ts > Admin — dashboard home › admin index loads after sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-extended.spec.ts > Admin — dashboard home › admin index loads after sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-extended.spec.ts > Admin — dashboard home › admin index redirects anonymous users to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-extended.spec.ts > Admin — dashboard home › admin index redirects anonymous users to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-extended.spec.ts > Admin — dashboard home › admin index redirects anonymous users to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-extended.spec.ts > Admin — trips management › trips list loads (FR)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-extended.spec.ts > Admin — trips management › trips list loads (FR)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-extended.spec.ts > Admin — trips management › trips list loads (FR)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-extended.spec.ts > Admin — trips management › trips moderation queue loads (FR)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-extended.spec.ts > Admin — trips management › trips moderation queue loads (FR)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-extended.spec.ts > Admin — trips management › trips moderation queue loads (FR)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-extended.spec.ts > Admin — trips management › trip edit page loads with a real fixture trip
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-extended.spec.ts > Admin — trips management › trip edit page loads with a real fixture trip
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-extended.spec.ts > Admin — trips management › trip edit page loads with a real fixture trip
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-extended.spec.ts > Admin — trips management › trip edit page 404s on unknown id
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-extended.spec.ts > Admin — trips management › trip edit page 404s on unknown id
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-extended.spec.ts > Admin — trips management › trip edit page 404s on unknown id
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-extended.spec.ts > Admin — payments › payments list loads (FR)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-extended.spec.ts > Admin — payments › payments list loads (FR)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-extended.spec.ts > Admin — payments › payments list loads (FR)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-extended.spec.ts > Admin — payments › payments list redirects anonymous users to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-extended.spec.ts > Admin — payments › payments list redirects anonymous users to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-extended.spec.ts > Admin — payments › payments list redirects anonymous users to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-extended.spec.ts > Admin — detail pages 404 handling › application detail 404s on unknown id
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-extended.spec.ts > Admin — detail pages 404 handling › application detail 404s on unknown id
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-extended.spec.ts > Admin — detail pages 404 handling › application detail 404s on unknown id
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-extended.spec.ts > Admin — detail pages 404 handling › reservation detail 404s on unknown id
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-extended.spec.ts > Admin — detail pages 404 handling › reservation detail 404s on unknown id
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-extended.spec.ts > Admin — detail pages 404 handling › reservation detail 404s on unknown id
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin pages — access guards › unauthenticated user is redirected from admin pages
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Stats page › stats page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Stats page › stats page displays dashboard content
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Stats page › stats page exposes its own level-1 heading in each of the 4 locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Media page › media page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Roles page › roles page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Users page › users page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Pages page › pages page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Audit log page › audit page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Audit log page › audit page shows audit log table
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Emails page › emails page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Policies page › policies page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Travelers page › travelers page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Applications page › applications page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Reservations page › reservations page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Payments page › payments page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin — Blog edit page › blog new post page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-pages.spec.ts > Admin pages — access guards › unauthenticated user is redirected from admin pages
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin pages — access guards › unauthenticated user is redirected from admin pages
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Stats page › stats page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Stats page › stats page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Stats page › stats page displays dashboard content
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Stats page › stats page displays dashboard content
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Stats page › stats page exposes its own level-1 heading in each of the 4 locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Stats page › stats page exposes its own level-1 heading in each of the 4 locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Media page › media page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Media page › media page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Roles page › roles page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Roles page › roles page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Users page › users page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Users page › users page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Pages page › pages page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Pages page › pages page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Audit log page › audit page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Audit log page › audit page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Audit log page › audit page shows audit log table
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Audit log page › audit page shows audit log table
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Emails page › emails page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Emails page › emails page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Policies page › policies page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Policies page › policies page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Travelers page › travelers page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Travelers page › travelers page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Applications page › applications page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Applications page › applications page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Reservations page › reservations page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Reservations page › reservations page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Payments page › payments page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Payments page › payments page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-pages.spec.ts > Admin — Blog edit page › blog new post page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-pages.spec.ts > Admin — Blog edit page › blog new post page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-trips-crud.spec.ts > Admin trips — CRUD & lifecycle › full trip lifecycle via direct DB + admin pages render
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-trips-crud.spec.ts > Admin trips — CRUD & lifecycle › full trip lifecycle via direct DB + admin pages render
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-trips-crud.spec.ts > Admin trips — CRUD & lifecycle › full trip lifecycle via direct DB + admin pages render
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-trips-crud.spec.ts > Admin trips — CRUD & lifecycle › trips list supports status filter query param
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-trips-crud.spec.ts > Admin trips — CRUD & lifecycle › trips list supports status filter query param
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-trips-crud.spec.ts > Admin trips — CRUD & lifecycle › trips list supports status filter query param
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-trips-crud.spec.ts > Admin trips — departures, itinerary, FAQ pages › trip edit exposes departure management UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-trips-crud.spec.ts > Admin trips — departures, itinerary, FAQ pages › trip edit exposes departure management UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-trips-crud.spec.ts > Admin trips — departures, itinerary, FAQ pages › trip edit exposes departure management UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-trips-crud.spec.ts > Public trips — engagement surfaces › published trip detail exposes canonical + hreflang + JSON-LD
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-trips-crud.spec.ts > Public trips — engagement surfaces › published trip detail exposes canonical + hreflang + JSON-LD
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-trips-crud.spec.ts > Public trips — engagement surfaces › published trip detail exposes canonical + hreflang + JSON-LD
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-trips-crud.spec.ts > Public trips — engagement surfaces › trip list pages render cards with links in all locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-trips-crud.spec.ts > Public trips — engagement surfaces › trip list pages render cards with links in all locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-trips-crud.spec.ts > Public trips — engagement surfaces › trip list pages render cards with links in all locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-ui-contracts.spec.ts > Admin UI contracts › the view selector is the shared Select atom and the choice survives a reload
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-ui-contracts.spec.ts > Admin UI contracts › the view selector is the shared Select atom and the choice survives a reload
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-ui-contracts.spec.ts > Admin UI contracts › the view selector is the shared Select atom and the choice survives a reload
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • admin-ui-contracts.spec.ts > Admin UI contracts › a destructive action asks for confirmation and cancelling changes nothing
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • admin-ui-contracts.spec.ts > Admin UI contracts › a destructive action asks for confirmation and cancelling changes nothing
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • admin-ui-contracts.spec.ts > Admin UI contracts › a destructive action asks for confirmation and cancelling changes nothing
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Homepage & i18n › homepage redirects to default locale
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Homepage & i18n › homepage redirects to default locale
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Homepage & i18n › homepage redirects to default locale
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Homepage & i18n › French page has lang="fr" and dir="ltr"
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Homepage & i18n › French page has lang="fr" and dir="ltr"
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Homepage & i18n › French page has lang="fr" and dir="ltr"
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Homepage & i18n › English page has lang="en"
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Homepage & i18n › English page has lang="en"
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Homepage & i18n › English page has lang="en"
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Homepage & i18n › Arabic page has dir="rtl"
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Homepage & i18n › Arabic page has dir="rtl"
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Homepage & i18n › Arabic page has dir="rtl"
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Homepage & i18n › navigation and footer are rendered
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Homepage & i18n › navigation and footer are rendered
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Homepage & i18n › navigation and footer are rendered
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Auth - Guest guards › sign-in page renders the login form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Auth - Guest guards › sign-in page renders the login form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Auth - Guest guards › sign-in page renders the login form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Auth - Guest guards › sign-up page renders the registration form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Auth - Guest guards › sign-up page renders the registration form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Auth - Guest guards › sign-up page renders the registration form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Auth - Guest guards › dashboard redirects unauthenticated user to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Auth - Guest guards › dashboard redirects unauthenticated user to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Auth - Guest guards › dashboard redirects unauthenticated user to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Auth - Guest guards › profile redirects unauthenticated user to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Auth - Guest guards › profile redirects unauthenticated user to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Auth - Guest guards › profile redirects unauthenticated user to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Auth - Guest guards › admin redirects unauthenticated user to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Auth - Guest guards › admin redirects unauthenticated user to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Auth - Guest guards › admin redirects unauthenticated user to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Security headers › responses include X-Content-Type-Options: nosniff
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Security headers › responses include X-Content-Type-Options: nosniff
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Security headers › responses include X-Content-Type-Options: nosniff
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Security headers › responses include X-Frame-Options: DENY
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Security headers › responses include X-Frame-Options: DENY
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Security headers › responses include X-Frame-Options: DENY
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Security headers › responses include Referrer-Policy
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Security headers › responses include Referrer-Policy
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Security headers › responses include Referrer-Policy
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • app.spec.ts > Security headers › responses include Permissions-Policy
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • app.spec.ts > Security headers › responses include Permissions-Policy
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • app.spec.ts > Security headers › responses include Permissions-Policy
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth-account.spec.ts > Auth — authenticated account pages › dashboard shows the signed-in user identity
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth-account.spec.ts > Auth — authenticated account pages › dashboard shows the signed-in user identity
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth-account.spec.ts > Auth — authenticated account pages › dashboard shows the signed-in user identity
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth-account.spec.ts > Auth — authenticated account pages › profile page shows the user name and email
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth-account.spec.ts > Auth — authenticated account pages › profile page shows the user name and email
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth-account.spec.ts > Auth — authenticated account pages › profile page shows the user name and email
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth-account.spec.ts > Auth — authenticated account pages › organisations page loads for signed-in users
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth-account.spec.ts > Auth — authenticated account pages › organisations page loads for signed-in users
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth-account.spec.ts > Auth — authenticated account pages › organisations page loads for signed-in users
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth-account.spec.ts > Auth — guest-only pages bounce signed-in users › sign-in page redirects authenticated users to dashboard
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth-account.spec.ts > Auth — guest-only pages bounce signed-in users › sign-in page redirects authenticated users to dashboard
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth-account.spec.ts > Auth — guest-only pages bounce signed-in users › sign-in page redirects authenticated users to dashboard
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth-account.spec.ts > Auth — guest-only pages bounce signed-in users › sign-up page redirects authenticated users
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth-account.spec.ts > Auth — guest-only pages bounce signed-in users › sign-up page redirects authenticated users
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth-account.spec.ts > Auth — guest-only pages bounce signed-in users › sign-up page redirects authenticated users
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth-account.spec.ts > Auth — token pages handle invalid tokens gracefully › verify-email with an invalid token shows an error state (not 500)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth-account.spec.ts > Auth — token pages handle invalid tokens gracefully › verify-email with an invalid token shows an error state (not 500)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth-account.spec.ts > Auth — token pages handle invalid tokens gracefully › verify-email with an invalid token shows an error state (not 500)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth-account.spec.ts > Auth — token pages handle invalid tokens gracefully › reset-password with an invalid token renders (not 500)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth-account.spec.ts > Auth — token pages handle invalid tokens gracefully › reset-password with an invalid token renders (not 500)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth-account.spec.ts > Auth — token pages handle invalid tokens gracefully › reset-password with an invalid token renders (not 500)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth-account.spec.ts > Auth — sign-out › sign-out clears the session
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth-account.spec.ts > Auth — sign-out › sign-out clears the session
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth-account.spec.ts > Auth — sign-out › sign-out clears the session
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth-account.spec.ts > Auth — export-data endpoint › authenticated user can export their data (RGPD)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth-account.spec.ts > Auth — export-data endpoint › authenticated user can export their data (RGPD)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth-account.spec.ts > Auth — export-data endpoint › authenticated user can export their data (RGPD)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Sign-up flow › sign-up form submits and redirects to sign-in page
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Sign-up flow › sign-up form submits and redirects to sign-in page
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Sign-up flow › sign-up form submits and redirects to sign-in page
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Sign-up flow › sign-in form rejects unverified email
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Sign-up flow › sign-in form rejects unverified email
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Sign-up flow › sign-in form rejects unverified email
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Authenticated flow › verified user can sign in and reach dashboard
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Authenticated flow › verified user can sign in and reach dashboard
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Authenticated flow › verified user can sign in and reach dashboard
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Authenticated flow › authenticated user can access profile page
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Authenticated flow › authenticated user can access profile page
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Authenticated flow › authenticated user can access profile page
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Enter key submission › sign-in form submits on Enter key
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Enter key submission › sign-in form submits on Enter key
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Enter key submission › sign-in form submits on Enter key
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Enter key submission › sign-up form submits on Enter key
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Enter key submission › sign-up form submits on Enter key
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Enter key submission › sign-up form submits on Enter key
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Enter key submission › forgot-password form submits on Enter key
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Enter key submission › forgot-password form submits on Enter key
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Enter key submission › forgot-password form submits on Enter key
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Auth guards › organisations page redirects to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Auth guards › organisations page redirects to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Auth guards › organisations page redirects to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Auth guards › verify-email page is accessible without auth
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Auth guards › verify-email page is accessible without auth
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Auth guards › verify-email page is accessible without auth
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Auth guards › reset-password page is accessible without auth
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Auth guards › reset-password page is accessible without auth
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Auth guards › reset-password page is accessible without auth
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Public pages › about page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Public pages › about page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Public pages › about page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Public pages › contact page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Public pages › contact page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Public pages › contact page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Public pages › legal page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Public pages › legal page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Public pages › legal page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Public pages › forgot password page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Public pages › forgot password page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Public pages › forgot password page loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • auth.spec.ts > Public pages › Spanish locale loads correctly
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • auth.spec.ts > Public pages › Spanish locale loads correctly
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • auth.spec.ts > Public pages › Spanish locale loads correctly
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • blog-deep.spec.ts > Blog — admin surfaces › admin blog list loads with filter controls
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • blog-deep.spec.ts > Blog — admin surfaces › admin blog list loads with filter controls
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • blog-deep.spec.ts > Blog — admin surfaces › admin blog list loads with filter controls
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • blog-deep.spec.ts > Blog — admin surfaces › admin blog list responds to status filters
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • blog-deep.spec.ts > Blog — admin surfaces › admin blog list responds to status filters
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • blog-deep.spec.ts > Blog — admin surfaces › admin blog list responds to status filters
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • blog-deep.spec.ts > Blog — admin surfaces › admin new-post form exposes required fields
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • blog-deep.spec.ts > Blog — admin surfaces › admin new-post form exposes required fields
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • blog-deep.spec.ts > Blog — admin surfaces › admin new-post form exposes required fields
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • blog-deep.spec.ts > Blog — public engagement surfaces › blog listing shows post cards linking to details
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • blog-deep.spec.ts > Blog — public engagement surfaces › blog listing shows post cards linking to details
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • blog-deep.spec.ts > Blog — public engagement surfaces › blog listing shows post cards linking to details
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • blog-deep.spec.ts > Blog — public engagement surfaces › blog listing renders in all 4 locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • blog-deep.spec.ts > Blog — public engagement surfaces › blog listing renders in all 4 locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • blog-deep.spec.ts > Blog — public engagement surfaces › blog listing renders in all 4 locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • blog-deep.spec.ts > Blog — moderation queue (admin) › moderation surfaces are reachable from admin blog
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • blog-deep.spec.ts > Blog — moderation queue (admin) › moderation surfaces are reachable from admin blog
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • blog-deep.spec.ts > Blog — moderation queue (admin) › moderation surfaces are reachable from admin blog
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • blog-review-rating-a11y.spec.ts > Star rating — required-field error announcement › the rating error region announces the translated message in every page language and never a bare numeric value
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • blog-review-rating-a11y.spec.ts > Star rating — required-field error announcement › the rating error region announces the translated message in every page language and never a bare numeric value
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • blog-review-rating-a11y.spec.ts > Star rating — required-field error announcement › the rating error region announces the translated message in every page language and never a bare numeric value
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • blog.spec.ts > Blog surfaces › global public blog shows the global post only
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • blog.spec.ts > Blog surfaces › global public blog shows the global post only
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • blog.spec.ts > Blog surfaces › global public blog shows the global post only
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-admin.spec.ts > CMS Admin access › unauthenticated user is redirected from admin pages
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-admin.spec.ts > CMS Admin access › unauthenticated user is redirected from admin pages
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-admin.spec.ts > CMS Admin access › unauthenticated user is redirected from admin pages
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-admin.spec.ts > CMS Site settings page › site page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-admin.spec.ts > CMS Site settings page › site page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-admin.spec.ts > CMS Site settings page › site page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-admin.spec.ts > CMS Site settings page › site page contains settings form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-admin.spec.ts > CMS Site settings page › site page contains settings form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-admin.spec.ts > CMS Site settings page › site page contains settings form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-admin.spec.ts > CMS Site settings page › site page has tabs for settings and hours
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-admin.spec.ts > CMS Site settings page › site page has tabs for settings and hours
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-admin.spec.ts > CMS Site settings page › site page has tabs for settings and hours
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-admin.spec.ts > CMS Navigation page › navigation page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-admin.spec.ts > CMS Navigation page › navigation page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-admin.spec.ts > CMS Navigation page › navigation page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-admin.spec.ts > CMS Navigation page › navigation page contains management UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-admin.spec.ts > CMS Navigation page › navigation page contains management UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-admin.spec.ts > CMS Navigation page › navigation page contains management UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-admin.spec.ts > CMS Theme page › theme page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-admin.spec.ts > CMS Theme page › theme page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-admin.spec.ts > CMS Theme page › theme page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-admin.spec.ts > CMS Theme page › theme page contains form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-admin.spec.ts > CMS Theme page › theme page contains form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-admin.spec.ts > CMS Theme page › theme page contains form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-deep.spec.ts > CMS — pages & sections › pages admin lists pages and exposes create action
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-deep.spec.ts > CMS — pages & sections › pages admin lists pages and exposes create action
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-deep.spec.ts > CMS — pages & sections › pages admin lists pages and exposes create action
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-deep.spec.ts > CMS — pages & sections › trash/scheduled/published tabs respond to query params
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-deep.spec.ts > CMS — pages & sections › trash/scheduled/published tabs respond to query params
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-deep.spec.ts > CMS — pages & sections › trash/scheduled/published tabs respond to query params
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-deep.spec.ts > CMS — navigation & menus › navigation admin renders tree management UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-deep.spec.ts > CMS — navigation & menus › navigation admin renders tree management UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-deep.spec.ts > CMS — navigation & menus › navigation admin renders tree management UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-deep.spec.ts > CMS — site settings tabs › site settings page exposes settings, contact, hours, social and consent tabs
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-deep.spec.ts > CMS — site settings tabs › site settings page exposes settings, contact, hours, social and consent tabs
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-deep.spec.ts > CMS — site settings tabs › site settings page exposes settings, contact, hours, social and consent tabs
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-deep.spec.ts > CMS — site settings tabs › theme page exposes theme form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-deep.spec.ts > CMS — site settings tabs › theme page exposes theme form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-deep.spec.ts > CMS — site settings tabs › theme page exposes theme form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-deep.spec.ts > CMS — content import/export endpoints (admin auth) › GET /api/content-export returns a JSON export for admins
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-deep.spec.ts > CMS — content import/export endpoints (admin auth) › GET /api/content-export returns a JSON export for admins
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-deep.spec.ts > CMS — content import/export endpoints (admin auth) › GET /api/content-export returns a JSON export for admins
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-deep.spec.ts > CMS — content import/export endpoints (admin auth) › POST /api/content-import rejects invalid JSON payload
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-deep.spec.ts > CMS — content import/export endpoints (admin auth) › POST /api/content-import rejects invalid JSON payload
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-deep.spec.ts > CMS — content import/export endpoints (admin auth) › POST /api/content-import rejects invalid JSON payload
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-deep.spec.ts > CMS — content import/export endpoints (admin auth) › GET /api/audit-export streams audit log for admins
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-deep.spec.ts > CMS — content import/export endpoints (admin auth) › GET /api/audit-export streams audit log for admins
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-deep.spec.ts > CMS — content import/export endpoints (admin auth) › GET /api/audit-export streams audit log for admins
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-deep.spec.ts > CMS — media library › media admin page exposes the upload UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-deep.spec.ts > CMS — media library › media admin page exposes the upload UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-deep.spec.ts > CMS — media library › media admin page exposes the upload UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-deep.spec.ts > CMS — media library › GET /api/media returns the media list for admins
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-deep.spec.ts > CMS — media library › GET /api/media returns the media list for admins
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-deep.spec.ts > CMS — media library › GET /api/media returns the media list for admins
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • cms-deep.spec.ts > CMS — media library › POST /api/upload rejects non-multipart bodies
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • cms-deep.spec.ts > CMS — media library › POST /api/upload rejects non-multipart bodies
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • cms-deep.spec.ts > CMS — media library › POST /api/upload rejects non-multipart bodies
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • contact.spec.ts > Contact page › contact page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • contact.spec.ts > Contact page › contact page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • contact.spec.ts > Contact page › contact page loads successfully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • contact.spec.ts > Contact page › contact page loads in all locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • contact.spec.ts > Contact page › contact page loads in all locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • contact.spec.ts > Contact page › contact page loads in all locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • contact.spec.ts > Contact page › contact page has form fields
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • contact.spec.ts > Contact page › contact page has form fields
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • contact.spec.ts > Contact page › contact page has form fields
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • contact.spec.ts > Contact page — admin auth guard › contact form is accessible without auth
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • contact.spec.ts > Contact page — admin auth guard › contact form is accessible without auth
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • contact.spec.ts > Contact page — admin auth guard › contact form is accessible without auth
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • credential-url-leak.spec.ts > Invariant A — credentials never reach a URL (scripted path) › sign-in submission keeps email and password out of the final URL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • credential-url-leak.spec.ts > Invariant A — credentials never reach a URL (scripted path) › sign-in submission keeps email and password out of the final URL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • credential-url-leak.spec.ts > Invariant A — credentials never reach a URL (scripted path) › sign-in submission keeps email and password out of the final URL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • credential-url-leak.spec.ts > Invariant A — credentials never reach a URL (scripted path) › sign-up submission keeps name, username, email and password out of the URL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • credential-url-leak.spec.ts > Invariant A — credentials never reach a URL (scripted path) › sign-up submission keeps name, username, email and password out of the URL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • credential-url-leak.spec.ts > Invariant A — credentials never reach a URL (scripted path) › sign-up submission keeps name, username, email and password out of the URL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • credential-url-leak.spec.ts > Invariant A — structural barriers (hold without JavaScript) › sign-in form declares method="post" and an explicit same-origin action
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • credential-url-leak.spec.ts > Invariant A — structural barriers (hold without JavaScript) › sign-in form declares method="post" and an explicit same-origin action
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • credential-url-leak.spec.ts > Invariant A — structural barriers (hold without JavaScript) › sign-in form declares method="post" and an explicit same-origin action
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • credential-url-leak.spec.ts > Invariant A — structural barriers (hold without JavaScript) › sign-up form declares method="post" and an explicit same-origin action
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • credential-url-leak.spec.ts > Invariant A — structural barriers (hold without JavaScript) › sign-up form declares method="post" and an explicit same-origin action
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • credential-url-leak.spec.ts > Invariant A — structural barriers (hold without JavaScript) › sign-up form declares method="post" and an explicit same-origin action
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • credential-url-leak.spec.ts > Invariant A — structural barriers (hold without JavaScript) › no identity form on the auth pages falls back to GET-to-current-URL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • credential-url-leak.spec.ts > Invariant A — structural barriers (hold without JavaScript) › no identity form on the auth pages falls back to GET-to-current-URL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • credential-url-leak.spec.ts > Invariant A — structural barriers (hold without JavaScript) › no identity form on the auth pages falls back to GET-to-current-URL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • credential-url-leak.spec.ts > Invariant A — no-JavaScript submission (the 23/09 failure mode) › blocked scripts do not serialise the credentials into the query string
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • credential-url-leak.spec.ts > Invariant A — no-JavaScript submission (the 23/09 failure mode) › blocked scripts do not serialise the credentials into the query string
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • credential-url-leak.spec.ts > Invariant A — no-JavaScript submission (the 23/09 failure mode) › blocked scripts do not serialise the credentials into the query string
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › a guest can walk the whole public site in FR without a single 4xx/5xx
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › a guest can walk the whole public site in FR without a single 4xx/5xx
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › a guest can walk the whole public site in FR without a single 4xx/5xx
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › guest navigation smoke in fr
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › guest navigation smoke in fr
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › guest navigation smoke in fr
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › guest navigation smoke in en
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › guest navigation smoke in en
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › guest navigation smoke in en
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › guest navigation smoke in es
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › guest navigation smoke in es
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › guest navigation smoke in es
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › guest navigation smoke in ar
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › guest navigation smoke in ar
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — full public navigation › guest navigation smoke in ar
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — gated flows bounce to sign-in › guest hitting the dashboard is redirected to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — gated flows bounce to sign-in › guest hitting the dashboard is redirected to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — gated flows bounce to sign-in › guest hitting the dashboard is redirected to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — gated flows bounce to sign-in › guest hitting profile is redirected to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — gated flows bounce to sign-in › guest hitting profile is redirected to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — gated flows bounce to sign-in › guest hitting profile is redirected to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — gated flows bounce to sign-in › guest hitting admin is redirected to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — gated flows bounce to sign-in › guest hitting admin is redirected to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — gated flows bounce to sign-in › guest hitting admin is redirected to sign-in
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — error surfaces › unknown page renders the 404 surface
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — error surfaces › unknown page renders the 404 surface
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — error surfaces › unknown page renders the 404 surface
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — error surfaces › unknown blog slug is handled gracefully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — error surfaces › unknown blog slug is handled gracefully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — error surfaces › unknown blog slug is handled gracefully
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — error surfaces › unknown service slug redirects to the services list
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — error surfaces › unknown service slug redirects to the services list
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — error surfaces › unknown service slug redirects to the services list
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — consent & SEO surfaces › homepage carries the SEO essentials
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — consent & SEO surfaces › homepage carries the SEO essentials
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — consent & SEO surfaces › homepage carries the SEO essentials
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • guest-journeys.spec.ts > Guest — consent & SEO surfaces › pages set og: metadata
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • guest-journeys.spec.ts > Guest — consent & SEO surfaces › pages set og: metadata
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • guest-journeys.spec.ts > Guest — consent & SEO surfaces › pages set og: metadata
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › /fr/ loads with correct lang attribute
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › /fr/ loads with correct lang attribute
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › /fr/ loads with correct lang attribute
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › /en/ loads with correct lang attribute
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › /en/ loads with correct lang attribute
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › /en/ loads with correct lang attribute
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › /es/ loads with correct lang attribute
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › /es/ loads with correct lang attribute
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › /es/ loads with correct lang attribute
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › /ar/ loads with correct lang attribute
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › /ar/ loads with correct lang attribute
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › /ar/ loads with correct lang attribute
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › Arabic homepage is RTL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › Arabic homepage is RTL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › Arabic homepage is RTL
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › non-Arabic homepages are LTR
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › non-Arabic homepages are LTR
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — homepage per locale › non-Arabic homepages are LTR
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — about page per locale › /fr/a-propos loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — about page per locale › /fr/a-propos loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — about page per locale › /fr/a-propos loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — about page per locale › /en/about loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — about page per locale › /en/about loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — about page per locale › /en/about loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — about page per locale › /es/acerca-de loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — about page per locale › /es/acerca-de loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — about page per locale › /es/acerca-de loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — about page per locale › /ar/about loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — about page per locale › /ar/about loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — about page per locale › /ar/about loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — contact page per locale › /fr/contact loads with form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — contact page per locale › /fr/contact loads with form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — contact page per locale › /fr/contact loads with form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — contact page per locale › /en/contact loads with form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — contact page per locale › /en/contact loads with form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — contact page per locale › /en/contact loads with form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — contact page per locale › /es/contacto loads with form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — contact page per locale › /es/contacto loads with form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — contact page per locale › /es/contacto loads with form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — contact page per locale › /ar/contact loads with form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — contact page per locale › /ar/contact loads with form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — contact page per locale › /ar/contact loads with form
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — legal notice per locale › /fr/mentions-legales loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — legal notice per locale › /fr/mentions-legales loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — legal notice per locale › /fr/mentions-legales loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — legal notice per locale › /en/legal-notice loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — legal notice per locale › /en/legal-notice loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — legal notice per locale › /en/legal-notice loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — legal notice per locale › /es/aviso-legal loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — legal notice per locale › /es/aviso-legal loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — legal notice per locale › /es/aviso-legal loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — legal notice per locale › /ar/legal-notice loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — legal notice per locale › /ar/legal-notice loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — legal notice per locale › /ar/legal-notice loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — blog listing per locale › /fr/blog loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — blog listing per locale › /fr/blog loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — blog listing per locale › /fr/blog loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — blog listing per locale › /en/blog loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — blog listing per locale › /en/blog loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — blog listing per locale › /en/blog loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — blog listing per locale › /es/blog loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — blog listing per locale › /es/blog loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — blog listing per locale › /es/blog loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — blog listing per locale › /ar/blog loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — blog listing per locale › /ar/blog loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — blog listing per locale › /ar/blog loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — trips listing per locale (localized segment rewrite) › /fr/voyages loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — trips listing per locale (localized segment rewrite) › /fr/voyages loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — trips listing per locale (localized segment rewrite) › /fr/voyages loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — trips listing per locale (localized segment rewrite) › /en/trips loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — trips listing per locale (localized segment rewrite) › /en/trips loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — trips listing per locale (localized segment rewrite) › /en/trips loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — trips listing per locale (localized segment rewrite) › /es/viajes loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — trips listing per locale (localized segment rewrite) › /es/viajes loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — trips listing per locale (localized segment rewrite) › /es/viajes loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — trips listing per locale (localized segment rewrite) › /ar/trips loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — trips listing per locale (localized segment rewrite) › /ar/trips loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — trips listing per locale (localized segment rewrite) › /ar/trips loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — sign-in page per locale › /fr/auth/connexion loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — sign-in page per locale › /fr/auth/connexion loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — sign-in page per locale › /fr/auth/connexion loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — sign-in page per locale › /en/auth/sign-in loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — sign-in page per locale › /en/auth/sign-in loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — sign-in page per locale › /en/auth/sign-in loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — sign-in page per locale › /es/auth/iniciar-sesion loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — sign-in page per locale › /es/auth/iniciar-sesion loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — sign-in page per locale › /es/auth/iniciar-sesion loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • i18n-routes.spec.ts > i18n — sign-in page per locale › /ar/auth/sign-in loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • i18n-routes.spec.ts > i18n — sign-in page per locale › /ar/auth/sign-in loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • i18n-routes.spec.ts > i18n — sign-in page per locale › /ar/auth/sign-in loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • public-pages.spec.ts > Public surfaces — error pages › unknown CMS slug returns 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • public-pages.spec.ts > Public surfaces — error pages › unknown CMS slug returns 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • public-pages.spec.ts > Public surfaces — error pages › unknown CMS slug returns 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • public-pages.spec.ts > Public surfaces — booking confirmation guard › booking-confirmed without session_id returns 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • public-pages.spec.ts > Public surfaces — booking confirmation guard › booking-confirmed without session_id returns 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • public-pages.spec.ts > Public surfaces — booking confirmation guard › booking-confirmed without session_id returns 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • public-pages.spec.ts > Public surfaces — booking confirmation guard › booking-confirmed with unknown session_id returns 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • public-pages.spec.ts > Public surfaces — booking confirmation guard › booking-confirmed with unknown session_id returns 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • public-pages.spec.ts > Public surfaces — booking confirmation guard › booking-confirmed with unknown session_id returns 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • services-deep.spec.ts > Services — admin CRUD & editor › service create form exposes required fields
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • services-deep.spec.ts > Services — admin CRUD & editor › service create form exposes required fields
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • services-deep.spec.ts > Services — admin CRUD & editor › service edit form loads for a fixture service
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • services-deep.spec.ts > Services — admin CRUD & editor › service edit form loads for a fixture service
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • services-deep.spec.ts > Services — admin CRUD & editor › services admin supports search + status + sort query params
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • services-deep.spec.ts > Services — admin CRUD & editor › services admin supports search + status + sort query params
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • services-deep.spec.ts > Services — public surfaces › services list responds to search query
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • services-deep.spec.ts > Services — public surfaces › services list responds to search query
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • services-deep.spec.ts > Services — public surfaces › services list renders in all 4 locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • services-deep.spec.ts > Services — public surfaces › services list renders in all 4 locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • services-deep.spec.ts > Services — public surfaces › unknown service slug redirects to the list
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • services-deep.spec.ts > Services — public surfaces › unknown service slug redirects to the list
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • services-deep.spec.ts > Services — admin CRUD & editor › service create form exposes required fields
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • services-deep.spec.ts > Services — admin CRUD & editor › service edit form loads for a fixture service
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • services-deep.spec.ts > Services — admin CRUD & editor › services admin supports search + status + sort query params
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • services-deep.spec.ts > Services — public surfaces › services list responds to search query
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • services-deep.spec.ts > Services — public surfaces › services list renders in all 4 locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • services-deep.spec.ts > Services — public surfaces › unknown service slug redirects to the list
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • services-lifecycle.spec.ts › services admin lifecycle follows the explicit state machine
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • services-lifecycle.spec.ts › services admin lifecycle follows the explicit state machine
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • services-lifecycle.spec.ts › services admin lifecycle follows the explicit state machine
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • services.spec.ts > Services surfaces › global public list, category and detail stay canonical
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • services.spec.ts > Services surfaces › global public list, category and detail stay canonical
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • services.spec.ts > Services surfaces › global public list, category and detail stay canonical
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • ux-flows.spec.ts > Contact form — UI submission › contact form submits successfully through the UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • ux-flows.spec.ts > Contact form — UI submission › contact form submits successfully through the UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • ux-flows.spec.ts > Contact form — UI submission › contact form submits successfully through the UI
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • ux-flows.spec.ts > Navigation — header & footer links › all header nav links resolve without 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • ux-flows.spec.ts > Navigation — header & footer links › all header nav links resolve without 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • ux-flows.spec.ts > Navigation — header & footer links › all header nav links resolve without 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • ux-flows.spec.ts > Navigation — header & footer links › all footer links resolve without 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • ux-flows.spec.ts > Navigation — header & footer links › all footer links resolve without 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • ux-flows.spec.ts > Navigation — header & footer links › all footer links resolve without 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • ux-flows.spec.ts > Services — tag page › services tag page loads for a real tag (skipped when none seeded)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • ux-flows.spec.ts > Services — tag page › services tag page loads for a real tag (skipped when none seeded)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • ux-flows.spec.ts > Services — tag page › services tag page loads for a real tag (skipped when none seeded)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • ux-flows.spec.ts > Locale switcher › the locale switcher exposes all 4 locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • ux-flows.spec.ts > Locale switcher › the locale switcher exposes all 4 locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • ux-flows.spec.ts > Locale switcher › the locale switcher exposes all 4 locales
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage public — liste et fiche › list loads in EN and FR (localized segment rewritten)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage public — liste et fiche › list loads in EN and FR (localized segment rewritten)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage public — liste et fiche › list loads in EN and FR (localized segment rewritten)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage public — liste et fiche › list loads in ES and AR with ASCII slugs
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage public — liste et fiche › list loads in ES and AR with ASCII slugs
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage public — liste et fiche › list loads in ES and AR with ASCII slugs
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage public — liste et fiche › detail loads via canonical localized URLs with SEO tags
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage public — liste et fiche › detail loads via canonical localized URLs with SEO tags
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage public — liste et fiche › detail loads via canonical localized URLs with SEO tags
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage public — liste et fiche › unknown trip slug renders 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage public — liste et fiche › unknown trip slug renders 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage public — liste et fiche › unknown trip slug renders 404
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage — rareté marketing (≤ 2 places) › visitor sees the urgency banner, never a counter
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage — rareté marketing (≤ 2 places) › visitor sees the urgency banner, never a counter
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage — rareté marketing (≤ 2 places) › visitor sees the urgency banner, never a counter
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage — rareté marketing (≤ 2 places) › listing card turns the status pill into the scarcity signal
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage — rareté marketing (≤ 2 places) › listing card turns the status pill into the scarcity signal
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage — rareté marketing (≤ 2 places) › listing card turns the status pill into the scarcity signal
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage — rareté marketing (≤ 2 places) › admin keeps the exact counter alongside the banner
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage — rareté marketing (≤ 2 places) › admin keeps the exact counter alongside the banner
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage — rareté marketing (≤ 2 places) › admin keeps the exact counter alongside the banner
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage — arabe RTL › arabic page has dir="rtl" and arabic content
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage — arabe RTL › arabic page has dir="rtl" and arabic content
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage — arabe RTL › arabic page has dir="rtl" and arabic content
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage — candidature › anonymous visitor is redirected to sign-in with ?next=
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage — candidature › anonymous visitor is redirected to sign-in with ?next=
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage — candidature › anonymous visitor is redirected to sign-in with ?next=
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage — candidature › authenticated flow submits an application
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage — candidature › authenticated flow submits an application
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage — candidature › authenticated flow submits an application
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage — admin trips › unauthenticated user is redirected
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage — admin trips › unauthenticated user is redirected
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage — admin trips › unauthenticated user is redirected
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage — admin trips › admin trips list loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage — admin trips › admin trips list loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage — admin trips › admin trips list loads
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage — admin trips › admin applications, reservations, payments and emails load
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage — admin trips › admin applications, reservations, payments and emails load
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage — admin trips › admin applications, reservations, payments and emails load
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage — early bird (paiement intégral anticipé) › detail card shows the early bird banner with full payment wording
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage — early bird (paiement intégral anticipé) › detail card shows the early bird banner with full payment wording
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage — early bird (paiement intégral anticipé) › detail card shows the early bird banner with full payment wording
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+  • voyage.spec.ts > Voyage — early bird (paiement intégral anticipé) › admin dedicated fields persist early bird rules (round-trip)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+  • voyage.spec.ts > Voyage — early bird (paiement intégral anticipé) › admin dedicated fields persist early bird rules (round-trip)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+  • voyage.spec.ts > Voyage — early bird (paiement intégral anticipé) › admin dedicated fields persist early bird rules (round-trip)
+    Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
 
   ✅ Accessibility Audit (Pa11y — WCAG 2.1 AAA)
      112/112 URLs clean
 
   ❌ Performance & Quality Audit (Lighthouse CI)
-     52 page(s) audited, 8 below threshold (≥90)
+     52 page(s) audited, 9 below threshold (≥90)
 
-  • 8 page(s) scored below the 90 threshold (see lighthouse-report.txt for detail)
+  • 9 page(s) scored below the 90 threshold (see lighthouse-report.txt for detail)
 
 ══════════════════════════════════════════════════════════════════════════════════
   GLOBAL STATUS
@@ -43,9 +1313,9 @@
   │ Report                                      │ Status       │ Result  │
   ├─────────────────────────────────────────────┼──────────────┼─────────┤
   │ Astro check                                 │ GREEN        │ 0 error │
-  │ ESLint                                      │ RED          │ 2 error │
-  │ Vitest (unit/integration)                   │ GREEN        │ 1997/19 │
-  │ Playwright (e2e)                            │ RED          │ 1629/16 │
+  │ ESLint                                      │ GREEN        │ 0 error │
+  │ Vitest (unit/integration)                   │ GREEN        │ 2029/20 │
+  │ Playwright (e2e)                            │ RED          │ 951/164 │
   │ Pa11y (a11y)                                │ GREEN        │ 112/112 │
   │ Lighthouse (perf)                           │ RED          │ 52 page │
   └─────────────────────────────────────────────┴──────────────┴─────────┘

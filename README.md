@@ -23,7 +23,7 @@ _This README is auto-generated to provide comprehensive context for AI assistanc
 
 SSR multi-language web application with complete authentication, organisation management, CMS, media upload, and audit trail.
 
-- ⚡ **Astro 7.3.1** (SSR, `@astrojs/node`) — Server-side rendering, Tailwind CSS 4, TypeScript
+- ⚡ **Astro 7.4.2** (SSR, `@astrojs/node`) — Server-side rendering, Tailwind CSS 4, TypeScript
 - 🔐 **better-auth** — Email/password, email verification, organisations, roles, admin impersonation
 - 🗄️ **Drizzle ORM** + **PostgreSQL 16** — Type-safe migrations, loaders, full-text search
 - 🎨 **Starwind** — 49 accessible Astro UI components
@@ -32,13 +32,13 @@ SSR multi-language web application with complete authentication, organisation ma
 - 📁 **Media** — Upload, Sharp image processing, folder organisation
 - 📧 **SMTP** — Brevo / Resend / Nodemailer + dead-letter queue
 - 🛡️ **Security** — Audit trail, rate limiting, input sanitization
-- ✅ **Testing** — 181 Vitest + 29 E2E Playwright scenarios × 3 browsers
+- ✅ **Testing** — 182 Vitest + 29 E2E Playwright scenarios × 3 browsers
 
 ### Tech Stack
 
 | Technology | Role |
 |:--|:--|
-| **Astro 7.3.1** (`@astrojs/node`) | SSR framework |
+| **Astro 7.4.2** (`@astrojs/node`) | SSR framework |
 | **better-auth** | Auth, organisations, sessions |
 | **Drizzle ORM** + **PostgreSQL 16** | Database |
 | **Tailwind CSS 4** + **Starwind** | Design system (49 components) |
@@ -396,6 +396,7 @@ migrations/
   0003_trip_media.sql
   0004_gallery_caption_i18n.sql
   0005_media_responsive_variants.sql
+  0006_waitlist_entries.sql
   meta/
     0000_snapshot.json
     0001_snapshot.json
@@ -423,6 +424,7 @@ schemas/
   site.schema.ts
   travelers.schema.ts
   trips.schema.ts
+  waitlist.schema.ts
 schemas.ts
 ```
 
@@ -579,8 +581,11 @@ schemas.ts
 
 **email-voyage.schema.ts**
 - `email_templates`: `id`, `key`, `locale`, `version`, `subject`, `html`, `textBody`, `active`, `createdAt`, `updatedAt`
-- `email_deliveries`: `id`, `templateKey`, `templateVersion`, `locale`, `toEmail`, `travelerId`, `reservationId`, `status`, `attempts`, `lastError`, `scheduledAt`, `sentAt`, `createdAt`, `updatedAt` _(events: many)_
+- `email_deliveries`: `id`, `templateKey`, `templateVersion`, `locale`, `toEmail`, `travelerId`, `reservationId`, `dedupeKey`, `status`, `attempts`, `lastError`, `scheduledAt`, `sentAt`, `createdAt`, `updatedAt` _(events: many)_
 - `email_events`: `id`, `deliveryId`, `event`, `createdAt`
+
+**waitlist.schema.ts**
+- `waitlist_entries`: `id`, `applicationId`, `departureId`, `status`, `joinedAt`, `offeredAt`, `expiresAt`, `promotedAt`, `createdAt`, `updatedAt` _(application: one, departure: one)_
 
 ### Migrations
 
@@ -590,6 +595,7 @@ schemas.ts
 - `0003_trip_media.sql`
 - `0004_gallery_caption_i18n.sql`
 - `0005_media_responsive_variants.sql`
+- `0006_waitlist_entries.sql`
 
 ### Commands
 
@@ -763,6 +769,7 @@ applications/
   domain/
     application-service.ts
     application-transitions.ts
+    waitlist-service.ts
   loaders/
     admin-applications.loader.ts
   module.ts
@@ -1339,6 +1346,13 @@ agents/
   vladimir.agent.md
   yusra.agent.md
 dependabot.yml
+instructions/
+  postman-collections-post-response.instructions.md
+  postman-collections-pre-request.instructions.md
+  postman-folder-post-response.instructions.md
+  postman-folder-pre-request.instructions.md
+  postman-http-request-post-response.instructions.md
+  postman-http-request-pre-request.instructions.md
 skills/
   accessibility/
     references/

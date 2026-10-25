@@ -1,6 +1,6 @@
 ════════════════════════════════════════════════════════════════════════════════
   VITEST UNIT & INTEGRATION TEST REPORT
-  Generated: 2026-09-30 16:42:07
+  Generated: 2026-10-25 15:04:42
 ════════════════════════════════════════════════════════════════════════════════
 
   ✅ tests\integration\admin-trips.test.ts  (4/4 passed)
@@ -35,10 +35,11 @@
   ✅ tests\integration\trip-loader.test.ts  (3/3 passed)
   ✅ tests\integration\voyage-action-errors.test.ts  (17/17 passed)
   ✅ tests\integration\voyage-actions-missing.test.ts  (6/6 passed)
-  ✅ tests\integration\voyage-actions2.test.ts  (15/15 passed)
+  ✅ tests\integration\voyage-actions2.test.ts  (18/18 passed)
   ✅ tests\integration\voyage-actions3.test.ts  (14/14 passed)
   ✅ tests\integration\voyage-completeness.test.ts  (17/17 passed)
   ✅ tests\integration\voyage-cron.test.ts  (3/3 passed)
+  ✅ tests\integration\voyage-early-bird.test.ts  (4/4 passed)
   ✅ tests\integration\voyage-endpoints.test.ts  (3/3 passed)
   ✅ tests\integration\voyage-engagement.test.ts  (7/7 passed)
   ✅ tests\integration\voyage-finition.test.ts  (10/10 passed)
@@ -175,25 +176,25 @@
   ✅ tests\unit\voyage\loaders-edge.test.ts  (6/6 passed)
   ✅ tests\unit\voyage\middleware-forwarded-audit.test.ts  (21/21 passed)
   ✅ tests\unit\voyage\middleware.test.ts  (23/23 passed)
-  ✅ tests\unit\voyage\pricing-availability.test.ts  (11/11 passed)
+  ✅ tests\unit\voyage\pricing-availability.test.ts  (26/26 passed)
   ✅ tests\unit\voyage\request-id-fallback.test.ts  (1/1 passed)
   ✅ tests\unit\voyage\seed-content.test.ts  (8/8 passed)
   ✅ tests\unit\voyage\smtp-dead-letter.test.ts  (1/1 passed)
   ✅ tests\unit\voyage\stripe-provider.test.ts  (8/8 passed)
-  ✅ tests\unit\voyage\templates.test.ts  (50/50 passed)
+  ✅ tests\unit\voyage\templates.test.ts  (58/58 passed)
   ✅ tests\unit\voyage\transitions.test.ts  (11/11 passed)
   ✅ tests\unit\voyage\trip-engagement.test.ts  (16/16 passed)
-  ✅ tests\unit\voyage\voyage-email.test.ts  (12/12 passed)
+  ✅ tests\unit\voyage\voyage-email.test.ts  (14/14 passed)
 
 ════════════════════════════════════════════════════════════════════════════════
   SUMMARY
 ════════════════════════════════════════════════════════════════════════════════
 
-  Total tests:   1997
-  Passed:        1997  ✅
+  Total tests:   2029
+  Passed:        2029  ✅
   Failed:        0  
-  Duration:      141s
+  Duration:      139s
 
 ════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 1997/1997 passed
+  END OF REPORT — 2029/2029 passed
 ════════════════════════════════════════════════════════════════════════════════
