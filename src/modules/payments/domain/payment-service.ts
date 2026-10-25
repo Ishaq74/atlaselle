@@ -126,8 +126,8 @@ export async function initiateCheckout(input: {
       });
     } catch (err) {
       await db.transaction(async (tx) => {
-        await tx.update(payments).set({ status: "failed", failedAt: new Date() }).where(eq(payments.id, payment.id));
-        await tx.update(reservations).set({ status: "pending" }).where(eq(reservations.id, reservation.id));
+        await tx.delete(payments).where(eq(payments.id, payment.id));
+        await tx.delete(reservations).where(eq(reservations.id, reservation.id));
         const [offer] = await tx
           .update(waitlistEntries)
           .set({ status: "expired", updatedAt: new Date() })

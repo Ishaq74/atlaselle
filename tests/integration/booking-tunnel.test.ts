@@ -97,6 +97,7 @@ async function cleanup() {
 }
 
 async function approveFlow(email: string) {
+  await db.update(departures).set({ status: 'waitlist' }).where(eq(departures.id, DEP_ID));
   const sub = await submit(
     {
       tripId: TRIP_ID, departureId: DEP_ID, legalName: 'Tunnel User', email, phone: null,
@@ -105,6 +106,7 @@ async function approveFlow(email: string) {
     },
     applicantCtx(email),
   );
+  await db.update(departures).set({ status: 'open' }).where(eq(departures.id, DEP_ID));
   await review({ id: sub.id, decision: 'approved' }, (globalThis as any).__adminCtx);
   const [checkout] = await db.select().from(checkoutSessions).where(eq(checkoutSessions.applicationId, sub.id));
   return { applicationId: sub.id, checkout };
@@ -262,7 +264,7 @@ describe('Booking tunnel — mock provider (real DB)', () => {
     await db.insert(departures).values({
       id: depId, tripId: TRIP_ID,
       startDate: new Date('2027-11-01T08:00:00.000Z'), endDate: new Date('2027-11-04T18:00:00.000Z'),
-      status: 'open', capacityMin: 1, capacityMax: 5, priceAmount: 100000, currency: 'EUR',
+      status: 'waitlist', capacityMin: 1, capacityMax: 5, priceAmount: 100000, currency: 'EUR',
       depositType: 'fixed', depositAmount: 20000, pricingRules: {},
       balanceDueDate: new Date('2027-09-01T00:00:00.000Z'),
       bookingDeadline: new Date('2027-10-15T23:59:00.000Z'),
@@ -276,6 +278,7 @@ describe('Booking tunnel — mock provider (real DB)', () => {
       },
       applicantCtx(email),
     );
+    await db.update(departures).set({ status: 'open' }).where(eq(departures.id, depId));
     await review({ id: sub.id, decision: 'approved' }, (globalThis as any).__adminCtx);
     const [checkout] = await db.select().from(checkoutSessions).where(eq(checkoutSessions.applicationId, sub.id));
     const init = await initiate(

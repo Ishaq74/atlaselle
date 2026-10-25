@@ -117,7 +117,7 @@ describe('Voyage action error paths (real DB)', () => {
     await db.insert(departures).values({
       id: DEP_ID, tripId: TRIP_ID,
       startDate: new Date('2027-06-01T08:00:00.000Z'), endDate: new Date('2027-06-04T18:00:00.000Z'),
-      status: 'open', capacityMin: 2, capacityMax: 8, priceAmount: 100000, currency: 'EUR', pricingRules: {},
+      status: 'waitlist', capacityMin: 2, capacityMax: 8, priceAmount: 100000, currency: 'EUR', pricingRules: {},
       bookingDeadline: new Date('2027-05-15T23:59:00.000Z'),
     });
   });
@@ -262,6 +262,7 @@ describe('Voyage action error paths (real DB)', () => {
       verifiedCtx(adminId, email),
     );
     await review({ id: sub.id, decision: 'approved' }, adminCtx(adminId));
+    await db.update(departures).set({ status: 'open' }).where(eq(departures.id, DEP_ID));
     const { checkoutSessions: sessions } = await import('@database/schemas/payments.schema');
     const [checkout] = await db.select().from(sessions).where(eq(sessions.applicationId, sub.id));
     await expect(

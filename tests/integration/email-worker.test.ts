@@ -105,7 +105,7 @@ describe('Email worker — outbox → deliveries (real DB, stubbed SMTP)', () =>
       status: 'confirmed', currency: 'EUR', baseAmount: 100000, totalAmount: 100000,
       amountPaid: 20000, amountDue: 80000,
       balanceDueDate: new Date(Date.now() + 3 * 86_400_000),
-      confirmedAt: new Date(),
+      confirmedAt: new Date(Date.now() - 3 * 86_400_000),
     }).returning({ id: reservations.id });
     reservationId = reservation.id;
   });
@@ -144,10 +144,15 @@ describe('Email worker — outbox → deliveries (real DB, stubbed SMTP)', () =>
   });
 
   it('sends balance reminders once (dedupe)', async () => {
+    const deliveriesForReservation = async () =>
+      db.select().from(emailDeliveries).where(eq(emailDeliveries.reservationId, reservationId));
     const first = await sendBalanceReminders(new Date(), stubSender);
     expect(first).toBeGreaterThanOrEqual(1);
-    const second = await sendBalanceReminders(new Date(), stubSender);
-    expect(second).toBe(0);
+    const before = await deliveriesForReservation();
+    expect(before.filter((row) => row.templateKey === 'balance_reminder' && row.status === 'sent')).toHaveLength(1);
+    await sendBalanceReminders(new Date(), stubSender);
+    const after = await deliveriesForReservation();
+    expect(after.filter((row) => row.templateKey === 'balance_reminder' && row.status === 'sent')).toHaveLength(1);
   });
 
   it('sends pre-trip and post-trip reminders once', async () => {

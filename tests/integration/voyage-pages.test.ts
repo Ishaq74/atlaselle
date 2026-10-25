@@ -266,7 +266,7 @@ describe('reminders — fenêtres et exclusions', () => {
       reservationNumber: `ATL-2027-R${mkResCount.toString(36).toUpperCase()}${stamp.slice(-4).toUpperCase()}`,
       travelerId: t, tripId: TRIP, departureId: dep.id, status,
       currency, baseAmount: 100000, totalAmount: 100000, amountPaid: 20000, amountDue: 80000,
-      balanceDueDate,
+      balanceDueDate, confirmedAt: new Date(now.getTime() - 3 * 86_400_000),
     }).returning({ id: reservations.id });
     return { travelerId: t, reservationId: res.id };
   }
