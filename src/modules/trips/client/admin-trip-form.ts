@@ -36,6 +36,44 @@ const dateOrNull = (value: FormDataEntryValue | null): Date | null => {
 const currentForm = (event: Event): HTMLFormElement | null =>
   event.currentTarget as HTMLFormElement | null;
 
+/** Raison d'échec côté client : JSON avancé invalide, ou early bird activé sans valeur. */
+type PricingRulesResult =
+  | { ok: true; rules: Record<string, unknown> }
+  | { ok: false; reason: "invalidJson" | "earlyBirdValue" };
+
+/** Construit `pricingRules` : JSON avancé + superposition des champs early bird
+ *  dédiés. Les champs dédiés restent la source de vérité : toute clé `earlyBird*`
+ *  du JSON avancé est retirée avant la fusion (early bird %/fixe exclusifs). */
+function parsePricingRules(data: FormData): PricingRulesResult {
+  let rules: Record<string, unknown>;
+  try {
+    const raw = String(data.get("pricingRules") ?? "{}").trim() || "{}";
+    rules = JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return { ok: false, reason: "invalidJson" };
+  }
+  for (const key of Object.keys(rules)) {
+    if (key.startsWith("earlyBird")) delete rules[key];
+  }
+  if (data.get("earlyBirdEnabled") != null) {
+    const kind = String(data.get("earlyBirdKind") ?? "percent");
+    if (kind === "fixed") {
+      const fixed = data.get("earlyBirdFixed");
+      if (fixed == null || String(fixed).trim() === "") return { ok: false, reason: "earlyBirdValue" };
+      rules.earlyBirdAmountFixed = Math.max(0, Math.round(Number(fixed)));
+    } else {
+      const percent = Number(data.get("earlyBirdPercent") ?? NaN);
+      if (!Number.isFinite(percent) || percent <= 0) return { ok: false, reason: "earlyBirdValue" };
+      rules.earlyBirdPercent = Math.min(100, Math.max(1, Math.round(percent)));
+    }
+    // Fenêtre bornée : N mois calendaires avant le départ, 4 par défaut (clamp).
+    const months = Number(data.get("earlyBirdMonths"));
+    rules.earlyBirdMonths = Number.isFinite(months) ? Math.min(24, Math.max(1, Math.round(months))) : 4;
+    rules.earlyBirdFullPayment = data.get("earlyBirdFullPayment") != null;
+  }
+  return { ok: true, rules };
+}
+
 /** Actions déclenchées par un bouton de transition, indexées par état cible. */
 type TransitionAction = () => ReturnType<typeof actions.publishTrip>;
 
@@ -186,14 +224,12 @@ export function initAdminTripForm(): void {
       const id = target.closest<HTMLElement>("[data-departure-id]")?.dataset.departureId ?? "";
       const data = new FormData(target);
 
-      // `pricingRules` est saisi en JSON libre : une saisie invalide doit être
-      // signalée à l'utilisateur, pas remonter 500.
-      let pricingRules: Record<string, unknown> | undefined;
-      try {
-        const raw = String(data.get("pricingRules") ?? "{}").trim() || "{}";
-        pricingRules = JSON.parse(raw) as Record<string, unknown>;
-      } catch {
-        say(target, false, labels?.dataset.invalidJson ?? "");
+      const rulesResult = parsePricingRules(data);
+      if (!rulesResult.ok) {
+        const text = rulesResult.reason === "invalidJson"
+          ? labels?.dataset.invalidJson ?? ""
+          : labels?.dataset.earlyBirdValue ?? "";
+        say(target, false, text);
         return;
       }
 
@@ -218,7 +254,7 @@ export function initAdminTripForm(): void {
         discountAmount: num(data.get("discountAmount")),
         balanceDueDate: dateOrNull(data.get("balanceDueDate")),
         bookingDeadline: dateOrNull(data.get("bookingDeadline")),
-        pricingRules,
+        pricingRules: rulesResult.rules,
       });
       if (error) say(target, false, error.message);
       else reload();
@@ -255,6 +291,14 @@ export function initAdminTripForm(): void {
       const form = currentForm(event);
       if (!form) return;
       const data = new FormData(form);
+      const rulesResult = parsePricingRules(data);
+      if (!rulesResult.ok) {
+        const text = rulesResult.reason === "invalidJson"
+          ? labels?.dataset.invalidJson ?? ""
+          : labels?.dataset.earlyBirdValue ?? "";
+        say(form, false, text);
+        return;
+      }
       const { error } = await actions.createDeparture({
         tripId,
         startDate: new Date(String(data.get("startDate"))),
@@ -263,6 +307,7 @@ export function initAdminTripForm(): void {
         capacityMax: Number(data.get("capacityMax")),
         priceAmount: Number(data.get("priceAmount")),
         currency: String(data.get("currency") || "EUR"),
+        pricingRules: rulesResult.rules,
       });
       if (error) say(form, false, error.message);
       else reload();

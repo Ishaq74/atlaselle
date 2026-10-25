@@ -50,6 +50,29 @@ const transitions = nextTransitions[trip.status as TripStatus] ?? [];
 const departureStatuses: DepartureStatus[] = ["draft", "open", "limited", "waitlist", "closed", "cancelled"];
 const fid = (formId: string, name: string) => `${formId}-${name}`;
 const inputClass = "mt-1 w-full rounded-md border bg-background p-2";
+
+/** Config early bird lue depuis les règles de tarif d'un départ (défauts : 4 mois, intégral). */
+const ebOf = (rules?: Record<string, unknown> | null) => {
+  const percent = typeof rules?.earlyBirdPercent === "number" ? rules.earlyBirdPercent : 0;
+  const fixed = typeof rules?.earlyBirdAmountFixed === "number" ? rules.earlyBirdAmountFixed : undefined;
+  return {
+    enabled: percent > 0 || fixed !== undefined,
+    kind: fixed !== undefined && percent <= 0 ? "fixed" : "percent",
+    percent,
+    fixed: fixed ?? 0,
+    months: typeof rules?.earlyBirdMonths === "number" ? rules.earlyBirdMonths : 4,
+    fullPayment: typeof rules?.earlyBirdFullPayment === "boolean" ? rules.earlyBirdFullPayment : true,
+  } as const;
+};
+
+/** Règles avancées : tout SAUF les clés early bird (pilotées par les champs dédiés). */
+const advancedRules = (rules?: Record<string, unknown> | null): string => {
+  const advanced: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(rules ?? {})) {
+    if (!key.startsWith("earlyBird")) advanced[key] = value;
+  }
+  return JSON.stringify(advanced);
+};
 ---
 
 <AdminFormShell>
@@ -60,7 +83,7 @@ const inputClass = "mt-1 w-full rounded-md border bg-background p-2";
       <p class="mt-1 text-sm text-muted-foreground">{col.status}: <span class="font-semibold">{adminStatusLabel(dict, trip.status)}</span></p>
     </header>
 
-    <input type="hidden" data-trip-form-i18n data-error={c.error} data-error-prefix={`${c.erreur} : `} data-invalid-json={t.invalidJson} data-confirm-label={c.confirm} data-cancel-label={c.cancel} data-saved={t.saved} />
+    <input type="hidden" data-trip-form-i18n data-error={c.error} data-error-prefix={`${c.erreur} : `} data-invalid-json={t.invalidJson} data-early-bird-value={t.earlyBirdValue} data-confirm-label={c.confirm} data-cancel-label={c.cancel} data-saved={t.saved} />
 
     {transitions.length > 0 ? (
       <div class="flex flex-wrap gap-2">
@@ -164,7 +187,9 @@ const inputClass = "mt-1 w-full rounded-md border bg-background p-2";
 
     <div class="space-y-4">
       <h2 class="font-heading text-xl font-semibold">{t.departures} ({departures.length})</h2>
-      {departures.map((d) => (
+      {departures.map((d) => {
+        const eb = ebOf(d.pricingRules);
+        return (
         <details class="rounded-xl border p-4" data-departure-id={d.id}>
           <summary class="cursor-pointer text-sm font-semibold">
             {d.startDate.toISOString().slice(0, 10)} → {d.endDate.toISOString().slice(0, 10)} · {d.priceAmount} {d.currency} · {adminStatusLabel(dict, d.status)}
@@ -207,7 +232,27 @@ const inputClass = "mt-1 w-full rounded-md border bg-background p-2";
               <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "discountAmount")}>{f.discount}</label><input id={fid(`trip-departure-edit-${d.id}`, "discountAmount")} name="discountAmount" type="number" min="0" value={d.discountAmount} class={inputClass} /></div>
               <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "balanceDueDate")}>{f.balanceDueDate}</label><input id={fid(`trip-departure-edit-${d.id}`, "balanceDueDate")} name="balanceDueDate" type="date" value={d.balanceDueDate?.toISOString().slice(0, 10) ?? ""} class={inputClass} /></div>
               <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "bookingDeadline")}>{f.bookingDeadline}</label><input id={fid(`trip-departure-edit-${d.id}`, "bookingDeadline")} name="bookingDeadline" type="date" value={d.bookingDeadline?.toISOString().slice(0, 10) ?? ""} class={inputClass} /></div>
-              <div class="flex flex-col sm:col-span-3"><label for={fid(`trip-departure-edit-${d.id}`, "pricingRules")}>{f.pricingRules}</label><textarea id={fid(`trip-departure-edit-${d.id}`, "pricingRules")} name="pricingRules" rows="2" class={`${inputClass} font-mono text-xs`}>{JSON.stringify(d.pricingRules ?? {})}</textarea></div>
+              <div class="rounded-xl border p-4 sm:col-span-3">
+                <p class="font-semibold">{f.earlyBirdTitle}</p>
+                <p class="mt-1 text-xs text-muted-foreground">{f.earlyBirdHelp}</p>
+                <div class="mt-3 grid gap-3 text-sm sm:grid-cols-3">
+                  <>
+                    <label class="inline-flex items-center gap-2"><input id={fid(`trip-departure-edit-${d.id}`, "earlyBirdEnabled")} type="checkbox" name="earlyBirdEnabled" checked={eb.enabled} /> {f.earlyBirdEnabled}</label>
+                    <div class="flex flex-col">
+                      <label for={fid(`trip-departure-edit-${d.id}`, "earlyBirdKind")}>{f.earlyBirdKind}</label>
+                      <NativeSelect id={fid(`trip-departure-edit-${d.id}`, "earlyBirdKind")} name="earlyBirdKind" size="sm">
+                        <NativeSelectOption value="percent" selected={eb.kind === "percent"}>percent</NativeSelectOption>
+                        <NativeSelectOption value="fixed" selected={eb.kind === "fixed"}>fixed</NativeSelectOption>
+                      </NativeSelect>
+                    </div>
+                    <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "earlyBirdPercent")}>{f.earlyBirdPercent}</label><input id={fid(`trip-departure-edit-${d.id}`, "earlyBirdPercent")} name="earlyBirdPercent" type="number" min="0" max="100" value={eb.percent} class={inputClass} /></div>
+                    <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "earlyBirdFixed")}>{f.earlyBirdFixed}</label><input id={fid(`trip-departure-edit-${d.id}`, "earlyBirdFixed")} name="earlyBirdFixed" type="number" min="0" value={eb.fixed} class={inputClass} /></div>
+                    <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "earlyBirdMonths")}>{f.earlyBirdMonths}</label><input id={fid(`trip-departure-edit-${d.id}`, "earlyBirdMonths")} name="earlyBirdMonths" type="number" min="1" max="24" value={eb.months} class={inputClass} /></div>
+                    <label class="inline-flex items-center gap-2"><input type="checkbox" name="earlyBirdFullPayment" checked={eb.fullPayment} /> {f.earlyBirdFullPayment}</label>
+                  </>
+                </div>
+              </div>
+              <div class="flex flex-col sm:col-span-3"><label for={fid(`trip-departure-edit-${d.id}`, "pricingRules")}>{f.advancedPricingRules}</label><textarea id={fid(`trip-departure-edit-${d.id}`, "pricingRules")} name="pricingRules" rows="2" class={`${inputClass} font-mono text-xs`}>{advancedRules(d.pricingRules)}</textarea></div>
               <div class="flex flex-wrap gap-2 sm:col-span-3">
                 <Button type="submit" variant="primary" size="sm">{t.save}</Button>
                 <Button variant="ghost" size="sm" href={baseUrl}>{c.cancel}</Button>
@@ -216,7 +261,8 @@ const inputClass = "mt-1 w-full rounded-md border bg-background p-2";
             </form>
           ) : null}
         </details>
-      ))}
+        );
+      })}
       {canUpdate ? (
         <form id="trip-departure-create-form" name="trip-departure-create-form" method="post" action={Astro.url.pathname} data-departure-form class="grid gap-4 rounded-xl border p-6 sm:grid-cols-3">
           <h3 class="font-heading font-semibold sm:col-span-3">{t.newDeparture}</h3>
@@ -226,6 +272,26 @@ const inputClass = "mt-1 w-full rounded-md border bg-background p-2";
           <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-capacityMin">{f.capacityMin}</label><input id="trip-departure-create-capacityMin" name="capacityMin" type="number" min="1" value="6" class={inputClass} /></div>
           <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-capacityMax">{f.capacityMax}</label><input id="trip-departure-create-capacityMax" name="capacityMax" type="number" min="1" value="12" class={inputClass} /></div>
           <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-currency">{f.currency}</label><input id="trip-departure-create-currency" name="currency" value="EUR" maxlength="3" class={inputClass} /></div>
+          <div class="rounded-xl border p-4 sm:col-span-3">
+            <p class="font-semibold">{f.earlyBirdTitle}</p>
+            <p class="mt-1 text-xs text-muted-foreground">{f.earlyBirdHelp}</p>
+            <div class="mt-3 grid gap-3 sm:grid-cols-3">
+              <>
+                <label class="inline-flex items-center gap-2"><input type="checkbox" name="earlyBirdEnabled" /> {f.earlyBirdEnabled}</label>
+                <div class="flex flex-col">
+                  <label class="text-sm font-medium" for="trip-departure-create-earlyBirdKind">{f.earlyBirdKind}</label>
+                  <NativeSelect id="trip-departure-create-earlyBirdKind" name="earlyBirdKind" size="sm">
+                    <NativeSelectOption value="percent" selected={true}>percent</NativeSelectOption>
+                    <NativeSelectOption value="fixed">fixed</NativeSelectOption>
+                  </NativeSelect>
+                </div>
+                <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-earlyBirdPercent">{f.earlyBirdPercent}</label><input id="trip-departure-create-earlyBirdPercent" name="earlyBirdPercent" type="number" min="0" max="100" class={inputClass} /></div>
+                <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-earlyBirdFixed">{f.earlyBirdFixed}</label><input id="trip-departure-create-earlyBirdFixed" name="earlyBirdFixed" type="number" min="0" class={inputClass} /></div>
+                <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-earlyBirdMonths">{f.earlyBirdMonths}</label><input id="trip-departure-create-earlyBirdMonths" name="earlyBirdMonths" type="number" min="1" max="24" value="4" class={inputClass} /></div>
+                <label class="inline-flex items-center gap-2"><input type="checkbox" name="earlyBirdFullPayment" checked={true} /> {f.earlyBirdFullPayment}</label>
+              </>
+            </div>
+          </div>
           <div class="flex flex-wrap gap-2 sm:col-span-3">
             <Button type="submit" variant="primary" size="sm">{t.addDeparture}</Button>
             <Button variant="ghost" size="sm" href={baseUrl}>{c.cancel}</Button>

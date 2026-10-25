@@ -3,6 +3,7 @@ import { Icon } from "astro-icon/components";
 import type { Locale } from "@i18n/config";
 import { getTripPath } from "@i18n/routes";
 import type { TripSummaryDTO } from "@/modules/trips/loaders/trip.loader";
+import { isLastSeats } from "@/modules/availability/domain/availability";
 
 interface Props {
   trip: TripSummaryDTO;
@@ -21,13 +22,18 @@ const list = variant === "list";
 const pricePrefix = trip.currency === "EUR" ? "€" : `${trip.currency} `;
 const labels =
   locale === "fr"
-    ? { from: "À partir de", duration: "jours", discover: "Découvrir", open: "Disponible", interest: "Liste d'intérêt", detail: "Voir le programme" }
+    ? { from: "À partir de", duration: "jours", discover: "Découvrir", open: "Disponible", interest: "Liste d'intérêt", detail: "Voir le programme", lastSeat: "Dernière place !", lastSpots: "Plus que 2 places !" }
     : locale === "es"
-      ? { from: "Desde", duration: "días", discover: "Descubrir", open: "Disponible", interest: "Lista de interés", detail: "Ver el programa" }
+      ? { from: "Desde", duration: "días", discover: "Descubrir", open: "Disponible", interest: "Lista de interés", detail: "Ver el programa", lastSeat: "¡Última plaza!", lastSpots: "¡Solo quedan 2 plazas!" }
       : locale === "ar"
-        ? { from: "ابتداءً من", duration: "أيام", discover: "اكتشف", open: "متاح", interest: "قائمة الاهتمام", detail: "عرض البرنامج" }
-        : { from: "From", duration: "days", discover: "Discover", open: "Available", interest: "Interest list", detail: "View itinerary" };
-const statusLabel = trip.status === "open" ? labels.open : labels.interest;
+        ? { from: "ابتداءً من", duration: "أيام", discover: "اكتشف", open: "متاح", interest: "قائمة الاهتمام", detail: "عرض البرنامج", lastSeat: "آخر مقعد !", lastSpots: "مقعدان متبقيان فقط !" }
+        : { from: "From", duration: "days", discover: "Discover", open: "Available", interest: "Interest list", detail: "View itinerary", lastSeat: "Last spot left!", lastSpots: "Only 2 spots left!" };
+// Rareté ≤ 2 : la pastille de statut devient le signal d'urgence — même
+// emplacement, texte + teinte warning, aucun élément de layout en plus.
+const scarce = trip.status === "open" && isLastSeats(trip.remainingPlaces);
+const scarcityLabel = trip.remainingPlaces === 1 ? labels.lastSeat : labels.lastSpots;
+const statusLabel = scarce ? scarcityLabel : trip.status === "open" ? labels.open : labels.interest;
+const statusPillClass = ["rounded-full px-3 py-1 text-xs font-semibold", scarce ? "bg-warning text-warning-foreground" : "bg-background/90"];
 ---
 
 {list ? (
@@ -38,7 +44,7 @@ const statusLabel = trip.status === "open" ? labels.open : labels.interest;
       ) : (
         <div class="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary" aria-hidden="true"></div>
       )}
-      <span class="absolute bottom-4 start-4 rounded-full bg-background/90 px-3 py-1 text-xs font-semibold backdrop-blur">
+      <span class:list={["absolute bottom-4 start-4 backdrop-blur", ...statusPillClass]}>
         {statusLabel}
       </span>
     </div>
@@ -82,13 +88,13 @@ const statusLabel = trip.status === "open" ? labels.open : labels.interest;
     {trip.hero ? (
       <div class="relative h-44 overflow-hidden">
         <img src={trip.hero.url} alt={trip.hero.alt} width={trip.hero.width ?? 800} height={trip.hero.height ?? 450} loading="lazy" decoding="async" class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
-        <span class="absolute bottom-4 start-4 rounded-full bg-background/90 px-3 py-1 text-xs font-semibold backdrop-blur">
+        <span class:list={["absolute bottom-4 start-4 backdrop-blur", ...statusPillClass]}>
           {statusLabel}
         </span>
       </div>
     ) : (
       <div class="relative flex h-44 items-end bg-gradient-to-br from-primary/80 to-primary p-5">
-        <span class="rounded-full bg-background/90 px-3 py-1 text-xs font-semibold">
+        <span class:list={statusPillClass}>
           {statusLabel}
         </span>
       </div>

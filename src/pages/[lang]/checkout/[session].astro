@@ -18,12 +18,12 @@ if (!data) {
 const fmt = (cents: number) => `${data.quote.currency === "EUR" ? "€" : data.quote.currency + " "}${(cents / 100).toLocaleString("en")}`;
 const l =
   locale === "fr"
-    ? { title: "Paiement", room: "Chambre", shared: "Double partagée", single: "Individuelle", base: "Base", supplement: "Supplément", discount: "Réduction", tax: "Taxes", fee: "Frais", total: "Total", deposit: "Acompte prélevé aujourd'hui", balance: "Solde plus tard", pay: "Payer", dates: "Départ" }
+    ? { title: "Paiement", room: "Chambre", shared: "Double partagée", single: "Individuelle", base: "Base", supplement: "Supplément", discount: "Réduction", tax: "Taxes", fee: "Frais", total: "Total", deposit: "Acompte prélevé aujourd'hui", fullPayment: "Paiement intégral prélevé aujourd'hui (early bird)", balance: "Solde plus tard", pay: "Payer", dates: "Départ" }
     : locale === "es"
-      ? { title: "Pago", room: "Habitación", shared: "Doble compartida", single: "Individual", base: "Base", supplement: "Suplemento", discount: "Descuento", tax: "Impuestos", fee: "Gastos", total: "Total", deposit: "Anticipo cobrado hoy", balance: "Saldo después", pay: "Pagar", dates: "Salida" }
+      ? { title: "Pago", room: "Habitación", shared: "Doble compartida", single: "Individual", base: "Base", supplement: "Suplemento", discount: "Descuento", tax: "Impuestos", fee: "Gastos", total: "Total", deposit: "Anticipo cobrado hoy", fullPayment: "Pago completo cobrado hoy (early bird)", balance: "Saldo después", pay: "Pagar", dates: "Salida" }
       : locale === "ar"
-        ? { title: "الدفع", room: "الغرفة", shared: "مزدوجة مشتركة", single: "مفردة", base: "الأساس", supplement: "إضافة", discount: "خصم", tax: "ضرائب", fee: "رسوم", total: "المجموع", deposit: "الدفعة اليوم", balance: "الرصيد لاحقا", pay: "ادفع", dates: "المغادرة" }
-        : { title: "Checkout", room: "Room", shared: "Shared twin", single: "Single", base: "Base", supplement: "Supplement", discount: "Discount", tax: "Tax", fee: "Fee", total: "Total", deposit: "Deposit charged today", balance: "Balance later", pay: "Pay", dates: "Departure" };
+        ? { title: "الدفع", room: "الغرفة", shared: "مزدوجة مشتركة", single: "مفردة", base: "الأساس", supplement: "إضافة", discount: "خصم", tax: "ضرائب", fee: "رسوم", total: "المجموع", deposit: "الدفعة اليوم", fullPayment: "دفع كامل اليوم (Early bird)", balance: "الرصيد لاحقا", pay: "ادفع", dates: "المغادرة" }
+        : { title: "Checkout", room: "Room", shared: "Shared twin", single: "Single", base: "Base", supplement: "Supplement", discount: "Discount", tax: "Tax", fee: "Fee", total: "Total", deposit: "Deposit charged today", fullPayment: "Full payment charged today (early bird)", balance: "Balance later", pay: "Pay", dates: "Departure" };
 // Label de la checkbox termsAccepted avec lien vers les conditions de
 // réservation (slugs DB, fallback seed — jamais de page cassée).
 const legalLinks = await resolveLegalLinks(locale);
@@ -36,6 +36,9 @@ const termsLabel =
         ? `قرأت <a href="${legalLinks.terms}" class="text-primary underline" target="_blank" rel="noopener">شروط الحجز</a> وأوافق عليها.`
         : `I have read and accept the <a href="${legalLinks.terms}" class="text-primary underline" target="_blank" rel="noopener">booking terms</a>.`;
 const base = `/${locale}/checkout/${data.sessionId}`;
+// Early bird + paiement intégral : l'acompte appelle la totalité — le solde
+// « plus tard » n'existe plus à cette étape (quote serveur, jamais le client).
+const ebFull = data.quote.earlyBird?.active === true && data.quote.earlyBird.fullPayment === true;
 ---
 <BaseLayout title={`${l.title} — ${data.tripTitle}`} description={data.tripTitle} canonicalPath={base} robots="noindex, nofollow">
   <section class="mx-auto max-w-xl px-6 py-14" data-checkout-page data-session={data.sessionId} data-locale={locale}>
@@ -55,8 +58,8 @@ const base = `/${locale}/checkout/${data.sessionId}`;
       {data.quote.taxAmount > 0 ? <div class="flex justify-between"><dt>{l.tax}</dt><dd><bdi>{fmt(data.quote.taxAmount)}</bdi></dd></div> : null}
       {data.quote.feeAmount > 0 ? <div class="flex justify-between"><dt>{l.fee}</dt><dd><bdi>{fmt(data.quote.feeAmount)}</bdi></dd></div> : null}
       <div class="flex justify-between border-t pt-2 text-base font-bold"><dt>{l.total}</dt><dd><bdi>{fmt(data.quote.totalAmount)}</bdi></dd></div>
-      <div class="flex justify-between text-muted-foreground"><dt>{l.deposit}</dt><dd><bdi>{fmt(data.quote.depositAmount)}</bdi></dd></div>
-      <div class="flex justify-between text-muted-foreground"><dt>{l.balance}</dt><dd><bdi>{fmt(data.quote.balanceAmount)}</bdi></dd></div>
+      <div class="flex justify-between text-muted-foreground"><dt>{ebFull ? l.fullPayment : l.deposit}</dt><dd><bdi>{fmt(data.quote.depositAmount)}</bdi></dd></div>
+      {ebFull ? null : <div class="flex justify-between text-muted-foreground"><dt>{l.balance}</dt><dd><bdi>{fmt(data.quote.balanceAmount)}</bdi></dd></div>}
     </dl>
 
     {/* method="post" + action explicite : première barrière structurelle contre la

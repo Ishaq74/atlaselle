@@ -1,7 +1,7 @@
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { travelers } from "@database/schemas";
-import { normalizeEmail, resolveEmailConflict } from "./traveler-email";
+import { canClaimTraveler, normalizeEmail } from "./traveler-email";
 import { codedError } from "@/lib/voyage-codes";
 import type { Locale } from "@/i18n/config";
 
@@ -14,7 +14,7 @@ export interface FindOrCreateTravelerInput {
 }
 
 // Déduplication sans fusion auto (TODO §11.1) : réutilise si email vérifié,
-// sinon APPLICATION_EMAIL_CONFLICT.
+// sinon rattache la preuve du compte (claim) ou refuse — APPLICATION_EMAIL_CONFLICT.
 export async function findOrCreateTraveler(input: FindOrCreateTravelerInput) {
   const email = normalizeEmail(input.email);
   const db = getDrizzle();
@@ -24,8 +24,8 @@ export async function findOrCreateTraveler(input: FindOrCreateTravelerInput) {
     .where(sql`lower(${travelers.email}) = ${email}`)
     .limit(1);
   if (existing) {
-    const resolution = resolveEmailConflict({ id: existing.id, emailVerifiedAt: existing.emailVerifiedAt });
-    if (resolution?.action === "reuse") return { traveler: existing, created: false as const };
+    const traveler = await reuseOrClaimTraveler(existing, input.userId);
+    if (traveler) return { traveler, created: false as const };
     throw codedError("APPLICATION_EMAIL_CONFLICT", "Cet email est déjà utilisé par un autre dossier non vérifié.");
   }
   try {
@@ -50,12 +50,39 @@ export async function findOrCreateTraveler(input: FindOrCreateTravelerInput) {
       .where(sql`lower(${travelers.email}) = ${email}`)
       .limit(1);
     if (retry) {
-      const resolution = resolveEmailConflict({ id: retry.id, emailVerifiedAt: retry.emailVerifiedAt });
-      if (resolution?.action === "reuse") return { traveler: retry, created: false as const };
+      const traveler = await reuseOrClaimTraveler(retry, input.userId);
+      if (traveler) return { traveler, created: false as const };
       throw codedError("APPLICATION_EMAIL_CONFLICT", "Cet email est déjà utilisé par un autre dossier non vérifié.");
     }
     throw err;
   }
+}
+
+/**
+ * Réutilise un dossier existant :
+ * - déjà vérifié → réutilisé tel quel ;
+ * - non vérifié mais réclamable (preuve du compte vérifié : pré-auth ou le
+ *   sien) → backfill idempotent `emailVerifiedAt` (+ `userId` si libre) —
+ *   c'est ce qui débloque les candidatures multi-trips d'un compte vérifié ;
+ * - non vérifié d'un autre compte → `null` (le conflit anti-spam répond).
+ * Rattacher ne fusionne rien : aucune donnée du dossier n'est écrasée.
+ */
+async function reuseOrClaimTraveler(
+  existing: typeof travelers.$inferSelect,
+  sessionUserId: string | null | undefined,
+) {
+  if (existing.emailVerifiedAt) return existing;
+  if (!canClaimTraveler(existing, sessionUserId)) return null;
+  const db = getDrizzle();
+  const [claimed] = await db
+    .update(travelers)
+    .set({
+      emailVerifiedAt: existing.emailVerifiedAt ?? new Date(),
+      ...(existing.userId === null && sessionUserId ? { userId: sessionUserId } : {}),
+    })
+    .where(eq(travelers.id, existing.id))
+    .returning();
+  return claimed ?? null;
 }
 
 function isUniqueViolation(err: unknown): boolean {

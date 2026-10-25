@@ -50,6 +50,14 @@ export interface TripPageDTO {
   /** true = candidature réservée aux comptes vérifiés (/apply redirige vers sign-in). */
   requireAccount: boolean;
   deposit: number;
+  /** Early bird calculé serveur — null si le départ n'a aucune règle early bird ;
+   *  remise en unités affichées (÷100), date limite formatée dans la locale. */
+  earlyBird: {
+    active: boolean;
+    discount: number;
+    fullPayment: boolean;
+    until: string;
+  } | null;
   finalPaymentDue: string;
   roomRule: string;
   hero: TripHero | null;
@@ -79,6 +87,11 @@ export interface TripSummaryDTO {
   priceFrom: number;
   currency: string;
   status: TripPageStatus;
+  /**
+   * Places restantes sur le prochain départ ouvert — consommée par la
+   * rareté marketing (`isLastSeats`), jamais affichée brute côté public.
+   */
+  remainingPlaces: number;
   hero: TripHero | null;
   ratingAverage: number;
   ratingCount: number;
@@ -209,6 +222,15 @@ const loadTripPageInner = async (locale: Locale, slug: string): Promise<TripPage
   const status: TripPageStatus = dep && remaining > 0 ? "open" : "interest-list";
   // Acompte recalculé serveur (gère le type percent — jamais le montant brut).
   const quote = dep ? await quoteForDeparture(dep.id) : null;
+  // Early bird prêt à afficher : remise (÷100), bascule intégral, borne formatée.
+  const earlyBird = quote?.earlyBird
+    ? {
+        active: quote.earlyBird.active,
+        discount: Math.round(quote.earlyBird.discountAmount / 100),
+        fullPayment: quote.earlyBird.fullPayment,
+        until: quote.earlyBird.until ? formatDate(locale, new Date(quote.earlyBird.until)) : "",
+      }
+    : null;
   const ratingAverage = trip.ratingCount > 0 ? Math.round((trip.ratingAverage100 / 100) * 10) / 10 : 0;
   const hero = await loadHero(trip.heroMediaId ?? null, locale);
   return {
@@ -221,6 +243,7 @@ const loadTripPageInner = async (locale: Locale, slug: string): Promise<TripPage
     status,
     requireAccount: trip.requireAccount ?? false,
     deposit: quote ? Math.round(quote.depositAmount / 100) : 0,
+    earlyBird,
     finalPaymentDue: dep ? formatDate(locale, dep.balanceDueDate) : "",
     roomRule: main.lodging ?? "",
     hero,
@@ -273,6 +296,7 @@ const loadTripsListInner = async (locale: Locale): Promise<TripSummaryDTO[]> => 
       priceFrom: dep ? Math.round(dep.priceAmount / 100) : 0,
       currency: dep?.currency ?? trip.defaultCurrency,
       status: dep && remaining > 0 ? "open" : "interest-list",
+      remainingPlaces: remaining,
       hero,
       ratingAverage: trip.ratingCount > 0 ? Math.round((trip.ratingAverage100 / 100) * 10) / 10 : 0,
       ratingCount: trip.ratingCount ?? 0,

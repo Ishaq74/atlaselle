@@ -39,6 +39,10 @@ const [engagement, allTrips, media] = await Promise.all([
 ]);
 const relatedTrips = allTrips.filter((trip) => trip.id !== dto.id).slice(0, 2);
 const absoluteUrl = new URL(canonicalPath, Astro.url.origin).href;
+// Rôle résolu par le middleware (locals.user = Session["user"]) : aucune
+// requête ici. Le public ne voit que le bandeau d'urgence, l'admin
+// conserve le ratio exact sur la carte.
+const isAdmin = Astro.locals.user?.role === "admin";
 ---
 
 <BaseLayout title={`${copy.title} — ATLASELLE`} description={copy.summary} canonicalPath={canonicalPath} alternateUrls={alternateUrls} jsonLd={jsonLd}>
@@ -50,5 +54,6 @@ const absoluteUrl = new URL(canonicalPath, Astro.url.origin).href;
     media={media}
     absoluteUrl={absoluteUrl}
     isSignedIn={Boolean(viewerId)}
+    isAdmin={isAdmin}
   />
 </BaseLayout>

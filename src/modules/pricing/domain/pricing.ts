@@ -7,11 +7,23 @@ export const pricingRulesSchema = z
   .object({
     earlyBirdPercent: z.number().int().min(0).max(100).optional(),
     earlyBirdBefore: z.string().optional(),
+    // Early bird : toutes les bornes DÉFINIES doivent être satisfaites
+    // (intersection) — relative au départ (mois) et/ou absolue (before).
+    earlyBirdMonths: z.number().int().min(1).max(24).optional(),
+    // Remise en centimes alternative au % : exactement l'un des deux (refine).
+    earlyBirdAmountFixed: z.number().int().min(0).optional(),
+    // Fenêtre active ⇒ acompte écrasé à la totalité (full_payment côté payments,
+    // qui bascule tout seul dès que l'acompte ≥ total).
+    earlyBirdFullPayment: z.boolean().optional(),
     groupDiscounts: z
       .array(z.object({ minTravelers: z.number().int().positive(), percent: z.number().int().min(0).max(100) }))
       .optional(),
   })
   .catchall(z.unknown())
+  .refine((rules) => rules.earlyBirdPercent === undefined || rules.earlyBirdAmountFixed === undefined, {
+    path: ["earlyBirdAmountFixed"],
+    message: "earlyBirdPercent et earlyBirdAmountFixed sont exclusifs l'un de l'autre.",
+  })
   .default({});
 
 export type PricingRules = z.infer<typeof pricingRulesSchema>;
@@ -33,14 +45,30 @@ export interface PricingInput {
   discountType: AmountType;
   discountAmount: number;
   roomType: RoomType;
+  /** Début du départ — requis pour la borne relative earlyBirdMonths
+   *  (fail-closed sinon : remise early bird jamais appliquée par accident). */
+  startDate?: Date | string | null;
   pricingRules?: unknown;
 }
 
 export interface PriceQuoteOptions {
-  /** Date d'évaluation (défaut : maintenant) — borne earlyBirdBefore. */
+  /** Date d'évaluation (défaut : maintenant) — bornes earlyBirdBefore/earlyBirdMonths. */
   now?: Date;
   /** Voyageurs du dossier (défaut : 1) — seuils groupDiscounts. */
   travelerCount?: number;
+}
+
+/** Résumé early bird pour les affichages (booking card) — présent uniquement
+ *  quand le départ porte des règles early bird, actif ou fenêtre expirée. */
+export interface EarlyBirdQuote {
+  /** Fenêtre satisfaite à la date d'évaluation. */
+  active: boolean;
+  /** Contribution early bird au calcul (centimes) — 0 si inactive. */
+  discountAmount: number;
+  /** Fenêtre active ⇒ acompte écrasé à la totalité (réservation soldée directe). */
+  fullPayment: boolean;
+  /** Fin de fenêtre effective (ISO), null si illimitée. */
+  until: string | null;
 }
 
 export interface PricingBreakdown {
@@ -53,6 +81,7 @@ export interface PricingBreakdown {
   depositAmount: number;
   balanceAmount: number;
   currency: string;
+  earlyBird?: EarlyBirdQuote;
 }
 
 /** fixed → montant tel quel, percent → % de la base (arrondi), none → 0. */
@@ -60,6 +89,25 @@ export function computeLine(type: AmountType, amount: number, percent: number, b
   if (type === "fixed") return Math.max(0, Math.round(amount));
   if (type === "percent") return Math.max(0, Math.round((base * Math.max(0, percent)) / 100));
   return 0;
+}
+
+/**
+ * Borne relative early bird : `startDate` moins N mois calendaires, avec clamp
+ * sur le dernier jour du mois (31 janv − 1 mois → 28/29 févr, pas de débordement
+ * setMonth). Arithmétique en coordonnées UTC : déterministe quel que soit le
+ * fuseau du serveur. Retourne null si le départ est absent/invalide (fail-closed).
+ */
+export function subtractCalendarMonths(startDate: Date | string | null | undefined, months: number): Date | null {
+  if (startDate == null) return null;
+  const start = startDate instanceof Date ? startDate : new Date(startDate);
+  if (Number.isNaN(start.getTime())) return null;
+  const d = new Date(start.getTime());
+  const day = d.getUTCDate();
+  d.setUTCDate(1); // neutralise le jour pour éviter le roulement setUTCMonth (31 janv → 3 mars)
+  d.setUTCMonth(d.getUTCMonth() - months);
+  const lastDay = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+  d.setUTCDate(Math.min(day, lastDay));
+  return d;
 }
 
 export function priceQuote(input: PricingInput, opts?: PriceQuoteOptions): PricingBreakdown {
@@ -70,13 +118,35 @@ export function priceQuote(input: PricingInput, opts?: PriceQuoteOptions): Prici
     ? computeLine(input.singleSupplementType, input.singleSupplementAmount, 0, base)
     : 0;
   let discount = computeLine(input.discountType, input.discountAmount, 0, base);
-  if (typeof rules.earlyBirdPercent === "number" && rules.earlyBirdPercent > 0) {
-    // earlyBirdBefore optionnelle : passée → plus d'early bird (date invalide → on applique, compat).
+
+  // Early bird : % OU montant fixe (mutuellement exclusifs, règle Zod).
+  const ebPercent = rules.earlyBirdPercent ?? 0;
+  const ebFixed = rules.earlyBirdAmountFixed;
+  const ebSource = ebPercent > 0 || ebFixed !== undefined;
+  let ebActive = false;
+  let ebContribution = 0;
+  let ebUntil: Date | null = null;
+  if (ebSource) {
+    let eligible = true;
+    // Borne absolue (comportement historique conservé) : absente/invalide → n'exclut pas.
     const before = rules.earlyBirdBefore ? new Date(rules.earlyBirdBefore) : null;
-    if (!before || Number.isNaN(before.getTime()) || now.getTime() <= before.getTime()) {
-      discount += Math.round((base * rules.earlyBirdPercent) / 100);
+    if (before !== null && !Number.isNaN(before.getTime())) {
+      if (now.getTime() > before.getTime()) eligible = false;
+      else ebUntil = before;
+    }
+    // Borne relative : startDate manquant/invalide → fail-closed (jamais actif).
+    if (eligible && rules.earlyBirdMonths !== undefined) {
+      const start = subtractCalendarMonths(input.startDate, rules.earlyBirdMonths);
+      if (start === null || now.getTime() > start.getTime()) eligible = false;
+      else ebUntil = ebUntil !== null && ebUntil.getTime() < start.getTime() ? ebUntil : start;
+    }
+    if (eligible) {
+      ebActive = true;
+      ebContribution = ebPercent > 0 ? Math.round((base * ebPercent) / 100) : Math.round(Math.max(0, ebFixed ?? 0));
+      discount += ebContribution;
     }
   }
+
   // Remise groupe : meilleur palier atteint (un seul), jamais cumulée.
   const count = Math.max(1, Math.floor(opts?.travelerCount ?? 1));
   let groupPercent = 0;
@@ -88,7 +158,10 @@ export function priceQuote(input: PricingInput, opts?: PriceQuoteOptions): Prici
   const tax = computeLine(input.taxType, input.taxAmount, 0, subtotal);
   const fee = computeLine(input.feeType, input.feeAmount, 0, subtotal);
   const total = subtotal + tax + fee;
-  const deposit = Math.min(total, computeLine(input.depositType, input.depositAmount, input.depositPercent, total));
+  // Early bird + paiement intégral : l'acompte vaut le total → charges la
+  // totalité d'un coup (payments bascule `full_payment` seul), solde 0.
+  const fullPayment = ebActive && rules.earlyBirdFullPayment === true;
+  const deposit = fullPayment ? total : Math.min(total, computeLine(input.depositType, input.depositAmount, input.depositPercent, total));
   return {
     baseAmount: base,
     supplementAmount: supplement,
@@ -99,5 +172,16 @@ export function priceQuote(input: PricingInput, opts?: PriceQuoteOptions): Prici
     depositAmount: deposit,
     balanceAmount: total - deposit,
     currency: input.currency,
+    // Exposé aux affichages uniquement quand des règles early bird existent.
+    ...(ebSource
+      ? {
+          earlyBird: {
+            active: ebActive,
+            discountAmount: Math.min(ebContribution, Math.max(0, base + supplement)),
+            fullPayment,
+            until: ebUntil !== null ? ebUntil.toISOString() : null,
+          },
+        }
+      : {}),
   };
 }

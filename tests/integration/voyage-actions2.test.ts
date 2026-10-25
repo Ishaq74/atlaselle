@@ -231,10 +231,12 @@ describe('submitApplication — fermetures, délais, comptes, rate-limit', () =>
     const email = `dup-${stamp}@test.com`;
     const first = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email));
     expect(first.id).toBeTypeOf('string');
-    // non vérifié : le conflit email répond d'abord (règle anti-spam préexistante)
+    // Le compte vérifié de la session prouve la propriété du mail : le dossier
+    // est réclamé (backfill emailVerifiedAt), puis la déduplication dossier
+    // répond — EMAIL_CONFLICT ne peut plus masquer LA vraie règle métier.
     const errMail = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email)).catch((e: unknown) => e);
     expect((errMail as { code: string }).code).toBe('CONFLICT');
-    expect((errMail as Error).message).toContain('APPLICATION_EMAIL_CONFLICT');
+    expect((errMail as Error).message).toContain('APPLICATION_DUPLICATE');
     await db.update(travelers).set({ emailVerifiedAt: new Date() }).where(eq(travelers.email, email));
     // vérifié : la déduplication dossier répond
     const errDup = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email)).catch((e: unknown) => e);
@@ -246,7 +248,10 @@ describe('submitApplication — fermetures, délais, comptes, rate-limit', () =>
     expect(second.id).not.toBe(first.id);
   });
 
-  it('deux candidatures simultanées même email -> une passe, une EMAIL_CONFLICT', async () => {
+  it('deux candidatures simultanées même email -> une passe, une DUPLICATE', async () => {
+    // Avec le claim de preuve de compte, EMAIL_CONFLICT ne répond plus à un
+    // compte vérifié : le perdant de la course est stoppé par la garde
+    // anti-course sur l'index partiel (APPLICATION_DUPLICATE).
     const email = `race-${stamp}@test.com`;
     const ctxA = verifiedCtx(adminId, email);
     const ctxB = verifiedCtx(adminId, email);
@@ -258,7 +263,7 @@ describe('submitApplication — fermetures, délais, comptes, rate-limit', () =>
     const ko = [one, two].filter((s) => s.status === 'rejected');
     expect(ok).toHaveLength(1);
     expect(ko).toHaveLength(1);
-    expect(String((ko[0] as PromiseRejectedResult).reason?.message ?? '')).toContain('APPLICATION_EMAIL_CONFLICT');
+    expect(String((ko[0] as PromiseRejectedResult).reason?.message ?? '')).toContain('APPLICATION_DUPLICATE');
   });
 
   it('deux candidatures simultanées voyageur vérifié -> une passe, une DUPLICATE (garde anti-course)', async () => {
@@ -274,6 +279,84 @@ describe('submitApplication — fermetures, délais, comptes, rate-limit', () =>
     expect(ok).toHaveLength(1);
     expect(ko).toHaveLength(1);
     expect(String((ko[0] as PromiseRejectedResult).reason?.message ?? '')).toContain('APPLICATION_DUPLICATE');
+  });
+});
+
+describe('multi-trips — une même voyageuse sur plusieurs voyages (claim preuve de compte)', () => {
+  // Non-régression : un compte vérifié doit pouvoir candidater sur plusieurs
+  // voyages. À l'origine bloqué car le voyageur créé par la 1ʳᵉ candidature
+  // restait emailVerifiedAt = null → EMAIL_CONFLICT au 2ᵉ submit quel que
+  // soit le voyage. Le fix : le compte vérifié prouve la propriété du mail
+  // (canClaimTraveler) → backfill idempotent sans fusion.
+  let adminId: string;
+  let otherUserId: string;
+  let helpers: Awaited<ReturnType<typeof getTestHelpers>>;
+
+  beforeAll(async () => {
+    helpers = await getTestHelpers();
+    const u = helpers.createUser({ email: `a2-multi-${stamp}@test.com`, name: 'A2M', emailVerified: true });
+    const saved = await helpers.saveUser(u);
+    adminId = saved.id;
+    const u2 = helpers.createUser({ email: `a2-other-${stamp}@test.com`, name: 'A2O', emailVerified: true });
+    const saved2 = await helpers.saveUser(u2);
+    otherUserId = saved2.id;
+  });
+
+  afterAll(async () => {
+    await helpers.deleteUser(adminId).catch(() => {});
+    await helpers.deleteUser(otherUserId).catch(() => {});
+  });
+
+  beforeEach(() => resetRateLimiter());
+
+  it('candidatures sur deux voyages différents -> les deux dossiers coexistent', async () => {
+    const email = `multitrip-${stamp}@test.com`;
+    const a1 = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email));
+    expect(a1.id).toBeTypeOf('string');
+    const a2 = await submit({ ...baseSubmit, tripId: TRIP_ACC, departureId: DEP_ACC, email }, verifiedCtx(adminId, email));
+    expect(a2.id).toBeTypeOf('string');
+    expect(a2.id).not.toBe(a1.id);
+    const [tr] = await db.select({ id: travelers.id }).from(travelers).where(eq(travelers.email, email));
+    const rows = await db
+      .select({ tripId: applications.tripId, status: applications.status })
+      .from(applications)
+      .where(eq(applications.travelerId, tr.id));
+    expect(rows).toHaveLength(2);
+    expect(new Set(rows.map((r) => r.tripId))).toEqual(new Set([TRIP, TRIP_ACC]));
+    expect(rows.every((r) => r.status === 'submitted')).toBe(true);
+    // La preuve du compte a été rattachée : le voyageur est désormais vérifié.
+    const [tr2] = await db
+      .select({ verified: travelers.emailVerifiedAt, owner: travelers.userId })
+      .from(travelers)
+      .where(eq(travelers.email, email));
+    expect(tr2?.verified).toBeTruthy();
+    expect(tr2?.owner).toBe(adminId);
+  });
+
+  it('le même voyage accepte deux candidatures sur deux départs différents (règle par départ)', async () => {
+    await db.insert(departures).values({
+      id: `${DEP}-open2`, tripId: TRIP,
+      startDate: new Date('2027-09-01T08:00:00.000Z'), endDate: new Date('2027-09-04T18:00:00.000Z'),
+      status: 'open', capacityMin: 1, capacityMax: 5, priceAmount: 50000, currency: 'EUR', pricingRules: {},
+    });
+    const email = `twodep-${stamp}@test.com`;
+    const a1 = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email));
+    expect(a1.id).toBeTypeOf('string');
+    const a2 = await submit({ ...baseSubmit, tripId: TRIP, departureId: `${DEP}-open2`, email }, verifiedCtx(adminId, email));
+    expect(a2.id).toBeTypeOf('string');
+    expect(a2.id).not.toBe(a1.id);
+  });
+
+  it('le dossier d\'un AUTRE compte reste protégé (EMAIL_CONFLICT)', async () => {
+    const email = `ghost-${stamp}@test.com`;
+    await db.insert(travelers).values({
+      email, locale: 'en', userId: otherUserId,
+    });
+    await expect(
+      submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email)),
+    ).rejects.toMatchObject({ code: 'CONFLICT' });
+    const [tr] = await db.select({ verified: travelers.emailVerifiedAt }).from(travelers).where(eq(travelers.email, email));
+    expect(tr?.verified).toBeNull();
   });
 });
 

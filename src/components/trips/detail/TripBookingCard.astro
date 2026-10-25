@@ -10,6 +10,7 @@
 import { Icon } from "astro-icon/components";
 import { Card, CardContent } from "@atoms/card";
 import { Button } from "@atoms/button";
+import { isLastSeats } from "@/modules/availability/domain/availability";
 
 interface Props {
   locale: string;
@@ -19,7 +20,11 @@ interface Props {
   remainingPlaces: number;
   capacity: number;
   status: "open" | "interest-list";
+  /** Admin connecté : conserve le ratio exact X/Y (outil de gestion). */
+  isAdmin?: boolean;
   deposit: number;
+  /** Early bird recalculé serveur — affiché seulement quand la fenêtre est active. */
+  earlyBird?: { active: boolean; discount: number; fullPayment: boolean; until: string } | null;
   finalPaymentDue: string;
   roomRule: string;
   difficulty: string;
@@ -29,9 +34,14 @@ interface Props {
     open: string;
     interest: string;
     places: string;
+    lastSeat: string;
+    lastSpots: string;
     priceFrom: string;
     deposit: string;
     balance: string;
+    earlyBirdPrefix: string;
+    earlyBirdUntil: string;
+    fullPayment: string;
     lodging: string;
     difficulty: string;
     apply: string;
@@ -47,14 +57,18 @@ const {
   capacity,
   status,
   deposit,
+  earlyBird = null,
   finalPaymentDue,
   roomRule,
   difficulty,
   applyUrl,
   labels,
+  isAdmin = false,
 } = Astro.props as Props;
 
 const open = status === "open";
+/** Early bird actif uniquement : la promo s'éteint d'elle-même une fois la fenêtre passée. */
+const eb = earlyBird !== null && earlyBird.active ? earlyBird : null;
 ---
 
 <Card class="overflow-hidden">
@@ -80,8 +94,30 @@ const open = status === "open";
         <p class="mt-1 text-sm text-muted-foreground"><bdi>{dates}</bdi></p>
       </div>
 
-      {/* Places restantes — la rareté rend la décision */}
-      {open && (
+      {/* Early bird — la remise s'affiche avec sa borne : l'échéance régénère
+          l'urgence, la bascule intégral supprime l'acompte (une seule ligne). */}
+      {eb && (
+        <p class="flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-sm font-semibold text-primary">
+          <Icon name="mdi:ticket-percent" class="size-4 shrink-0" aria-hidden="true" />
+          <span>
+            {labels.earlyBirdPrefix}<bdi>{eb.discount.toLocaleString("en")}{pricePrefix}</bdi>
+            {eb.until ? <span> {labels.earlyBirdUntil} <bdi>{eb.until}</bdi></span> : null}
+          </span>
+        </p>
+      )}
+
+      {/* Rareté ≤ 2 — le seul signal public : un bandeau d'urgence, jamais
+          un compteur (le chiffre naît de la rareté, pas d'un ratio). */}
+      {open && isLastSeats(remainingPlaces) && (
+        <p class="flex items-center gap-2 rounded-lg bg-warning/10 px-3 py-2 text-sm font-semibold text-warning-foreground">
+          <Icon name="mdi:fire" class="size-4 shrink-0 text-warning" aria-hidden="true" />
+          {remainingPlaces === 1 ? labels.lastSeat : labels.lastSpots}
+        </p>
+      )}
+
+      {/* Ratio exact + jauge — réservé à l'admin : outil de gestion, pas
+          d'affichage public (un visiteur ne voit jamais ce bloc). */}
+      {open && isAdmin && (
         <div>
           <div class="flex items-center justify-between gap-3 text-sm">
             <span class="text-muted-foreground">{labels.places}</span>
@@ -101,13 +137,14 @@ const open = status === "open";
         </div>
       )}
 
-      {/* Détails financiers — la transparence avant l'engagement */}
+      {/* Détails financiers — la transparence avant l'engagement. Paiement
+          intégral early bird : l'acompte devient la totalité, le solde saute. */}
       <dl class="flex flex-col gap-3 border-t border-border/60 pt-4 text-sm">
         <div class="flex items-baseline justify-between gap-3">
-          <dt class="text-muted-foreground">{labels.deposit}</dt>
+          <dt class="text-muted-foreground">{eb?.fullPayment ? labels.fullPayment : labels.deposit}</dt>
           <dd class="font-semibold"><bdi>{pricePrefix}{deposit.toLocaleString("en")}</bdi></dd>
         </div>
-        {finalPaymentDue && (
+        {finalPaymentDue && !eb?.fullPayment && (
           <div class="flex items-baseline justify-between gap-3">
             <dt class="text-muted-foreground">{labels.balance}</dt>
             <dd class="text-end font-semibold"><bdi>{finalPaymentDue}</bdi></dd>

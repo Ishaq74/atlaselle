@@ -55,6 +55,28 @@ const durationSteps = [5, 7, 10, 14].filter((step) => step <= maxDuration);
       </div>
 
       <fieldset>
+        <legend class="mb-2 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">{t.price}</legend>
+        <div class="flex flex-wrap gap-1.5">
+          <TripFilterPill href={hrefFor("price", "")} label={t.any} active={active.price === ""} showCheck={false} />
+          {priceSteps.map((n) => (
+            <TripFilterPill href={hrefFor("price", String(n))} label={`≤ ${n} €`} active={active.price === String(n)} />
+          ))}
+        </div>
+      </fieldset>
+
+      {months.length > 0 && (
+        <fieldset>
+          <legend class="mb-2 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">{t.departure}</legend>
+          <div class="flex flex-wrap gap-1.5">
+            <TripFilterPill href={hrefFor("month", "")} label={t.any} active={active.month === ""} showCheck={false} />
+            {months.map((m) => (
+              <TripFilterPill href={hrefFor("month", m.value)} label={m.label} active={active.month === m.value} />
+            ))}
+          </div>
+        </fieldset>
+      )}
+
+      <fieldset>
         <legend class="mb-2 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">{t.availability}</legend>
         <div class="flex flex-wrap gap-1.5">
           <TripFilterPill href={hrefFor("availability", "")} label={t.all} active={active.availability === ""} showCheck={false} />
@@ -82,28 +104,6 @@ const durationSteps = [5, 7, 10, 14].filter((step) => step <= maxDuration);
           ))}
         </div>
       </fieldset>
-
-      <fieldset>
-        <legend class="mb-2 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">{t.price}</legend>
-        <div class="flex flex-wrap gap-1.5">
-          <TripFilterPill href={hrefFor("price", "")} label={t.any} active={active.price === ""} showCheck={false} />
-          {priceSteps.map((n) => (
-            <TripFilterPill href={hrefFor("price", String(n))} label={`≤ ${n} €`} active={active.price === String(n)} />
-          ))}
-        </div>
-      </fieldset>
-
-      {months.length > 0 && (
-        <fieldset>
-          <legend class="mb-2 font-mono text-[10px] uppercase tracking-[.2em] text-muted-foreground">{t.departure}</legend>
-          <div class="flex flex-wrap gap-1.5">
-            <TripFilterPill href={hrefFor("month", "")} label={t.any} active={active.month === ""} showCheck={false} />
-            {months.map((m) => (
-              <TripFilterPill href={hrefFor("month", m.value)} label={m.label} active={active.month === m.value} />
-            ))}
-          </div>
-        </fieldset>
-      )}
     </div>
   </CardContent>
 </Card>

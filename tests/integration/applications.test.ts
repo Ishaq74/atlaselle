@@ -163,10 +163,15 @@ describe('Applications — submit/review/withdraw (real DB)', () => {
     );
   });
 
-  it('conflicts on unverified duplicate emails', async () => {
+  it('conflicts on duplicate active applications (claim puis déduplication dossier)', async () => {
+    // Le compte vérifié de la session prouve la propriété du mail : le 2ᵉ
+    // submit réclame le dossier (backfill) puis heurte la déduplication.
     const email = `dup-${stamp}@test.com`;
     await submit({ ...baseInput, email }, userCtx(email));
-    await expect(submit({ ...baseInput, email }, userCtx(email))).rejects.toThrow(/APPLICATION_EMAIL_CONFLICT/);
+    await expect(submit({ ...baseInput, email }, userCtx(email))).rejects.toThrow(/APPLICATION_DUPLICATE/);
+    // Un email non prouvé (anonyme) reste bloqué par EMAIL_CONFLICT :
+    // la protection anti-spam d'origine est conservée. Voir
+    // voyage-actions2 "le dossier d'un AUTRE compte reste protégé".
   });
 
   it('approves then refuses double decision', async () => {

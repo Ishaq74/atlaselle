@@ -29,6 +29,8 @@ export async function quoteForDeparture(
     discountType: dep.discountType,
     discountAmount: dep.discountAmount,
     roomType,
+    // Requis pour la borne relative earlyBirdMonths (fail-closed sinon).
+    startDate: dep.startDate,
     pricingRules: dep.pricingRules,
   }, opts);
 }

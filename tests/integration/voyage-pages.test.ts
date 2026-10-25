@@ -152,6 +152,13 @@ describe('trip.loader — fallbacks page publique', () => {
     const snap = await getAvailability(dep.id);
     // 5 - 1 confirmé - 1 hold actif (l'expiré de 2 ignoré)
     expect(snap?.availableSeats).toBe(3);
+    invalidateCache();
+    // La rareté exposée au DTO page doit être identique côté listing
+    // (même source de vérité : confirmation + holds actifs sur le 1er départ).
+    const page = await loadTripPage('en', `pg-en-${stamp}`);
+    expect(page?.remainingPlaces).toBe(3);
+    const list = await loadTripsList('en');
+    expect(list.find((t) => t.id === TRIP)?.remainingPlaces).toBe(3);
     await db.delete(reservations).where(eq(reservations.id, r.id));
     await db.delete(seatHolds).where(eq(seatHolds.departureId, dep.id));
     await db.delete(departures).where(eq(departures.id, dep.id));

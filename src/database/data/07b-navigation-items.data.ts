@@ -6,25 +6,25 @@
 // showIcon=true sur header (icônes visibles), false sur footer (texte seul).
 export default [
   // ═══════════ HEADER (fr) ═══════════
-  { id: "d3c0fadc-8361-4fcd-960b-722c2372a9a0", menuId: "menu-header", locale: "fr", label: "Voyages", url: "/fr/trips", icon: "mdi:airplane", showIcon: true, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
+  { id: "d3c0fadc-8361-4fcd-960b-722c2372a9a0", menuId: "menu-header", locale: "fr", label: "Voyages", url: "/fr/trips", icon: "mdi:earth", showIcon: true, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
   { id: "ca686f26-4699-46b3-b5e9-b69ad692e6d6", menuId: "menu-header", locale: "fr", label: "Blog", url: "/fr/blog", icon: "mdi:post-outline", showIcon: true, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
   { id: "bfe8fdee-5f54-4e49-94bf-51c28cee3b6e", menuId: "menu-header", locale: "fr", label: "Services", url: "/fr/services", icon: "mdi:hand-heart-outline", showIcon: true, sortOrder: 2, parentId: null, isActive: true, openInNewTab: false },
   { id: "a23aafbd-3d57-489a-8666-d54decc7ec01", menuId: "menu-header", locale: "fr", label: "À propos", url: "/fr/a-propos", icon: "mdi:information-outline", showIcon: true, sortOrder: 3, parentId: null, isActive: true, openInNewTab: false },
   { id: "94bf7130-b1a6-4c29-8351-22b0aa4e03fc", menuId: "menu-header", locale: "fr", label: "Contact", url: "/fr/contact", icon: "mdi:email-outline", showIcon: true, sortOrder: 4, parentId: null, isActive: true, openInNewTab: false },
   // ═══════════ HEADER (en) ═══════════
-  { id: "4d74d0a3-1a0d-4fef-8f14-ddbb2d3dd9d7", menuId: "menu-header", locale: "en", label: "Trips", url: "/en/trips", icon: "mdi:airplane", showIcon: true, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
+  { id: "4d74d0a3-1a0d-4fef-8f14-ddbb2d3dd9d7", menuId: "menu-header", locale: "en", label: "Trips", url: "/en/trips", icon: "mdi:earth", showIcon: true, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
   { id: "61908589-93e1-4f22-8426-d1d1e9ab89cd", menuId: "menu-header", locale: "en", label: "Blog", url: "/en/blog", icon: "mdi:post-outline", showIcon: true, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
   { id: "ce8cd301-2525-4e75-9c7b-03f95ac70b25", menuId: "menu-header", locale: "en", label: "Services", url: "/en/services", icon: "mdi:hand-heart-outline", showIcon: true, sortOrder: 2, parentId: null, isActive: true, openInNewTab: false },
   { id: "af5891e2-ac61-4ff1-92f5-59721758ce3e", menuId: "menu-header", locale: "en", label: "About", url: "/en/about", icon: "mdi:information-outline", showIcon: true, sortOrder: 3, parentId: null, isActive: true, openInNewTab: false },
   { id: "65d9f14f-1a9e-4ed0-9192-00771b35e71b", menuId: "menu-header", locale: "en", label: "Contact", url: "/en/contact", icon: "mdi:email-outline", showIcon: true, sortOrder: 4, parentId: null, isActive: true, openInNewTab: false },
   // ═══════════ HEADER (es) ═══════════
-  { id: "e2a0e90e-2cb2-4de3-ac9c-6bda023a7926", menuId: "menu-header", locale: "es", label: "Viajes", url: "/es/viajes", icon: "mdi:airplane", showIcon: true, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
+  { id: "e2a0e90e-2cb2-4de3-ac9c-6bda023a7926", menuId: "menu-header", locale: "es", label: "Viajes", url: "/es/viajes", icon: "mdi:earth", showIcon: true, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
   { id: "4d616a74-f23f-4c18-ab78-fb5cb95a5a80", menuId: "menu-header", locale: "es", label: "Blog", url: "/es/blog", icon: "mdi:post-outline", showIcon: true, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
   { id: "756417fc-7896-4c27-b6f0-2924dca6eef8", menuId: "menu-header", locale: "es", label: "Servicios", url: "/es/services", icon: "mdi:hand-heart-outline", showIcon: true, sortOrder: 2, parentId: null, isActive: true, openInNewTab: false },
   { id: "9e2bf0af-8df7-425d-9675-13ab224f2817", menuId: "menu-header", locale: "es", label: "Acerca de", url: "/es/acerca-de", icon: "mdi:information-outline", showIcon: true, sortOrder: 3, parentId: null, isActive: true, openInNewTab: false },
   { id: "a10637e2-fceb-4f3a-abd6-56b6dbc6abaa", menuId: "menu-header", locale: "es", label: "Contacto", url: "/es/contacto", icon: "mdi:email-outline", showIcon: true, sortOrder: 4, parentId: null, isActive: true, openInNewTab: false },
   // ═══════════ HEADER (ar) ═══════════
-  { id: "8a4bd83b-58de-4016-87dd-552326a59a8f", menuId: "menu-header", locale: "ar", label: "الرحلات", url: "/ar/trips", icon: "mdi:airplane", showIcon: true, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
+  { id: "8a4bd83b-58de-4016-87dd-552326a59a8f", menuId: "menu-header", locale: "ar", label: "الرحلات", url: "/ar/trips", icon: "mdi:earth", showIcon: true, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
   { id: "29db0a91-cf6f-4721-aae4-1d6923731f55", menuId: "menu-header", locale: "ar", label: "المدونة", url: "/ar/blog", icon: "mdi:post-outline", showIcon: true, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
   { id: "68a572d9-8f41-45fc-b632-8081ffdf597d", menuId: "menu-header", locale: "ar", label: "الخدمات", url: "/ar/services", icon: "mdi:hand-heart-outline", showIcon: true, sortOrder: 2, parentId: null, isActive: true, openInNewTab: false },
   { id: "622fe37a-7f1f-45cd-9ce1-78da28e06af6", menuId: "menu-header", locale: "ar", label: "من نحن", url: "/ar/about", icon: "mdi:information-outline", showIcon: true, sortOrder: 3, parentId: null, isActive: true, openInNewTab: false },
@@ -32,22 +32,22 @@ export default [
 
   // ═══════════ FOOTER PRIMARY (fr) ═══════════
   { id: "d26ad974-74af-4274-8365-bf08016859a4", menuId: "menu-footer-primary", locale: "fr", label: "Accueil", url: "/fr", icon: "mdi:home-outline", showIcon: false, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
-  { id: "fc63ca87-1aca-4b29-b74a-9357ea41009b", menuId: "menu-footer-primary", locale: "fr", label: "Voyages", url: "/fr/trips", icon: "mdi:airplane", showIcon: false, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
+  { id: "fc63ca87-1aca-4b29-b74a-9357ea41009b", menuId: "menu-footer-primary", locale: "fr", label: "Voyages", url: "/fr/trips", icon: "mdi:earth", showIcon: false, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
   { id: "5044e86d-9467-451d-bc21-3a9df5d7a901", menuId: "menu-footer-primary", locale: "fr", label: "Blog", url: "/fr/blog", icon: "mdi:post-outline", showIcon: false, sortOrder: 2, parentId: null, isActive: true, openInNewTab: false },
   { id: "2371cbab-14a1-42b8-99be-5c5b9a91ce17", menuId: "menu-footer-primary", locale: "fr", label: "Contact", url: "/fr/contact", icon: "mdi:email-outline", showIcon: false, sortOrder: 3, parentId: null, isActive: true, openInNewTab: false },
   // ═══════════ FOOTER PRIMARY (en) ═══════════
   { id: "2a400edb-c397-43c6-897e-728ba33d0037", menuId: "menu-footer-primary", locale: "en", label: "Home", url: "/en", icon: "mdi:home-outline", showIcon: false, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
-  { id: "3ee45298-bed0-4fa9-b331-edf8404e6514", menuId: "menu-footer-primary", locale: "en", label: "Trips", url: "/en/trips", icon: "mdi:airplane", showIcon: false, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
+  { id: "3ee45298-bed0-4fa9-b331-edf8404e6514", menuId: "menu-footer-primary", locale: "en", label: "Trips", url: "/en/trips", icon: "mdi:earth", showIcon: false, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
   { id: "c5fe01a2-727b-4630-8610-cd26ab26b9ea", menuId: "menu-footer-primary", locale: "en", label: "Blog", url: "/en/blog", icon: "mdi:post-outline", showIcon: false, sortOrder: 2, parentId: null, isActive: true, openInNewTab: false },
   { id: "6395a774-770a-4012-9616-4034d3e29cf8", menuId: "menu-footer-primary", locale: "en", label: "Contact", url: "/en/contact", icon: "mdi:email-outline", showIcon: false, sortOrder: 3, parentId: null, isActive: true, openInNewTab: false },
   // ═══════════ FOOTER PRIMARY (es) ═══════════
   { id: "53ddce66-bb1c-4a52-b68a-ad664b109d5a", menuId: "menu-footer-primary", locale: "es", label: "Inicio", url: "/es", icon: "mdi:home-outline", showIcon: false, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
-  { id: "390a8115-30ae-4b43-bcb3-f6a98a7970d5", menuId: "menu-footer-primary", locale: "es", label: "Viajes", url: "/es/viajes", icon: "mdi:airplane", showIcon: false, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
+  { id: "390a8115-30ae-4b43-bcb3-f6a98a7970d5", menuId: "menu-footer-primary", locale: "es", label: "Viajes", url: "/es/viajes", icon: "mdi:earth", showIcon: false, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
   { id: "74a71c9f-3ed7-418a-bbab-380b3e8fb8e7", menuId: "menu-footer-primary", locale: "es", label: "Blog", url: "/es/blog", icon: "mdi:post-outline", showIcon: false, sortOrder: 2, parentId: null, isActive: true, openInNewTab: false },
   { id: "9503c6b9-3a35-4cd7-a210-6ce551d97d59", menuId: "menu-footer-primary", locale: "es", label: "Contacto", url: "/es/contacto", icon: "mdi:email-outline", showIcon: false, sortOrder: 3, parentId: null, isActive: true, openInNewTab: false },
   // ═══════════ FOOTER PRIMARY (ar) ═══════════
   { id: "43838ee3-e9cf-46cb-937a-582b0e35aa97", menuId: "menu-footer-primary", locale: "ar", label: "الرئيسية", url: "/ar", icon: "mdi:home-outline", showIcon: false, sortOrder: 0, parentId: null, isActive: true, openInNewTab: false },
-  { id: "54558fe0-ee78-4987-ac81-cad88a369534", menuId: "menu-footer-primary", locale: "ar", label: "الرحلات", url: "/ar/trips", icon: "mdi:airplane", showIcon: false, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
+  { id: "54558fe0-ee78-4987-ac81-cad88a369534", menuId: "menu-footer-primary", locale: "ar", label: "الرحلات", url: "/ar/trips", icon: "mdi:earth", showIcon: false, sortOrder: 1, parentId: null, isActive: true, openInNewTab: false },
   { id: "3969d5fa-98b3-48e5-b264-b2c6d64e9e4a", menuId: "menu-footer-primary", locale: "ar", label: "المدونة", url: "/ar/blog", icon: "mdi:post-outline", showIcon: false, sortOrder: 2, parentId: null, isActive: true, openInNewTab: false },
   { id: "3e789d8c-ecf9-465b-b5cc-a61435fa1618", menuId: "menu-footer-primary", locale: "ar", label: "اتصلي بنا", url: "/ar/contact", icon: "mdi:email-outline", showIcon: false, sortOrder: 3, parentId: null, isActive: true, openInNewTab: false },
 
