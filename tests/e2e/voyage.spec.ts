@@ -19,7 +19,7 @@ async function db() {
 
 test.beforeAll(async () => {
   const database = await db();
-  const { eq } = await import('drizzle-orm');
+  const { eq, inArray } = await import('drizzle-orm');
   const { tripTranslations } = await import('../../src/database/schemas/trips.schema');
   const { departures } = await import('../../src/database/schemas/departures.schema');
   // Nettoyage défensif d'un run interrompu : la candidature utilise désormais
@@ -29,8 +29,16 @@ test.beforeAll(async () => {
   const { applications, applicationDecisions, applicationEvents } = await import('../../src/database/schemas/applications.schema');
   const { travelers } = await import('../../src/database/schemas/travelers.schema');
   const { outboxEvents } = await import('../../src/database/schemas/outbox.schema');
+  const { reservations } = await import('../../src/database/schemas/reservations.schema');
+  const { payments } = await import('../../src/database/schemas/payments.schema');
   const staleTravelers = await database.select({ id: travelers.id }).from(travelers).where(eq(travelers.email, SEED_EMAIL));
   for (const t of staleTravelers) {
+    const staleReservations = await database.select({ id: reservations.id }).from(reservations).where(eq(reservations.travelerId, t.id));
+    if (staleReservations.length > 0) {
+      const staleReservationIds = staleReservations.map((reservation) => reservation.id);
+      await database.delete(payments).where(inArray(payments.reservationId, staleReservationIds));
+      await database.delete(reservations).where(inArray(reservations.id, staleReservationIds));
+    }
     const staleApps = await database.select({ id: applications.id }).from(applications).where(eq(applications.travelerId, t.id));
     for (const a of staleApps) {
       await database.delete(applicationDecisions).where(eq(applicationDecisions.applicationId, a.id));
@@ -62,13 +70,21 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
   const database = await db();
-  const { eq } = await import('drizzle-orm');
+  const { eq, inArray } = await import('drizzle-orm');
   const { trips, tripTranslations } = await import('../../src/database/schemas/trips.schema');
   const { departures } = await import('../../src/database/schemas/departures.schema');
   const { applications, applicationDecisions, applicationEvents } = await import('../../src/database/schemas/applications.schema');
   const { travelers } = await import('../../src/database/schemas/travelers.schema');
+  const { reservations } = await import('../../src/database/schemas/reservations.schema');
+  const { payments } = await import('../../src/database/schemas/payments.schema');
   const { outboxEvents } = await import('../../src/database/schemas/outbox.schema');
   const { invalidateCache } = await import('../../src/database/cache');
+  const tripReservations = await database.select({ id: reservations.id }).from(reservations).where(eq(reservations.tripId, TRIP_ID));
+  if (tripReservations.length > 0) {
+    const reservationIds = tripReservations.map((reservation) => reservation.id);
+    await database.delete(payments).where(inArray(payments.reservationId, reservationIds));
+    await database.delete(reservations).where(inArray(reservations.id, reservationIds));
+  }
   const apps = await database.select({ id: applications.id, travelerId: applications.travelerId }).from(applications).where(eq(applications.tripId, TRIP_ID));
   for (const a of apps) {
     await database.delete(applicationDecisions).where(eq(applicationDecisions.applicationId, a.id));
@@ -79,9 +95,9 @@ test.afterAll(async () => {
   }
   await database.delete(tripTranslations).where(eq(tripTranslations.tripId, TRIP_ID));
   await database.delete(departures).where(eq(departures.tripId, TRIP_ID));
+  const tripRow = await database.select({ heroMediaId: trips.heroMediaId }).from(trips).where(eq(trips.id, TRIP_ID));
   await database.delete(trips).where(eq(trips.id, TRIP_ID));
   const { mediaFiles } = await import('../../src/database/schemas/media.schema');
-  const tripRow = await database.select({ heroMediaId: trips.heroMediaId }).from(trips).where(eq(trips.id, TRIP_ID));
   if (tripRow[0]?.heroMediaId) {
     await database.delete(mediaFiles).where(eq(mediaFiles.id, tripRow[0].heroMediaId)).catch(() => {});
   }
@@ -191,11 +207,11 @@ test.describe('Voyage — rareté marketing (≤ 2 places)', () => {
     await database.delete(travelers).where(inArray(travelers.email, [`sc-a-${stamp}@test.com`, `sc-b-${stamp}@test.com`]));
     await database.delete(departures).where(eq(departures.tripId, SC_TRIP));
     const tripRow = await database.select({ heroMediaId: trips.heroMediaId }).from(trips).where(eq(trips.id, SC_TRIP));
+    await database.delete(tripTranslations).where(eq(tripTranslations.tripId, SC_TRIP));
+    await database.delete(trips).where(eq(trips.id, SC_TRIP));
     if (tripRow[0]?.heroMediaId) {
       await database.delete(mediaFiles).where(eq(mediaFiles.id, tripRow[0].heroMediaId)).catch(() => {});
     }
-    await database.delete(tripTranslations).where(eq(tripTranslations.tripId, SC_TRIP));
-    await database.delete(trips).where(eq(trips.id, SC_TRIP));
     invalidateCache();
   });
 
@@ -258,8 +274,8 @@ test.describe('Voyage — candidature', () => {
       page.waitForResponse((r) => r.url().includes('/_astro/actions/') && r.ok(), { timeout: 30000 }).catch(() => null),
       submitBtn.click(),
     ]);
-    // The success feedback lives in the dedicated form-message region.
-    await expect(page.locator('[data-form-message]').first()).toContainText(/sent|envoyée|Application sent/i, { timeout: 60000 });
+    await page.waitForURL(/\/en\/booking-confirmed\?session_id=/, { timeout: 60000 });
+    await expect(page.locator('h1')).toHaveText('Booking confirmed');
   });
 });
 

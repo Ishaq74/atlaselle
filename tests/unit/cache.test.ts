@@ -25,6 +25,22 @@ describe('Cache — cached() wrapper', () => {
     expect(callCount).toBe(1); // only called once
   });
 
+  it('bypasses cache when E2E fixture data is mutable', async () => {
+    const original = process.env.E2E_DISABLE_CACHE;
+    process.env.E2E_DISABLE_CACHE = '1';
+    let callCount = 0;
+    const fn = cached(() => 'e2e-fixture', async () => ++callCount);
+
+    try {
+      await fn();
+      await fn();
+      expect(callCount).toBe(2);
+    } finally {
+      if (original === undefined) delete process.env.E2E_DISABLE_CACHE;
+      else process.env.E2E_DISABLE_CACHE = original;
+    }
+  });
+
   it('uses different cache keys for different arguments', async () => {
     let callCount = 0;
     const fn = cached(

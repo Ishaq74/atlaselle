@@ -119,6 +119,8 @@ export default defineConfig({
     timeout: 180_000,
     env: {
       NODE_ENV: 'test',
+      // E2E fixtures mutate the DB in a separate process, so server-side cache invalidation cannot see them.
+      E2E_DISABLE_CACHE: '1',
       // Le serveur doit écouter sur le port de la voie, pas sur 4322 par défaut.
       E2E_PORT: String(PORT),
       // Lets API endpoints rate-limit per real client IP (E2E specs send
