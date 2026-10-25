@@ -13,6 +13,8 @@ export interface VoyageEmailVars {
   number?: string;
   dates?: string;
   amount?: string;
+  paid?: string;
+  balance?: string;
   date?: string;
   url?: string;
 }
@@ -44,10 +46,10 @@ const T: Pack = {
     ar: { subject: "تم استلام الطلب — {trip}", heading: "تم استلام الطلب", greeting: "مرحبا {name}،", body: "استلمنا طلبك لرحلة «{trip}». سيراجعه فريقنا ويرد عليك بالبريد.", footnote: FOOT.ar },
   },
   application_approved: {
-    fr: { subject: "Candidature acceptée — {trip}", heading: "Bonne nouvelle !", greeting: "Bonjour {name},", body: "Votre candidature pour « {trip} » est acceptée. Finalisez votre réservation avant le {date} via le lien ci-dessous.", buttonText: "Réserver ma place", extra: "Lien valable 7 jours.", footnote: FOOT.fr },
-    en: { subject: "Application approved — {trip}", heading: "Good news!", greeting: "Hello {name},", body: "Your application for “{trip}” is approved. Complete your booking before {date} with the link below.", buttonText: "Book my seat", extra: "Link valid 7 days.", footnote: FOOT.en },
-    es: { subject: "Solicitud aceptada — {trip}", heading: "¡Buenas noticias!", greeting: "Hola {name},", body: "Su solicitud para «{trip}» ha sido aceptada. Complete su reserva antes del {date} con el enlace.", buttonText: "Reservar mi plaza", extra: "Enlace válido 7 días.", footnote: FOOT.es },
-    ar: { subject: "تم قبول الطلب — {trip}", heading: "أخبار سارة!", greeting: "مرحبا {name}،", body: "تم قبول طلبك لرحلة «{trip}». أكمل حجزك قبل {date} عبر الرابط.", buttonText: "احجز مقعدك", extra: "الرابط صالح 7 أيام.", footnote: FOOT.ar },
+    fr: { subject: "Candidature acceptée — {trip}", heading: "Bonne nouvelle !", greeting: "Bonjour {name},", body: "Votre candidature pour « {trip} » est acceptée. Finalisez votre réservation avant le {date} via le lien ci-dessous.", buttonText: "Réserver ma place", footnote: FOOT.fr },
+    en: { subject: "Application approved — {trip}", heading: "Good news!", greeting: "Hello {name},", body: "Your application for “{trip}” is approved. Complete your booking before {date} with the link below.", buttonText: "Book my seat", footnote: FOOT.en },
+    es: { subject: "Solicitud aceptada — {trip}", heading: "¡Buenas noticias!", greeting: "Hola {name},", body: "Su solicitud para «{trip}» ha sido aceptada. Complete su reserva antes del {date} con el enlace.", buttonText: "Reservar mi plaza", footnote: FOOT.es },
+    ar: { subject: "تم قبول الطلب — {trip}", heading: "أخبار سارة!", greeting: "مرحبا {name}،", body: "تم قبول طلبك لرحلة «{trip}». أكمل حجزك قبل {date} عبر الرابط.", buttonText: "احجز مقعدك", footnote: FOOT.ar },
   },
   application_contact_required: {
     fr: { subject: "Votre candidature — {trip}", heading: "Un échange avant de partir", greeting: "Bonjour {name},", body: "Pour votre candidature à « {trip} », nous aimerions échanger quelques minutes. Répondez simplement à cet e-mail.", footnote: FOOT.fr },
@@ -61,11 +63,23 @@ const T: Pack = {
     es: { subject: "Su solicitud — {trip}", heading: "Gracias por su confianza", greeting: "Hola {name},", body: "No podemos aceptar su solicitud para «{trip}» esta vez. Habrá más salidas — sigamos en contacto.", footnote: FOOT.es },
     ar: { subject: "طلبك — {trip}", heading: "شكرا لثقتك", greeting: "مرحبا {name}،", body: "لا يمكننا قبول طلبك لرحلة «{trip}» هذه المرة. مواعيد أخرى قادمة — لنبق على تواصل.", footnote: FOOT.ar },
   },
+  waitlist_joined: {
+    fr: { subject: "Liste d’attente — {trip}", heading: "Demande enregistrée", greeting: "Bonjour {name},", body: "Le départ « {trip} » est complet. Votre demande est inscrite sur la liste d’attente dans l’ordre d’arrivée. Nous vous contacterons si une place se libère.", footnote: FOOT.fr },
+    en: { subject: "Waiting list — {trip}", heading: "You’re on the list", greeting: "Hello {name},", body: "The “{trip}” departure is full. Your request has been added to the waiting list in registration order. We’ll contact you if a place becomes available.", footnote: FOOT.en },
+    es: { subject: "Lista de espera — {trip}", heading: "Solicitud registrada", greeting: "Hola {name},", body: "La salida de «{trip}» está completa. Su solicitud se ha añadido a la lista de espera por orden de inscripción. Le contactaremos si queda una plaza disponible.", footnote: FOOT.es },
+    ar: { subject: "قائمة الانتظار — {trip}", heading: "تم تسجيل طلبك", greeting: "مرحبا {name}،", body: "اكتمل موعد رحلة «{trip}». أُضيف طلبك إلى قائمة الانتظار حسب ترتيب التسجيل. سنتواصل معك إذا توفّر مقعد.", footnote: FOOT.ar },
+  },
+  waitlist_offer: {
+    fr: { subject: "Une place se libère — {trip}", heading: "Une place vous est proposée", greeting: "Bonjour {name},", body: "Une place pour « {trip} » est disponible pour vous jusqu’au {date}. Réglez l’acompte via le lien ci-dessous pour confirmer votre réservation.", buttonText: "Régler l’acompte", footnote: FOOT.fr },
+    en: { subject: "A place is available — {trip}", heading: "A place is offered to you", greeting: "Hello {name},", body: "A place on “{trip}” is available to you until {date}. Pay the deposit using the link below to confirm your booking.", buttonText: "Pay the deposit", footnote: FOOT.en },
+    es: { subject: "Hay una plaza disponible — {trip}", heading: "Le ofrecemos una plaza", greeting: "Hola {name},", body: "Tiene disponible una plaza para «{trip}» hasta el {date}. Pague el depósito con el enlace para confirmar su reserva.", buttonText: "Pagar el depósito", footnote: FOOT.es },
+    ar: { subject: "مقعد متاح — {trip}", heading: "نعرض عليك مقعدا", greeting: "مرحبا {name}،", body: "يتوفر لك مقعد في رحلة «{trip}» حتى {date}. ادفع العربون عبر الرابط لتأكيد الحجز.", buttonText: "دفع العربون", footnote: FOOT.ar },
+  },
   checkout_started: {
-    fr: { subject: "Finalisez votre réservation — {trip}", heading: "Plus qu'une étape", greeting: "Bonjour {name},", body: "Votre place pour « {trip} » est mise de côté 30 minutes. Terminez votre paiement via le lien ci-dessous.", buttonText: "Payer", extra: "Sans paiement, la place est libérée.", footnote: FOOT.fr },
-    en: { subject: "Complete your booking — {trip}", heading: "One step left", greeting: "Hello {name},", body: "Your seat for “{trip}” is held for 30 minutes. Finish payment with the link below.", buttonText: "Pay now", extra: "Without payment, the seat is released.", footnote: FOOT.en },
-    es: { subject: "Complete su reserva — {trip}", heading: "Solo un paso", greeting: "Hola {name},", body: "Su plaza para «{trip}» está reservada 30 minutos. Complete el pago con el enlace.", buttonText: "Pagar", extra: "Sin pago, la plaza se libera.", footnote: FOOT.es },
-    ar: { subject: "أكمل حجزك — {trip}", heading: "خطوة واحدة", greeting: "مرحبا {name}،", body: "مقعدك لرحلة «{trip}» محجوز 30 دقيقة. أكمل الدفع عبر الرابط.", buttonText: "ادفع", extra: "بدون دفع يُحرر المقعد.", footnote: FOOT.ar },
+    fr: { subject: "Finalisez votre réservation — {trip}", heading: "Plus qu'une étape", greeting: "Bonjour {name},", body: "Votre lien de paiement pour « {trip} » reste valable 35 minutes. Terminez votre paiement via le lien ci-dessous.", buttonText: "Payer", extra: "Sans paiement, la place est libérée.", footnote: FOOT.fr },
+    en: { subject: "Complete your booking — {trip}", heading: "One step left", greeting: "Hello {name},", body: "Your payment link for “{trip}” is valid for 35 minutes. Finish payment with the link below.", buttonText: "Pay now", extra: "Without payment, the seat is released.", footnote: FOOT.en },
+    es: { subject: "Complete su reserva — {trip}", heading: "Solo un paso", greeting: "Hola {name},", body: "Su enlace de pago para «{trip}» es válido durante 35 minutos. Complete el pago con el enlace.", buttonText: "Pagar", extra: "Sin pago, la plaza se libera.", footnote: FOOT.es },
+    ar: { subject: "أكمل حجزك — {trip}", heading: "خطوة واحدة", greeting: "مرحبا {name}،", body: "رابط الدفع لرحلة «{trip}» صالح لمدة 35 دقيقة. أكمل الدفع عبر الرابط.", buttonText: "ادفع", extra: "بدون دفع يُحرر المقعد.", footnote: FOOT.ar },
   },
   payment_received: {
     fr: { subject: "Paiement reçu — {trip}", heading: "Paiement reçu", greeting: "Bonjour {name},", body: "Nous avons reçu votre paiement de {amount} pour « {trip} ». Votre réservation est en cours de confirmation.", footnote: FOOT.fr },
@@ -74,10 +88,10 @@ const T: Pack = {
     ar: { subject: "تم استلام الدفع — {trip}", heading: "تم استلام الدفع", greeting: "مرحبا {name}،", body: "استلمنا دفعتك {amount} لرحلة «{trip}». حجزك قيد التأكيد.", footnote: FOOT.ar },
   },
   booking_confirmed: {
-    fr: { subject: "Réservation confirmée — {trip}", heading: "C'est confirmé !", greeting: "Bonjour {name},", body: "Votre place pour « {trip} » ({dates}) est réservée. Numéro : {number}. Détails ci-dessous.", buttonText: "Voir ma réservation", footnote: FOOT.fr },
-    en: { subject: "Booking confirmed — {trip}", heading: "Confirmed!", greeting: "Hello {name},", body: "Your seat for “{trip}” ({dates}) is booked. Number: {number}. Details below.", buttonText: "View my booking", footnote: FOOT.en },
-    es: { subject: "Reserva confirmada — {trip}", heading: "¡Confirmado!", greeting: "Hola {name},", body: "Su plaza para «{trip}» ({dates}) está reservada. Número: {number}.", buttonText: "Ver mi reserva", footnote: FOOT.es },
-    ar: { subject: "تم تأكيد الحجز — {trip}", heading: "تم التأكيد!", greeting: "مرحبا {name}،", body: "تم حجز مقعدك لرحلة «{trip}» ({dates}). الرقم: {number}.", buttonText: "عرض حجزي", footnote: FOOT.ar },
+    fr: { subject: "Réservation confirmée — {trip}", heading: "C'est confirmé !", greeting: "Bonjour {name},", body: "Votre place pour « {trip} » ({dates}) est réservée. Numéro : {number}. Total : {amount}, payé : {paid}, solde restant : {balance}. Échéance du solde : {date}.", buttonText: "Voir ma réservation", footnote: FOOT.fr },
+    en: { subject: "Booking confirmed — {trip}", heading: "Confirmed!", greeting: "Hello {name},", body: "Your seat for “{trip}” ({dates}) is booked. Number: {number}. Total: {amount}; paid: {paid}; remaining balance: {balance}. Balance due date: {date}.", buttonText: "View my booking", footnote: FOOT.en },
+    es: { subject: "Reserva confirmada — {trip}", heading: "¡Confirmado!", greeting: "Hola {name},", body: "Su plaza para «{trip}» ({dates}) está reservada. Número: {number}. Total: {amount}; pagado: {paid}; saldo restante: {balance}. Fecha límite del saldo: {date}.", buttonText: "Ver mi reserva", footnote: FOOT.es },
+    ar: { subject: "تم تأكيد الحجز — {trip}", heading: "تم التأكيد!", greeting: "مرحبا {name}،", body: "تم حجز مقعدك لرحلة «{trip}» ({dates}). الرقم: {number}. الإجمالي: {amount}؛ المدفوع: {paid}؛ الرصيد المتبقي: {balance}. موعد استحقاق الرصيد: {date}.", buttonText: "عرض حجزي", footnote: FOOT.ar },
   },
   balance_due: {
     fr: { subject: "Solde à régler — {trip}", heading: "Pensez au solde", greeting: "Bonjour {name},", body: "Le solde de {amount} pour « {trip} » est dû avant le {date}. Réglez-le via le lien ci-dessous.", buttonText: "Régler le solde", footnote: FOOT.fr },

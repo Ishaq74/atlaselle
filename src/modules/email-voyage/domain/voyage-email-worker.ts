@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { travelers } from "@database/schemas";
 import { tripTranslations } from "@database/schemas";
@@ -32,14 +32,21 @@ interface EmailContext {
   dates: string;
   number: string;
   amount: string;
+  currency: string;
   date: string;
+  balance: string;
+  paid: string;
+  balanceDueDate: string;
+  checkoutExpiresAt: string;
   url: string;
+  providerSessionId: string;
 }
 
 async function loadContext(payload: Record<string, unknown>): Promise<EmailContext | null> {
   const db = getDrizzle();
   const applicationId = typeof payload.applicationId === "string" ? payload.applicationId : null;
   const reservationId = typeof payload.reservationId === "string" ? payload.reservationId : null;
+  const checkoutSessionId = typeof payload.checkoutSessionId === "string" ? payload.checkoutSessionId : null;
 
   const [reservation] = reservationId
     ? await db.select().from(reservations).where(eq(reservations.id, reservationId)).limit(1)
@@ -64,8 +71,12 @@ async function loadContext(payload: Record<string, unknown>): Promise<EmailConte
     ? await db.select().from(departures).where(eq(departures.id, departureId)).limit(1)
     : [];
   const locale: Locale = isValidLocale(traveler.locale) ? traveler.locale : "en";
-  const [checkout] = applicationId
-    ? await db.select().from(checkoutSessions).where(eq(checkoutSessions.applicationId, applicationId)).limit(1)
+  const [checkout] = checkoutSessionId
+    ? await db.select().from(checkoutSessions).where(eq(checkoutSessions.id, checkoutSessionId)).limit(1)
+    : reservationId
+      ? await db.select().from(checkoutSessions).where(eq(checkoutSessions.reservationId, reservationId)).orderBy(desc(checkoutSessions.createdAt)).limit(1)
+    : applicationId
+      ? await db.select().from(checkoutSessions).where(eq(checkoutSessions.applicationId, applicationId)).orderBy(desc(checkoutSessions.createdAt)).limit(1)
     : [];
   const origin = process.env.SITE_URL ?? "http://localhost:4321";
   return {
@@ -78,8 +89,14 @@ async function loadContext(payload: Record<string, unknown>): Promise<EmailConte
     dates: dep ? `${fmtDate(locale, dep.startDate)} – ${fmtDate(locale, dep.endDate)}` : "",
     number: reservation?.reservationNumber ?? "",
     amount: reservation ? fmtMoney(reservation.totalAmount, reservation.currency) : "",
+    currency: reservation?.currency ?? "EUR",
+    paid: reservation ? fmtMoney(reservation.amountPaid, reservation.currency) : "",
+    balance: reservation ? fmtMoney(reservation.amountDue, reservation.currency) : "",
     date: dep?.balanceDueDate ? fmtDate(locale, dep.balanceDueDate) : "",
+    balanceDueDate: dep?.balanceDueDate ? fmtDate(locale, dep.balanceDueDate) : "",
+    checkoutExpiresAt: checkout?.expiresAt ? fmtDate(locale, checkout.expiresAt) : "",
     url: checkout ? `${origin}/${locale}/checkout/${checkout.id}` : "",
+    providerSessionId: checkout?.providerSessionId ?? "",
   };
 }
 
@@ -88,12 +105,16 @@ export async function routeOutboxToEmail(
   eventType: string,
   payload: Record<string, unknown>,
   sender?: SendFn,
+  dedupeKey?: string,
 ): Promise<boolean> {
   const mapping: Record<string, VoyageEmailTemplate> = {
     "application.submitted": "application_received",
     "application.approved": "application_approved",
     "application.contact_required": "application_contact_required",
     "application.declined": "application_declined",
+    "waitlist.joined": "waitlist_joined",
+    "waitlist.offered": "waitlist_offer",
+    "reservation.balance_due": "balance_due",
     "checkout.started": "checkout_started",
     "payment.received": "payment_received",
     "booking.confirmed": "booking_confirmed",
@@ -102,18 +123,44 @@ export async function routeOutboxToEmail(
   if (!template) return false;
   const ctx = await loadContext(payload);
   if (!ctx) return false;
-  await sendVoyageEmail(
+  const origin = process.env.SITE_URL ?? "http://localhost:4321";
+  let url = ctx.url;
+  if (eventType === "checkout.started" && typeof payload.checkoutUrl === "string") {
+    url = new URL(payload.checkoutUrl, origin).toString();
+  } else if ((eventType === "booking.confirmed" || eventType === "reservation.balance_due") && ctx.providerSessionId) {
+    url = `${origin}/${ctx.locale}/booking-confirmed?session_id=${encodeURIComponent(ctx.providerSessionId)}`;
+  }
+  const amount = eventType === "payment.received" && typeof payload.amount === "number"
+    ? fmtMoney(payload.amount, ctx.currency)
+    : eventType === "reservation.balance_due"
+      ? ctx.balance
+      : ctx.amount;
+  const date = eventType === "application.approved" || eventType === "waitlist.offered"
+    ? ctx.checkoutExpiresAt
+    : ctx.balanceDueDate;
+  const delivery = await sendVoyageEmail(
     {
       template,
       locale: ctx.locale,
       toEmail: ctx.toEmail,
       travelerId: ctx.travelerId,
       reservationId: ctx.reservationId,
-      vars: { name: ctx.name, trip: ctx.trip, number: ctx.number, dates: ctx.dates, amount: ctx.amount, date: ctx.date },
-      url: ctx.url || undefined,
+      vars: {
+        name: ctx.name,
+        trip: ctx.trip,
+        number: ctx.number,
+        dates: ctx.dates,
+        amount,
+        date,
+        paid: ctx.paid,
+        balance: ctx.balance,
+      },
+      url: url || undefined,
+      dedupeKey,
     },
     sender,
   );
+  if (!delivery.sent) throw new Error(`Email delivery failed: ${delivery.deliveryId}`);
   return true;
 }
 
@@ -124,7 +171,7 @@ export async function processEmailOutboxBatch(limit = 25, sender?: SendFn): Prom
   let skipped = 0;
   for (const row of rows) {
     try {
-      const handled = await routeOutboxToEmail(row.event_type, row.payload ?? {}, sender);
+      const handled = await routeOutboxToEmail(row.event_type, row.payload ?? {}, sender, `outbox:${row.id}`);
       if (!handled) skipped += 1;
       await completeOutbox(row.id);
       done += 1;

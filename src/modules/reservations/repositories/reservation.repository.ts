@@ -3,15 +3,17 @@ import { getDrizzle } from "@database/drizzle";
 import { reservations } from "@database/schemas/reservations.schema";
 
 type Db = ReturnType<typeof getDrizzle>;
+type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
+type DbScope = Db | Tx;
 
 /** Repository du module reservations — seul propriétaire de la table `reservations`. */
-export async function getReservationById(reservationId: string, dbOverride?: Db): Promise<(typeof reservations.$inferSelect) | null> {
+export async function getReservationById(reservationId: string, dbOverride?: DbScope): Promise<(typeof reservations.$inferSelect) | null> {
   const db = dbOverride ?? getDrizzle();
   const [row] = await db.select().from(reservations).where(eq(reservations.id, reservationId)).limit(1);
   return row ?? null;
 }
 
-export async function countConfirmedByDeparture(departureId: string, dbOverride?: Db): Promise<number> {
+export async function countConfirmedByDeparture(departureId: string, dbOverride?: DbScope): Promise<number> {
   const db = dbOverride ?? getDrizzle();
   const rows = await db
     .select({ id: reservations.id })

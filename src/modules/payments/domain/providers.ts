@@ -12,6 +12,7 @@ export interface CreateCheckoutSessionInput {
   customerEmail: string;
   successUrl: string;
   cancelUrl: string;
+  expiresAt?: Date;
 }
 
 export interface ProviderCheckoutSession {
@@ -24,6 +25,8 @@ export type WebhookOutcome = "checkout.completed" | "payment.failed";
 export interface ProviderWebhookEvent {
   outcome: WebhookOutcome;
   providerPaymentId: string;
+  providerSessionId?: string;
+  checkoutExpired?: boolean;
   amount: number;
   currency: string;
   idempotencyKey?: string;
@@ -78,6 +81,7 @@ export const mockProvider: PaymentProvider = {
     return {
       outcome: event.failed ? "payment.failed" : "checkout.completed",
       providerPaymentId: event.providerPaymentId,
+      providerSessionId: event.providerSessionId,
       amount: event.amount,
       currency: event.currency,
       idempotencyKey: event.idempotencyKey,
@@ -149,6 +153,7 @@ export const stripeProvider: PaymentProvider = {
       "line_items[0][quantity]": "1",
       success_url: input.successUrl,
       cancel_url: input.cancelUrl,
+      ...(input.expiresAt ? { expires_at: String(Math.floor(input.expiresAt.getTime() / 1000)) } : {}),
       client_reference_id: input.reservationId,
       customer_email: input.customerEmail,
       "metadata[idempotency_key]": input.idempotencyKey,
@@ -174,6 +179,7 @@ export const stripeProvider: PaymentProvider = {
       return {
         outcome: "checkout.completed",
         providerPaymentId: paymentIntent ?? (obj.id as string),
+        providerSessionId: typeof obj.id === "string" ? obj.id : undefined,
         amount,
         currency: currency.toUpperCase(),
         idempotencyKey: typeof metadata.idempotency_key === "string" ? metadata.idempotency_key : undefined,
@@ -184,6 +190,8 @@ export const stripeProvider: PaymentProvider = {
       return {
         outcome: "payment.failed",
         providerPaymentId: (obj.payment_intent as string) ?? (obj.id as string) ?? "unknown",
+        providerSessionId: event.type === "checkout.session.expired" && typeof obj.id === "string" ? obj.id : undefined,
+        checkoutExpired: event.type === "checkout.session.expired",
         amount: (obj.amount_total as number) ?? 0,
         currency: String(obj.currency ?? "").toUpperCase(),
         idempotencyKey: typeof metadata.idempotency_key === "string" ? metadata.idempotency_key : undefined,

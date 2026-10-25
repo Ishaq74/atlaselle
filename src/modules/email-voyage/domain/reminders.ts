@@ -1,10 +1,11 @@
-import { and, eq, gte, gt, inArray, lte } from "drizzle-orm";
+import { and, desc, eq, gt, gte, inArray, lte } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { reservations } from "@database/schemas";
 import { departures } from "@database/schemas";
 import { travelers } from "@database/schemas";
 import { tripTranslations } from "@database/schemas";
 import { emailDeliveries } from "@database/schemas";
+import { checkoutSessions } from "@database/schemas";
 import type { VoyageEmailTemplate } from "@database/schemas/email-voyage.schema";
 import { isValidLocale } from "@/i18n/utils";
 import type { Locale } from "@/i18n/config";
@@ -35,10 +36,38 @@ async function alreadySent(template: VoyageEmailTemplate, travelerId: string, re
   return !!row;
 }
 
-// Soldes dus sous 7 j, réservations confirmed/balance_due (TODO §14.2).
+function addCalendarMonthsClamped(anchor: Date, months: number): Date {
+  const monthIndex = anchor.getUTCMonth() + months;
+  const year = anchor.getUTCFullYear() + Math.floor(monthIndex / 12);
+  const month = ((monthIndex % 12) + 12) % 12;
+  const day = Math.min(anchor.getUTCDate(), new Date(Date.UTC(year, month + 1, 0)).getUTCDate());
+  return new Date(Date.UTC(
+    year,
+    month,
+    day,
+    anchor.getUTCHours(),
+    anchor.getUTCMinutes(),
+    anchor.getUTCSeconds(),
+    anchor.getUTCMilliseconds(),
+  ));
+}
+
+export function balanceReminderSchedule(confirmedAt: Date, balanceDueDate: Date): Date[] {
+  if (balanceDueDate <= confirmedAt) return [];
+  const dates: Date[] = [];
+  const firstReminder = new Date(confirmedAt.getTime() + 2 * 86_400_000);
+  if (firstReminder < balanceDueDate) dates.push(firstReminder);
+  for (let month = 1; month <= 120; month += 1) {
+    const reminder = addCalendarMonthsClamped(confirmedAt, month);
+    if (reminder >= balanceDueDate) break;
+    dates.push(reminder);
+  }
+  return [...new Map(dates.map((date) => [date.toISOString().slice(0, 10), date])).values()];
+}
+
+// Rappel J+2 puis mensuel depuis la confirmation, sans dépasser l'échéance.
 export async function sendBalanceReminders(now = new Date(), sender?: SendFn): Promise<number> {
   const db = getDrizzle();
-  const horizon = new Date(now.getTime() + 7 * 24 * 3600_000);
   const rows = await db
     .select({ reservation: reservations, departure: departures, traveler: travelers })
     .from(reservations)
@@ -48,18 +77,27 @@ export async function sendBalanceReminders(now = new Date(), sender?: SendFn): P
       and(
         inArray(reservations.status, ["confirmed", "balance_due"]),
         gte(reservations.balanceDueDate, now),
-        lte(reservations.balanceDueDate, horizon),
+        lte(reservations.balanceDueDate, new Date(now.getTime() + 7 * 86_400_000)),
         // Pas de relance pour un solde nul (réservation déjà soldée).
         gt(reservations.amountDue, 0),
       ),
     );
   let sent = 0;
   for (const { reservation, departure, traveler } of rows) {
-    if (!reservation.balanceDueDate) continue;
-    if (await alreadySent("balance_reminder", traveler.id, reservation.id)) continue;
+    if (!reservation.confirmedAt || !reservation.balanceDueDate) continue;
+    const scheduledAt = balanceReminderSchedule(reservation.confirmedAt, reservation.balanceDueDate)
+      .filter((date) => date <= now)
+      .at(-1);
+    if (!scheduledAt) continue;
     const locale: Locale = isValidLocale(traveler.locale) ? traveler.locale : "en";
     const [tr] = await db.select({ title: tripTranslations.title }).from(tripTranslations).where(eq(tripTranslations.tripId, reservation.tripId)).limit(1);
-    void departure;
+    const [checkout] = await db
+      .select({ providerSessionId: checkoutSessions.providerSessionId })
+      .from(checkoutSessions)
+      .where(eq(checkoutSessions.reservationId, reservation.id))
+      .orderBy(desc(checkoutSessions.createdAt))
+      .limit(1);
+    const origin = process.env.SITE_URL ?? "http://localhost:4321";
     const res = await sendVoyageEmail(
       {
         template: "balance_reminder",
@@ -73,10 +111,15 @@ export async function sendBalanceReminders(now = new Date(), sender?: SendFn): P
           amount: fmtMoney(reservation.amountDue, reservation.currency),
           date: fmtDate(locale, reservation.balanceDueDate),
         },
+        url: checkout?.providerSessionId
+          ? `${origin}/${locale}/booking-confirmed?session_id=${encodeURIComponent(checkout.providerSessionId)}`
+          : undefined,
+        dedupeKey: `balance:${reservation.id}:${scheduledAt.toISOString().slice(0, 10)}`,
       },
       sender,
     );
     if (res.sent) sent += 1;
+    void departure;
   }
   return sent;
 }

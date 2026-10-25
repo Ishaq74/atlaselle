@@ -135,7 +135,7 @@ beforeAll(async () => {
     {
       id: DEP, tripId: TRIP,
       startDate: new Date('2027-06-01T08:00:00.000Z'), endDate: new Date('2027-06-04T18:00:00.000Z'),
-      status: 'open', capacityMin: 1, capacityMax: 5, priceAmount: 50000, currency: 'EUR', pricingRules: {},
+      status: 'open', capacityMin: 1, capacityMax: 20, priceAmount: 50000, currency: 'EUR', pricingRules: {},
     },
     {
       id: `${DEP}-closed`, tripId: TRIP,
@@ -194,10 +194,15 @@ describe('submitApplication — fermetures, délais, comptes, rate-limit', () =>
   it('rate-limit après 5 essais (même IP)', async () => {
     const ctxFor = (email: string) =>
       ({ locals: { user: { id: adminId, email, emailVerified: true, banned: false } }, request: { headers: new Headers(), url: 'http://x/' }, clientAddress: '192.168.99.77' }) as never;
-    for (let i = 0; i < 5; i++) {
-      await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email: `rl${i}-${stamp}@test.com` }, ctxFor(`rl${i}-${stamp}@test.com`));
+    await db.update(departures).set({ status: 'waitlist' }).where(eq(departures.id, DEP));
+    try {
+      for (let i = 0; i < 5; i++) {
+        await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email: `rl${i}-${stamp}@test.com` }, ctxFor(`rl${i}-${stamp}@test.com`));
+      }
+      await expect(submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email: `rl5-${stamp}@test.com` }, ctxFor(`rl5-${stamp}@test.com`))).rejects.toMatchObject({ code: 'TOO_MANY_REQUESTS' });
+    } finally {
+      await db.update(departures).set({ status: 'open' }).where(eq(departures.id, DEP));
     }
-    await expect(submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email: `rl5-${stamp}@test.com` }, ctxFor(`rl5-${stamp}@test.com`))).rejects.toMatchObject({ code: 'TOO_MANY_REQUESTS' });
   });
 
   it('voyage draft/inconnu -> APPLICATION_CLOSED, départ mismatch -> NOT_FOUND', async () => {
@@ -229,23 +234,28 @@ describe('submitApplication — fermetures, délais, comptes, rate-limit', () =>
 
   it('doublon actif -> CONFLICT, après withdraw -> nouvelle candidature OK', async () => {
     const email = `dup-${stamp}@test.com`;
-    const first = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email));
-    expect(first.id).toBeTypeOf('string');
-    // Le compte vérifié de la session prouve la propriété du mail : le dossier
-    // est réclamé (backfill emailVerifiedAt), puis la déduplication dossier
-    // répond — EMAIL_CONFLICT ne peut plus masquer LA vraie règle métier.
-    const errMail = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email)).catch((e: unknown) => e);
-    expect((errMail as { code: string }).code).toBe('CONFLICT');
-    expect((errMail as Error).message).toContain('APPLICATION_DUPLICATE');
-    await db.update(travelers).set({ emailVerifiedAt: new Date() }).where(eq(travelers.email, email));
-    // vérifié : la déduplication dossier répond
-    const errDup = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email)).catch((e: unknown) => e);
-    expect((errDup as { code: string }).code).toBe('CONFLICT');
-    expect((errDup as Error).message).toContain('APPLICATION_DUPLICATE');
-    await withdraw({ id: first.id, email }, publicCtx());
-    const second = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email));
-    expect(second.id).toBeTypeOf('string');
-    expect(second.id).not.toBe(first.id);
+    await db.update(departures).set({ status: 'waitlist' }).where(eq(departures.id, DEP));
+    try {
+      const first = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email));
+      expect(first.id).toBeTypeOf('string');
+      // Le compte vérifié de la session prouve la propriété du mail : le dossier
+      // est réclamé (backfill emailVerifiedAt), puis la déduplication dossier
+      // répond — EMAIL_CONFLICT ne peut plus masquer LA vraie règle métier.
+      const errMail = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email)).catch((e: unknown) => e);
+      expect((errMail as { code: string }).code).toBe('CONFLICT');
+      expect((errMail as Error).message).toContain('APPLICATION_DUPLICATE');
+      await db.update(travelers).set({ emailVerifiedAt: new Date() }).where(eq(travelers.email, email));
+      // vérifié : la déduplication dossier répond
+      const errDup = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email)).catch((e: unknown) => e);
+      expect((errDup as { code: string }).code).toBe('CONFLICT');
+      expect((errDup as Error).message).toContain('APPLICATION_DUPLICATE');
+      await withdraw({ id: first.id, email }, publicCtx());
+      const second = await submit({ ...baseSubmit, tripId: TRIP, departureId: DEP, email }, verifiedCtx(adminId, email));
+      expect(second.id).toBeTypeOf('string');
+      expect(second.id).not.toBe(first.id);
+    } finally {
+      await db.update(departures).set({ status: 'open' }).where(eq(departures.id, DEP));
+    }
   });
 
   it('deux candidatures simultanées même email -> une passe, une DUPLICATE', async () => {
@@ -323,7 +333,7 @@ describe('multi-trips — une même voyageuse sur plusieurs voyages (claim preuv
       .where(eq(applications.travelerId, tr.id));
     expect(rows).toHaveLength(2);
     expect(new Set(rows.map((r) => r.tripId))).toEqual(new Set([TRIP, TRIP_ACC]));
-    expect(rows.every((r) => r.status === 'submitted')).toBe(true);
+    expect(rows.every((r) => r.status === 'approved')).toBe(true);
     // La preuve du compte a été rattachée : le voyageur est désormais vérifié.
     const [tr2] = await db
       .select({ verified: travelers.emailVerifiedAt, owner: travelers.userId })

@@ -2,7 +2,7 @@ import { ActionError, defineAction } from "astro:actions";
 import { and, eq, inArray } from "drizzle-orm";
 import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
-import { applications, applicationDecisions, applicationEvents } from "@database/schemas";
+import { applications, applicationDecisions, applicationEvents, checkoutSessions, waitlistEntries } from "@database/schemas";
 import { travelers } from "@database/schemas";
 import { departures } from "@database/schemas";
 import { trips } from "@database/schemas";
@@ -18,6 +18,10 @@ import { assertTransitionApplication, ACTIVE_APPLICATION_STATUSES } from "@/modu
 import type { ApplicationStatus } from "@database/schemas/applications.schema";
 import { emitOutboxEvent } from "@/modules/outbox/domain/outbox";
 import { createApplicationCheckout } from "@/modules/payments/domain/checkout-service";
+import { getAvailability } from "@/modules/availability/domain/availability-service";
+import { enqueueWaitlist } from "@/modules/applications/domain/waitlist-service";
+import { removeWaitlistEntry } from "@/modules/applications/domain/waitlist-service";
+import { initiateCheckout as runCheckoutTunnel } from "@/modules/payments/domain/payment-service";
 import { domainError } from "@/lib/voyage-errors";
 
 const CLOSED_DEPARTURE_STATUSES = ["draft", "closed", "cancelled", "completed"] as const;
@@ -148,18 +152,80 @@ export const submitApplication = defineAction({
       { applicationId: created.id, event: "created" },
       { applicationId: created.id, event: "submitted" },
     ]);
-    await emitOutboxEvent({
-      eventType: "application.submitted",
-      aggregateType: "application",
-      aggregateId: created.id,
-      payload: { applicationId: created.id, tripId: input.tripId, departureId: input.departureId, locale: input.locale },
+    const availability = await getAvailability(input.departureId);
+    if (dep.status === "waitlist" || !availability?.bookable || availability.availableSeats < 1) {
+      await enqueueWaitlist(created.id, input.departureId, new Date());
+      auditVoyage(context, sessionUser.id, "APPLICATION_SUBMIT", {
+        resource: "applications",
+        resourceId: created.id,
+        metadata: { tripId: input.tripId, departureId: input.departureId, status: "waitlisted" },
+      });
+      return { id: created.id, status: "waitlisted" as const };
+    }
+
+    const checkout = await db.transaction(async (tx) => {
+      const [current] = await tx.select().from(applications).where(eq(applications.id, created.id)).for("update").limit(1);
+      if (!current || current.status !== "submitted") throw new Error("Application changed before automatic approval.");
+      assertStateTransition(() => assertTransitionApplication("submitted", "under_review"));
+      await tx.update(applications).set({ status: "under_review" }).where(eq(applications.id, created.id));
+      await tx.insert(applicationEvents).values({ applicationId: created.id, event: "review_started" });
+      assertStateTransition(() => assertTransitionApplication("under_review", "approved"));
+      await tx.insert(applicationDecisions).values({
+        applicationId: created.id,
+        decision: "approved",
+        internalNote: "Automatically approved because a place was available at submission.",
+      });
+      await tx.update(applications).set({ status: "approved" }).where(eq(applications.id, created.id));
+      await tx.insert(applicationEvents).values({ applicationId: created.id, event: "approved" });
+      const expiresAt = new Date(Date.now() + 7 * 24 * 3600_000);
+      const [session] = await tx
+        .insert(checkoutSessions)
+        .values({ applicationId: created.id, departureId: input.departureId, expiresAt })
+        .returning();
+      if (!session) throw new Error("Automatic checkout creation failed.");
+      return session;
     });
+    let paymentCheckout: { reservationId: string; checkoutUrl: string } | null = null;
+    try {
+      const origin = new URL(context.request.url).origin;
+      paymentCheckout = await runCheckoutTunnel({
+        checkoutSessionId: checkout.id,
+        travelerEmail: normalizeEmail(input.email),
+        roomType: input.roomPreference,
+        successUrl: `${origin}/${input.locale}/booking-confirmed?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${origin}/${input.locale}/checkout/${checkout.id}`,
+      });
+    } catch (err) {
+      if ((err as { code?: string } | null)?.code === "DEPARTURE_SOLD_OUT") {
+        auditVoyage(context, sessionUser.id, "APPLICATION_SUBMIT", {
+          resource: "applications",
+          resourceId: created.id,
+          metadata: { tripId: input.tripId, departureId: input.departureId, status: "waitlisted" },
+        });
+        return { id: created.id, status: "waitlisted" as const };
+      }
+      if ((err as { code?: string } | null)?.code === "CHECKOUT_EXPIRED") {
+        throw new ActionError({ code: "GONE", message: "Cette proposition de place a expiré." });
+      }
+      await emitOutboxEvent({
+        eventType: "application.approved",
+        aggregateType: "application",
+        aggregateId: created.id,
+        payload: { applicationId: created.id, checkoutSessionId: checkout.id, expiresAt: checkout.expiresAt.toISOString() },
+      });
+      auditVoyage(context, sessionUser.id, "APPLICATION_SUBMIT", {
+        resource: "applications",
+        resourceId: created.id,
+        metadata: { tripId: input.tripId, departureId: input.departureId, status: "approved", checkoutDeferred: true },
+      });
+      return { id: created.id, status: "approved" as const };
+    }
     auditVoyage(context, sessionUser.id, "APPLICATION_SUBMIT", {
       resource: "applications",
       resourceId: created.id,
-      metadata: { tripId: input.tripId, departureId: input.departureId },
+      metadata: { tripId: input.tripId, departureId: input.departureId, status: "approved" },
     });
-    return { id: created.id };
+    return { id: created.id, status: "approved" as const, checkoutSessionId: checkout.id, checkoutUrl: paymentCheckout.checkoutUrl };
   },
 });
 
@@ -201,6 +267,10 @@ export const reviewApplication = defineAction({
         event: target === "approved" ? "approved" : target === "declined" ? "declined" : "contact_requested",
         actorId: user.id,
       });
+      await tx
+        .update(waitlistEntries)
+        .set({ status: "removed" })
+        .where(eq(waitlistEntries.applicationId, input.id));
     });
     await emitOutboxEvent({
       eventType: `application.${target}`,
@@ -249,6 +319,7 @@ export const withdrawApplication = defineAction({
       await tx.update(applications).set({ status: "withdrawn" }).where(eq(applications.id, input.id));
       await tx.insert(applicationEvents).values({ applicationId: input.id, event: "withdrawn" });
     });
+    await removeWaitlistEntry(input.id);
     auditVoyage(context, current.travelerId, "APPLICATION_DECISION", {
       resource: "applications",
       resourceId: input.id,

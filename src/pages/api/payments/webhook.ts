@@ -29,7 +29,7 @@ export const POST: APIRoute = async ({ request }) => {
     if (event.outcome === "checkout.completed") {
       await processProviderSuccess(event);
     } else {
-      await failPaymentByProviderId(event.providerPaymentId);
+      await failPaymentByProviderId(event.providerPaymentId, event.idempotencyKey, event.providerSessionId, event.checkoutExpired);
     }
   } catch (err) {
     console.error("[payments] Webhook processing failed:", err);

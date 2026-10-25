@@ -34,7 +34,7 @@ const withdraw = (withdrawApplication as any).handler as (i: any, c: any) => Pro
 const db = getDrizzle();
 const stamp = Date.now().toString(36);
 const TRIP_ID = `test-app-trip-${stamp}`;
-const DEP_OPEN = `test-app-dep-open-${stamp}`;
+const DEP_WAITLIST = `test-app-dep-waitlist-${stamp}`;
 const DEP_CLOSED = `test-app-dep-closed-${stamp}`;
 const DEP_LATE = `test-app-dep-late-${stamp}`;
 
@@ -61,7 +61,7 @@ const adminCtx = (userId: string) => ({
 
 const baseInput = {
   tripId: TRIP_ID,
-  departureId: DEP_OPEN,
+  departureId: DEP_WAITLIST,
   legalName: 'Test Voyageuse',
   phone: null,
   roomPreference: 'shared',
@@ -117,8 +117,8 @@ describe('Applications — submit/review/withdraw (real DB)', () => {
     });
     await db.insert(departures).values([
       {
-        id: DEP_OPEN, tripId: TRIP_ID, startDate: new Date('2027-06-01T08:00:00.000Z'), endDate: new Date('2027-06-04T18:00:00.000Z'),
-        status: 'open', capacityMin: 2, capacityMax: 8, priceAmount: 100000, currency: 'EUR', pricingRules: {},
+        id: DEP_WAITLIST, tripId: TRIP_ID, startDate: new Date('2027-06-01T08:00:00.000Z'), endDate: new Date('2027-06-04T18:00:00.000Z'),
+        status: 'waitlist', capacityMin: 2, capacityMax: 8, priceAmount: 100000, currency: 'EUR', pricingRules: {},
         bookingDeadline: new Date('2027-05-15T23:59:00.000Z'),
       },
       {
@@ -151,7 +151,7 @@ describe('Applications — submit/review/withdraw (real DB)', () => {
     expect(events.map((e) => e.event).sort()).toEqual(['created', 'submitted']);
     const outbox = await db.select().from(outboxEvents).where(eq(outboxEvents.aggregateId, res.id));
     expect(outbox).toHaveLength(1);
-    expect(outbox[0].eventType).toBe('application.submitted');
+    expect(outbox[0].eventType).toBe('waitlist.joined');
   });
 
   it('rejects closed departures and past deadlines', async () => {

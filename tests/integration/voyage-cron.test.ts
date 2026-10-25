@@ -81,6 +81,8 @@ describe('POST /api/cron/voyage', () => {
       expiredHolds: 7,
       expiredCheckouts: 6,
       expiredApplications: 5,
+      expiredWaitlistOffers: 0,
+      promotedWaitlistApplicants: 0,
       balanceDueMarked: 4,
       outbox: { done: 3, failed: 0, skipped: 2 },
       balanceReminders: 1,

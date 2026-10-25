@@ -18,6 +18,8 @@ export const VOYAGE_EMAIL_TEMPLATES = [
   "application_approved",
   "application_contact_required",
   "application_declined",
+  "waitlist_joined",
+  "waitlist_offer",
   "checkout_started",
   "payment_received",
   "booking_confirmed",
@@ -63,6 +65,7 @@ export const emailDeliveries = pgTable(
     toEmail: varchar("to_email", { length: 320 }).notNull(),
     travelerId: text("traveler_id"),
     reservationId: text("reservation_id"),
+    dedupeKey: text("dedupe_key"),
     status: text("status", { enum: EMAIL_DELIVERY_STATUSES }).default("queued").notNull(),
     attempts: integer("attempts").default(0).notNull(),
     lastError: text("last_error"),
@@ -75,6 +78,7 @@ export const emailDeliveries = pgTable(
     index("email_deliveries_status_idx").on(table.status, table.scheduledAt),
     index("email_deliveries_traveler_idx").on(table.travelerId),
     index("email_deliveries_reservation_idx").on(table.reservationId),
+    uniqueIndex("email_deliveries_dedupe_key_uidx").on(table.dedupeKey),
   ],
 );
 
