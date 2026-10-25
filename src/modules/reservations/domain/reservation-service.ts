@@ -30,6 +30,7 @@ export interface CreateReservationInput {
 // Rejoue le numéro en cas de collision d'unicité (aléatoire 6 chars).
 export async function createReservation(input: CreateReservationInput) {
   const db = getDrizzle();
+  const departure = await getDepartureById(input.departureId, db);
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -51,6 +52,7 @@ export async function createReservation(input: CreateReservationInput) {
           totalAmount: input.quote.totalAmount,
           amountPaid: 0,
           amountDue: input.quote.totalAmount,
+          balanceDueDate: departure?.balanceDueDate ?? null,
           agreementVersionId: input.agreementVersionId ?? null,
           acceptedAt: input.agreementVersionId ? new Date() : null,
         })

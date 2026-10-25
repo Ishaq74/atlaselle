@@ -133,6 +133,7 @@ describe('Booking tunnel — mock provider (real DB)', () => {
       id: DEP_ID, tripId: TRIP_ID,
       startDate: new Date('2027-10-01T08:00:00.000Z'), endDate: new Date('2027-10-04T18:00:00.000Z'),
       status: 'open', capacityMin: 1, capacityMax: 5, priceAmount: 100000, currency: 'EUR', pricingRules: {},
+      balanceDueDate: new Date('2027-08-01T00:00:00.000Z'),
       bookingDeadline: new Date('2027-09-15T23:59:00.000Z'),
     });
   });
@@ -157,6 +158,8 @@ describe('Booking tunnel — mock provider (real DB)', () => {
     );
     expect(init.reservationId).toBeTypeOf('string');
     expect(init.checkoutUrl).toContain('/api/payments/mock-callback?session=');
+    const [reservationBeforePayment] = await db.select().from(reservations).where(eq(reservations.id, init.reservationId));
+    expect(reservationBeforePayment.balanceDueDate).toEqual(new Date('2027-08-01T00:00:00.000Z'));
 
     const [checkoutRow] = await db.select().from(checkoutSessions).where(eq(checkoutSessions.id, checkout.id));
     const [payment] = await db.select().from(payments).where(eq(payments.reservationId, init.reservationId));
@@ -261,6 +264,7 @@ describe('Booking tunnel — mock provider (real DB)', () => {
       startDate: new Date('2027-11-01T08:00:00.000Z'), endDate: new Date('2027-11-04T18:00:00.000Z'),
       status: 'open', capacityMin: 1, capacityMax: 5, priceAmount: 100000, currency: 'EUR',
       depositType: 'fixed', depositAmount: 20000, pricingRules: {},
+      balanceDueDate: new Date('2027-09-01T00:00:00.000Z'),
       bookingDeadline: new Date('2027-10-15T23:59:00.000Z'),
     });
     const email = `tunneldep-${stamp}@test.com`;
@@ -293,6 +297,7 @@ describe('Booking tunnel — mock provider (real DB)', () => {
     const [confirmed] = await db.select().from(reservations).where(eq(reservations.id, init.reservationId));
     expect(confirmed.status).toBe('confirmed');
     expect(confirmed.amountDue).toBe(80000);
+    expect(confirmed.balanceDueDate).toEqual(new Date('2027-09-01T00:00:00.000Z'));
 
     const bal = await payBalanceHandler(
       { reservationId: init.reservationId, travelerEmail: email, locale: 'en' },
