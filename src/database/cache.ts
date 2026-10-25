@@ -61,6 +61,8 @@ export function cached<Args extends unknown[], R>(
   ttlMs = DEFAULT_TTL_MS,
 ): (...args: Args) => Promise<R> {
   return (...args: Args): Promise<R> => {
+    if (process.env.E2E_DISABLE_CACHE === '1') return fn(...args);
+
     const key = keyFn(...args);
     const store = getCacheStore();
     const entry = store.get(key);
