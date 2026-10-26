@@ -91,7 +91,7 @@
     "@playwright/test": "^1.64.1",
     "@types/pg": "^8.23.1",
     "@typescript-eslint/parser": "^8.72.0",
-    "@vitest/coverage-v8": "^4.1.12",
+    "@vitest/coverage-v8": "^5.0.5",
     "compression": "^1.8.2",
     "drizzle-kit": "^0.31.11",
     "eslint": "^10.13.0",
@@ -100,7 +100,7 @@
     "pa11y-ci": "^4.1.1",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.12",
+    "vitest": "^5.0.5",
     "wait-on": "^9.5.1"
   },
   "pnpm": {
