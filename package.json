@@ -67,7 +67,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "astro": "7.4.2",
     "astro-icon": "^1.2.0",
-    "better-auth": "^1.7.12",
+    "better-auth": "^1.7.14",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.4",
     "embla-carousel": "^8.6.0",
