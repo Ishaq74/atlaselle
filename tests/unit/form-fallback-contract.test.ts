@@ -30,11 +30,28 @@ function walk(dir: string, out: string[] = []): string[] {
   return out;
 }
 
+function removeDelimited(source: string, open: string, close: string): string {
+  let out = "";
+  let from = 0;
+  for (;;) {
+    const start = source.indexOf(open, from);
+    if (start === -1) return out + source.slice(from);
+    out += source.slice(from, start);
+    const end = source.indexOf(close, start + open.length);
+    if (end === -1) return out;
+    from = end + close.length;
+  }
+}
+
 function stripComments(source: string): string {
-  return source
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
+  const withoutBlocks = removeDelimited(removeDelimited(source, "<!--", "-->"), "/*", "*/");
+  return withoutBlocks
+    .split("\n")
+    .map((line) => {
+      const at = line.indexOf("//");
+      return at !== -1 && !/[:"'`]/.test(line[at - 1] ?? "") ? line.slice(0, at) : line;
+    })
+    .join("\n");
 }
 
 interface FormBlock {
@@ -43,12 +60,37 @@ interface FormBlock {
   body: string;
 }
 
+/** Fin de la balise ouvrante : le premier `>` hors accolades `{…}` (expressions Astro). */
+function endOfOpeningTag(source: string, from: number): number {
+  let depth = 0;
+  for (let i = from; i < source.length; i++) {
+    const ch = source[i];
+    if (ch === "{") depth++;
+    else if (ch === "}") depth = Math.max(0, depth - 1);
+    else if (ch === ">" && depth === 0) return i;
+  }
+  return -1;
+}
+
 function collectForms(): FormBlock[] {
   const forms: FormBlock[] = [];
   for (const file of walk(SRC).filter((f) => f.endsWith(".astro"))) {
     const source = stripComments(readFileSync(file, "utf8"));
-    for (const m of source.matchAll(/<form\b([^>]*(?:\{[^}]*\}[^>]*)*)>([\s\S]*?)<\/form>/g)) {
-      forms.push({ file: file.slice(SRC.length + 1).replaceAll("\\", "/"), open: m[1], body: m[2] });
+    const label = file.slice(SRC.length + 1).replaceAll("\\", "/");
+    let cursor = 0;
+    for (;;) {
+      const start = source.indexOf("<form", cursor);
+      if (start === -1) break;
+      const next = source[start + 5];
+      if (next !== undefined && !/[\s>]/.test(next)) {
+        cursor = start + 5;
+        continue;
+      }
+      const openEnd = endOfOpeningTag(source, start + 5);
+      const close = openEnd === -1 ? -1 : source.indexOf("</form>", openEnd);
+      if (openEnd === -1 || close === -1) break;
+      forms.push({ file: label, open: source.slice(start + 5, openEnd), body: source.slice(openEnd + 1, close) });
+      cursor = close + 7;
     }
   }
   return forms;
