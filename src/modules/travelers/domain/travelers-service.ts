@@ -89,3 +89,32 @@ function isUniqueViolation(err: unknown): boolean {
   const e = err as { code?: string; cause?: { code?: string } | null } | null;
   return e?.code === "23505" || e?.cause?.code === "23505";
 }
+
+/** Statuts de réservation qui interdisent l'anonymisation (dossier en cours). */
+export const ACTIVE_RESERVATION_STATUSES = ["pending", "awaiting_payment", "confirmed", "balance_due"] as const;
+
+export function anonymizedEmail(travelerId: string): string {
+  return `deleted-${travelerId.slice(0, 8)}@deleted.local`;
+}
+
+/**
+ * Efface les données personnelles d'un dossier (transactions conservées sans PII, TODO §19).
+ * Point d'application UNIQUE : l'action `anonymizeTraveler` et le rejeu après restauration
+ * (`pnpm db:replay-erasures`) l'appellent tous deux, ils ne peuvent donc pas diverger.
+ * Idempotent. Les garde-fous « dossier en cours » restent à la charge de l'appelant.
+ */
+export async function anonymizeTravelerRecord(travelerId: string, dbOverride?: ReturnType<typeof getDrizzle>): Promise<boolean> {
+  const db = dbOverride ?? getDrizzle();
+  const updated = await db
+    .update(travelers)
+    .set({
+      email: anonymizedEmail(travelerId),
+      phone: null,
+      legalName: null,
+      preferredName: null,
+      dateOfBirth: null,
+    })
+    .where(eq(travelers.id, travelerId))
+    .returning({ id: travelers.id });
+  return updated.length > 0;
+}

@@ -3,6 +3,7 @@ import { defineAction } from "@/lib/form-fallback/define-action";
 import { z } from "astro/zod";
 import { assertAdmin, adminRateLimit, auditAdmin } from "./_helpers";
 import { auth } from "@/lib/auth";
+import { recordErasureSafe } from "@/lib/erasure-ledger";
 
 const ROLE_ENUM = ["admin", "editor", "user"] as const;
 
@@ -126,10 +127,13 @@ export const adminRemoveUser = defineAction({
       throw toActionError(err, "Impossible de supprimer cet utilisateur.");
     }
 
+    // Registre hors base (aussi alimenté par le hook better-auth ; le doublon est ignoré).
+    const ledgerRecorded = await recordErasureSafe({ kind: "user.delete", subject: input.userId, actor: admin.id, source: "action" });
     auditAdmin(context, admin.id, "USER_DELETE", {
       resource: "user",
       resourceId: input.userId,
     });
+    if (!ledgerRecorded) auditAdmin(context, admin.id, "ERASURE_LEDGER_FAILED", { resource: "user", resourceId: input.userId });
     return { success: true };
   },
 });

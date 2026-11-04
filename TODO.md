@@ -875,6 +875,9 @@ Contenu culturel/religieux du Trip = public multilingue. Préférences personnel
 
 Notes internes (application_internal_notes, reservation_internal_notes, traveler_internal_notes) jamais sérialisées dans les pages publiques.
 
+✅ Effacement et restauration : registre hors base (`src/lib/erasure-ledger.ts`, sans donnée personnelle) alimenté par `anonymizeTraveler`, `adminRemoveUser` et l'auto-suppression de compte ; `pnpm db:replay-erasures` ré-efface après une restauration, `pnpm db:erasure-ledger -- --import-audit` reconstitue l'historique (docs/database/erasure-ledger.md).
+🟡 À trancher (décision juridique) : `anonymizeTravelerRecord` n'efface que les champs de `travelers`. Subsistent `applications.dietary_requirements`, `accessibility_needs`, `motivation`, `expectations`, les notes internes et l'adresse réelle dans `email_deliveries.to_email`. Le rejeu appliquera automatiquement toute extension de cette fonction.
+
 20. OBSERVABILITÉ
 20.1 Quatre concepts à ne jamais confondre
 Audit : trace immuable des actions admin sensibles. ✅ table audit_log + src/lib/audit.ts.
@@ -1076,7 +1079,7 @@ Plus : CodeQL (.github/workflows/codeql.yml), Dependabot.
 
 27.4 Sauvegardes et reprise
 ✅ Outillage : `pnpm db:backup` (dump `pg_dump` cohérent + manifeste SHA-256/comptes) et `pnpm db:restore-test` (restauration dans une base jetable, comparaison table par table et du journal des migrations), exercice hebdomadaire en CI (`.github/workflows/restore-drill.yml`). Runbook RPO/RTO, restauration, retour arrière, pannes : docs/operations/backup-restore-rollback.md.
-🟡 Reste : sauvegardes continues de l'hébergeur (hébergeur non choisi), chiffrement et stockage hors site des dumps, exercice à taille de production, registre d'effacements RGPD hors base (une restauration ressuscite sinon les données anonymisées après le point de reprise).
+🟡 Reste : sauvegardes continues de l'hébergeur (hébergeur non choisi), chiffrement et stockage hors site des dumps, exercice à taille de production. ✅ Effacements RGPD : registre hors base + rejeu après restauration (§19) ; à faire en production : `pnpm db:erasure-ledger -- --import-audit` et sauvegarde du registre.
 
 27.5 Modes dégradés
 Email indisponible → réservation confirmée, email en file, admin alertée (✅ pattern dead-letter existant)

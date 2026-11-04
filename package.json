@@ -27,6 +27,8 @@
     "db:cleanup-audit": "npx tsx src/database/commands/db.cleanup-audit.ts",
     "db:backup": "npx tsx src/database/commands/db.backup.ts",
     "db:restore-test": "npx tsx src/database/commands/db.restore-test.ts",
+    "db:erasure-ledger": "npx tsx src/database/commands/db.erasure-ledger.ts",
+    "db:replay-erasures": "npx tsx src/database/commands/db.replay-erasures.ts",
     "db:backfill-variants": "npx tsx src/database/commands/db.backfill-variants.ts",
     "smtp:check": "npx tsx src/smtp/commands/smtp.check.ts",
     "logs:rotate": "npx tsx src/smtp/commands/logs.rotate.ts",

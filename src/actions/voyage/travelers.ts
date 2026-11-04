@@ -7,6 +7,8 @@ import { travelers } from "@database/schemas";
 import { applications } from "@database/schemas";
 import { reservations } from "@database/schemas";
 import { ACTIVE_APPLICATION_STATUSES } from "@/modules/applications/domain/application-transitions";
+import { ACTIVE_RESERVATION_STATUSES, anonymizeTravelerRecord } from "@/modules/travelers/domain/travelers-service";
+import { recordErasureSafe } from "@/lib/erasure-ledger";
 import { assertVoyagePermission, auditVoyage } from "./_helpers";
 
 const idInput = z.object({ id: z.uuid() });
@@ -43,10 +45,9 @@ export const exportTravelerData = defineAction({
   },
 });
 
-const ACTIVE_RESERVATION_STATUSES = ["pending", "awaiting_payment", "confirmed", "balance_due"] as const;
-
 // RGPD suppression : anonymisation (transactions conservées sans PII, TODO §19).
-// Refusée tant qu'un dossier est en cours.
+// Refusée tant qu'un dossier est en cours. L'effacement est inscrit au registre hors base
+// (src/lib/erasure-ledger.ts) pour pouvoir être rejoué après une restauration.
 export const anonymizeTraveler = defineAction({
   input: idInput,
   handler: async (input, context) => {
@@ -65,17 +66,10 @@ export const anonymizeTraveler = defineAction({
     if (activeRes.some((r) => (ACTIVE_RESERVATION_STATUSES as readonly string[]).includes(r.status))) {
       throw new ActionError({ code: "CONFLICT", message: "Réservation en cours : anonymisation impossible." });
     }
-    await db
-      .update(travelers)
-      .set({
-        email: `deleted-${input.id.slice(0, 8)}@deleted.local`,
-        phone: null,
-        legalName: null,
-        preferredName: null,
-        dateOfBirth: null,
-      })
-      .where(eq(travelers.id, input.id));
+    await anonymizeTravelerRecord(input.id);
+    const ledgerRecorded = await recordErasureSafe({ kind: "traveler.anonymize", subject: input.id, actor: user.id, source: "action" });
     auditVoyage(context, user.id, "USER_DELETE", { resource: "travelers", resourceId: input.id });
+    if (!ledgerRecorded) auditVoyage(context, user.id, "ERASURE_LEDGER_FAILED", { resource: "travelers", resourceId: input.id });
     return { success: true };
   },
 });

@@ -13,6 +13,7 @@
 | :-- | :-- | :-- | :-- |
 | Base PostgreSQL (comptes, CMS, voyages, candidatures, réservations, paiements, outbox, audit) | `DATABASE_URL_PROD` | la base elle-même | §3.1 et §3.2 |
 | Fichiers téléversés (médias, variantes) | `public/uploads/` (volume `uploads`) | le volume ; la base ne contient que les références | §3.3 |
+| Registre d'effacements RGPD (aucune donnée personnelle) | `data/erasure-ledger.ndjson` (volume `erasure`) ou `ERASURE_LEDGER_PATH` | le fichier | §3.3 — **obligatoire**, jamais purgé |
 | Journaux opérationnels, dead-letter e-mail | `logs/` (`email-dead-letter-AAAA-MM-JJ.jsonl`) | le volume `logs` | §3.3 (rejouable, non critique) |
 | Secrets : `BETTER_AUTH_SECRET`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `CRON_SECRET`, `HEALTH_TOKEN`, `DATABASE_URL_PROD`, identifiants SMTP | gestionnaire de secrets de l'hébergeur | le gestionnaire de secrets | **jamais** dans une sauvegarde de base ; copie séparée sous contrôle d'accès |
 | Paiements | Stripe | **Stripe** (la base n'en garde qu'un reflet) | réconciliation, §4.3 |
@@ -60,6 +61,7 @@ Cadence proposée : quotidienne, plus une sauvegarde **immédiatement avant chaq
 ### 3.3 Fichiers
 
 - `public/uploads/` : instantané du volume ou synchronisation vers un stockage objet. Sauvegardez les fichiers **au même moment ou après** la base : une base plus ancienne que les fichiers est sans conséquence (fichiers en trop) ; l'inverse laisse des références cassées.
+- `data/erasure-ledger.ndjson` (registre d'effacements, [détails](../database/erasure-ledger.md)) : le sauvegarder **avec chaque sauvegarde de base**, hors du serveur, et le conserver au moins aussi longtemps que la plus ancienne sauvegarde. Sans lui, une restauration ressuscite les personnes effacées depuis. Ne contient aucune donnée personnelle.
 - `logs/` : copie non critique (les e-mails en dead-letter sont rejouables, §4.3).
 
 ---
@@ -87,9 +89,10 @@ Les cas d'échec sont testés (`tests/integration/db-backup-restore.test.ts`) : 
    pg_restore --no-owner --no-acl --exit-on-error -h <hote> -U <admin> -d atlaselle_restored backups/<fichier>.dump
    ```
 4. **Aligner le schéma sur le code déployé** : `DB_ENV=PROD DATABASE_URL_PROD=<nouvelle base> pnpm db:migrate` (applique les migrations absentes d'un dump plus ancien), puis `pnpm db:check`.
-5. **Basculer** `DATABASE_URL_PROD`, redémarrer l'application, vérifier `GET /api/health` (en-tête `Authorization: Bearer $HEALTH_TOKEN`, attendu `status: "ok"` en HTTP 200).
-6. **Réactiver** le cron, exécuter un cycle à la main (`POST /api/cron/voyage`, en-tête `Authorization: Bearer $CRON_SECRET`) et surveiller les erreurs.
-7. Conserver l'ancienne base jusqu'à la fin de l'analyse, puis la supprimer.
+5. **Rejouer les effacements RGPD** avant de rebasculer le trafic : `DB_ENV=PROD DATABASE_URL_PROD=<nouvelle base> pnpm db:replay-erasures -- --dry-run`, puis sans `--dry-run` (registre : [erasure-ledger.md](../database/erasure-ledger.md)). Sans cette étape, une personne dont l'effacement date d'après la sauvegarde **est ressuscitée**.
+6. **Basculer** `DATABASE_URL_PROD`, redémarrer l'application, vérifier `GET /api/health` (en-tête `Authorization: Bearer $HEALTH_TOKEN`, attendu `status: "ok"` en HTTP 200).
+7. **Réactiver** le cron, exécuter un cycle à la main (`POST /api/cron/voyage`, en-tête `Authorization: Bearer $CRON_SECRET`) et surveiller les erreurs.
+8. Conserver l'ancienne base jusqu'à la fin de l'analyse, puis la supprimer.
 
 ### 4.3 Après restauration — réconciliation obligatoire
 
@@ -98,7 +101,7 @@ Un point de reprise antérieur à l'incident perd les écritures intermédiaires
 1. **Paiements (Stripe)** : Stripe fait foi. Lister les événements depuis l'heure du point de reprise (tableau de bord Stripe, section Événements) et les **renvoyer** vers `/api/payments/webhook` : le traitement est idempotent (clé d'idempotence, voir le commentaire de `src/pages/api/payments/webhook.ts` : « les traitements sont idempotents »), le rejeu ne double pas un paiement. Vérifier ensuite qu'aucune réservation n'est confirmée sans paiement ni l'inverse.
 2. **E-mails** : les événements d'outbox créés après le point de reprise sont perdus ; les messages restés en dead-letter sont dans `logs/email-dead-letter-*.jsonl`. Décider au cas par cas des relances à renvoyer.
 3. **Places** : les blocages temporaires (`seat_holds`) restaurés expirent par le cron (`expireHolds`) ; ne rien corriger à la main.
-4. **Effacements RGPD** : voir la lacune §8.1.
+4. **Effacements RGPD** : déjà rejoués à l'étape 5 du §4.2 ; examiner les avertissements « candidature / réservation en cours dans la base restaurée » (dossier plus ancien que l'effacement) et décider des e-mails ou paiements à clarifier.
 
 ---
 
@@ -123,7 +126,7 @@ Condition : les migrations de la release sont additives, donc l'ancien code tour
 ### B. Schéma incompatible ou données corrompues
 
 1. Si la correction est simple : **corriger en avant** (hotfix + nouvelle migration additive). C'est le chemin le plus sûr, il ne perd aucune donnée.
-2. Sinon : geler (§4.2 étape 1), restaurer la sauvegarde prise avant le déploiement dans une base neuve (§4.2 étapes 3 à 5), redéployer la release précédente, puis réconcilier (§4.3). **Toute écriture faite depuis la sauvegarde est perdue** ; la durée de cette fenêtre est le coût réel de ce chemin.
+2. Sinon : geler (§4.2 étape 1), restaurer la sauvegarde prise avant le déploiement dans une base neuve (§4.2 étapes 3 à 6), redéployer la release précédente, puis réconcilier (§4.3). **Toute écriture faite depuis la sauvegarde est perdue** ; la durée de cette fenêtre est le coût réel de ce chemin.
 
 ### C. Retours hors base de données
 
@@ -155,12 +158,12 @@ Un exercice n'est valable que s'il est **daté et mesuré**. Reporter chaque ré
 | :-- | :-- | :-- | :-- | --: | --: | :-- |
 | 2026-11-04 | base de développement locale, outils PostgreSQL 17 | `db:restore-test` | 114 / 26 355 | 4,6 s | 13,3 s | conforme (comptes et journal identiques) |
 
-**Non encore exercé** : taille et durée réelles de production ; restauration vers un autre serveur ; sauvegardes continues du fournisseur ; restauration du volume `uploads/` ; rejeu de webhooks Stripe ; retour arrière d'une release (§5).
+**Non encore exercé** : rejeu des effacements sur une vraie restauration de production ; taille et durée réelles de production ; restauration vers un autre serveur ; sauvegardes continues du fournisseur ; restauration du volume `uploads/` ; rejeu de webhooks Stripe ; retour arrière d'une release (§5).
 
 ---
 
 ## 8. Décisions et lacunes ouvertes
 
-1. **Lacune — effacements RGPD et restauration.** L'anonymisation d'une voyageuse (`anonymizeTraveler`) écrit son audit (`USER_DELETE`, ressource `travelers`) **dans la même base**. Restaurer une sauvegarde antérieure à cet effacement **ressuscite** les données effacées, et la trace de l'effacement disparaît avec elles. Il faut un registre d'effacements **hors base** (export périodique des `USER_DELETE` ou journal applicatif conservé séparément) et l'étape « rejouer les effacements postérieurs au point de reprise » à la fin du §4.3. Non implémenté.
+1. **Effacements RGPD et restauration — traité** : registre hors base + rejeu (`pnpm db:replay-erasures`, [erasure-ledger.md](../database/erasure-ledger.md)). **Reste à faire** : exécuter `pnpm db:erasure-ledger -- --import-audit` en production (reconstitue les effacements passés encore présents dans l'audit), sauvegarder le registre, et trancher la **complétude de l'anonymisation** : elle n'efface aujourd'hui que les champs de `travelers` ; régime alimentaire, besoins d'accessibilité, motivation, notes internes et adresse dans `email_deliveries.to_email` subsistent (décision juridique, TODO §19).
 2. **À décider** : hébergeur de la base et de l'application (conditionne §3.1, la rétention et le chiffrement) ; valeurs RPO/RTO du §2 ; outil de chiffrement des dumps et lieu de stockage hors site ; personne d'astreinte et canal d'alerte.
 3. **À faire ensuite** (checklist §34) : monitoring et suivi d'erreurs ; QA paiement Stripe en bac à sable ; premier exercice sur une base de taille de production.
