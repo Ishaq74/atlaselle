@@ -20,6 +20,7 @@ import { Textarea } from '@atoms/textarea';
 import { Switch } from '@atoms/switch';
 import Button from '@atoms/button/Button.astro';
 import { safeUrl } from '@lib/sanitize';
+import { formAction } from "@/lib/form-fallback/action-url";
 
 type SiteRow = typeof siteSettings.$inferSelect;
 type SocialRow = typeof socialLinks.$inferSelect;
@@ -113,15 +114,7 @@ const cms = t.admin.cms.site;
             ))}
           </div>
 
-          {/* method="post" + action explicite : première barrière structurelle contre la
-              soumission native en GET vers l'URL courante — c'est ce GET qui exposait
-              les contenus éditoriaux de la locale (nom du site, description, slogan,
-              titre et description meta) dans la chaîne de requête, donc dans
-              l'historique de navigation, dans l'en-tête Referer des navigations
-              suivantes et dans le journal d'accès du serveur. Le traitement réel est
-              un appel astro:actions (upsertSiteSettings), sans route serveur de repli :
-              l'action pointe vers la page courante, qui n'exporte aucun POST, donc une
-              soumission native y est rejetée sans mutation. */}
+          {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
           <!-- One form per locale -->
           {LOCALES.map((l) => {
             const s = allSettings[l];
@@ -137,11 +130,12 @@ const cms = t.admin.cms.site;
               <form
                 name={`locale-settings-form-${l}`}
                 method="post"
-                action={Astro.url.pathname}
+                action={formAction("upsertSiteSettings", Astro.url)}
                 class="grid gap-4 locale-settings-form"
                 data-form-locale={l}
                 style={l !== locale ? 'display:none' : ''}
               >
+                <input type="hidden" name="locale" value={l} />
                 <div class="grid gap-2">
                   <Label for={fieldIds.siteName}>{cms.siteName}</Label>
                   <Input id={fieldIds.siteName} name="siteName" value={s?.siteName ?? ''} required />
@@ -310,15 +304,9 @@ const cms = t.admin.cms.site;
           <CardTitle>{cms.tabContact}</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* method="post" + action explicite : première barrière structurelle contre la
-              soumission native en GET vers l'URL courante — c'est ce GET qui exposait
-              email / phone / address dans la chaîne de requête, donc dans l'historique de
-              navigation, dans l'en-tête Referer des navigations suivantes et dans le
-              journal d'accès du serveur. Le traitement réel est un appel astro:actions
-              (updateContactInfo), sans route serveur de repli : l'action pointe vers la
-              page courante, qui n'exporte aucun POST, donc une soumission native y est
-              rejetée sans mutation. */}
-          <form id="contact-form" name="contact-form" method="post" action={Astro.url.pathname} class="grid gap-4">
+          {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
+          <form id="contact-form" name="contact-form" method="post" action={formAction("updateContactInfo", Astro.url)} class="grid gap-4">
+            <input type="hidden" name="id" value={contact?.id ?? ''} />
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div class="grid gap-2">
                 <Label for="contact-email">{cms.email}</Label>
@@ -376,28 +364,25 @@ const cms = t.admin.cms.site;
           <CardTitle>{cms.tabHours}</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* method="post" + action explicite : première barrière structurelle contre la
-              soumission native en GET vers l'URL courante — c'est ce GET qui exposait
-              les horaires (ouverture, fermeture, pause méridienne) dans la chaîne de
-              requête, donc dans l'historique de navigation, dans l'en-tête Referer des
-              navigations suivantes et dans le journal d'accès du serveur. Le traitement
-              réel est un appel astro:actions (updateOpeningHours), sans route serveur de
-              repli : l'action pointe vers la page courante, qui n'exporte aucun POST,
-              donc une soumission native y est rejetée sans mutation. */}
-          <form id="hours-form" name="hours-form" method="post" action={Astro.url.pathname} class="grid gap-3">
+          {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
+          <form id="hours-form" name="hours-form" method="post" action={formAction("updateOpeningHours", Astro.url)} class="grid gap-3">
             {Array.from({ length: 7 }, (_, i) => {
               const row = hours.find((h) => h.dayOfWeek === i);
               const midday = row?.hasMiddayBreak ?? false;
+              // Mêmes lignes que le JS (uniquement celles qui ont un id) : noms `items.<n>.<champ>`.
+              const n = Array.from({ length: i }, (_, d) => d).filter((d) => hours.find((h) => h.dayOfWeek === d)?.id).length;
+              const field = (key: string) => (row?.id ? `items.${n}.${key}` : undefined);
               return (
                 <div class="hours-row rounded-lg border p-3 grid gap-2" data-day={i} data-id={row?.id ?? ''}>
+                  {row?.id && <input type="hidden" name={field('id')} value={row.id} />}
                   <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
                     <span class="font-medium min-w-24">{cms.dayNames[i]}</span>
                     <label class="flex items-center gap-1.5 text-sm">
-                      <input type="checkbox" name="isClosed" class="hours-closed" checked={row?.isClosed ?? false} />
+                      <input type="checkbox" name={field('isClosed')} value="true" class="hours-closed" checked={row?.isClosed ?? false} />
                       {cms.closed}
                     </label>
                     <label class="flex items-center gap-1.5 text-sm">
-                      <input type="checkbox" name="hasMiddayBreak" class="hours-midday-toggle" checked={midday} />
+                      <input type="checkbox" name={field('hasMiddayBreak')} value="true" class="hours-midday-toggle" checked={midday} />
                       {cms.middayBreak}
                     </label>
                   </div>
@@ -405,30 +390,30 @@ const cms = t.admin.cms.site;
                   <div class="hours-standard flex flex-wrap gap-3" style={midday ? 'display:none' : ''}>
                     <div class="grid gap-1">
                       <Label class="text-xs">{cms.openTime}</Label>
-                      <Input type="time" value={row?.openTime ?? '09:00'} class="hours-open w-28" />
+                      <Input type="time" name={field('openTime')} value={row?.openTime ?? '09:00'} class="hours-open w-28" />
                     </div>
                     <div class="grid gap-1">
                       <Label class="text-xs">{cms.closeTime}</Label>
-                      <Input type="time" value={row?.closeTime ?? '17:00'} class="hours-close w-28" />
+                      <Input type="time" name={field('closeTime')} value={row?.closeTime ?? '17:00'} class="hours-close w-28" />
                     </div>
                   </div>
                   {/* Midday break hours */}
                   <div class="hours-split flex flex-wrap gap-3" style={midday ? '' : 'display:none'}>
                     <div class="grid gap-1">
                       <Label class="text-xs">{cms.morningOpen}</Label>
-                      <Input type="time" value={row?.morningOpen ?? '09:00'} class="hours-morning-open w-28" />
+                      <Input type="time" name={field('morningOpen')} value={row?.morningOpen ?? '09:00'} class="hours-morning-open w-28" />
                     </div>
                     <div class="grid gap-1">
                       <Label class="text-xs">{cms.morningClose}</Label>
-                      <Input type="time" value={row?.morningClose ?? '12:00'} class="hours-morning-close w-28" />
+                      <Input type="time" name={field('morningClose')} value={row?.morningClose ?? '12:00'} class="hours-morning-close w-28" />
                     </div>
                     <div class="grid gap-1">
                       <Label class="text-xs">{cms.afternoonOpen}</Label>
-                      <Input type="time" value={row?.afternoonOpen ?? '14:00'} class="hours-afternoon-open w-28" />
+                      <Input type="time" name={field('afternoonOpen')} value={row?.afternoonOpen ?? '14:00'} class="hours-afternoon-open w-28" />
                     </div>
                     <div class="grid gap-1">
                       <Label class="text-xs">{cms.afternoonClose}</Label>
-                      <Input type="time" value={row?.afternoonClose ?? '18:00'} class="hours-afternoon-close w-28" />
+                      <Input type="time" name={field('afternoonClose')} value={row?.afternoonClose ?? '18:00'} class="hours-afternoon-close w-28" />
                     </div>
                   </div>
                 </div>
@@ -464,25 +449,19 @@ const cms = t.admin.cms.site;
               </button>
             ))}
           </div>
-          {/* method="post" + action explicite : première barrière structurelle contre la
-              soumission native en GET vers l'URL courante — c'est ce GET qui exposait les
-              libellés et URL de CTA du header dans la chaîne de requête, donc dans
-              l'historique de navigation, dans l'en-tête Referer des navigations
-              suivantes et dans le journal d'accès du serveur. Le traitement réel est un
-              appel astro:actions (upsertSiteSettings), sans route serveur de repli :
-              l'action pointe vers la page courante, qui n'exporte aucun POST, donc une
-              soumission native y est rejetée sans mutation. */}
+          {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
           {LOCALES.map((l) => {
             const s = allSettings[l];
             return (
               <form
                 name={`header-settings-form-${l}`}
                 method="post"
-                action={Astro.url.pathname}
+                action={formAction("upsertSiteSettings", Astro.url)}
                 class="grid gap-4 header-settings-form"
                 data-form-locale={l}
                 style={l !== locale ? 'display:none' : ''}
               >
+                <input type="hidden" name="locale" value={l} />
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div class="grid gap-2">
                     <Label>{cms.headerCtaText}</Label>
@@ -504,6 +483,15 @@ const cms = t.admin.cms.site;
                   </div>
                 </div>
                 <Switch id={`header-sticky-${l}`} label={cms.headerSticky} checked={s?.headerSticky ?? true} size="sm" />
+                {/* Sans JavaScript le Switch (bouton ARIA) est inerte : une case native prend le relais.
+                    Elle précède le champ « false » : FormData.get() renvoie la première valeur. */}
+                <noscript>
+                  <label class="flex items-center gap-2 text-sm">
+                    <input type="checkbox" name="headerSticky" value="true" checked={s?.headerSticky ?? true} />
+                    {cms.headerSticky}
+                  </label>
+                </noscript>
+                <input type="hidden" name="headerSticky" value="false" />
                 <div class="flex justify-end">
                   <Button type="submit">{cms.save}</Button>
                 </div>
@@ -536,25 +524,19 @@ const cms = t.admin.cms.site;
               </button>
             ))}
           </div>
-          {/* method="post" + action explicite : première barrière structurelle contre la
-              soumission native en GET vers l'URL courante — c'est ce GET qui exposait les
-              libellés et URL de pied de page dans la chaîne de requête, donc dans
-              l'historique de navigation, dans l'en-tête Referer des navigations
-              suivantes et dans le journal d'accès du serveur. Le traitement réel est un
-              appel astro:actions (upsertSiteSettings), sans route serveur de repli :
-              l'action pointe vers la page courante, qui n'exporte aucun POST, donc une
-              soumission native y est rejetée sans mutation. */}
+          {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
           {LOCALES.map((l) => {
             const s = allSettings[l];
             return (
               <form
                 name={`footer-settings-form-${l}`}
                 method="post"
-                action={Astro.url.pathname}
+                action={formAction("upsertSiteSettings", Astro.url)}
                 class="grid gap-4 footer-settings-form"
                 data-form-locale={l}
                 style={l !== locale ? 'display:none' : ''}
               >
+                <input type="hidden" name="locale" value={l} />
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div class="grid gap-2">
                     <Label>{cms.footerCopyrightText}</Label>

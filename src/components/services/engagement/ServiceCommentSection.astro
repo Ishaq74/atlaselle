@@ -21,9 +21,10 @@ interface Props {
   isSignedIn: boolean;
   locale: Locale;
   action: string;
+  serviceId: string;
 }
 
-const { comments, isSignedIn, locale, action } = Astro.props as Props;
+const { comments, isSignedIn, locale, action, serviceId } = Astro.props as Props;
 const t = getServiceEngagementTranslations(locale);
 
 const hasComments = comments.length > 0;
@@ -65,7 +66,7 @@ const threadLabels = { reply: t.reviewReply, pending: t.pendingModeration, anony
 
     <div slot="write">
       {isSignedIn ? (
-        <ServiceCommentForm locale={locale} action={action} />
+        <ServiceCommentForm locale={locale} action={action} serviceId={serviceId} />
       ) : (
         <Card>
           <CardContent class="py-8 text-center text-sm text-muted-foreground">

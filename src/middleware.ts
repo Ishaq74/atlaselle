@@ -4,6 +4,8 @@ import { resolveLocalizedRoute } from "@/i18n/routes";
 import { newRequestId } from "@/lib/request-id";
 import { bootstrapModules } from "@/lib/cms/bootstrap";
 import { extractIp, logAuditEvent, type AuditAction } from "@/lib/audit";
+import { handleFormFallback } from "@/lib/form-fallback/handler";
+import { FLASH_COOKIE, decodeFlash } from "@/lib/form-fallback/flash";
 import { defineMiddleware } from "astro:middleware";
 import type { APIContext, MiddlewareNext } from "astro";
 
@@ -181,6 +183,21 @@ async function runRequestChain(context: APIContext, next: MiddlewareNext, url: U
   } else {
     context.locals.user = null;
     context.locals.session = null;
+  }
+
+  // Soumission native d'un formulaire (sans JavaScript) : traitée ici, après la
+  // session, pour que l'action voie `locals.user` comme pour un appel RPC.
+  const fallback = await handleFormFallback(context, url);
+  if (fallback) return fallback;
+
+  // Message flash d'une soumission native : lu et supprimé ici (avant le rendu en
+  // streaming, après lequel un cookie ne peut plus être modifié).
+  if (context.request.method === 'GET' && context.request.headers.get('accept')?.includes('text/html')) {
+    const rawFlash = context.cookies.get(FLASH_COOKIE)?.value;
+    if (rawFlash !== undefined) {
+      context.locals.flash = decodeFlash(rawFlash);
+      context.cookies.delete(FLASH_COOKIE, { path: '/' });
+    }
   }
 
   const response = await next();

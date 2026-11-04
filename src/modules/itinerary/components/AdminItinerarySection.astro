@@ -4,6 +4,7 @@ import { LOCALES } from "@i18n/config";
 import type { loadAdminItinerary } from "@/modules/itinerary/loaders/admin-itinerary.loader";
 import { getAdminDict } from "@i18n/admin";
 import Button from "@atoms/button/Button.astro";
+import { formAction } from "@/lib/form-fallback/action-url";
 
 type Days = Awaited<ReturnType<typeof loadAdminItinerary>>;
 
@@ -36,8 +37,9 @@ const FIELDS = [
         <summary class="cursor-pointer font-semibold">{t.day} {day.dayNumber} — {byLocale.get(locale)?.title ?? day.location ?? `#${day.dayNumber}`}</summary>
         {canUpdate ? (
           <div class="mt-4 space-y-4">
-            <form id={`itinerary-day-form-${day.id}`} name={`itinerary-day-form-${day.id}`} method="post" action={Astro.url.pathname} data-day-form={day.id} class="grid gap-3 text-sm sm:grid-cols-3">
-              <input type="hidden" name="expectedUpdatedAt" value={day.updatedAt.toISOString()} />
+            <form id={`itinerary-day-form-${day.id}`} name={`itinerary-day-form-${day.id}`} method="post" action={formAction("updateItineraryDay", Astro.url)} data-day-form={day.id} class="grid gap-3 text-sm sm:grid-cols-3">
+                          <input type="hidden" name="id" value={day.id} />
+                          <input type="hidden" name="expectedUpdatedAt" value={day.updatedAt.toISOString()} />
               <div class="flex flex-col"><label for={`itinerary-day-location-${day.id}`}>{f.location}</label><input id={`itinerary-day-location-${day.id}`} name="location" value={day.location ?? ""} maxlength="200" class={inputClass} /></div>
               <div class="flex flex-col"><label for={`itinerary-day-route-${day.id}`}>{f.route}</label><input id={`itinerary-day-route-${day.id}`} name="route" value={day.route ?? ""} maxlength="300" class={inputClass} /></div>
               <div class="flex items-end gap-2">
@@ -48,8 +50,10 @@ const FIELDS = [
             {LOCALES.map((loc: Locale) => {
               const tr = byLocale.get(loc);
               return (
-                <form id={`itinerary-day-translation-form-${day.id}-${loc}`} name={`itinerary-day-translation-form-${day.id}-${loc}`} method="post" action={Astro.url.pathname} data-day-tr-form={day.id} data-locale={loc} class="grid gap-3 rounded-lg bg-muted/40 p-4 text-sm">
+                <form id={`itinerary-day-translation-form-${day.id}-${loc}`} name={`itinerary-day-translation-form-${day.id}-${loc}`} method="post" action={formAction("upsertItineraryDayTranslation", Astro.url)} data-day-tr-form={day.id} data-locale={loc} class="grid gap-3 rounded-lg bg-muted/40 p-4 text-sm">
                   <h4 class="font-bold uppercase">{loc}</h4>
+                                  <input type="hidden" name="dayId" value={day.id} />
+                                  <input type="hidden" name="locale" value={loc} />
                   <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt.toISOString() ?? ""} />
                   {FIELDS.map((entry) => (
                     <div class="flex flex-col">
@@ -73,7 +77,8 @@ const FIELDS = [
     );
   })}
   {canUpdate ? (
-    <form id="itinerary-day-add-form" name="itinerary-day-add-form" method="post" action={Astro.url.pathname} data-day-add class="grid gap-3 rounded-xl border p-4 text-sm sm:grid-cols-4">
+    <form id="itinerary-day-add-form" name="itinerary-day-add-form" method="post" action={formAction("createItineraryDay", Astro.url)} data-day-add class="grid gap-3 rounded-xl border p-4 text-sm sm:grid-cols-4">
+          <input type="hidden" name="tripId" value={tripId} />
       <div class="flex flex-col"><label for="itinerary-day-add-number">{t.dayNumber}</label><input id="itinerary-day-add-number" name="dayNumber" type="number" min="1" required class={inputClass} /></div>
       <div class="flex flex-col"><label for="itinerary-day-add-location">{f.location}</label><input id="itinerary-day-add-location" name="location" maxlength="200" class={inputClass} /></div>
       <div class="flex flex-col"><label for="itinerary-day-add-route">{f.route}</label><input id="itinerary-day-add-route" name="route" maxlength="300" class={inputClass} /></div>

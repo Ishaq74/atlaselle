@@ -7,6 +7,7 @@
  */
 import type { BlogTranslations, Locale } from "@i18n/config";
 import type { AppUser } from "@/lib/types";
+import { formAction } from "@/lib/form-fallback/action-url";
 import EngagementCommentFormCard from "@/components/molecules/Engagement/EngagementCommentFormCard.astro";
 
 interface Props {
@@ -25,7 +26,7 @@ const { blogT, postId, user, parentId } = Astro.props;
     son nom et son e-mail. */}
 <EngagementCommentFormCard
   formId="comment-form"
-  action={Astro.url.pathname}
+  action={formAction("createBlogComment", Astro.url)}
   showGuestFields={!user}
   parentId={parentId}
   labels={{

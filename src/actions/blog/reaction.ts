@@ -1,5 +1,6 @@
 import { blogRateLimit, invalidateBlogCache, auditBlog } from "./_helpers";
-import { defineAction, ActionError } from "astro:actions";
+import { ActionError } from "astro:actions";
+import { defineAction } from "@/lib/form-fallback/define-action";
 import { z } from "astro/zod";
 import { eq, and, count, sql } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";

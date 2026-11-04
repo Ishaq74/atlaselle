@@ -5,6 +5,7 @@ import { LOCALES } from "@i18n/config";
 import type { loadAdminTripFaqs } from "@/modules/trips/loaders/admin-contents.loader";
 import { getAdminDict } from "@i18n/admin";
 import Button from "@atoms/button/Button.astro";
+import { formAction } from "@/lib/form-fallback/action-url";
 
 interface Props {
   tripId: string;
@@ -32,8 +33,10 @@ const inputClass = "w-full rounded-md border bg-background p-2";
             {LOCALES.map((loc: Locale) => {
               const tr = byLocale.get(loc);
               return (
-                <form id={`faq-translation-form-${faq.id}-${loc}`} name={`faq-translation-form-${faq.id}-${loc}`} method="post" action={Astro.url.pathname} data-faq-tr data-id={faq.id} data-locale={loc} class="grid gap-2 rounded-lg bg-muted/40 p-3 text-sm">
+                <form id={`faq-translation-form-${faq.id}-${loc}`} name={`faq-translation-form-${faq.id}-${loc}`} method="post" action={formAction("upsertFaqTranslation", Astro.url)} data-faq-tr data-id={faq.id} data-locale={loc} class="grid gap-2 rounded-lg bg-muted/40 p-3 text-sm">
                   <h4 class="font-bold uppercase">{loc}</h4>
+                                  <input type="hidden" name="faqId" value={faq.id} />
+                                  <input type="hidden" name="locale" value={loc} />
                   <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt instanceof Date ? tr.updatedAt.toISOString() : ""} />
                   <div class="flex flex-col">
                     <label for={`faq-question-${faq.id}-${loc}`}>{f.question}</label>
@@ -60,7 +63,8 @@ const inputClass = "w-full rounded-md border bg-background p-2";
   })}
   {canUpdate ? (
     <div class="grid gap-4 md:grid-cols-2">
-      <form id="faq-link-form" name="faq-link-form" method="post" action={Astro.url.pathname} data-faq-link class="space-y-2 rounded-xl border p-4 text-sm">
+      <form id="faq-link-form" name="faq-link-form" method="post" action={formAction("linkFaqToTrip", Astro.url)} data-faq-link class="space-y-2 rounded-xl border p-4 text-sm">
+        <input type="hidden" name="tripId" value={tripId} />
         <h3 class="font-semibold">{t.linkFaq}</h3>
         <div class="flex flex-col">
           <label for="faq-link-select">{f.question}</label>
@@ -72,7 +76,9 @@ const inputClass = "w-full rounded-md border bg-background p-2";
         </div>
         <Button type="submit" variant="primary" size="sm">{t.save}</Button>
       </form>
-      <form id="faq-create-form" name="faq-create-form" method="post" action={Astro.url.pathname} data-faq-create class="space-y-2 rounded-xl border p-4 text-sm">
+      <form id="faq-create-form" name="faq-create-form" method="post" action={formAction("createFaq", Astro.url)} data-faq-create class="space-y-2 rounded-xl border p-4 text-sm">
+        <input type="hidden" name="tripId" value={tripId} />
+        <input type="hidden" name="sortOrder" value="0" />
         <h3 class="font-semibold">{t.newFaq}</h3>
         <div class="flex flex-col">
           <label for="faq-create-locale">{dict.columns.locale}</label>

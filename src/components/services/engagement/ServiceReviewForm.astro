@@ -12,11 +12,12 @@ import EngagementReviewFormCard from "@/components/molecules/Engagement/Engageme
 
 interface Props {
   locale: Locale;
-  /** URL courante : le formulaire.interrompt la soumission native, c'est une première barrière. */
+  /** Cible de la soumission native sans JavaScript (`formAction("createServiceReview", …)`). */
   action: string;
+  serviceId: string;
 }
 
-const { locale, action } = Astro.props as Props;
+const { locale, action, serviceId } = Astro.props as Props;
 const t = getServiceEngagementTranslations(locale);
 ---
 
@@ -34,7 +35,9 @@ const t = getServiceEngagementTranslations(locale);
     submitted: t.success,
     ratingRequired: t.ratingRequired,
   }}
-/>
+>
+  <input slot="hidden" type="hidden" name="serviceId" value={serviceId} />
+</EngagementReviewFormCard>
 
 <script>
   import { initServiceEngagementForms } from "@/modules/services/client/engagement-forms";

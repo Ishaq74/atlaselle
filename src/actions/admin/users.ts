@@ -1,4 +1,5 @@
-import { defineAction, ActionError } from "astro:actions";
+import { ActionError } from "astro:actions";
+import { defineAction } from "@/lib/form-fallback/define-action";
 import { z } from "astro/zod";
 import { assertAdmin, adminRateLimit, auditAdmin } from "./_helpers";
 import { auth } from "@/lib/auth";

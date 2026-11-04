@@ -38,12 +38,7 @@ const { formId, action, labels } = Astro.props as Props;
     <CardTitle class="text-base">{labels.title}</CardTitle>
   </CardHeader>
   <CardContent>
-    {/* method="post" + action explicite : première barrière structurelle contre
-        la soumission native en GET vers l'URL courante. Le traitement réel est
-        un appel astro:actions, sans route serveur de repli : l'action pointe
-        vers la page courante, qui n'expose aucun export POST, donc une
-        soumission native y est rejetée sans mutation.
-        Les messages de retour voyagent en data-* : le script reste sans i18n. */}
+    {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
     <form
       id={formId}
       name={formId}
@@ -93,6 +88,8 @@ const { formId, action, labels } = Astro.props as Props;
           checked
         />
         <Label for={`${formId}-recommended`} class="text-sm font-normal">{labels.recommend}</Label>
+        {/* Après la case : `FormData.get` renvoie "true" si cochée, sinon "false" (le schéma vaut true par défaut). */}
+        <input type="hidden" name="isRecommended" value="false" />
       </div>
 
       <div class="flex items-center justify-between gap-3">

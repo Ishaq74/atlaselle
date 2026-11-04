@@ -8,6 +8,7 @@
  */
 import type { BlogTranslations, Locale } from "@i18n/config";
 import type { AppUser } from "@/lib/types";
+import { formAction } from "@/lib/form-fallback/action-url";
 import EngagementReviewFormCard from "@/components/molecules/Engagement/EngagementReviewFormCard.astro";
 
 interface Props {
@@ -23,7 +24,7 @@ const ratingRequiredText = "ratingRequired" in blogT.errors ? String(blogT.error
 
 <EngagementReviewFormCard
   formId="review-form"
-  action={Astro.url.pathname}
+  action={formAction("createBlogReview", Astro.url)}
   labels={{
     title: blogT.labels.submitReview,
     yourRating: blogT.labels.yourRating,

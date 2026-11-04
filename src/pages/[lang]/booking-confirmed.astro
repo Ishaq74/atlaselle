@@ -4,6 +4,7 @@ import type { Locale } from "@i18n/config";
 import { loadBookingByProviderSession } from "@/modules/reservations/loaders/booking.loader";
 import { resolveLegalLinks } from "@/lib/legal-pages";
 import BaseLayout from "@layouts/BaseLayout.astro";
+import { formAction } from "@/lib/form-fallback/action-url";
 
 export const prerender = false;
 
@@ -47,13 +48,10 @@ const termsLabel =
     </dl>
     <p class="mt-6 text-muted-foreground">{booking.status === "confirmed" || booking.status === "completed" ? l.confirmed : l.pending}</p>
     {showBalanceForm ? (
-      <form name="balance-form" data-balance-form method="post" action={Astro.url.pathname} class="mx-auto mt-6 max-w-md space-y-3 rounded-xl border p-6 text-start" data-reservation={booking.reservationId} data-locale={locale}>
-        <!-- method="post" + action explicite : première barrière structurelle contre la
-            soumission native en GET vers l'URL courante — c'est ce GET qui exposait
-            travelerEmail dans la chaîne de requête. Le traitement réel est un appel
-            astro:actions, sans route serveur de repli : l'action pointe vers la page
-            courante, qui n'expose aucun export POST et exige en lecture
-            ?session_id=… — une soumission native y est rejetée sans mutation. -->
+      <form name="balance-form" data-balance-form method="post" action={formAction("payBalance", Astro.url)} class="mx-auto mt-6 max-w-md space-y-3 rounded-xl border p-6 text-start" data-reservation={booking.reservationId} data-locale={locale}>
+        <input type="hidden" name="reservationId" value={booking.reservationId} />
+        <input type="hidden" name="locale" value={locale} />
+        <!-- Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). -->
         <p class="font-semibold">{l.balance} : <bdi>{fmt(booking.totalAmount - booking.amountPaid)}</bdi></p>
         <label class="block text-sm">{l.email}<input required name="travelerEmail" type="email" maxlength="320" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
         {/* eslint-disable-next-line astro/no-set-html-directive, astro/jsx-a11y/label-has-associated-control -- termsLabel est construit côté serveur depuis des textes i18n statiques et des slugs DB (aucune entrée utilisateur) */}

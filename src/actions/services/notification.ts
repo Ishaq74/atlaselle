@@ -1,5 +1,5 @@
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
-import { defineAction } from "astro:actions";
+import { defineAction } from "@/lib/form-fallback/define-action";
 import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
 import { serviceComments, serviceNotifications, serviceReviews, services } from "@database/schemas";

@@ -11,6 +11,7 @@ import { Label } from '@atoms/label';
 import Button from '@atoms/button/Button.astro';
 import Badge from '@atoms/badge/Badge.astro';
 import { getAdminDict } from '@i18n/admin';
+import { formAction } from "@/lib/form-fallback/action-url";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@atoms/tabs';
 import {
   Select,
@@ -70,16 +71,9 @@ function tokenLabel(key: string): string {
       <h1 class="text-lg font-semibold">{cms.title}</h1>
       <p class="text-sm text-muted-foreground">{cms.description}</p>
     </div>
-    {/* method="post" + action explicite : première barrière structurelle contre la
-        soumission native en GET vers l'URL courante — c'est ce GET qui exposait le nom
-        du nouveau thème dans la chaîne de requête, donc dans l'historique de
-        navigation, dans l'en-tête Referer des navigations suivantes et dans le
-        journal d'accès du serveur. Le traitement réel est un appel astro:actions
-        (createTheme), sans route serveur de repli : l'action pointe vers la page
-        courante, qui n'exporte aucun POST, donc une soumission native y est rejetée
-        sans mutation. preventDefault (script) = seconde barrière. */}
-    <form id="create-theme-form" name="create-theme-form" method="post" action={Astro.url.pathname} class="flex items-end gap-2">
-      <Input id="new-theme-name" placeholder={cms.themeName} required class="w-48" />
+    {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
+    <form id="create-theme-form" name="create-theme-form" method="post" action={formAction("createTheme", Astro.url)} class="flex items-end gap-2">
+      <Input id="new-theme-name" name="name" placeholder={cms.themeName} required maxlength={50} class="w-48" />
       <Button type="submit" size="sm">{cms.createTheme}</Button>
     </form>
   </div>
@@ -123,18 +117,42 @@ function tokenLabel(key: string): string {
             </div>
           </CardHeader>
           <CardContent class="theme-body hidden">
-            {/* method="post" + action explicite : première barrière structurelle contre
-                la soumission native en GET vers l'URL courante — c'est ce GET qui
-                exposait la carte de tokens (light, dark, polices, rayon) et le nom du
-                thème dans la chaîne de requête, donc dans l'historique de navigation,
-                dans l'en-tête Referer des navigations suivantes et dans le journal
-                d'accès du serveur. Le traitement réel est un appel astro:actions
-                (updateTheme), sans route serveur de repli : l'action pointe vers la page
-                courante, qui n'exporte aucun POST, donc une soumission native y est
-                rejetée sans mutation. preventDefault (script) = seconde barrière.
-                L'identifiant compose l'id du thème : un id statique dupliquerait le même
-                nom sur chaque carte de la liste. */}
-            <form id={`theme-form-${th.id}`} name={`theme-form-${th.id}`} method="post" action={Astro.url.pathname} class="theme-form grid gap-6" data-id={th.id} data-name={th.name}>
+            {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
+            <form id={`theme-form-${th.id}`} name={`theme-form-${th.id}`} method="post" action={formAction("updateTheme", Astro.url)} class="theme-form grid gap-6" data-id={th.id} data-name={th.name}>
+              <input type="hidden" name="id" value={th.id} />
+              <input type="hidden" name="name" value={th.name} />
+              {/* Sans JavaScript, les Select Starwind (reconstruits côté client) n'existent pas :
+                  des <select> natifs les remplacent. <noscript> n'est pas analysé quand JS est actif,
+                  donc aucun champ homonyme ne gêne getSelectValue(). */}
+              <noscript>
+                <fieldset class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <legend class="text-sm font-semibold text-foreground">{cms.typographyLayout}</legend>
+                  <label class="grid gap-2 text-sm">
+                    {cms.fontHeading}
+                    <select name="fontHeading" class="rounded-md border bg-background p-2">
+                      {FONT_OPTIONS.map((f) => (
+                        <option value={f.value} selected={f.value === currentFont}>{f.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label class="grid gap-2 text-sm">
+                    {cms.fontBody}
+                    <select name="fontBody" class="rounded-md border bg-background p-2">
+                      {FONT_OPTIONS.map((f) => (
+                        <option value={f.value} selected={f.value === currentBody}>{f.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label class="grid gap-2 text-sm">
+                    {cms.borderRadius}
+                    <select name="borderRadius" class="rounded-md border bg-background p-2">
+                      {RADIUS_PRESETS.map((r) => (
+                        <option value={r.value} selected={r.value === currentRadius}>{r.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                </fieldset>
+              </noscript>
               {/* ── Typography & Radius ── */}
               <fieldset class="space-y-4">
                 <legend class="text-sm font-semibold text-foreground">{cms.typographyLayout}</legend>

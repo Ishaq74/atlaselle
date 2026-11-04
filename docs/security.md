@@ -848,18 +848,32 @@ Soit **62** à contenu vide, **81** si chaque boucle contient exactement un enre
 
 > **Règle de rédaction** : dans toute la documentation, un compte de formulaires destiné à être comparable d'un document à l'autre est un compte de **balises source** (60 pour l'inventaire complet, 47 pour le groupe durci). Le nombre rendu (62, 81, ou davantage) ne vaut que pour une page et un jeu de données précis ; le citer sans dire quelle page et quel contenu serait une affirmation non reproductible.
 
-### Limite fonctionnelle assumée : 40 formulaires sans traitement serveur de repli
+### Repli serveur : les 40 formulaires fonctionnent sans JavaScript
 
-**7** des 47 balises durcies pointent vers un vrai point d'entrée serveur (`/api/contact` et les six `/api/auth/*`, servis par la route attrape-tout `src/pages/api/auth/[...all].ts`) et restent donc fonctionnels sans JavaScript.
+**7** des 47 balises durcies pointent vers un vrai point d'entrée serveur (`/api/contact` et les six `/api/auth/*`, servis par la route attrape-tout `src/pages/api/auth/[...all].ts`).
 
-**40** déclarent `action={Astro.url.pathname}` : le traitement réel est un appel `astro:actions` ou `authClient.*`, et **aucune page `.astro` du dépôt n'exporte de `POST`** (`rg 'export const POST' src --glob "*.astro"` → 0 occurrence). La soumission native est donc **rejetée avant toute mutation**.
+Les **40** autres déclaraient `action={Astro.url.pathname}` : une soumission native était **rejetée avant toute mutation**, parce qu'aucune page `.astro` n'exporte de `POST`. Elles déclarent désormais `action={formAction("<action>", Astro.url)}`, c'est-à-dire `?_action=<nom>` sur la page courante, et sont traitées par `handleFormFallback` (`src/lib/form-fallback/handler.ts`, appelé par `src/middleware.ts` **après** l'injection de session) :
 
-C'est un **manque fonctionnel assumé**, pas une garantie d'expérience sans JavaScript :
+1. la requête doit être un `POST` `application/x-www-form-urlencoded` ou `multipart/form-data` ; corps plafonné à 1 Mo ;
+2. le nom doit être **une clé exacte** du registre `src/actions/index.ts` (`^[A-Za-z][A-Za-z0-9]*$` + `hasOwnProperty` : ni `__proto__`, ni chemin) ;
+3. l'action est appelée avec `context.callAction` : **la même fonction que pour l'appel JavaScript**, donc mêmes permissions, mêmes limites de débit, mêmes validations zod, même audit. Un `defineAction` du projet (`src/lib/form-fallback/define-action.ts`) enregistre pour chaque action JSON une jumelle `accept: "form"` qui partage schéma et handler ; la coercion `FormData` est celle d'Astro. Les payloads qu'Astro ne sait pas décoder (tableau d'objets) passent par un adaptateur (`src/lib/form-fallback/adapters.ts`, ex. `updateOpeningHours`) et l'action JSON ;
+4. la réponse est une **303** (Post/Redirect/Get) vers la page d'origine (sans `_action`), `Cache-Control: no-store`, avec un message dans le cookie `atl_flash` (`HttpOnly`, `SameSite=Lax`, `Secure` en HTTPS, 120 s) lu **une seule fois** par le middleware (`Astro.locals.flash`) et affiché par `FormFlash.astro` dans `BaseLayout` (`role="alert"` ou `"status"`). Les erreurs internes ne sont **jamais** exposées : message générique localisé (fr/en/es/ar), détail dans le journal serveur ;
+5. certaines actions redirigent après succès (paiement, page d'édition du contenu créé) : `SUCCESS_POLICIES` (`src/lib/form-fallback/policies.ts`), cible validée par `isSafeRedirect` (chemin interne ou http(s), jamais `//`, `\`, `javascript:`).
 
-- Ce qui est garanti : l'invariant de l'URL. Les identifiants n'atteignent aucune URL, aucun Referer, aucun historique, aucun log d'accès.
-- Ce qui n'est **pas** garanti : que la soumission aboutisse. Sur ces 40 balises, elle est rejetée. L'utilisateur sans JavaScript ne peut pas soumettre.
+Le CSRF reste couvert par `security.checkOrigin` d'Astro, évalué avant le middleware. L'invariant de l'URL est inchangé : le corps du POST transporte les données, le message de retour ne contient aucune donnée saisie.
 
-> Ne pas reformuler cet état en « le site fonctionne sans JavaScript ». La formulation honnête est : *la barrière de sécurité tient sans JavaScript ; la fonctionnalité de soumission, sur 40 balises sur 47, ne tient pas sans JavaScript.*
+**Verrous** : `tests/unit/form-fallback.test.ts` (mécanisme), `tests/unit/form-fallback-contract.test.ts` (plus aucun `action={Astro.url.pathname}`, chaque `formAction()` désigne une action du registre, chaque formulaire fournit toutes les clés **obligatoires** du schéma de son action), `tests/e2e/form-no-js.spec.ts` (contexte `javaScriptEnabled: false`).
+
+#### Limites assumées du mode sans JavaScript
+
+Le mode natif est un **repli**, pas la parité d'expérience :
+
+- **Pas d'effacement de champ optionnel** : Astro convertit une chaîne vide en `undefined` ; le JavaScript envoie `null`. Une valeur existante ne peut donc pas être vidée sans JavaScript (champs optionnels des formulaires site, contact, itinéraire, contenus, traductions, départs).
+- **Actions en boutons JavaScript uniquement** (aucun `<form>` ne les porte) : suppressions, détachement de FAQ, publication de version de politique, transitions de statut, activation/réinitialisation de thème, publication/archivage d'articles et de services.
+- **Aides à la saisie** : sélecteur de médias, liaison titre → slug, interrupteur Starwind (remplacé par une case dans `<noscript>`), minuscule/majuscule automatique des codes.
+- **Données construites côté client** : jetons de couleur des thèmes (`lightTokens`/`darkTokens`) et règles d'early bird des départs ne sont pas modifiables sans JavaScript ; les valeurs existantes sont conservées.
+
+> Formulation honnête : *la barrière de sécurité tient sans JavaScript, et les 40 formulaires aboutissent sans JavaScript pour leurs champs principaux ; la parité complète (effacement, actions secondaires, aides à la saisie) exige JavaScript.*
 
 ### Région de retour d'information — page de candidature
 

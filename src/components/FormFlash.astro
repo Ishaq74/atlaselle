@@ -1,0 +1,20 @@
+---
+/**
+ * Message de retour d'une soumission native de formulaire (sans JavaScript).
+ * Posé par `handleFormFallback` (cookie `atl_flash`), consommé par le middleware
+ * dans `Astro.locals.flash`.
+ */
+import { Alert, AlertDescription } from "@atoms/alert";
+
+const flash = Astro.locals.flash ?? null;
+---
+
+{
+  flash && (
+    <div class="mx-auto w-full max-w-3xl px-4 pt-4" data-form-flash>
+      <Alert variant={flash.kind === "success" ? "success" : "error"}>
+        <AlertDescription>{flash.message}</AlertDescription>
+      </Alert>
+    </div>
+  )
+}

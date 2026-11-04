@@ -788,6 +788,7 @@ Filtres dans l'URL pour rendu serveur déterministe. Actions groupées opt-in.
 AdminFormShell, AdminFormSection, AdminFormTabs, AdminFormFooter, AdminFormActions, AdminFormDirtyGuard — ✅ squelettes présents (src/components/organisms/AdminFormShell.astro).
 
 Flux : UI → payload typé → Action → permission → validation → service → transaction → révision → audit → invalidation cache.
+✅ Repli sans JavaScript : tout formulaire POST déclare `action={formAction("<action>", Astro.url)}` ; le middleware appelle la même action (mêmes permissions/rate-limit) puis répond 303 + message flash (`src/lib/form-fallback/`, docs/security.md §11). Limites assumées : pas d'effacement de champ optionnel, boutons secondaires (suppression, publication, transitions) JavaScript uniquement.
 
 16.5 Révisions, publication, prévisualisation
 page_versions existe déjà comme pattern. À dupliquer pour : trip_revisions, trip_translation_revisions, policy_revisions, faq_revisions, email_template_revisions.

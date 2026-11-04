@@ -10,10 +10,12 @@ import EngagementCommentFormCard from "@/components/molecules/Engagement/Engagem
 
 interface Props {
   locale: Locale;
+  /** Cible de la soumission native sans JavaScript (`formAction("createServiceComment", …)`). */
   action: string;
+  serviceId: string;
 }
 
-const { locale, action } = Astro.props as Props;
+const { locale, action, serviceId } = Astro.props as Props;
 const t = getServiceEngagementTranslations(locale);
 ---
 
@@ -32,7 +34,9 @@ const t = getServiceEngagementTranslations(locale);
     error: t.error,
     submitted: t.success,
   }}
-/>
+>
+  <input slot="hidden" type="hidden" name="serviceId" value={serviceId} />
+</EngagementCommentFormCard>
 
 <script>
   import { initServiceEngagementForms } from "@/modules/services/client/engagement-forms";

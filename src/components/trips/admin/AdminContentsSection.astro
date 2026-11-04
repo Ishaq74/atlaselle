@@ -4,6 +4,7 @@ import { LOCALES } from "@i18n/config";
 import type { loadAdminContents } from "@/modules/trips/loaders/admin-contents.loader";
 import { getAdminDict } from "@i18n/admin";
 import Button from "@atoms/button/Button.astro";
+import { formAction } from "@/lib/form-fallback/action-url";
 
 type Contents = Awaited<ReturnType<typeof loadAdminContents>>;
 
@@ -41,8 +42,11 @@ const blocks = [
                   const tr = (item.translations as { locale: string; title?: string | null; description?: string | null; text?: string | null; updatedAt?: Date }[]).find((x) => x.locale === loc);
                   const isHighlight = block.kind === "highlight";
                   return (
-                    <form id={`content-translation-form-${item.id}-${loc}`} name={`content-translation-form-${item.id}-${loc}`} method="post" action={Astro.url.pathname} data-content-tr data-kind={block.kind} data-id={item.id} data-locale={loc} class="grid gap-2 rounded-lg bg-muted/40 p-3 text-sm">
+                    <form id={`content-translation-form-${item.id}-${loc}`} name={`content-translation-form-${item.id}-${loc}`} method="post" action={formAction("upsertTripContentTranslation", Astro.url)} data-content-tr data-kind={block.kind} data-id={item.id} data-locale={loc} class="grid gap-2 rounded-lg bg-muted/40 p-3 text-sm">
                       <h4 class="font-bold uppercase">{loc}</h4>
+                                          <input type="hidden" name="kind" value={block.kind} />
+                                          <input type="hidden" name="id" value={item.id} />
+                                          <input type="hidden" name="locale" value={loc} />
                       <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt instanceof Date ? tr.updatedAt.toISOString() : ""} />
                       {isHighlight ? (
                         <>
@@ -74,7 +78,10 @@ const blocks = [
         ))}
       </div>
       {canUpdate ? (
-        <form id={`content-add-form-${block.kind}`} name={`content-add-form-${block.kind}`} method="post" action={Astro.url.pathname} data-content-add={block.kind} class="mt-3 flex gap-2 text-sm">
+        <form id={`content-add-form-${block.kind}`} name={`content-add-form-${block.kind}`} method="post" action={formAction("createTripContent", Astro.url)} data-content-add={block.kind} class="mt-3 flex gap-2 text-sm">
+          <input type="hidden" name="tripId" value={tripId} />
+          <input type="hidden" name="kind" value={block.kind} />
+          <input type="hidden" name="sortOrder" value="0" />
           <Button type="submit" variant="outline" size="sm">+ {c.create}</Button>
         </form>
       ) : null}

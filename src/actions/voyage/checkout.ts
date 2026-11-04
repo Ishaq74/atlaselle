@@ -1,4 +1,6 @@
-import { ActionError, defineAction } from "astro:actions";
+import { ActionError } from "astro:actions";
+import { defineAction } from "@/lib/form-fallback/define-action";
+import { acceptedTrue } from "@/lib/form-fallback/accepted-true";
 import { z } from "astro/zod";
 import { eq } from "drizzle-orm";
 import { LOCALES } from "@i18n/config";
@@ -19,8 +21,14 @@ export const checkoutInitiateInput = z.object({
   agreementVersionId: z.string().max(160).nullable().optional(),
   // Preuve de consentement CGV : le client envoie l'état réel de la case
   // (le navigateur bloque l'envoi si décochée, le serveur l'exige).
-  termsAccepted: z.literal(true),
+  // `terms` : nom de la case du formulaire natif (sans JavaScript) ; l'un des deux
+  // doit être coché, côté serveur.
+  termsAccepted: acceptedTrue.optional(),
+  terms: acceptedTrue.optional(),
   locale: z.enum(LOCALES).default("en"),
+}).refine((v) => v.termsAccepted === true || v.terms === true, {
+  message: "Acceptation des conditions requise.",
+  path: ["termsAccepted"],
 });
 
 // Initialise le tunnel : hold → snapshot → session provider (TODO §13.4).

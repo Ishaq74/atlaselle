@@ -1,4 +1,4 @@
-import { defineAction } from "astro:actions";
+import { defineAction } from "@/lib/form-fallback/define-action";
 import { z } from "astro/zod";
 import { blogInternalLinkResolver } from "@/lib/blog/blog-internal-link";
 import { getInternalLinkResolver, registerInternalLinkResolver } from "@/lib/content/internal-link-resolver";

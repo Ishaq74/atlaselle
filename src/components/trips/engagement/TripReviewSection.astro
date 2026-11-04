@@ -17,6 +17,7 @@ import EngagementReviewStats from "@/components/molecules/Engagement/EngagementR
 import EngagementReviewCard from "@/components/molecules/Engagement/EngagementReviewCard.astro";
 import TripReviewForm from "@/components/trips/engagement/TripReviewForm.astro";
 import { Card, CardContent } from "@atoms/card";
+import { formAction } from "@/lib/form-fallback/action-url";
 
 interface Props {
   tripId: string;
@@ -89,7 +90,7 @@ const reviewLabels = {
 
         <div slot="write">
           {isSignedIn ? (
-            <TripReviewForm tripId={tripId} locale={locale} action={Astro.url.pathname} />
+            <TripReviewForm tripId={tripId} locale={locale} action={formAction("createTripReview", Astro.url)} />
           ) : (
             <Card>
               <CardContent class="py-8 text-center text-sm text-muted-foreground">
