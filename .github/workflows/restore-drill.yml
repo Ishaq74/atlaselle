@@ -28,7 +28,9 @@ permissions:
 jobs:
   drill:
     name: Backup & restore drill
-    runs-on: ubuntu-latest
+    # Épinglé : le client PostgreSQL 16 doit correspondre au serveur du service, et il n'est
+    # plus empaqueté dans les dépôts par défaut d'ubuntu-latest (26.04).
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     services:
       postgres:
