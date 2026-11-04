@@ -254,6 +254,7 @@ export function initAdminTripForm(): void {
         discountAmount: num(data.get("discountAmount")),
         balanceDueDate: dateOrNull(data.get("balanceDueDate")),
         bookingDeadline: dateOrNull(data.get("bookingDeadline")),
+        waitlistOfferTtlHours: num(data.get("waitlistOfferTtlHours")),
         pricingRules: rulesResult.rules,
       });
       if (error) say(target, false, error.message);

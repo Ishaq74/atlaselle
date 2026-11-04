@@ -8,6 +8,9 @@ vi.mock('@/modules/payments/domain/checkout-service', () => ({
   expireCheckoutSessions: vi.fn(async () => 6),
   purgeExpiredCheckoutSessions: vi.fn(async () => 1),
 }));
+vi.mock('@/modules/payments/domain/payment-service', () => ({
+  expireStalePaymentAttempts: vi.fn(async () => 3),
+}));
 vi.mock('@/modules/applications/domain/application-service', () => ({
   expireApplications: vi.fn(async () => 5),
 }));
@@ -78,6 +81,7 @@ describe('POST /api/cron/voyage', () => {
     const res = await POST({ request: loopback() } as never);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({
+      expiredPaymentAttempts: 3,
       expiredHolds: 7,
       expiredCheckouts: 6,
       expiredApplications: 5,

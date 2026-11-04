@@ -19,7 +19,7 @@ import type { ApplicationStatus } from "@database/schemas/applications.schema";
 import { emitOutboxEvent } from "@/modules/outbox/domain/outbox";
 import { createApplicationCheckout } from "@/modules/payments/domain/checkout-service";
 import { getAvailability } from "@/modules/availability/domain/availability-service";
-import { enqueueWaitlist } from "@/modules/applications/domain/waitlist-service";
+import { enqueueWaitlist, hasActiveWaitlist, promoteWaitlist } from "@/modules/applications/domain/waitlist-service";
 import { removeWaitlistEntry } from "@/modules/applications/domain/waitlist-service";
 import { initiateCheckout as runCheckoutTunnel } from "@/modules/payments/domain/payment-service";
 import { domainError } from "@/lib/voyage-errors";
@@ -153,8 +153,14 @@ export const submitApplication = defineAction({
       { applicationId: created.id, event: "submitted" },
     ]);
     const availability = await getAvailability(input.departureId);
-    if (dep.status === "waitlist" || !availability?.bookable || availability.availableSeats < 1) {
+    // FIFO : tant que des candidats attendent, une place libre leur revient avant toute nouvelle inscription.
+    const queueAhead = await hasActiveWaitlist(input.departureId);
+    if (dep.status === "waitlist" || queueAhead || !availability?.bookable || availability.availableSeats < 1) {
       await enqueueWaitlist(created.id, input.departureId, new Date());
+      // Place libre mais file non vide : on la propose tout de suite au premier de la file (pas d'attente du cron).
+      if (queueAhead && availability?.bookable && availability.availableSeats > 0) {
+        await promoteWaitlist(input.departureId).catch(() => {});
+      }
       auditVoyage(context, sessionUser.id, "APPLICATION_SUBMIT", {
         resource: "applications",
         resourceId: created.id,

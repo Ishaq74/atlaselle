@@ -188,6 +188,8 @@ const ar: AdminDict = {
     due: "المتبقي",
     payments: "المدفوعات",
     refund: "استرداد",
+    balanceDueDate: "الموعد النهائي للرصيد",
+    seatHold: "المقعد محجوز حتى",
   },
   payments: {
     title: "المدفوعات",
@@ -374,6 +376,7 @@ const ar: AdminDict = {
       discount: "الخصم (سنت)",
       balanceDueDate: "تاريخ الرصيد المستحق",
       bookingDeadline: "آخر موعد للحجز",
+      waitlistOfferTtlHours: "مدة صلاحية عرض المقعد (بالساعات)",
       pricingRules: "قواعد التسعير (JSON)",
       advancedPricingRules: "قواعد التسعير المتقدمة (JSON)",
       earlyBirdTitle: "Early bird (الحجز المبكر)",

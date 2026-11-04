@@ -253,7 +253,7 @@ describe('reminders — fenêtres et exclusions', () => {
   const now = new Date('2028-06-01T00:00:00.000Z');
   let mkResCount = 0;
 
-  async function mkRes(status: 'confirmed' | 'pending' | 'completed', balanceDueDate: Date | null, startInDays: number, endInDays: number, email: string, currency = 'EUR', locale = 'en') {
+  async function mkRes(status: 'confirmed' | 'pending' | 'completed' | 'cancelled' | 'balance_due', balanceDueDate: Date | null, startInDays: number, endInDays: number, email: string, currency = 'EUR', locale = 'en') {
     mkResCount += 1;
     const t = await mkTraveler(email, locale);
     const [dep] = await db.insert(departures).values({
@@ -275,23 +275,28 @@ describe('reminders — fenêtres et exclusions', () => {
     return db.select().from(emailDeliveries).where(eq(emailDeliveries.reservationId, reservationId));
   }
 
-  it('solde J+3 envoyé (USD), J+10 et passé exclus, pending exclu, dédupliqué', async () => {
+  it('solde : J+2 envoyé (USD), échéance passée / pending / soldé exclus, rappel manqué hors délai non rattrapé, dédupliqué', async () => {
     const a = await mkRes('confirmed', new Date(now.getTime() + 3 * 86_400_000), 30, 33, `rm1-${stamp}@test.com`, 'USD');
+    // J+2 après la confirmation (now - 1 j) : dû même si l'échéance est lointaine.
     const b = await mkRes('confirmed', new Date(now.getTime() + 10 * 86_400_000), 30, 33, `rm2-${stamp}@test.com`);
     const c = await mkRes('confirmed', new Date(now.getTime() - 1 * 86_400_000), 30, 33, `rm3-${stamp}@test.com`);
     const d = await mkRes('pending', new Date(now.getTime() + 3 * 86_400_000), 30, 33, `rm4-${stamp}@test.com`);
     const e = await mkRes('confirmed', new Date(now.getTime() + 3 * 86_400_000), 30, 33, `rm0-${stamp}@test.com`);
     await db.update(reservations).set({ amountDue: 0 }).where(eq(reservations.id, e.reservationId));
     const f = await mkRes('confirmed', new Date(now.getTime() + 3 * 86_400_000), 30, 33, `rmx-${stamp}@test.com`, 'EUR', 'xx');
+    // Confirmée il y a 40 j : J+2 et rappel mensuel (J+30) sont hors délai de rattrapage.
+    const g = await mkRes('confirmed', new Date(now.getTime() + 20 * 86_400_000), 60, 63, `rm11-${stamp}@test.com`);
+    await db.update(reservations).set({ confirmedAt: new Date(now.getTime() - 40 * 86_400_000) }).where(eq(reservations.id, g.reservationId));
     await sendBalanceReminders(now, stub);
     const sentFor = async (id: string) =>
       (await balanceRows(id)).filter((r) => r.templateKey === 'balance_reminder' && r.status === 'sent');
     expect((await sentFor(a.reservationId)).length).toBeGreaterThanOrEqual(1);
+    expect((await sentFor(b.reservationId)).length).toBe(1);
     // exclus : aucune requête (quel que soit l'appelant) ne peut matcher ces lignes
-    expect(await balanceRows(b.reservationId)).toHaveLength(0);
     expect(await balanceRows(c.reservationId)).toHaveLength(0);
     expect(await balanceRows(d.reservationId)).toHaveLength(0);
     expect(await balanceRows(e.reservationId)).toHaveLength(0);
+    expect(await balanceRows(g.reservationId)).toHaveLength(0);
     // locale invalide -> repli en
     const fRows = (await balanceRows(f.reservationId)).filter((r) => r.templateKey === 'balance_reminder' && r.status === 'sent');
     expect(fRows).toHaveLength(1);
@@ -300,6 +305,27 @@ describe('reminders — fenêtres et exclusions', () => {
     await sendBalanceReminders(now, stub);
     // dédupliqué : le 2e passage n'ajoute rien pour une ligne déjà envoyée
     expect((await sentFor(a.reservationId)).length).toBe(before);
+  });
+
+  it('solde : annulée exclue, dernier rappel dédié J-7, réservation tardive relancée (J+2) sans rafale', async () => {
+    const day = 86_400_000;
+    const cancelled = await mkRes('cancelled', new Date(now.getTime() + 3 * day), 30, 33, `rm12-${stamp}@test.com`);
+    // dernier rappel : échéance dans 6 j => J-7 = now - 1 j (échu, dans le délai), confirmée il y a 30 j
+    const fin = await mkRes('confirmed', new Date(now.getTime() + 6 * day), 60, 63, `rm13-${stamp}@test.com`);
+    await db.update(reservations).set({ confirmedAt: new Date(now.getTime() - 30 * day) }).where(eq(reservations.id, fin.reservationId));
+    // réservation tardive : échéance posée à la confirmation (il y a 3 j), solde exigé, départ dans 60 j
+    const late = await mkRes('balance_due', new Date(now.getTime() - 3 * day), 60, 63, `rm14-${stamp}@test.com`);
+    await db.update(reservations).set({ balanceDueDate: new Date(now.getTime() - 3 * day) }).where(eq(reservations.id, late.reservationId));
+    await sendBalanceReminders(now, stub);
+    expect(await balanceRows(cancelled.reservationId)).toHaveLength(0);
+    const finRows = (await balanceRows(fin.reservationId)).filter((r) => r.status === 'sent');
+    expect(finRows.map((r) => r.templateKey)).toEqual(['balance_final_reminder']);
+    const lateRows = (await balanceRows(late.reservationId)).filter((r) => r.status === 'sent');
+    expect(lateRows.map((r) => r.templateKey)).toEqual(['balance_reminder']);
+    // rejouer : aucun doublon
+    await sendBalanceReminders(now, stub);
+    expect((await balanceRows(fin.reservationId)).filter((r) => r.status === 'sent')).toHaveLength(1);
+    expect((await balanceRows(late.reservationId)).filter((r) => r.status === 'sent')).toHaveLength(1);
   });
 
   it('préparation J-20, rappel J-10, bornes 30/14/0, post J+5 vs J+1, fallback locale', async () => {

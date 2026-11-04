@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 import { timingSafeEqual } from "node:crypto";
 import { expireHolds, purgeTerminalHolds } from "@/modules/availability/domain/availability-service";
 import { expireCheckoutSessions, purgeExpiredCheckoutSessions } from "@/modules/payments/domain/checkout-service";
+import { expireStalePaymentAttempts } from "@/modules/payments/domain/payment-service";
 import { expireApplications } from "@/modules/applications/domain/application-service";
 import { expireWaitlistOffers, promoteWaitingApplicants } from "@/modules/applications/domain/waitlist-service";
 import { markBalanceDue } from "@/modules/reservations/domain/reservation-service";
@@ -41,6 +42,7 @@ export const POST: APIRoute = async ({ request }) => {
       return fallback;
     }
   }
+  const expiredPaymentAttempts = await run("expirePaymentAttempts", 0, () => expireStalePaymentAttempts());
   const expiredHolds = await run("expireHolds", 0, () => expireHolds());
   const expiredCheckouts = await run("expireCheckouts", 0, () => expireCheckoutSessions());
   const expiredApplications = await run("expireApplications", 0, () => expireApplications());
@@ -56,6 +58,7 @@ export const POST: APIRoute = async ({ request }) => {
     holds: await purgeTerminalHolds(),
   }));
   return Response.json({
+    expiredPaymentAttempts,
     expiredHolds,
     expiredCheckouts,
     expiredApplications,

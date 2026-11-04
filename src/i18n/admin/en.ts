@@ -188,6 +188,8 @@ const en: AdminDict = {
     due: "Due",
     payments: "Payments",
     refund: "Refund",
+    balanceDueDate: "Balance deadline",
+    seatHold: "Seat held until",
   },
   payments: {
     title: "Payments",
@@ -374,6 +376,7 @@ const en: AdminDict = {
       discount: "Discount (cents)",
       balanceDueDate: "Balance due date",
       bookingDeadline: "Booking deadline",
+      waitlistOfferTtlHours: "Waitlist offer validity (hours)",
       pricingRules: "Pricing rules (JSON)",
       advancedPricingRules: "Advanced pricing rules (JSON)",
       earlyBirdTitle: "Early bird (advance booking)",

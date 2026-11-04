@@ -10,6 +10,7 @@ import type { VoyageEmailTemplate } from "@database/schemas/email-voyage.schema"
 import { isValidLocale } from "@/i18n/utils";
 import type { Locale } from "@/i18n/config";
 import { sendVoyageEmail, type SendFn } from "./voyage-email";
+import { isLateBooking } from "./reminders";
 import { claimOutboxBatch, completeOutbox, failOutbox } from "@/modules/outbox/domain/outbox-worker";
 
 function fmtMoney(cents: number, currency: string): string {
@@ -20,6 +21,11 @@ function fmtMoney(cents: number, currency: string): string {
 function fmtDate(locale: Locale, d: Date | null): string {
   if (!d) return "";
   return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(d);
+}
+
+// Échéances à l'heure près (proposition de place) : heure UTC explicite, jamais ambiguë.
+function fmtDateTime(locale: Locale, d: Date): string {
+  return `${new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }).format(d)} UTC`;
 }
 
 interface EmailContext {
@@ -78,6 +84,10 @@ async function loadContext(payload: Record<string, unknown>): Promise<EmailConte
     : applicationId
       ? await db.select().from(checkoutSessions).where(eq(checkoutSessions.applicationId, applicationId)).orderBy(desc(checkoutSessions.createdAt)).limit(1)
     : [];
+  const effectiveDue = reservation?.balanceDueDate ?? dep?.balanceDueDate ?? null;
+  const dueLabel = effectiveDue && dep
+    ? fmtDate(locale, reservation?.confirmedAt && isLateBooking(reservation.confirmedAt, effectiveDue) ? dep.startDate : effectiveDue)
+    : effectiveDue ? fmtDate(locale, effectiveDue) : "";
   const origin = process.env.SITE_URL ?? "http://localhost:4321";
   return {
     locale,
@@ -92,9 +102,9 @@ async function loadContext(payload: Record<string, unknown>): Promise<EmailConte
     currency: reservation?.currency ?? "EUR",
     paid: reservation ? fmtMoney(reservation.amountPaid, reservation.currency) : "",
     balance: reservation ? fmtMoney(reservation.amountDue, reservation.currency) : "",
-    date: dep?.balanceDueDate ? fmtDate(locale, dep.balanceDueDate) : "",
-    balanceDueDate: dep?.balanceDueDate ? fmtDate(locale, dep.balanceDueDate) : "",
-    checkoutExpiresAt: checkout?.expiresAt ? fmtDate(locale, checkout.expiresAt) : "",
+    date: dueLabel,
+    balanceDueDate: dueLabel,
+    checkoutExpiresAt: checkout?.expiresAt ? fmtDateTime(locale, checkout.expiresAt) : "",
     url: checkout ? `${origin}/${locale}/checkout/${checkout.id}` : "",
     providerSessionId: checkout?.providerSessionId ?? "",
   };
@@ -114,6 +124,7 @@ export async function routeOutboxToEmail(
     "application.declined": "application_declined",
     "waitlist.joined": "waitlist_joined",
     "waitlist.offered": "waitlist_offer",
+    "waitlist.offer_expired": "waitlist_offer_expired",
     "reservation.balance_due": "balance_due",
     "checkout.started": "checkout_started",
     "payment.received": "payment_received",

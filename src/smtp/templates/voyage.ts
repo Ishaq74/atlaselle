@@ -75,6 +75,12 @@ const T: Pack = {
     es: { subject: "Hay una plaza disponible — {trip}", heading: "Le ofrecemos una plaza", greeting: "Hola {name},", body: "Tiene disponible una plaza para «{trip}» hasta el {date}. Pague el depósito con el enlace para confirmar su reserva.", buttonText: "Pagar el depósito", footnote: FOOT.es },
     ar: { subject: "مقعد متاح — {trip}", heading: "نعرض عليك مقعدا", greeting: "مرحبا {name}،", body: "يتوفر لك مقعد في رحلة «{trip}» حتى {date}. ادفع العربون عبر الرابط لتأكيد الحجز.", buttonText: "دفع العربون", footnote: FOOT.ar },
   },
+  waitlist_offer_expired: {
+    fr: { subject: "Votre proposition de place a expiré — {trip}", heading: "Proposition expirée", greeting: "Bonjour {name},", body: "Le délai pour confirmer la place proposée sur « {trip} » est dépassé : elle a été proposée au candidat suivant. Vous pouvez déposer une nouvelle candidature si le départ reste ouvert.", footnote: FOOT.fr },
+    en: { subject: "Your place offer has expired — {trip}", heading: "Offer expired", greeting: "Hello {name},", body: "The time to confirm the place offered on “{trip}” has passed: it has been offered to the next person. You can apply again if the departure is still open.", footnote: FOOT.en },
+    es: { subject: "Su oferta de plaza ha caducado — {trip}", heading: "Oferta caducada", greeting: "Hola {name},", body: "El plazo para confirmar la plaza ofrecida en «{trip}» ha terminado: se ha ofrecido a la siguiente persona. Puede volver a presentar su solicitud si la salida sigue abierta.", footnote: FOOT.es },
+    ar: { subject: "انتهت مهلة عرض المقعد — {trip}", heading: "انتهى العرض", greeting: "مرحبا {name}،", body: "انتهت مهلة تأكيد المقعد المعروض عليك في رحلة «{trip}» وتم عرضه على الشخص التالي. يمكنك التقدم بطلب جديد إذا بقي الموعد مفتوحا.", footnote: FOOT.ar },
+  },
   checkout_started: {
     fr: { subject: "Finalisez votre réservation — {trip}", heading: "Plus qu'une étape", greeting: "Bonjour {name},", body: "Votre lien de paiement pour « {trip} » reste valable 35 minutes. Terminez votre paiement via le lien ci-dessous.", buttonText: "Payer", extra: "Sans paiement, la place est libérée.", footnote: FOOT.fr },
     en: { subject: "Complete your booking — {trip}", heading: "One step left", greeting: "Hello {name},", body: "Your payment link for “{trip}” is valid for 35 minutes. Finish payment with the link below.", buttonText: "Pay now", extra: "Without payment, the seat is released.", footnote: FOOT.en },
@@ -100,10 +106,16 @@ const T: Pack = {
     ar: { subject: "الرصيد مستحق — {trip}", heading: "تذكير بالرصيد", greeting: "مرحبا {name}،", body: "رصيد {amount} لرحلة «{trip}» مستحق قبل {date}. ادفع عبر الرابط.", buttonText: "ادفع الرصيد", footnote: FOOT.ar },
   },
   balance_reminder: {
-    fr: { subject: "Rappel : solde à régler — {trip}", heading: "Dernier rappel", greeting: "Bonjour {name},", body: "Sans règlement de {amount} avant le {date}, votre place pour « {trip} » sera libérée.", buttonText: "Régler maintenant", footnote: FOOT.fr },
-    en: { subject: "Reminder: balance due — {trip}", heading: "Last reminder", greeting: "Hello {name},", body: "Without payment of {amount} before {date}, your seat for “{trip}” will be released.", buttonText: "Pay now", footnote: FOOT.en },
-    es: { subject: "Recordatorio: saldo — {trip}", heading: "Último aviso", greeting: "Hola {name},", body: "Sin el pago de {amount} antes del {date}, su plaza para «{trip}» se liberará.", buttonText: "Pagar ahora", footnote: FOOT.es },
-    ar: { subject: "تذكير: الرصيد — {trip}", heading: "تذكير أخير", greeting: "مرحبا {name}،", body: "بدون دفع {amount} قبل {date} سيُحرر مقعدك لرحلة «{trip}».", buttonText: "ادفع الآن", footnote: FOOT.ar },
+    fr: { subject: "Rappel : solde à régler — {trip}", heading: "Pensez au solde", greeting: "Bonjour {name},", body: "Il vous reste {amount} à régler pour « {trip} ». Date limite finale : {date}. Vous pouvez le payer dès maintenant via le lien ci-dessous.", buttonText: "Régler le solde", footnote: FOOT.fr },
+    en: { subject: "Reminder: balance due — {trip}", heading: "Balance reminder", greeting: "Hello {name},", body: "{amount} remains to be paid for “{trip}”. Final deadline: {date}. You can pay it right now with the link below.", buttonText: "Pay balance", footnote: FOOT.en },
+    es: { subject: "Recordatorio: saldo — {trip}", heading: "Recuerde el saldo", greeting: "Hola {name},", body: "Le quedan {amount} por pagar para «{trip}». Fecha límite final: {date}. Puede pagarlo ahora mismo con el enlace.", buttonText: "Pagar el saldo", footnote: FOOT.es },
+    ar: { subject: "تذكير: الرصيد — {trip}", heading: "تذكير بالرصيد", greeting: "مرحبا {name}،", body: "متبقٍ {amount} للدفع لرحلة «{trip}». الموعد النهائي: {date}. يمكنك الدفع الآن عبر الرابط.", buttonText: "ادفع الرصيد", footnote: FOOT.ar },
+  },
+  balance_final_reminder: {
+    fr: { subject: "Dernier rappel : solde à régler — {trip}", heading: "Dernier rappel", greeting: "Bonjour {name},", body: "Sans règlement de {amount} avant le {date}, votre place pour « {trip} » sera libérée.", buttonText: "Régler maintenant", footnote: FOOT.fr },
+    en: { subject: "Last reminder: balance due — {trip}", heading: "Last reminder", greeting: "Hello {name},", body: "Without payment of {amount} before {date}, your seat for “{trip}” will be released.", buttonText: "Pay now", footnote: FOOT.en },
+    es: { subject: "Último aviso: saldo — {trip}", heading: "Último aviso", greeting: "Hola {name},", body: "Sin el pago de {amount} antes del {date}, su plaza para «{trip}» se liberará.", buttonText: "Pagar ahora", footnote: FOOT.es },
+    ar: { subject: "التذكير الأخير: الرصيد — {trip}", heading: "تذكير أخير", greeting: "مرحبا {name}،", body: "بدون دفع {amount} قبل {date} سيُحرر مقعدك لرحلة «{trip}».", buttonText: "ادفع الآن", footnote: FOOT.ar },
   },
   pre_trip_preparation: {
     fr: { subject: "Préparez votre voyage — {trip}", heading: "J-30 : on prépare", greeting: "Bonjour {name},", body: "« {trip} » part le {dates}. Pensez documents, assurance et bagages. Guide complet ci-dessous.", buttonText: "Voir le guide", footnote: FOOT.fr },

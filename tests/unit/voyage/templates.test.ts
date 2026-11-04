@@ -20,9 +20,9 @@ const FOOTNOTE: Record<Locale, string> = {
   ar: 'تجاهل',
 };
 
-describe('voyage email templates — matrice 14×4', () => {
-  it('14 templates déclarés', () => {
-    expect(VOYAGE_EMAIL_TEMPLATES).toHaveLength(14);
+describe('voyage email templates — matrice 16×4', () => {
+  it('16 templates déclarés', () => {
+    expect(VOYAGE_EMAIL_TEMPLATES).toHaveLength(16);
   });
 
   it('vars malveillantes neutralisées (pas de HTML injecté)', () => {

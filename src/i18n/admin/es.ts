@@ -188,6 +188,8 @@ const es: AdminDict = {
     due: "Pendiente",
     payments: "Pagos",
     refund: "Reembolsar",
+    balanceDueDate: "Fecha límite del saldo",
+    seatHold: "Plaza retenida hasta el",
   },
   payments: {
     title: "Pagos",
@@ -374,6 +376,7 @@ const es: AdminDict = {
       discount: "Descuento (céntimos)",
       balanceDueDate: "Fecha del saldo",
       bookingDeadline: "Fecha límite de reserva",
+      waitlistOfferTtlHours: "Validez de una oferta de plaza (horas)",
       pricingRules: "Reglas de precio (JSON)",
       advancedPricingRules: "Reglas de precio avanzadas (JSON)",
       earlyBirdTitle: "Early bird (reserva anticipada)",

@@ -21,6 +21,7 @@ import { departures } from '@database/schemas/departures.schema';
 import { travelers } from '@database/schemas/travelers.schema';
 import { applications, applicationEvents } from '@database/schemas/applications.schema';
 import { reservations } from '@database/schemas/reservations.schema';
+import { waitlistEntries } from '@database/schemas/waitlist.schema';
 import { payments, checkoutSessions } from '@database/schemas/payments.schema';
 import { outboxEvents } from '@database/schemas/outbox.schema';
 import { user } from '@database/schemas';
@@ -255,6 +256,8 @@ describe('submitApplication — fermetures, délais, comptes, rate-limit', () =>
       expect(second.id).not.toBe(first.id);
     } finally {
       await db.update(departures).set({ status: 'open' }).where(eq(departures.id, DEP));
+      // La file d'attente active ne doit pas déborder sur les tests suivants (FIFO strict).
+      await db.delete(waitlistEntries).where(eq(waitlistEntries.departureId, DEP));
     }
   });
 

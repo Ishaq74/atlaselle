@@ -1,10 +1,11 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
 import { z } from "zod";
 import { parseListFilters } from "@/lib/query-filters";
 import { getDrizzle } from "@database/drizzle";
 import { reservations } from "@database/schemas/reservations.schema";
 import { travelers } from "@database/schemas/travelers.schema";
 import { payments } from "@database/schemas/payments.schema";
+import { seatHolds } from "@database/schemas/departures.schema";
 import { tripTranslations } from "@database/schemas/trips.schema";
 import type { ReservationStatus } from "@database/schemas/reservations.schema";
 
@@ -64,5 +65,12 @@ export async function loadAdminReservation(id: string) {
     .from(tripTranslations)
     .where(eq(tripTranslations.tripId, reservation.tripId))
     .limit(1);
-  return { reservation, traveler, payments: paymentRows, tripTitle: tr?.title ?? reservation.tripId };
+  const [hold] = reservation.applicationId
+    ? await db
+        .select({ expiresAt: seatHolds.expiresAt })
+        .from(seatHolds)
+        .where(and(eq(seatHolds.applicationId, reservation.applicationId), eq(seatHolds.status, "active"), gt(seatHolds.expiresAt, new Date())))
+        .limit(1)
+    : [];
+  return { reservation, traveler, payments: paymentRows, tripTitle: tr?.title ?? reservation.tripId, activeHoldExpiresAt: hold?.expiresAt ?? null };
 }

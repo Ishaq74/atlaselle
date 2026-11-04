@@ -1,6 +1,6 @@
 import { and, eq, inArray, lte } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
-import { applications, applicationEvents } from "@database/schemas";
+import { applications, applicationEvents, waitlistEntries } from "@database/schemas";
 
 // Candidatures sans décision depuis 30 j → expired (TODO §11.5, §14.2).
 export const APPLICATION_EXPIRY_DAYS = 30;
@@ -21,6 +21,10 @@ export async function expireApplications(now = new Date()): Promise<number> {
     await db.transaction(async (tx) => {
       await tx.update(applications).set({ status: "expired" }).where(eq(applications.id, row.id));
       await tx.insert(applicationEvents).values({ applicationId: row.id, event: "expired" });
+      await tx
+        .update(waitlistEntries)
+        .set({ status: "removed", updatedAt: now })
+        .where(and(eq(waitlistEntries.applicationId, row.id), eq(waitlistEntries.status, "waiting")));
     });
   }
   return stale.length;

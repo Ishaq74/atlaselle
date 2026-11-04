@@ -2,6 +2,7 @@
 import { toLocale } from "@i18n/utils";
 import type { Locale } from "@i18n/config";
 import { loadBookingByProviderSession } from "@/modules/reservations/loaders/booking.loader";
+import { resolveLegalLinks } from "@/lib/legal-pages";
 import BaseLayout from "@layouts/BaseLayout.astro";
 
 export const prerender = false;
@@ -24,6 +25,16 @@ const l =
         ? { title: "تم تأكيد الحجز", number: "الرقم", trip: "الرحلة", paid: "المدفوع", confirmed: "تم حجز مقعدك. التفاصيل بالبريد.", pending: "الدفع قيد التأكيد — حدّث بعد قليل.", balance: "ادفع الرصيد المتبقي", email: "بريد الحجز", payBalance: "ادفع الرصيد" }
         : { title: "Booking confirmed", number: "Number", trip: "Trip", paid: "Paid", confirmed: "Your seat is booked. Details sent by email.", pending: "Payment confirming — refresh in a moment.", balance: "Pay the remaining balance", email: "Booking email", payBalance: "Pay balance" };
 const showBalanceForm = (booking.status === "confirmed" || booking.status === "balance_due") && booking.totalAmount - booking.amountPaid > 0;
+// Même consentement CGV que le checkout : l'action payBalance exige termsAccepted.
+const legalLinks = await resolveLegalLinks(locale);
+const termsLabel =
+  locale === "fr"
+    ? `J'ai lu et j'accepte les <a href="${legalLinks.terms}" class="text-primary underline" target="_blank" rel="noopener">conditions de réservation</a>.`
+    : locale === "es"
+      ? `He leído y acepto las <a href="${legalLinks.terms}" class="text-primary underline" target="_blank" rel="noopener">condiciones de reserva</a>.`
+      : locale === "ar"
+        ? `قرأت <a href="${legalLinks.terms}" class="text-primary underline" target="_blank" rel="noopener">شروط الحجز</a> وأوافق عليها.`
+        : `I have read and accept the <a href="${legalLinks.terms}" class="text-primary underline" target="_blank" rel="noopener">booking terms</a>.`;
 ---
 <BaseLayout title={`${l.title} — ${booking.tripTitle}`} description={booking.tripTitle} canonicalPath={`/${locale}/booking-confirmed`} robots="noindex, nofollow">
   <section class="mx-auto max-w-xl px-6 py-20 text-center">
@@ -45,6 +56,8 @@ const showBalanceForm = (booking.status === "confirmed" || booking.status === "b
             ?session_id=… — une soumission native y est rejetée sans mutation. -->
         <p class="font-semibold">{l.balance} : <bdi>{fmt(booking.totalAmount - booking.amountPaid)}</bdi></p>
         <label class="block text-sm">{l.email}<input required name="travelerEmail" type="email" maxlength="320" class="mt-2 w-full rounded-md border bg-background p-3" /></label>
+        {/* eslint-disable-next-line astro/no-set-html-directive, astro/jsx-a11y/label-has-associated-control -- termsLabel est construit côté serveur depuis des textes i18n statiques et des slugs DB (aucune entrée utilisateur) */}
+        <label class="flex items-start gap-2 text-sm"><input required type="checkbox" name="terms" class="mt-1" /><span set:html={termsLabel} /></label>
         <button type="submit" class="w-full rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground">{l.payBalance}</button>
         <output class="block text-sm" data-form-message></output>
       </form>

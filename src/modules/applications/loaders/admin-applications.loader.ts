@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, lt, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { parseListFilters } from "@/lib/query-filters";
 import { getDrizzle } from "@database/drizzle";
@@ -95,5 +95,23 @@ export async function loadAdminApplication(id: string) {
     .orderBy(desc(checkoutSessions.createdAt))
     .limit(5);
   const [waitlistEntry] = await db.select().from(waitlistEntries).where(eq(waitlistEntries.applicationId, id)).limit(1);
-  return { application, traveler, decisions, events, checkouts, waitlistEntry: waitlistEntry ?? null };
+  // Rang FIFO (joinedAt, id) parmi les candidats encore en attente du même départ.
+  let waitlistPosition: number | null = null;
+  if (waitlistEntry?.status === "waiting") {
+    const [{ ahead }] = await db
+      .select({ ahead: sql<number>`count(*)::int` })
+      .from(waitlistEntries)
+      .where(
+        and(
+          eq(waitlistEntries.departureId, waitlistEntry.departureId),
+          eq(waitlistEntries.status, "waiting"),
+          or(
+            lt(waitlistEntries.joinedAt, waitlistEntry.joinedAt),
+            and(eq(waitlistEntries.joinedAt, waitlistEntry.joinedAt), lt(waitlistEntries.id, waitlistEntry.id)),
+          ),
+        ),
+      );
+    waitlistPosition = ahead + 1;
+  }
+  return { application, traveler, decisions, events, checkouts, waitlistEntry: waitlistEntry ?? null, waitlistPosition };
 }

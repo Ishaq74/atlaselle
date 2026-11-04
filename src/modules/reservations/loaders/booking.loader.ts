@@ -23,10 +23,12 @@ export async function loadBookingByProviderSession(
 ): Promise<BookingConfirmationDTO | null> {
   if (!isValidLocale(locale) || !providerSessionId) return null;
   const db = getDrizzle();
-  const { getCheckoutByProviderSessionId } = await import("@/modules/payments/repositories/payment.repository");
+  const { getCheckoutByProviderSessionId, getPaymentByProviderSessionId } = await import("@/modules/payments/repositories/payment.repository");
   const checkout = await getCheckoutByProviderSessionId(providerSessionId, db);
-  if (!checkout?.reservationId) return null;
-  const reservation = await getReservationById(checkout.reservationId, db);
+  const balancePayment = checkout ? null : await getPaymentByProviderSessionId(providerSessionId, db);
+  const reservationId = checkout?.reservationId ?? balancePayment?.reservationId ?? null;
+  if (!reservationId) return null;
+  const reservation = await getReservationById(reservationId, db);
   if (!reservation) return null;
   const { getTripTitle } = await import("@/modules/trips/repositories/trip.repository");
   const title = await getTripTitle(reservation.tripId, db);
@@ -62,16 +64,18 @@ export async function loadMockCallbackContext(providerSessionId: string): Promis
 } | null> {
   if (!providerSessionId) return null;
   const db = getDrizzle();
-  const { getCheckoutByProviderSessionId, getPaymentByReservationId } = await import("@/modules/payments/repositories/payment.repository");
+  const { getCheckoutByProviderSessionId, getPaymentByReservationId, getPaymentByProviderSessionId } = await import("@/modules/payments/repositories/payment.repository");
   const checkout = await getCheckoutByProviderSessionId(providerSessionId, db);
-  if (!checkout?.reservationId) return null;
-  const payment = await getPaymentByReservationId(checkout.reservationId, db);
+  const balancePayment = checkout ? null : await getPaymentByProviderSessionId(providerSessionId, db);
+  const reservationId = checkout?.reservationId ?? balancePayment?.reservationId ?? null;
+  if (!reservationId) return null;
+  const payment = balancePayment ?? await getPaymentByReservationId(reservationId, db);
   if (!payment) return null;
-  const reservation = await getReservationById(checkout.reservationId, db);
+  const reservation = await getReservationById(reservationId, db);
   const { getTravelerById } = await import("@/modules/travelers/repositories/traveler.repository");
   const traveler = reservation ? await getTravelerById(reservation.travelerId, db) : null;
   const locale: Locale = traveler && isValidLocale(traveler.locale) ? traveler.locale : "en";
-  return { reservationId: checkout.reservationId, payment: { amount: payment.amount, currency: payment.currency, idempotencyKey: payment.idempotencyKey }, locale };
+  return { reservationId, payment: { amount: payment.amount, currency: payment.currency, idempotencyKey: payment.idempotencyKey }, locale };
 }
 
 // Données d'affichage du checkout : session valide + devis serveur.

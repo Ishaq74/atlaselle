@@ -17,7 +17,7 @@ interface Props {
 }
 
 const { detail, locale, baseUrl, canReview } = Astro.props;
-const { application, traveler, decisions, events, checkouts, waitlistEntry } = detail;
+const { application, traveler, decisions, events, checkouts, waitlistEntry, waitlistPosition } = detail;
 const dict = getAdminDict(locale);
 const t = dict.applications;
 const c = dict.common;
@@ -49,7 +49,7 @@ const waitlistLabel = (status: string) =>
 
   {waitlistEntry ? (
     <Card>
-      <CardHeader><CardTitle>{waitlistLabel(waitlistEntry.status)}</CardTitle></CardHeader>
+      <CardHeader><CardTitle>{waitlistLabel(waitlistEntry.status)}{waitlistPosition ? ` · #${waitlistPosition}` : ""}</CardTitle></CardHeader>
       <CardContent class="text-sm">
         <p>{waitlistEntry.joinedAt.toISOString().slice(0, 16).replace("T", " ")}</p>
         {waitlistEntry.expiresAt ? <p class="mt-1">{fmtDate(waitlistEntry.expiresAt)}</p> : null}
