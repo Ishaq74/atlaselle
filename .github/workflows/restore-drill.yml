@@ -54,7 +54,6 @@ jobs:
       SMTP_PROVIDER: NODEMAILER
       SMTP_FROM_EMAIL: ci@test.local
       SMTP_HOST: localhost
-      BACKUP_DIR: ${{ runner.temp }}/backups
     steps:
       - uses: actions/checkout@v6
 
