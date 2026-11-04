@@ -65,3 +65,5 @@ logs/
 *.docs
 *.docx
 *.csv
+# Sauvegardes logiques (db:backup) : données personnelles, ne jamais versionner
+backups/

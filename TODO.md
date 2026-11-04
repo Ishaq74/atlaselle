@@ -1075,7 +1075,8 @@ Build (artefact production sur main)
 Plus : CodeQL (.github/workflows/codeql.yml), Dependabot.
 
 27.4 Sauvegardes et reprise
-À documenter : RPO, RTO, procédure restauration, panne fournisseur, panne paiement/email/stockage. Tests de restauration réels.
+✅ Outillage : `pnpm db:backup` (dump `pg_dump` cohérent + manifeste SHA-256/comptes) et `pnpm db:restore-test` (restauration dans une base jetable, comparaison table par table et du journal des migrations), exercice hebdomadaire en CI (`.github/workflows/restore-drill.yml`). Runbook RPO/RTO, restauration, retour arrière, pannes : docs/operations/backup-restore-rollback.md.
+🟡 Reste : sauvegardes continues de l'hébergeur (hébergeur non choisi), chiffrement et stockage hors site des dumps, exercice à taille de production, registre d'effacements RGPD hors base (une restauration ressuscite sinon les données anonymisées après le point de reprise).
 
 27.5 Modes dégradés
 Email indisponible → réservation confirmée, email en file, admin alertée (✅ pattern dead-letter existant)
@@ -1322,12 +1323,12 @@ text
 [ ] QA webhook
 [ ] QA capacité/concurrence
 [ ] QA email
-[ ] sauvegarde base de données
-[ ] test de restauration (réel)
+[~] sauvegarde base de données — outillage + CI prêts ; planification, chiffrement, hors site et sauvegardes continues de l'hébergeur à mettre en place (docs/operations/backup-restore-rollback.md §3, §8)
+[~] test de restauration (réel) — exercé et automatisé (hebdomadaire en CI) ; reste l'exercice à taille de production
 [ ] validation des migrations
 [ ] monitoring
 [ ] error tracking
-[ ] plan de retour arrière (rollback)
+[x] plan de retour arrière (rollback) — docs/operations/backup-restore-rollback.md §5 (à répéter à blanc lors du premier déploiement)
 35. PRINCIPES ULTIMES & DÉFINITION FINALE
 35.1 Architecture finale
 text
