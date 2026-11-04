@@ -17,6 +17,7 @@ import { loadServiceEngagement } from "@/modules/services/loaders/service-engage
 import ServiceEngagementBar from "@/components/services/engagement/ServiceEngagementBar.astro";
 import ServiceReviewSection from "@/components/services/engagement/ServiceReviewSection.astro";
 import ServiceCommentSection from "@/components/services/engagement/ServiceCommentSection.astro";
+import { formAction } from "@/lib/form-fallback/action-url";
 
 interface Props {
   serviceId: string;
@@ -31,7 +32,8 @@ const { serviceId, locale, canonicalUrl, serviceTitle } = Astro.props as Props;
 
 const viewerId = Astro.locals.user?.id ?? null;
 const t = getServiceEngagementTranslations(locale);
-const action = Astro.url.pathname;
+const reviewAction = formAction("createServiceReview", Astro.url);
+const commentAction = formAction("createServiceComment", Astro.url);
 
 const {
   reviews,
@@ -45,7 +47,7 @@ const {
 const isSignedIn = Boolean(viewerId);
 ---
 
-<section class="mt-14 space-y-10" data-service-engagement>
+<section class="mt-14 space-y-10" data-service-engagement data-service-id={serviceId}>
   <ServiceEngagementBar
     serviceId={serviceId}
     locale={locale}
@@ -64,14 +66,16 @@ const isSignedIn = Boolean(viewerId);
     helpfulByReview={viewerHelpfulByReview}
     isSignedIn={isSignedIn}
     locale={locale}
-    action={action}
+    action={reviewAction}
+    serviceId={serviceId}
   />
 
   <ServiceCommentSection
     comments={comments}
     isSignedIn={isSignedIn}
     locale={locale}
-    action={action}
+    action={commentAction}
+    serviceId={serviceId}
   />
 </section>
 

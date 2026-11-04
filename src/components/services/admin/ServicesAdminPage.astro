@@ -10,6 +10,7 @@ import type { Locale } from "@i18n/config";
 import type { ServiceListItem } from "@/modules/services/domain";
 import type { ServiceAdminFilters } from "@/modules/services/admin";
 import { getAdminDict } from "@i18n/admin";
+import { formAction } from "@/lib/form-fallback/action-url";
 
 interface Props {
   locale: Locale;
@@ -61,16 +62,9 @@ const et = getServiceEngagementTranslations(props.locale);
         <TabsContent value="categories" class="space-y-6 pt-4">
           {!props.canManageTaxonomy && <p class="rounded-xl border p-6 text-sm text-muted-foreground">{t.admin.errors.forbidden}</p>}
           {props.canManageTaxonomy && <>
-            {/* method="post" + action explicite : première barrière structurelle contre
-                la soumission native en GET vers l'URL courante — c'est ce GET qui exposait
-                le nom et le slug de la catégorie dans la chaîne de requête, donc dans
-                l'historique de navigation, dans l'en-tête Referer des navigations
-                suivantes et dans le journal d'accès du serveur. Le traitement réel est un
-                appel astro:actions (createServiceCategory), sans route serveur de repli :
-                l'action pointe vers la page courante, qui n'exporte aucun POST, donc une
-                soumission native y est rejetée sans mutation. preventDefault (script) =
-                seconde barrière. */}
-            <form id="service-category-create-form" name="service-category-create-form" method="post" action={Astro.url.pathname} data-service-category-create class="grid gap-3 rounded-xl border p-4 md:grid-cols-4">
+            {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
+            <form id="service-category-create-form" name="service-category-create-form" method="post" action={formAction("createServiceCategory", Astro.url)} data-service-category-create class="grid gap-3 rounded-xl border p-4 md:grid-cols-4">
+              <input type="hidden" name="locale" value={props.locale} />
               <input name="name" required class="h-10 rounded-md border bg-background px-3" placeholder={et.admin.name} aria-label={et.admin.name} />
               <input name="slug" required class="h-10 rounded-md border bg-background px-3" placeholder={et.admin.slug} aria-label={et.admin.slug} />
               <NativeSelect name="parentId" size="sm" aria-label={et.admin.parent}><NativeSelectOption value="">{et.admin.parent}</NativeSelectOption>{props.taxonomy.categories.map((item) => <NativeSelectOption value={item.category.id}>{item.translation?.name ?? item.category.slug}</NativeSelectOption>)}</NativeSelect>
@@ -78,18 +72,10 @@ const et = getServiceEngagementTranslations(props.locale);
               <p data-category-status class="md:col-span-4 text-sm" aria-live="polite"></p>
             </form>
             <div class="space-y-3">
-              {/* method="post" + action explicite : première barrière structurelle contre
-                  la soumission native en GET vers l'URL courante — c'est ce GET qui exposait
-                  le nom, le slug et le parent de chaque catégorie dans la chaîne de requête,
-                  donc dans l'historique de navigation, dans l'en-tête Referer des
-                  navigations suivantes et dans le journal d'accès du serveur. Le traitement
-                  réel est un appel astro:actions (updateServiceCategory), sans route
-                  serveur de repli : l'action pointe vers la page courante, qui n'exporte
-                  aucun POST, donc une soumission native y est rejetée sans mutation.
-                  preventDefault (script) = seconde barrière. L'identifiant compose l'id
-                  de la catégorie : un id statique dupliquerait le même nom sur chaque
-                  ligne de la liste. */}
-              {props.taxonomy.categories.map((item) => <form id={`service-category-update-form-${item.category.id}`} name={`service-category-update-form-${item.category.id}`} method="post" action={Astro.url.pathname} data-service-category-update class="grid gap-2 rounded-xl border p-4 md:grid-cols-[1fr_1fr_1fr_auto_auto]" data-id={item.category.id}>
+              {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
+              {props.taxonomy.categories.map((item) => <form id={`service-category-update-form-${item.category.id}`} name={`service-category-update-form-${item.category.id}`} method="post" action={formAction("updateServiceCategory", Astro.url)} data-service-category-update class="grid gap-2 rounded-xl border p-4 md:grid-cols-[1fr_1fr_1fr_auto_auto]" data-id={item.category.id}>
+                <input type="hidden" name="id" value={item.category.id} />
+                <input type="hidden" name="locale" value={props.locale} />
                 <input name="name" value={item.translation?.name ?? item.category.slug} class="h-10 rounded-md border bg-background px-3" aria-label={et.admin.name} />
                 <input name="slug" value={item.translation?.slug ?? item.category.slug} class="h-10 rounded-md border bg-background px-3" aria-label={et.admin.slug} />
                 <NativeSelect name="parentId" size="sm" aria-label={et.admin.parent}><NativeSelectOption value="">{et.admin.parent}</NativeSelectOption>{props.taxonomy.categories.filter((candidate) => candidate.category.id !== item.category.id).map((candidate) => <NativeSelectOption value={candidate.category.id} selected={candidate.category.id === item.category.parentId}>{candidate.translation?.name ?? candidate.category.slug}</NativeSelectOption>)}</NativeSelect>
@@ -103,32 +89,19 @@ const et = getServiceEngagementTranslations(props.locale);
         <TabsContent value="tags" class="space-y-6 pt-4">
           {!props.canManageTaxonomy && <p class="rounded-xl border p-6 text-sm text-muted-foreground">{t.admin.errors.forbidden}</p>}
           {props.canManageTaxonomy && <>
-            {/* method="post" + action explicite : première barrière structurelle contre
-                la soumission native en GET vers l'URL courante — c'est ce GET qui exposait
-                le nom et le slug du tag dans la chaîne de requête, donc dans l'historique
-                de navigation, dans l'en-tête Referer des navigations suivantes et dans le
-                journal d'accès du serveur. Le traitement réel est un appel astro:actions
-                (createServiceTag), sans route serveur de repli : l'action pointe vers la
-                page courante, qui n'exporte aucun POST, donc une soumission native y est
-                rejetée sans mutation. preventDefault (script) = seconde barrière. */}
-            <form id="service-tag-create-form" name="service-tag-create-form" method="post" action={Astro.url.pathname} data-service-tag-create class="grid gap-3 rounded-xl border p-4 md:grid-cols-3">
+            {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
+            <form id="service-tag-create-form" name="service-tag-create-form" method="post" action={formAction("createServiceTag", Astro.url)} data-service-tag-create class="grid gap-3 rounded-xl border p-4 md:grid-cols-3">
+              <input type="hidden" name="locale" value={props.locale} />
               <input name="name" required class="h-10 rounded-md border bg-background px-3" placeholder={et.admin.name} aria-label={et.admin.name} />
               <input name="slug" required class="h-10 rounded-md border bg-background px-3" placeholder={et.admin.slug} aria-label={et.admin.slug} />
               <button type="submit" class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground">{et.admin.create}</button>
               <p data-tag-status class="md:col-span-3 text-sm" aria-live="polite"></p>
             </form>
             <div class="space-y-3">
-              {/* method="post" + action explicite : première barrière structurelle contre
-                  la soumission native en GET vers l'URL courante — c'est ce GET qui exposait
-                  le nom et le slug de chaque tag dans la chaîne de requête, donc dans
-                  l'historique de navigation, dans l'en-tête Referer des navigations
-                  suivantes et dans le journal d'accès du serveur. Le traitement réel est un
-                  appel astro:actions (updateServiceTag), sans route serveur de repli :
-                  l'action pointe vers la page courante, qui n'exporte aucun POST, donc une
-                  soumission native y est rejetée sans mutation. preventDefault (script) =
-                  seconde barrière. L'identifiant compose l'id du tag : un id statique
-                  dupliquerait le même nom sur chaque ligne de la liste. */}
-              {props.taxonomy.tags.map((item) => <form id={`service-tag-update-form-${item.tag.id}`} name={`service-tag-update-form-${item.tag.id}`} method="post" action={Astro.url.pathname} data-service-tag-update class="grid gap-2 rounded-xl border p-4 md:grid-cols-[1fr_1fr_auto_auto]" data-id={item.tag.id}>
+              {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
+              {props.taxonomy.tags.map((item) => <form id={`service-tag-update-form-${item.tag.id}`} name={`service-tag-update-form-${item.tag.id}`} method="post" action={formAction("updateServiceTag", Astro.url)} data-service-tag-update class="grid gap-2 rounded-xl border p-4 md:grid-cols-[1fr_1fr_auto_auto]" data-id={item.tag.id}>
+                <input type="hidden" name="id" value={item.tag.id} />
+                <input type="hidden" name="locale" value={props.locale} />
                 <input name="name" value={item.translation?.name ?? item.tag.slug} class="h-10 rounded-md border bg-background px-3" aria-label={et.admin.name} />
                 <input name="slug" value={item.translation?.slug ?? item.tag.slug} class="h-10 rounded-md border bg-background px-3" aria-label={et.admin.slug} />
                 <button type="submit" class="rounded-md border px-3 py-2 text-sm">{et.admin.save}</button>

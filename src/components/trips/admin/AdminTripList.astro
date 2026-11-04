@@ -9,6 +9,7 @@ import AdminPagination from "@molecules/AdminPagination/AdminPagination.astro";
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@atoms/table";
 import { Badge } from "@atoms/badge";
 import Button from "@atoms/button/Button.astro";
+import { formAction } from "@/lib/form-fallback/action-url";
 
 interface Props {
   rows: AdminTripRow[];
@@ -172,7 +173,7 @@ const paginationUrl = new URL(Astro.url.href);
         id="trip-create-form"
         name="trip-create-form"
         method="post"
-        action={Astro.url.pathname}
+        action={formAction("createTrip", Astro.url)}
         data-trip-create
         class="grid gap-4 text-sm sm:grid-cols-4"
       >

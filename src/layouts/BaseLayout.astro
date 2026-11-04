@@ -5,6 +5,7 @@ import type { Locale } from '@i18n/config';
 import Header, { type NavLink } from "@organisms/Header/Header.astro";
 import Footer, { type FooterLink, type SocialLink } from "@organisms/Footer/Footer.astro";
 import { Toaster } from "@atoms/toast";
+import FormFlash from "@/components/FormFlash.astro";
 import { CookieConsent } from "@organisms/CookieConsent";
 import { getSiteSettings, getSocialLinks, getActiveThemeCss } from "@database/loaders/site.loader";
 import { getConsentSettings } from "@database/loaders/consent.loader";
@@ -179,6 +180,7 @@ const toAbsUrl = (u: string) => new URL(u, Astro.url.origin).href;
         locale={locale}
     />
     <main id="main-content" class="flex-1">
+        <FormFlash />
         <slot />
     </main>
     <Footer

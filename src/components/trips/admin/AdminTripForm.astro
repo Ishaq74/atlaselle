@@ -8,6 +8,7 @@ import type { DepartureStatus } from "@database/schemas/departures.schema";
 import { getAdminDict, adminStatusLabel } from "@i18n/admin";
 import AdminFormShell from "@organisms/AdminFormShell.astro";
 import Button from "@atoms/button/Button.astro";
+import { formAction } from "@/lib/form-fallback/action-url";
 
 interface Props {
   detail: AdminTripDetail;
@@ -96,8 +97,10 @@ const advancedRules = (rules?: Record<string, unknown> | null): string => {
     ) : null}
 
     {canUpdate ? (
-      <form id="trip-facts-form" name="trip-facts-form" method="post" action={Astro.url.pathname} data-facts-form class="space-y-4 rounded-xl border p-6">
+      <form id="trip-facts-form" name="trip-facts-form" method="post" action={formAction("updateTrip", Astro.url)} data-facts-form class="space-y-4 rounded-xl border p-6">
         <h2 class="font-heading text-xl font-semibold">{t.facts}</h2>
+              <input type="hidden" name="id" value={trip.id} />
+              <input type="hidden" name="requireAccount" value={trip.requireAccount ? "true" : "false"} />
         <input type="hidden" name="expectedUpdatedAt" value={trip.updatedAt.toISOString()} />
         <div class="grid gap-4 sm:grid-cols-3">
           <div class="flex flex-col"><label class="text-sm font-medium" for={fid("trip-facts", "countryCode")}>{f.countryCode}</label><input id={fid("trip-facts", "countryCode")} name="countryCode" value={trip.countryCode} maxlength="2" class={inputClass} /></div>
@@ -121,8 +124,9 @@ const advancedRules = (rules?: Record<string, unknown> | null): string => {
     ) : null}
 
     {canUpdate ? (
-      <form id="trip-engagement-form" name="trip-engagement-form" method="post" action={Astro.url.pathname} data-engagement-form class="space-y-4 rounded-xl border p-6">
+      <form id="trip-engagement-form" name="trip-engagement-form" method="post" action={formAction("updateTripEngagementSettings", Astro.url)} data-engagement-form class="space-y-4 rounded-xl border p-6">
         <h2 class="font-heading text-xl font-semibold">{t.engagement}</h2>
+              <input type="hidden" name="tripId" value={trip.id} />
         <div class="grid gap-4 sm:grid-cols-2">
           <div class="flex flex-col">
             <label class="text-sm font-medium" for={fid("trip-engagement", "commentStatus")}>{f.commentStatus}</label>
@@ -148,8 +152,10 @@ const advancedRules = (rules?: Record<string, unknown> | null): string => {
       {LOCALES.map((loc: Locale) => {
         const tr = trByLocale.get(loc);
         return (
-          <form id={`trip-translation-form-${loc}`} name={`trip-translation-form-${loc}`} method="post" action={Astro.url.pathname} data-translation-form={loc} class="space-y-3 rounded-xl border p-6">
+          <form id={`trip-translation-form-${loc}`} name={`trip-translation-form-${loc}`} method="post" action={formAction("upsertTripTranslation", Astro.url)} data-translation-form={loc} class="space-y-3 rounded-xl border p-6">
             <h3 class="font-semibold uppercase">{loc}{tr?.localeVisible ? ` · ${adminStatusLabel(dict, "visible")}` : ""}</h3>
+                      <input type="hidden" name="tripId" value={trip.id} />
+                      <input type="hidden" name="locale" value={loc} />
             <input type="hidden" name="expectedUpdatedAt" value={tr?.updatedAt.toISOString() ?? ""} />
             <div class="grid gap-4 sm:grid-cols-2">
               <div class="flex flex-col"><label class="text-sm font-medium" for={fid(`trip-translation-${loc}`, "slug")}>{f.slug}</label><input id={fid(`trip-translation-${loc}`, "slug")} name="slug" value={tr?.slug ?? ""} required class={inputClass} /></div>
@@ -208,7 +214,8 @@ const advancedRules = (rules?: Record<string, unknown> | null): string => {
             ) : adminStatusLabel(dict, d.status)}
           </div>
           {canUpdate ? (
-            <form id={`trip-departure-edit-form-${d.id}`} name={`trip-departure-edit-form-${d.id}`} method="post" action={Astro.url.pathname} data-departure-edit class="mt-4 grid gap-3 text-sm sm:grid-cols-3">
+            <form id={`trip-departure-edit-form-${d.id}`} name={`trip-departure-edit-form-${d.id}`} method="post" action={formAction("updateDeparture", Astro.url)} data-departure-edit class="mt-4 grid gap-3 text-sm sm:grid-cols-3">
+                          <input type="hidden" name="id" value={d.id} />
               <input type="hidden" name="expectedUpdatedAt" value={d.updatedAt.toISOString()} />
               <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "startDate")}>{t.start}</label><input id={fid(`trip-departure-edit-${d.id}`, "startDate")} name="startDate" type="date" value={d.startDate.toISOString().slice(0, 10)} class={inputClass} /></div>
               <div class="flex flex-col"><label for={fid(`trip-departure-edit-${d.id}`, "endDate")}>{t.end}</label><input id={fid(`trip-departure-edit-${d.id}`, "endDate")} name="endDate" type="date" value={d.endDate.toISOString().slice(0, 10)} class={inputClass} /></div>
@@ -265,7 +272,8 @@ const advancedRules = (rules?: Record<string, unknown> | null): string => {
         );
       })}
       {canUpdate ? (
-        <form id="trip-departure-create-form" name="trip-departure-create-form" method="post" action={Astro.url.pathname} data-departure-form class="grid gap-4 rounded-xl border p-6 sm:grid-cols-3">
+        <form id="trip-departure-create-form" name="trip-departure-create-form" method="post" action={formAction("createDeparture", Astro.url)} data-departure-form class="grid gap-4 rounded-xl border p-6 sm:grid-cols-3">
+                  <input type="hidden" name="tripId" value={trip.id} />
           <h3 class="font-heading font-semibold sm:col-span-3">{t.newDeparture}</h3>
           <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-startDate">{t.start}</label><input id="trip-departure-create-startDate" name="startDate" type="date" required class={inputClass} /></div>
           <div class="flex flex-col"><label class="text-sm font-medium" for="trip-departure-create-endDate">{t.end}</label><input id="trip-departure-create-endDate" name="endDate" type="date" required class={inputClass} /></div>

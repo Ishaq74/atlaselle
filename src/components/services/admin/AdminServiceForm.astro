@@ -13,6 +13,7 @@ import { getServiceTranslations } from "@/modules/services/i18n";
 import { getServiceFormTranslations } from "@/modules/services/i18n/form";
 import { getServiceCategories, getServiceTags } from "@/modules/services/loaders";
 import { getAdminDict } from "@i18n/admin";
+import { formAction } from "@/lib/form-fallback/action-url";
 
 const props = Astro.props as { locale: Locale; service?: ServiceDetail | null; baseAdminUrl?: string; canCreate?: boolean; canUpdate?: boolean; canPublish?: boolean; canDelete?: boolean };
 const { locale, service = null, baseAdminUrl = `/${locale}/admin/services`, canCreate = true, canUpdate = true, canPublish = true, canDelete = false } = props;
@@ -35,16 +36,8 @@ const actionLabels = JSON.stringify({ confirmDelete: t.admin.confirmDelete, conf
       {canDelete && service.service.status !== "DELETED" && <Button type="button" variant="outline" data-lifecycle="delete">{ft.actions.delete}</Button>}
     </div></section>}
 
-    {/* method="post" + action explicite : première barrière structurelle contre la
-        soumission native en GET vers l'URL courante — c'est ce GET qui exposait le
-        contenu éditorial complet du service (titre, slug, extrait, corps, catégories,
-        tags, SEO) dans la chaîne de requête, donc dans l'historique de navigation,
-        dans l'en-tête Referer des navigations suivantes et dans le journal d'accès du
-        serveur. Le traitement réel est un appel astro:actions (createService /
-        updateService), sans route serveur de repli : l'action pointe vers la page
-        courante, qui n'exporte aucun POST, donc une soumission native y est rejetée
-        sans mutation. preventDefault (script) = seconde barrière. */}
-    <form id="service-form" name="service-form" method="post" action={Astro.url.pathname} data-service-form data-mode={service ? "edit" : "create"} class="space-y-8" autocomplete="off">
+    {/* Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). */}
+    <form id="service-form" name="service-form" method="post" action={formAction(service ? "updateService" : "createService", Astro.url)} data-service-form data-mode={service ? "edit" : "create"} class="space-y-8" autocomplete="off">
       <input type="hidden" name="locale" value={locale} />
       {service && <input type="hidden" name="id" value={service.service.id} />}
       <input type="hidden" name="coverImageId" value={service?.service.coverImageId ?? ""} />

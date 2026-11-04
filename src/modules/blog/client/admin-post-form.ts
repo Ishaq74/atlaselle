@@ -128,7 +128,7 @@ export function initAdminPostForm(): void {
     const data = new FormData(form);
     const trim = (key: string): string | undefined =>
       String(data.get(key) ?? "").trim() || undefined;
-    const focusKeyword = String(data.get("focusKeyword") ?? "").trim();
+    const focusKeyword = String(data.get("seo.focusKeyword") ?? "").trim();
 
     const common: Omit<BlogPostFormInput, "status"> = {
       locale: String(data.get("locale") ?? localeFromForm()) as BlogPostFormInput["locale"],

@@ -1,4 +1,5 @@
-import { defineAction, ActionError } from "astro:actions";
+import { ActionError } from "astro:actions";
+import { defineAction } from "@/lib/form-fallback/define-action";
 import { and, eq } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { services, serviceTranslations, serviceCategoryLinks, serviceTagLinks, serviceSeo, serviceRevisions } from "@database/schemas";

@@ -1,4 +1,6 @@
-import { ActionError, defineAction } from "astro:actions";
+import { ActionError } from "astro:actions";
+import { defineAction } from "@/lib/form-fallback/define-action";
+import { acceptedTrue } from "@/lib/form-fallback/accepted-true";
 import { eq } from "drizzle-orm";
 import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
@@ -42,9 +44,14 @@ export const refundPayment = defineAction({
 export const payBalanceInput = z.object({
   reservationId: z.uuid(),
   travelerEmail: z.string().trim().check(z.email()).max(320),
-  // Preuve de consentement CGV (cf. checkoutInitiateInput).
-  termsAccepted: z.literal(true),
+  // Preuve de consentement CGV (cf. checkoutInitiateInput). `terms` : nom de la case du
+  // formulaire natif (sans JavaScript) ; l'un des deux doit être coché, côté serveur.
+  termsAccepted: acceptedTrue.optional(),
+  terms: acceptedTrue.optional(),
   locale: z.enum(LOCALES).default("en"),
+}).refine((v) => v.termsAccepted === true || v.terms === true, {
+  message: "Acceptation des conditions requise.",
+  path: ["termsAccepted"],
 });
 
 // Règlement du solde (TODO §13.6).

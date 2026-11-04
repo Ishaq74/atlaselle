@@ -1,4 +1,5 @@
-import { ActionError, defineAction } from "astro:actions";
+import { ActionError } from "astro:actions";
+import { defineAction } from "@/lib/form-fallback/define-action";
 import { and, eq, inArray } from "drizzle-orm";
 import { z } from "astro/zod";
 import { getDrizzle } from "@database/drizzle";
@@ -23,6 +24,7 @@ import { enqueueWaitlist, hasActiveWaitlist, promoteWaitlist } from "@/modules/a
 import { removeWaitlistEntry } from "@/modules/applications/domain/waitlist-service";
 import { initiateCheckout as runCheckoutTunnel } from "@/modules/payments/domain/payment-service";
 import { domainError } from "@/lib/voyage-errors";
+import { acceptedTrue } from "@/lib/form-fallback/accepted-true";
 
 const CLOSED_DEPARTURE_STATUSES = ["draft", "closed", "cancelled", "completed"] as const;
 
@@ -35,12 +37,12 @@ export const applicationSubmitInput = z.object({
   roomPreference: z.enum(["shared", "single"]).default("shared"),
   dietaryRequirements: z.string().trim().max(2000).transform(sanitizeHtml).nullable().optional(),
   accessibilityNeeds: z.string().trim().max(2000).transform(sanitizeHtml).nullable().optional(),
-  activityAcknowledgement: z.literal(true),
+  activityAcknowledgement: acceptedTrue,
   motivation: z.string().trim().max(5000).transform(sanitizeHtml).nullable().optional(),
   expectations: z.string().trim().max(5000).transform(sanitizeHtml).nullable().optional(),
-  consent: z.literal(true),
+  consent: acceptedTrue,
   // Acceptation explicite des conditions de réservation + assurance voyage (liens dans le formulaire).
-  termsAccepted: z.literal(true),
+  termsAccepted: acceptedTrue,
   locale: z.enum(LOCALES).default("en"),
 });
 

@@ -31,9 +31,10 @@ interface Props {
   isSignedIn: boolean;
   locale: Locale;
   action: string;
+  serviceId: string;
 }
 
-const { reviews, helpfulByReview, isSignedIn, locale, action } = Astro.props as Props;
+const { reviews, helpfulByReview, isSignedIn, locale, action, serviceId } = Astro.props as Props;
 const t = getServiceEngagementTranslations(locale);
 
 const hasReviews = reviews.length > 0;
@@ -95,7 +96,7 @@ const reviewLabels = {
 
     <div slot="write">
       {isSignedIn ? (
-        <ServiceReviewForm locale={locale} action={action} />
+        <ServiceReviewForm locale={locale} action={action} serviceId={serviceId} />
       ) : (
         <Card>
           <CardContent class="py-8 text-center text-sm text-muted-foreground">

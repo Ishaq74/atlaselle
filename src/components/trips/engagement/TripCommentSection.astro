@@ -16,6 +16,7 @@ import EngagementTabs from "@/components/molecules/Engagement/EngagementTabs.ast
 import EngagementCommentThread from "@/components/molecules/Engagement/EngagementCommentThread.astro";
 import TripCommentForm from "@/components/trips/engagement/TripCommentForm.astro";
 import { Card, CardContent } from "@atoms/card";
+import { formAction } from "@/lib/form-fallback/action-url";
 
 interface Props {
   tripId: string;
@@ -87,7 +88,7 @@ const threadLabels = { reply: t.reply, pending: "…", anonymous: "—" };
 
       <div slot="write">
         {isSignedIn ? (
-          <TripCommentForm tripId={tripId} locale={locale} action={Astro.url.pathname} />
+          <TripCommentForm tripId={tripId} locale={locale} action={formAction("createTripComment", Astro.url)} />
         ) : (
           <Card>
             <CardContent class="py-8 text-center text-sm text-muted-foreground">

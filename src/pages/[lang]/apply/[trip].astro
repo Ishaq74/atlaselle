@@ -7,6 +7,7 @@ import { loadTripPage } from "@/modules/trips/loaders/trip.loader";
 import { loadOpenDepartures } from "@/modules/departures/loaders/departure.loader";
 import { resolveLegalLinks } from "@/lib/legal-pages";
 import BaseLayout from "@layouts/BaseLayout.astro";
+import { formAction } from "@/lib/form-fallback/action-url";
 
 export const prerender = false;
 
@@ -68,13 +69,10 @@ const termsLabel =
       <p class="mt-6 rounded-xl border p-6 text-muted-foreground">{l.nodate}</p>
     ) : (
       <>
-      <form name="apply-form" data-apply-form method="post" action={Astro.url.pathname} class="mt-8 space-y-5 rounded-xl border p-6">
-        <!-- method="post" + action explicite : première barrière structurelle contre la
-            soumission native en GET vers l'URL courante — c'est ce GET qui exposait
-            email / legalName / motivation dans la chaîne de requête. Le traitement
-            réel est un appel astro:actions, sans route serveur de repli : l'action
-            pointe vers la page courante, qui n'expose aucun export POST, donc une
-            soumission native y est rejetée sans mutation. -->
+      <form name="apply-form" data-apply-form method="post" action={formAction("submitApplication", Astro.url)} class="mt-8 space-y-5 rounded-xl border p-6">
+        <input type="hidden" name="tripId" value={dto.id} />
+        <input type="hidden" name="locale" value={locale} />
+        <!-- Sans JavaScript : traité par le repli serveur (formAction → ?_action=, docs/security.md §11). -->
         <label class="block font-medium">{l.departure}
           <NativeSelect name="departureId" required class="mt-2 w-full">
             {departures.map((d) => (
