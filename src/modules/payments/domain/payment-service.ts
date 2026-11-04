@@ -1,7 +1,7 @@
-import { and, eq, gt } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, isNotNull, lte } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { invalidateCache } from "@database/cache";
-import { payments, checkoutSessions, seatHolds, waitlistEntries, reservations, outboxEvents } from "@database/schemas";
+import { applications, payments, checkoutSessions, seatHolds, waitlistEntries, reservations, outboxEvents } from "@database/schemas";
 import { getCheckoutById } from "@/modules/payments/repositories/payment.repository";
 import { getApplicationById } from "@/modules/applications/repositories/application.repository";
 import { getTravelerById } from "@/modules/travelers/repositories/traveler.repository";
@@ -15,10 +15,13 @@ import { newIdempotencyKey } from "./payment-transitions";
 import { selectPaymentProvider, type ProviderWebhookEvent } from "./providers";
 import { emitOutboxEvent } from "@/modules/outbox/domain/outbox";
 import { codedError } from "@/lib/voyage-codes";
-import { enqueueWaitlist, promoteNextWaitlistApplicant } from "@/modules/applications/domain/waitlist-service";
+import { enqueueWaitlist, promoteWaitlist } from "@/modules/applications/domain/waitlist-service";
+import { assertTransitionReservation } from "@/modules/reservations/domain/reservation-transitions";
 
 const PAYMENT_SESSION_TTL_MINUTES = 35;
 const PAYMENT_HOLD_BUFFER_MINUTES = 5;
+// Une tentative de paiement (session provider + marge) non aboutie après ce délai est libérée.
+export const PAYMENT_ATTEMPT_TTL_MINUTES = PAYMENT_SESSION_TTL_MINUTES + PAYMENT_HOLD_BUFFER_MINUTES;
 
 // Tunnel : hold → snapshot prix → session provider (TODO §13.4).
 // Hold orphelin : TTL standard de 30 min, prolongé jusqu'à 5 min après expiration du checkout provider.
@@ -56,9 +59,13 @@ export async function initiateCheckout(input: {
   const chargeNow = quote.depositAmount > 0 && quote.depositAmount < quote.totalAmount ? quote.depositAmount : quote.totalAmount;
   const paymentType = chargeNow < quote.totalAmount ? "deposit" : "full_payment";
   let hold: Awaited<ReturnType<typeof holdSeats>>;
-  let expireOffer = false;
   try {
-    hold = await holdSeats(checkout.departureId, { applicationId: application.id, quantity: 1 });
+    const [offered] = await db
+      .select({ id: waitlistEntries.id })
+      .from(waitlistEntries)
+      .where(and(eq(waitlistEntries.applicationId, application.id), eq(waitlistEntries.status, "offered")))
+      .limit(1);
+    hold = await holdSeats(checkout.departureId, { applicationId: application.id, quantity: 1, allowWaitlist: Boolean(offered) });
   } catch (err) {
     if ((err as { code?: string } | null)?.code !== "DEPARTURE_SOLD_OUT") throw err;
     await enqueueWaitlist(application.id, checkout.departureId);
@@ -95,20 +102,24 @@ export async function initiateCheckout(input: {
     await markReservationAwaitingPayment(reservation.id, db);
     const paymentCreatedAt = new Date();
     const providerExpiresAt = new Date(paymentCreatedAt.getTime() + PAYMENT_SESSION_TTL_MINUTES * 60_000);
-    const holdExpiresAt = new Date(providerExpiresAt.getTime() + PAYMENT_HOLD_BUFFER_MINUTES * 60_000);
+    const attemptExpiresAt = new Date(paymentCreatedAt.getTime() + PAYMENT_ATTEMPT_TTL_MINUTES * 60_000);
     await db.transaction(async (tx) => {
+      const [offer] = await tx
+        .select({ id: waitlistEntries.id })
+        .from(waitlistEntries)
+        .where(and(eq(waitlistEntries.applicationId, application.id), eq(waitlistEntries.status, "offered")))
+        .limit(1);
+      // Proposition de liste d'attente : le hold reste garanti jusqu'à l'échéance de l'offre
+      // (jamais raccourci par la tentative de paiement) ; le lien checkout garde l'échéance de l'offre.
+      // Hors proposition : hold et checkout suivent la tentative de paiement.
       await tx
         .update(seatHolds)
-        .set({ expiresAt: holdExpiresAt })
+        .set({ expiresAt: offer && hold.expiresAt > attemptExpiresAt ? hold.expiresAt : attemptExpiresAt })
         .where(and(eq(seatHolds.id, hold.id), eq(seatHolds.status, "active")));
       await tx
         .update(checkoutSessions)
-        .set({ reservationId: reservation.id, expiresAt: holdExpiresAt })
+        .set(offer ? { reservationId: reservation.id } : { reservationId: reservation.id, expiresAt: attemptExpiresAt })
         .where(and(eq(checkoutSessions.id, checkout.id), eq(checkoutSessions.status, "open")));
-      await tx
-        .update(waitlistEntries)
-        .set({ expiresAt: holdExpiresAt, updatedAt: paymentCreatedAt })
-        .where(and(eq(waitlistEntries.applicationId, application.id), eq(waitlistEntries.status, "offered")));
     });
 
     const provider = selectPaymentProvider();
@@ -129,31 +140,20 @@ export async function initiateCheckout(input: {
         await tx.delete(payments).where(eq(payments.id, payment.id));
         await tx.delete(reservations).where(eq(reservations.id, reservation.id));
         const [offer] = await tx
-          .update(waitlistEntries)
-          .set({ status: "expired", updatedAt: new Date() })
+          .select({ id: waitlistEntries.id })
+          .from(waitlistEntries)
           .where(and(eq(waitlistEntries.applicationId, application.id), eq(waitlistEntries.status, "offered")))
-          .returning({ id: waitlistEntries.id });
-        expireOffer = Boolean(offer);
+          .limit(1);
+        // Une défaillance du prestataire n'annule pas une proposition encore valide : le candidat peut réessayer.
         await tx
           .update(checkoutSessions)
           .set({
             reservationId: null,
-            status: offer ? "expired" : "open",
-            expiresAt: offer
-              ? new Date()
-              : new Date(Date.now() + 7 * 24 * 3600_000),
+            status: "open",
+            ...(offer ? {} : { expiresAt: new Date(Date.now() + 7 * 24 * 3600_000) }),
           })
           .where(eq(checkoutSessions.id, checkout.id));
-        if (offer) {
-          await tx.insert(outboxEvents).values({
-            eventType: "waitlist.offer_expired",
-            aggregateType: "application",
-            aggregateId: application.id,
-            payload: { applicationId: application.id, departureId: checkout.departureId },
-          });
-        }
       });
-      if (expireOffer) throw codedError("CHECKOUT_EXPIRED", "L’offre de place a expiré.");
       throw err;
     }
     await db
@@ -176,8 +176,14 @@ export async function initiateCheckout(input: {
     await invalidateCache("trips:list");
     return { reservationId: reservation.id, checkoutUrl: session.checkoutUrl };
   } catch (err) {
-    await releaseHold(hold.id).catch(() => {});
-    if (expireOffer) await promoteNextWaitlistApplicant(checkout.departureId).catch(() => {});
+    const [activeOffer] = await db
+      .select({ id: waitlistEntries.id })
+      .from(waitlistEntries)
+      .where(and(eq(waitlistEntries.applicationId, application.id), eq(waitlistEntries.status, "offered")))
+      .limit(1)
+      .catch(() => []);
+    // Le hold d'une proposition encore valide est conservé : il expire avec l'offre.
+    if (!activeOffer) await releaseHold(hold.id).catch(() => {});
     await invalidateCache("trip:");
     await invalidateCache("trips:list");
     throw err;
@@ -455,62 +461,152 @@ export async function failPaymentByProviderId(
       .limit(1);
     if (!reservation) return null;
     await lockDepartureForUpdate(reservation.departureId, tx);
-    const now = new Date();
-    if (reservation.status === "awaiting_payment") {
-      await tx.update(reservations).set({ status: "pending" }).where(eq(reservations.id, reservation.id));
-    }
-    if (reservation.applicationId) {
-      await tx
-        .update(seatHolds)
-        .set({ status: "expired", releasedAt: now })
-        .where(and(eq(seatHolds.applicationId, reservation.applicationId), eq(seatHolds.status, "active")));
-    }
+    return releaseUnpaidAttemptInTransaction(tx, reservation, new Date());
+  });
+  if (result?.released) {
+    await invalidateCache("trip:");
+    await invalidateCache("trips:list");
+    await promoteWaitlist(result.departureId);
+  }
+}
+
+type Tx = Parameters<Parameters<ReturnType<typeof getDrizzle>["transaction"]>[0]>[0];
+
+// Libère une tentative de paiement non aboutie (session provider expirée ou webhook d'expiration).
+// Appelé sous verrou de la réservation et du départ ; idempotent (statut re-vérifié).
+// - réservation annulée (jamais confirmée), paiement en attente marqué échoué ;
+// - proposition de liste d'attente encore valide : hold conservé, lien rouvert pour réessayer ;
+// - proposition échue : expirée + place libérée ;
+// - candidature classique : hold libéré et nouveau lien checkout (TTL 7 j) si elle est toujours approuvée.
+async function releaseUnpaidAttemptInTransaction(
+  tx: Tx,
+  reservation: typeof reservations.$inferSelect,
+  now: Date,
+): Promise<{ departureId: string; released: boolean }> {
+  const departureId = reservation.departureId;
+  if (reservation.status !== "awaiting_payment" && reservation.status !== "pending") {
+    return { departureId, released: false };
+  }
+  const [paid] = await tx
+    .select({ id: payments.id })
+    .from(payments)
+    .where(and(eq(payments.reservationId, reservation.id), inArray(payments.status, ["paid", "authorized"])))
+    .limit(1);
+  if (paid) return { departureId, released: false };
+
+  assertTransitionReservation(reservation.status, "cancelled");
+  await tx.update(reservations).set({ status: "cancelled", cancelledAt: now }).where(eq(reservations.id, reservation.id));
+  await tx
+    .update(payments)
+    .set({ status: "failed", failedAt: now })
+    .where(and(eq(payments.reservationId, reservation.id), inArray(payments.status, ["created", "pending"])));
+
+  const applicationId = reservation.applicationId;
+  if (!applicationId) {
     await tx
       .update(checkoutSessions)
       .set({ status: "expired" })
       .where(and(eq(checkoutSessions.reservationId, reservation.id), eq(checkoutSessions.status, "open")));
+    return { departureId, released: true };
+  }
 
-    let offerExpired = false;
-    if (reservation.applicationId) {
-      const [offer] = await tx
-        .update(waitlistEntries)
-        .set({ status: "expired", updatedAt: now })
-        .where(and(eq(waitlistEntries.applicationId, reservation.applicationId), eq(waitlistEntries.status, "offered")))
-        .returning({ id: waitlistEntries.id });
-      offerExpired = Boolean(offer);
-      if (offer) {
-        await tx.insert(outboxEvents).values({
-          eventType: "waitlist.offer_expired",
-          aggregateType: "application",
-          aggregateId: reservation.applicationId,
-          payload: { applicationId: reservation.applicationId, departureId: reservation.departureId },
-        });
-      } else {
-        const [session] = await tx
-          .insert(checkoutSessions)
-          .values({
-            applicationId: reservation.applicationId,
-            departureId: reservation.departureId,
-            expiresAt: new Date(now.getTime() + 7 * 24 * 3600_000),
-          })
-          .returning({ id: checkoutSessions.id, expiresAt: checkoutSessions.expiresAt });
-        if (session) {
-          await tx.insert(outboxEvents).values({
-            eventType: "application.approved",
-            aggregateType: "application",
-            aggregateId: reservation.applicationId,
-            payload: { applicationId: reservation.applicationId, checkoutSessionId: session.id, expiresAt: session.expiresAt.toISOString() },
-          });
-        }
-      }
+  const [offer] = await tx
+    .select()
+    .from(waitlistEntries)
+    .where(and(eq(waitlistEntries.applicationId, applicationId), eq(waitlistEntries.status, "offered")))
+    .for("update")
+    .limit(1);
+  if (offer && offer.expiresAt && offer.expiresAt > now) {
+    await tx
+      .update(checkoutSessions)
+      .set({ reservationId: null, status: "open", expiresAt: offer.expiresAt })
+      .where(and(eq(checkoutSessions.reservationId, reservation.id), inArray(checkoutSessions.status, ["open", "expired"])));
+    return { departureId, released: false };
+  }
+
+  await tx
+    .update(seatHolds)
+    .set({ status: "expired", releasedAt: now })
+    .where(and(eq(seatHolds.applicationId, applicationId), eq(seatHolds.status, "active")));
+  await tx
+    .update(checkoutSessions)
+    .set({ status: "expired" })
+    .where(and(eq(checkoutSessions.reservationId, reservation.id), eq(checkoutSessions.status, "open")));
+
+  if (offer) {
+    await tx
+      .update(waitlistEntries)
+      .set({ status: "expired", updatedAt: now })
+      .where(and(eq(waitlistEntries.id, offer.id), eq(waitlistEntries.status, "offered")));
+    await tx.insert(outboxEvents).values({
+      eventType: "waitlist.offer_expired",
+      aggregateType: "application",
+      aggregateId: applicationId,
+      payload: { applicationId, departureId },
+    });
+    return { departureId, released: true };
+  }
+
+  const [application] = await tx.select({ status: applications.status }).from(applications).where(eq(applications.id, applicationId)).limit(1);
+  if (application?.status === "approved") {
+    const [session] = await tx
+      .insert(checkoutSessions)
+      .values({ applicationId, departureId, expiresAt: new Date(now.getTime() + 7 * 24 * 3600_000) })
+      .returning({ id: checkoutSessions.id, expiresAt: checkoutSessions.expiresAt });
+    if (session) {
+      await tx.insert(outboxEvents).values({
+        eventType: "application.approved",
+        aggregateType: "application",
+        aggregateId: applicationId,
+        payload: { applicationId, checkoutSessionId: session.id, expiresAt: session.expiresAt.toISOString() },
+      });
     }
-    return { departureId: reservation.departureId, offerExpired };
-  });
-  if (result) {
+  }
+  return { departureId, released: true };
+}
+
+// Job : tentatives de paiement abandonnées (session provider expirée sans webhook d'expiration
+// ni paiement) → réservation annulée, hold libéré, liste d'attente notifiée. Idempotent.
+export async function expireStalePaymentAttempts(now = new Date()): Promise<number> {
+  const db = getDrizzle();
+  const cutoff = new Date(now.getTime() - PAYMENT_ATTEMPT_TTL_MINUTES * 60_000);
+  const candidates = await db
+    .select({ id: reservations.id, departureId: reservations.departureId })
+    .from(reservations)
+    .where(
+      and(
+        inArray(reservations.status, ["pending", "awaiting_payment"]),
+        isNotNull(reservations.applicationId),
+        lte(reservations.createdAt, cutoff),
+      ),
+    );
+  let released = 0;
+  const departures = new Set<string>();
+  for (const candidate of candidates) {
+    const [latest] = await db
+      .select({ createdAt: payments.createdAt })
+      .from(payments)
+      .where(eq(payments.reservationId, candidate.id))
+      .orderBy(desc(payments.createdAt))
+      .limit(1);
+    if (latest && latest.createdAt > cutoff) continue;
+    const result = await db.transaction(async (tx) => {
+      const [reservation] = await tx.select().from(reservations).where(eq(reservations.id, candidate.id)).for("update").limit(1);
+      if (!reservation) return null;
+      await lockDepartureForUpdate(reservation.departureId, tx);
+      return releaseUnpaidAttemptInTransaction(tx, reservation, now);
+    });
+    if (result?.released) {
+      released += 1;
+      departures.add(result.departureId);
+    }
+  }
+  if (released > 0) {
     await invalidateCache("trip:");
     await invalidateCache("trips:list");
-    if (result.offerExpired) await promoteNextWaitlistApplicant(result.departureId);
   }
+  for (const departureId of departures) await promoteWaitlist(departureId, now);
+  return released;
 }
 
 // Solde : pas de hold (places déjà converties), session provider directe (TODO §13.6).
@@ -561,5 +657,10 @@ export async function initiateBalancePayment(input: {
     await db.update(payments).set({ status: "failed", failedAt: new Date() }).where(eq(payments.id, payment.id)).catch(() => {});
     throw err;
   }
+  // La page de retour et le callback mock retrouvent la réservation par cette session.
+  await db
+    .update(payments)
+    .set({ metadata: { ...(payment.metadata ?? {}), providerSessionId: session.providerSessionId } })
+    .where(eq(payments.id, payment.id));
   return { paymentId: payment.id, checkoutUrl: session.checkoutUrl };
 }

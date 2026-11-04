@@ -1,0 +1,38 @@
+name: Voyage cron
+
+# Exécute les jobs voyage (expirations, liste d'attente, emails, rappels de solde).
+# Requiert les secrets APP_URL (origine publique, sans slash final) et CRON_SECRET.
+# La justesse métier ne dépend pas de la fréquence (holds expirés non comptés, file
+# d'attente protégée sous verrou) : la fréquence ne règle que la latence des emails.
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: voyage-cron
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call /api/cron/voyage
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "APP_URL / CRON_SECRET non configurés : cron ignoré."
+            exit 0
+          fi
+          response=$(curl --fail --silent --show-error --max-time 120 -X POST \
+            -H "Authorization: Bearer $CRON_SECRET" "$APP_URL/api/cron/voyage")
+          echo "$response"
+          if echo "$response" | grep -Eq '"errors":\{[^}]'; then
+            echo "::warning::Un job voyage a échoué (voir errors)."
+          fi

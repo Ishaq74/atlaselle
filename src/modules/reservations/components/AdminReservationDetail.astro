@@ -15,7 +15,7 @@ interface Props {
 }
 
 const { detail, locale, canCancel, canRefund } = Astro.props;
-const { reservation, traveler, payments, tripTitle } = detail;
+const { reservation, traveler, payments, tripTitle, activeHoldExpiresAt } = detail;
 const dict = getAdminDict(locale);
 const t = dict.reservations;
 const c = dict.common;
@@ -54,6 +54,12 @@ const refundable = payments.some((p) => p.status === "paid" || p.status === "par
         <div class="flex justify-between border-t pt-2 font-semibold"><dt>{col.total}</dt><dd>{fmt(reservation.totalAmount)}</dd></div>
         <div class="flex justify-between"><dt class="text-muted-foreground">{col.paid}</dt><dd>{fmt(reservation.amountPaid)}</dd></div>
         <div class="flex justify-between"><dt class="text-muted-foreground">{t.balance}</dt><dd>{fmt(reservation.amountDue)}</dd></div>
+        {reservation.amountDue > 0 && reservation.balanceDueDate ? (
+          <div class="flex justify-between"><dt class="text-muted-foreground">{t.balanceDueDate}</dt><dd>{reservation.balanceDueDate.toISOString().slice(0, 10)}</dd></div>
+        ) : null}
+        {activeHoldExpiresAt ? (
+          <div class="flex justify-between"><dt class="text-muted-foreground">{t.seatHold}</dt><dd>{activeHoldExpiresAt.toISOString().slice(0, 16).replace("T", " ")}</dd></div>
+        ) : null}
       </dl>
       <div class="mt-4 flex flex-wrap gap-2">
         {canCancel && cancellable ? <Button variant="error" size="sm" data-cancel>{t.cancel}</Button> : null}

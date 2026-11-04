@@ -2,6 +2,8 @@ import { and, eq, gt, inArray, lte } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { invalidateCache } from "@database/cache";
 import { seatHolds, SEAT_HOLD_TTL_MINUTES } from "@database/schemas/departures.schema";
+import { applications } from "@database/schemas/applications.schema";
+import { waitlistEntries } from "@database/schemas/waitlist.schema";
 import { getDepartureById, getActiveHoldsByDeparture, lockDepartureForUpdate } from "@/modules/departures/repositories/departure.repository";
 import { countConfirmedByDeparture } from "@/modules/reservations/repositories/reservation.repository";
 import { availableSeats, canHold } from "./availability";
@@ -18,6 +20,22 @@ export type AvailabilityTransaction = Parameters<Parameters<Db["transaction"]>[0
 type DbScope = Db | AvailabilityTransaction;
 
 const BOOKABLE_STATUSES = ["open", "limited"] as const;
+
+// Candidats éligibles encore en attente (hors `exceptApplicationId`) : chacun a priorité sur une place libre.
+async function countWaitingCandidates(departureId: string, exceptApplicationId: string | null, tx: AvailabilityTransaction): Promise<number> {
+  const rows = await tx
+    .select({ applicationId: waitlistEntries.applicationId })
+    .from(waitlistEntries)
+    .innerJoin(applications, eq(applications.id, waitlistEntries.applicationId))
+    .where(
+      and(
+        eq(waitlistEntries.departureId, departureId),
+        eq(waitlistEntries.status, "waiting"),
+        inArray(applications.status, ["submitted", "approved"]),
+      ),
+    );
+  return rows.filter((r) => r.applicationId !== exceptApplicationId).length;
+}
 
 export interface AvailabilitySnapshot {
   departureId: string;
@@ -97,7 +115,12 @@ export async function holdSeatsInTransaction(
   const heldSeats = holds
     .filter((h) => h.expiresAt.getTime() > now.getTime())
     .reduce((n, h) => n + h.quantity, 0);
-  if (!canHold({ capacityMax: dep.capacityMax, confirmedSeats, heldSeats }, quantity)) {
+  // FIFO strict : sous le verrou du départ, chaque candidat en attente (hors le demandeur)
+  // réserve une place libre. Seule une proposition de liste d'attente (allowWaitlist) passe
+  // devant : elle sert précisément ces candidats. Aucune fenêtre entre libération et promotion.
+  const queuedAhead = input.allowWaitlist ? 0 : await countWaitingCandidates(departureId, input.applicationId ?? null, tx);
+  const free = availableSeats({ capacityMax: dep.capacityMax, confirmedSeats, heldSeats });
+  if (!canHold({ capacityMax: dep.capacityMax, confirmedSeats, heldSeats }, quantity) || free - queuedAhead < quantity) {
     throw codedError("DEPARTURE_SOLD_OUT", "Plus de place disponible sur ce départ.");
   }
   const [hold] = await tx

@@ -6,6 +6,7 @@ import { departures } from "@database/schemas";
 import { pricingRulesSchema } from "@/modules/pricing/domain/pricing";
 import { assertTransitionDeparture } from "@/modules/departures/domain/departure-transitions";
 import type { DepartureStatus } from "@database/schemas/departures.schema";
+import { WAITLIST_OFFER_MAX_TTL_HOURS } from "@database/schemas/waitlist.schema";
 import { assertVoyagePermission, assertTripExists, assertFresh, auditVoyage, invalidateVoyageCache } from "./_helpers";
 import { assertStateTransition } from "./transition-errors";
 
@@ -37,6 +38,7 @@ export const departureInput = z.object({
   pricingRules: pricingRulesSchema.optional(),
   balanceDueDate: z.coerce.date().nullable().optional(),
   bookingDeadline: z.coerce.date().nullable().optional(),
+  waitlistOfferTtlHours: z.number().int().min(1).max(WAITLIST_OFFER_MAX_TTL_HOURS).optional(),
   arrivalAirport: z.string().max(8).nullable().optional(),
   departureAirport: z.string().max(8).nullable().optional(),
 });

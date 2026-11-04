@@ -48,9 +48,22 @@ services:
       SMTP_HOST: mailpit
       SMTP_PORT: 1025
       TRUST_PROXY: "true"
+      CRON_SECRET: dev-cron-secret-replace-in-production
     volumes:
       - uploads:/app/public/uploads
       - logs:/app/logs
+
+  # Ordonnanceur local : appelle /api/cron/voyage toutes les 5 minutes.
+  cron:
+    image: curlimages/curl:latest
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      CRON_SECRET: dev-cron-secret-replace-in-production
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - 'while true; do curl -fsS -X POST -H "Authorization: Bearer $$CRON_SECRET" http://app:4321/api/cron/voyage > /dev/null || echo "cron voyage failed"; sleep 300; done'
 
   # Optional: local mail catcher (UI on http://localhost:8025)
   mailpit:

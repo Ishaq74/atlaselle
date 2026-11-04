@@ -6,7 +6,9 @@ import { departures } from "./departures.schema";
 export const WAITLIST_STATUSES = ["waiting", "offered", "promoted", "expired", "removed"] as const;
 export type WaitlistStatus = (typeof WAITLIST_STATUSES)[number];
 
-export const WAITLIST_OFFER_TTL_MINUTES = 30;
+// Durée par défaut d'une proposition de place ; réglable par départ (departures.waitlist_offer_ttl_hours).
+export const WAITLIST_OFFER_DEFAULT_TTL_HOURS = 48;
+export const WAITLIST_OFFER_MAX_TTL_HOURS = 24 * 30;
 
 export const waitlistEntries = pgTable(
   "waitlist_entries",
@@ -25,9 +27,6 @@ export const waitlistEntries = pgTable(
   (table) => [
     check("waitlist_entries_status_ck", sql`${table.status} in ('waiting', 'offered', 'promoted', 'expired', 'removed')`),
     uniqueIndex("waitlist_application_uidx").on(table.applicationId),
-    uniqueIndex("waitlist_one_offer_per_departure_uidx")
-      .on(table.departureId)
-      .where(sql`${table.status} = 'offered'`),
     index("waitlist_fifo_idx").on(table.departureId, table.status, table.joinedAt, table.id),
     index("waitlist_offer_expiry_idx").on(table.status, table.expiresAt),
   ],

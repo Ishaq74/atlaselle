@@ -32,7 +32,7 @@ _يتم إنشاء هذا الملف تلقائيًا لتوفير سياق شا
 - 📁 **الوسائط** — رفع، معالجة Sharp، تنظيم المجلدات
 - 📧 **SMTP** — Brevo / Resend / Nodemailer + قائمة انتظار الرسائل الميتة
 - 🛡️ **الأمان** — سجل تدقيق، تحديد معدل الطلبات، تطهير المدخلات
-- ✅ **الاختبارات** — 182 Vitest + 29 E2E × 3 متصفحات
+- ✅ **الاختبارات** — 184 Vitest + 30 E2E × 3 متصفحات
 
 ### المجموعة التقنية
 
@@ -397,6 +397,7 @@ migrations/
   0004_gallery_caption_i18n.sql
   0005_media_responsive_variants.sql
   0006_waitlist_entries.sql
+  0007_waitlist_offer_ttl.sql
   meta/
     0000_snapshot.json
     0001_snapshot.json
@@ -550,7 +551,7 @@ schemas.ts
 - `itinerary_day_translations`: `id`, `dayId`, `locale`, `title`, `morning`, `afternoon`, `evening`, `meals`, `accommodation`, `transfer`, `notes`, `updatedAt`
 
 **departures.schema.ts**
-- `departures`: `id`, `tripId`, `startDate`, `endDate`, `status`, `capacityMin`, `capacityMax`, `priceAmount`, `currency`, `depositType`, `depositAmount`, `depositPercent`, `singleSupplementType`, `singleSupplementAmount`, `taxType`, `taxAmount`, `feeType`, `feeAmount`, `discountType`, `discountAmount`, `pricingRules`, `balanceDueDate`, `bookingDeadline`, `arrivalAirport`, `departureAirport`, `createdAt`, `updatedAt` _(holds: many, trip: one)_
+- `departures`: `id`, `tripId`, `startDate`, `endDate`, `status`, `capacityMin`, `capacityMax`, `priceAmount`, `currency`, `depositType`, `depositAmount`, `depositPercent`, `singleSupplementType`, `singleSupplementAmount`, `taxType`, `taxAmount`, `feeType`, `feeAmount`, `discountType`, `discountAmount`, `pricingRules`, `balanceDueDate`, `bookingDeadline`, `waitlistOfferTtlHours`, `arrivalAirport`, `departureAirport`, `createdAt`, `updatedAt` _(holds: many, trip: one)_
 - `seat_holds`: `id`, `departureId`, `applicationId`, `quantity`, `status`, `expiresAt`, `createdAt`, `releasedAt`
 
 **travelers.schema.ts**
@@ -596,6 +597,7 @@ schemas.ts
 - `0004_gallery_caption_i18n.sql`
 - `0005_media_responsive_variants.sql`
 - `0006_waitlist_entries.sql`
+- `0007_waitlist_offer_ttl.sql`
 
 ### الأوامر
 
@@ -1527,6 +1529,7 @@ skills/
 workflows/
   ci.yml
   codeql.yml
+  voyage-cron.yml
 ```
 
 ### خط الأنابيب

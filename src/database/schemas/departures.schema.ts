@@ -54,6 +54,7 @@ export const departures = pgTable(
     pricingRules: jsonb("pricing_rules").$type<Record<string, unknown>>().default({}).notNull(),
     balanceDueDate: timestamp("balance_due_date"),
     bookingDeadline: timestamp("booking_deadline"),
+    waitlistOfferTtlHours: integer("waitlist_offer_ttl_hours").default(48).notNull(),
     arrivalAirport: varchar("arrival_airport", { length: 8 }),
     departureAirport: varchar("departure_airport", { length: 8 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -68,6 +69,7 @@ export const departures = pgTable(
     check("departures_price_ck", sql`${table.priceAmount} >= 0`),
     check("departures_balance_due_ck", sql`${table.balanceDueDate} IS NULL OR ${table.balanceDueDate} < ${table.startDate}`),
     check("departures_booking_deadline_ck", sql`${table.bookingDeadline} IS NULL OR ${table.bookingDeadline} < ${table.startDate}`),
+    check("departures_waitlist_offer_ttl_ck", sql`${table.waitlistOfferTtlHours} BETWEEN 1 AND 720`),
     check("departures_deposit_percent_ck", sql`${table.depositPercent} >= 0 AND ${table.depositPercent} <= 100`),
   ],
 );

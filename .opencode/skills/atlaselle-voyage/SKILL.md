@@ -37,6 +37,7 @@ Règles d'isolement : **zéro import DB croisé**, communication via interfaces 
 - `PricingService` : entrée (departure, traveler, chambre, devise) → base/supplement/discount/tax/fee/total/deposit/solde, **centimes**, recalculé serveur au checkout ET au webhook.
 - `AvailabilityService` : `getAvailability/holdSeats/releaseSeats/confirmSeats`, `confirmedSeats + heldSeats ≤ capacityMax`, transaction `SELECT … FOR UPDATE`.
 - Tunnel : approbation → checkout (lien signé, TTL 7 j) → snapshot prix → hold → session paiement → provider → webhook → confirmation → hold converti → email. Solde = total − payé. `cancelReservation()` : politique + inventaire + notifications + audit.
+- Inscription automatique, liste d'attente FIFO (`waitlist-service.ts`, offre 48 h réglable par départ), tentatives de paiement abandonnées (`expireStalePaymentAttempts`) et calendrier de rappels de solde (J+2, mensuel, J-7 de l'échéance = départ − 2 mois) : voir `docs/voyage-booking-flow.md`.
 - Paiement = module générique + adaptateur **Stripe** (pas `better-auth-stripe`). Idempotence partout (voir `atlaselle-actions` §4).
 
 ## 5. Ordre imposé (TODO §31)

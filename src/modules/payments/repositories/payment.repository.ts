@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { checkoutSessions, payments } from "@database/schemas/payments.schema";
 
@@ -20,6 +20,13 @@ export async function getCheckoutByProviderSessionId(providerSessionId: string, 
 export async function getPaymentByReservationId(reservationId: string, dbOverride?: Db): Promise<(typeof payments.$inferSelect) | null> {
   const db = dbOverride ?? getDrizzle();
   const [row] = await db.select().from(payments).where(eq(payments.reservationId, reservationId)).limit(1);
+  return row ?? null;
+}
+
+/** Paiement du solde : la session provider est portée par `payments.metadata.providerSessionId` (pas de checkout). */
+export async function getPaymentByProviderSessionId(providerSessionId: string, dbOverride?: Db): Promise<(typeof payments.$inferSelect) | null> {
+  const db = dbOverride ?? getDrizzle();
+  const [row] = await db.select().from(payments).where(sql`${payments.metadata}->>'providerSessionId' = ${providerSessionId}`).limit(1);
   return row ?? null;
 }
 

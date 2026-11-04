@@ -17,8 +17,8 @@ metadata:
 
 ## 2. Programme voyage (à créer, TODO §14)
 
-Tables : `email_templates` / `email_deliveries` / `email_events` (états `queued, sending, sent, failed, retrying, dead_letter`). 11 templates × 4 langues, versionnés : `application_received`, `application_approved`, `application_contact_required`, `application_declined`, `checkout_started`, `payment_received`, `booking_confirmed`, `balance_due`, `balance_reminder`, `pre_trip_preparation`, `pre_trip_reminder`, `post_trip_followup`.
-Jobs : `processEmailQueue`, `processEmailRetries` (+ `expireSeatHolds`, `expireCheckoutSessions`, `sendBalanceReminders`, `sendPreTripReminders` — pattern `src/pages/api/cron/publish.ts` + `pnpm db:cleanup-audit` à étendre).
+Tables : `email_templates` / `email_deliveries` / `email_events` (états `queued, sending, sent, failed, retrying, dead_letter`). 16 templates × 4 langues, versionnés : `application_received`, `application_approved`, `application_contact_required`, `application_declined`, `waitlist_joined`, `waitlist_offer`, `waitlist_offer_expired`, `checkout_started`, `payment_received`, `booking_confirmed`, `balance_due`, `balance_reminder` (J+2 / mensuel), `balance_final_reminder` (J-7 de l'échéance), `pre_trip_preparation`, `pre_trip_reminder`, `post_trip_followup`.
+Jobs (un seul cron `/api/cron/voyage`, ordre et règles dans `docs/voyage-booking-flow.md`) : `expireStalePaymentAttempts`, `expireHolds`, `expireCheckoutSessions`, `expireWaitlistOffers`, `promoteWaitingApplicants`, `markBalanceDue`, `processEmailOutboxBatch` (+ retries), `sendBalanceReminders`, `sendTripReminders`. Rappels : dédup `balance:<reservation>:<date>`, calendrier stable depuis `confirmedAt`.
 Canal V1 = email uniquement (`NotificationService`, extension SMS/WhatsApp future). Outbox pattern : voir `atlaselle-voyage`.
 
 ## 3. Modes dégradés

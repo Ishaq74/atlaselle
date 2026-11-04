@@ -719,6 +719,7 @@ expireSeatHolds, expireCheckoutSessions, sendBalanceReminders, sendPreTripRemind
 processEmailQueue, processEmailRetries, processMedia, cleanupExpiredSessions,
 cleanupOldAuditEntries, refreshAggregates
 Le repo a déjà src/pages/api/cron/publish.ts et pnpm db:cleanup-audit — pattern à étendre.
+✅ Implémenté (cron unique `/api/cron/voyage`) : expireStalePaymentAttempts, expireHolds, expireCheckoutSessions, expireApplications, expireWaitlistOffers, promoteWaitingApplicants, markBalanceDue, outbox email, sendBalanceReminders (J+2, mensuel, J-7 échéance), sendTripReminders. Règles détaillées : docs/voyage-booking-flow.md.
 
 14.3 NotificationService
 Canal V1 : email. Extension future : SMS, WhatsApp, push.

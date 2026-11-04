@@ -1,7 +1,7 @@
 import { and, eq, lte, sql } from "drizzle-orm";
 import { getDrizzle } from "@database/drizzle";
 import { invalidateCache } from "@database/cache";
-import { reservations, reservationPriceSnapshots, outboxEvents } from "@database/schemas";
+import { reservations, reservationPriceSnapshots, outboxEvents, seatHolds, waitlistEntries } from "@database/schemas";
 import { getDepartureById } from "@/modules/departures/repositories/departure.repository";
 import { cancelOpenCheckoutsForReservation } from "@/modules/payments/repositories/payment.repository";
 import { getReservationById } from "@/modules/reservations/repositories/reservation.repository";
@@ -11,7 +11,7 @@ import type { PricingBreakdown } from "@/modules/pricing/domain/pricing";
 import { subtractCalendarMonths } from "@/modules/pricing/domain/pricing";
 import { quoteCancellation } from "./cancellation-policy";
 import { emitOutboxEvent } from "@/modules/outbox/domain/outbox";
-import { promoteNextWaitlistApplicant } from "@/modules/applications/domain/waitlist-service";
+import { promoteWaitlist } from "@/modules/applications/domain/waitlist-service";
 
 // Numéro lisible unique : ATL-2027-XXXXXX.
 export function newReservationNumber(now = new Date()): string {
@@ -111,15 +111,16 @@ export async function applyPaymentToReservation(reservationId: string, paidAmoun
   } else {
     throw new Error(`Paiement impossible sur réservation ${from}.`);
   }
+  const now = new Date();
   const [updated] = await db
     .update(reservations)
     .set({
       status,
       amountPaid,
       amountDue,
-      confirmedAt: current.confirmedAt ?? new Date(),
-      ...(from === "awaiting_payment" && amountDue > 0 && current.balanceDueDate && current.balanceDueDate < new Date()
-        ? { balanceDueDate: new Date() }
+      confirmedAt: current.confirmedAt ?? now,
+      ...(from === "awaiting_payment" && amountDue > 0 && current.balanceDueDate && current.balanceDueDate < now
+        ? { balanceDueDate: now }
         : {}),
     })
     .where(eq(reservations.id, reservationId))
@@ -144,6 +145,17 @@ export async function cancelReservation(reservationId: string, now = new Date())
     .returning();
   // Les liens checkout ouverts ne doivent plus aboutir sur un dossier annulé.
   await cancelOpenCheckoutsForReservation(reservationId, db);
+  // Un hold encore actif (réservation non payée) est libéré avec la réservation.
+  if (current.applicationId) {
+    await db
+      .update(seatHolds)
+      .set({ status: "released", releasedAt: now })
+      .where(and(eq(seatHolds.applicationId, current.applicationId), eq(seatHolds.status, "active")));
+    await db
+      .update(waitlistEntries)
+      .set({ status: "expired", updatedAt: now })
+      .where(and(eq(waitlistEntries.applicationId, current.applicationId), eq(waitlistEntries.status, "offered")));
+  }
   // L'annulation libère la place.
   await invalidateCache("trip:");
   await invalidateCache("trips:list");
@@ -153,7 +165,7 @@ export async function cancelReservation(reservationId: string, now = new Date())
     aggregateId: reservationId,
     payload: { reservationId, refundAmount: quote?.refundAmount ?? 0, tier: quote?.tier ?? "none" },
   });
-  if (updated) await promoteNextWaitlistApplicant(current.departureId, now);
+  if (updated) await promoteWaitlist(current.departureId, now);
   return { reservation: updated, refundAmount: quote?.refundAmount ?? 0, tier: quote?.tier ?? "none" as const };
 }
 

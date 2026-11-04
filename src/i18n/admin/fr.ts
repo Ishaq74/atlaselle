@@ -190,6 +190,8 @@ const fr = {
     due: "Dû",
     payments: "Paiements",
     refund: "Rembourser",
+    balanceDueDate: "Date limite du solde",
+    seatHold: "Place retenue jusqu'au",
   },
   payments: {
     title: "Paiements",
@@ -376,6 +378,7 @@ const fr = {
       discount: "Remise (centimes)",
       balanceDueDate: "Date du solde",
       bookingDeadline: "Date limite de réservation",
+      waitlistOfferTtlHours: "Validité d'une proposition de place (heures)",
       pricingRules: "Règles de tarif (JSON)",
       advancedPricingRules: "Règles de tarif avancées (JSON)",
       earlyBirdTitle: "Early bird (réservation anticipée)",
