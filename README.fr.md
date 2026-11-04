@@ -32,7 +32,7 @@ Application web SSR multi-langue avec authentification complète, gestion d'orga
 - 📁 **Médias** — Upload, traitement Sharp, organisation en dossiers
 - 📧 **SMTP** — Brevo / Resend / Nodemailer + file morte de mails
 - 🛡️ **Sécurité** — Audit trail, rate limiting, sanitization des inputs
-- ✅ **Tests** — 188 Vitest + 31 E2E × 3 navigateurs
+- ✅ **Tests** — 190 Vitest + 31 E2E × 3 navigateurs
 
 ### Stack technique
 
@@ -278,15 +278,18 @@ commands/
   db.clean-media.ts
   db.cleanup-audit.ts
   db.compare.ts
+  db.erasure-ledger.ts
   db.generate.ts
   db.infra.ts
   db.migrate.ts
+  db.replay-erasures.ts
   db.reset.ts
   db.restore-test.ts
   db.seed-media.ts
   db.seed.ts
   db.sync.ts
   _backup.ts
+  _erasure.ts
   _migration-sql.ts
   _utils.ts
 data/
@@ -619,6 +622,8 @@ schemas.ts
 | `pnpm db:cleanup-audit` |
 | `pnpm db:backup` |
 | `pnpm db:restore-test` |
+| `pnpm db:erasure-ledger` |
+| `pnpm db:replay-erasures` |
 | `pnpm db:backfill-variants` |
 
 ### Tests

@@ -35,6 +35,10 @@ pnpm db:restore-test -- --keep                   # conserve la base jetable pour
 
 **Test de restauration.** Vérifie le SHA-256, crée `restore_drill_<horodatage>_<aléa>` (nom validé par un garde-fou : aucune autre base ne peut être créée ni supprimée), restaure avec `pg_restore --no-owner --no-acl --exit-on-error`, relève les mêmes comptes sur la base restaurée et les compare à ceux du manifeste (tables manquantes ou en trop, lignes, journal des migrations). Supprime la base jetable (sauf `--keep`). Code de sortie `1` au moindre écart.
 
+## Effacements RGPD
+
+Une restauration ressuscite les personnes effacées après le dump. Rejouer le registre hors base **avant de rebasculer le trafic** : [erasure-ledger.md](erasure-ledger.md) (`pnpm db:replay-erasures`).
+
 ## Sécurité
 
 Les dumps contiennent des données personnelles : chiffrement et transfert hors serveur obligatoires, jamais en artefact de CI.

@@ -67,3 +67,6 @@ logs/
 *.csv
 # Sauvegardes logiques (db:backup) : données personnelles, ne jamais versionner
 backups/
+
+# Registre d'effacements RGPD (src/lib/erasure-ledger.ts) : propre à chaque environnement, jamais versionné
+/data/

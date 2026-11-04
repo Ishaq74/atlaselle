@@ -52,6 +52,7 @@ services:
     volumes:
       - uploads:/app/public/uploads
       - logs:/app/logs
+      - erasure:/app/data
 
   # Ordonnanceur local : appelle /api/cron/voyage toutes les 5 minutes.
   cron:
@@ -77,3 +78,5 @@ volumes:
   pgdata:
   uploads:
   logs:
+  # Registre d'effacements RGPD : ne jamais supprimer ce volume (docs/database/erasure-ledger.md).
+  erasure:

@@ -42,8 +42,8 @@ COPY --from=builder --chown=atlaselle:atlaselle /app/src/database/migrations ./s
 COPY --from=builder --chown=atlaselle:atlaselle /app/src/database/infra ./src/database/infra
 
 # Create directories for uploads and logs with correct ownership
-RUN mkdir -p /app/public/uploads /app/logs && \
-    chown -R atlaselle:atlaselle /app/public /app/logs
+RUN mkdir -p /app/public/uploads /app/logs /app/data && \
+    chown -R atlaselle:atlaselle /app/public /app/logs /app/data
 
 # Switch to non-root
 USER atlaselle

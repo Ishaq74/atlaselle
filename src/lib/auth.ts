@@ -14,6 +14,13 @@ import { resetPasswordTemplate } from "@smtp/templates/reset-password";
 import { deleteAccountTemplate } from "@smtp/templates/delete-account";
 import { deleteUpload } from "@/media/delete";
 import { logAuditEvent, extractIp, type AuditAction } from "@/lib/audit";
+import { recordErasureSafe } from "@/lib/erasure-ledger";
+
+/** Inscrit une suppression de compte au registre hors base ; alerte l'audit si l'écriture échoue. */
+async function recordUserErasure(subject: string, actor: string | null): Promise<void> {
+  const recorded = await recordErasureSafe({ kind: "user.delete", subject, actor, source: "hook" });
+  if (!recorded) await logAuditEvent({ userId: actor, action: "ERASURE_LEDGER_FAILED", resource: "user", resourceId: subject });
+}
 
 /** Extract locale from a callback URL like https://…/{locale}/auth/… */
 function extractLocale(url: string): Locale {
@@ -100,6 +107,10 @@ export const auth = betterAuth({
           } catch { /* file may already be gone */ }
         }
       },
+      // Après suppression effective : le compte doit rester supprimé si la base est restaurée.
+      afterDelete: async (user) => {
+        await recordUserErasure(user.id, user.id);
+      },
     },
   },
   hooks: {
@@ -174,6 +185,11 @@ export const auth = betterAuth({
             body[key] = value;
           }
         }
+      }
+
+      // Suppression par un administrateur (action ou appel direct à l'API) : même registre.
+      if (auditPath === '/admin/remove-user' && body.userId) {
+        ctx.context.runInBackground(recordUserErasure(body.userId, userId));
       }
 
       ctx.context.runInBackground(
