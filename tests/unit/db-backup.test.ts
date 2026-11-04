@@ -7,6 +7,7 @@ import {
   parseMajor,
   pgEnv,
   pgToolCandidates,
+  pickTool,
   scratchDatabaseName,
   timestampSlug,
   withDatabase,
@@ -74,6 +75,19 @@ describe('outils PostgreSQL', () => {
     expect(parseMajor('17.2')).toBe(17);
     expect(parseMajor('16.4 (Debian 16.4-1)')).toBe(16);
     expect(parseMajor('n/a')).toBe(0);
+  });
+
+  it('choisit la version majeure la plus proche du serveur, jamais la plus récente', () => {
+    const tools = [
+      { path: 'a', version: '17.2', major: 17 },
+      { path: 'b', version: '16.4', major: 16 },
+      { path: 'c', version: '14.1', major: 14 },
+    ];
+    expect(pickTool(tools, 16)?.path).toBe('b');
+    expect(pickTool(tools, 15)?.path).toBe('b');
+    expect(pickTool(tools, 17)?.path).toBe('a');
+    expect(pickTool(tools, 18)).toBeNull();
+    expect(pickTool([], 0)).toBeNull();
   });
 
   it('classe les candidats : PG_BIN_DIR, PATH, puis versions installées de la plus récente', () => {

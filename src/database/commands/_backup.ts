@@ -148,22 +148,35 @@ export interface PgTool {
   major: number;
 }
 
+/**
+ * Choisit l'outil de version majeure la plus PROCHE du serveur (la plus petite ≥ `minMajor`).
+ * Prendre le plus récent est faux : un dump produit par pg_dump 17+ contient des commandes
+ * (`SET transaction_timeout`) que PostgreSQL 16 refuse à la restauration.
+ */
+export function pickTool(tools: PgTool[], minMajor: number): PgTool | null {
+  let best: PgTool | null = null;
+  for (const tool of tools) {
+    if (tool.major >= minMajor && (best === null || tool.major < best.major)) best = tool;
+  }
+  return best;
+}
+
 export async function locatePgTool(tool: 'pg_dump' | 'pg_restore', minMajor = 0): Promise<PgTool> {
   const tried: string[] = [];
-  let best: PgTool | null = null;
+  const found: PgTool[] = [];
   for (const candidate of pgToolCandidates(tool)) {
     try {
       const { stdout } = await execFileAsync(candidate, ['--version']);
       const version = stdout.trim();
-      const major = parseMajor(version.replace(/^.*\)\s*/, ''));
-      if (major >= minMajor && (best === null || major > best.major)) best = { path: candidate, version, major };
+      found.push({ path: candidate, version, major: parseMajor(version.replace(/^.*\)\s*/, '')) });
     } catch {
       tried.push(candidate);
     }
   }
+  const best = pickTool(found, minMajor);
   if (best) return best;
   throw new Error(
-    `${tool} (version majeure ≥ ${minMajor}) introuvable. Installez le client PostgreSQL ou définissez PG_BIN_DIR. ` +
+    `${tool} (version majeure ≥ ${minMajor}) introuvable. Installez le client PostgreSQL ${minMajor || ''} ou définissez PG_BIN_DIR. ` +
       `Essayé : ${[...new Set(tried)].join(', ') || '(aucun candidat exécutable)'}`,
   );
 }
@@ -211,8 +224,11 @@ export async function createBackup({ url, dir, log = () => {} }: BackupOptions):
   const client = new Client({ connectionString: url });
   await client.connect();
   try {
-    const serverVersion = (await client.query<{ v: string }>('SHOW server_version')).rows[0].v;
+    const serverVersion = (await client.query<{ v: string }>("SELECT current_setting('server_version') AS v")).rows[0].v;
     const dumpTool = await locatePgTool('pg_dump', parseMajor(serverVersion));
+    if (dumpTool.major !== parseMajor(serverVersion)) {
+      log(`⚠️ pg_dump ${dumpTool.major} ≠ serveur ${parseMajor(serverVersion)} : le dump pourra être refusé par un serveur plus ancien. Installez le client ${parseMajor(serverVersion)}.`);
+    }
 
     // Transaction figée : l'instantané exporté est celui que pg_dump lit, et les comptes
     // de référence sont pris dans le même état → la comparaison ne dépend pas du trafic.
@@ -299,8 +315,11 @@ export async function runRestoreDrill({ file, adminUrl, keep = false, log = () =
   let tables = 0;
   let rows = 0;
   try {
-    const serverMajor = parseMajor((await adminClient.query<{ v: string }>('SHOW server_version')).rows[0].v);
+    const serverMajor = parseMajor((await adminClient.query<{ v: string }>("SELECT current_setting('server_version') AS v")).rows[0].v);
     const restoreTool = await locatePgTool('pg_restore', serverMajor);
+    if (restoreTool.major !== serverMajor) {
+      log(`⚠️ pg_restore ${restoreTool.major} ≠ serveur ${serverMajor} : installez le client ${serverMajor} pour un exercice fidèle.`);
+    }
 
     log(`Création de la base jetable ${scratch}…`);
     try {

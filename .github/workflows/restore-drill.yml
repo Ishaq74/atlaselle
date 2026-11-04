@@ -70,11 +70,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: PostgreSQL 16 client tools
+        # Le client doit avoir la même version majeure que le serveur du service (16) :
+        # un pg_dump plus récent produit des dumps qu'un serveur 16 refuse de restaurer.
         run: |
-          if ! command -v pg_dump >/dev/null 2>&1 && [ ! -x /usr/lib/postgresql/16/bin/pg_dump ]; then
+          if [ ! -x /usr/lib/postgresql/16/bin/pg_dump ] || [ ! -x /usr/lib/postgresql/16/bin/pg_restore ]; then
             sudo apt-get update
             sudo apt-get install -y postgresql-client-16
           fi
+          /usr/lib/postgresql/16/bin/pg_dump --version
 
       - name: Migrations, infra and seed
         run: |

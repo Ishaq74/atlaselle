@@ -17,7 +17,7 @@ pnpm db:restore-test -- --keep                   # conserve la base jetable pour
 
 ## Prérequis
 
-- Client PostgreSQL (`pg_dump`, `pg_restore`) de version **majeure ≥ celle du serveur**. Recherche dans `PG_BIN_DIR`, le `PATH`, `C:\Program Files\PostgreSQL\<v>\bin` (Windows) et `/usr/lib/postgresql/<v>/bin` (Linux) ; la version la plus récente exploitable est retenue.
+- Client PostgreSQL (`pg_dump`, `pg_restore`) de **même version majeure que le serveur** (à défaut, la plus proche version supérieure, avec un avertissement). Ne jamais utiliser un client plus récent « par défaut » : un dump produit par `pg_dump` 17+ contient des commandes (`SET transaction_timeout`) qu'un serveur 16 refuse de restaurer. Recherche dans `PG_BIN_DIR`, le `PATH`, `C:\Program Files\PostgreSQL\<v>\bin` (Windows) et `/usr/lib/postgresql/<v>/bin` (Linux).
 - Pour `db:restore-test` : droit `CREATEDB` sur le serveur de restauration.
 
 ## Variables d'environnement

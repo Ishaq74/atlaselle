@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { Client } from 'pg';
 import { getDbUrl } from '@database/env';
-import { createBackup, locatePgTool, runRestoreDrill, withDatabase, type BackupManifest } from '@database/commands/_backup';
+import { createBackup, locatePgTool, parseMajor, runRestoreDrill, withDatabase, type BackupManifest } from '@database/commands/_backup';
 
 /**
  * Exercice réel sauvegarde → restauration sur une base source JETABLE créée ici
@@ -21,10 +21,15 @@ let admin: Client;
 
 beforeAll(async () => {
   try {
-    await locatePgTool('pg_dump');
-    await locatePgTool('pg_restore');
     admin = new Client({ connectionString: serverUrl });
     await admin.connect();
+    // Même version majeure que le serveur, sinon le résultat dépendrait de la machine
+    // (pg_dump 17+ écrit des commandes que PostgreSQL 16 refuse). Le job « Restore drill »
+    // installe le client exact et fait foi.
+    const major = parseMajor((await admin.query<{ v: string }>("SELECT current_setting('server_version') AS v")).rows[0].v);
+    const dump = await locatePgTool('pg_dump', major);
+    const restore = await locatePgTool('pg_restore', major);
+    if (dump.major !== major || restore.major !== major) return;
     await admin.query(`CREATE DATABASE "${sourceName}"`);
   } catch {
     return;
