@@ -32,7 +32,7 @@ SSR multi-language web application with complete authentication, organisation ma
 - 📁 **Media** — Upload, Sharp image processing, folder organisation
 - 📧 **SMTP** — Brevo / Resend / Nodemailer + dead-letter queue
 - 🛡️ **Security** — Audit trail, rate limiting, input sanitization
-- ✅ **Testing** — 184 Vitest + 30 E2E Playwright scenarios × 3 browsers
+- ✅ **Testing** — 188 Vitest + 31 E2E Playwright scenarios × 3 browsers
 
 ### Tech Stack
 
@@ -168,6 +168,7 @@ blog/
 content/
   ContentEditor.astro
   RichContent.astro
+FormFlash.astro
 molecules/
   AdminPagination/
   AdminResourceStats.astro
@@ -272,6 +273,7 @@ src/database/
 cache.ts
 commands/
   db.backfill-variants.ts
+  db.backup.ts
   db.check.ts
   db.clean-media.ts
   db.cleanup-audit.ts
@@ -280,9 +282,11 @@ commands/
   db.infra.ts
   db.migrate.ts
   db.reset.ts
+  db.restore-test.ts
   db.seed-media.ts
   db.seed.ts
   db.sync.ts
+  _backup.ts
   _migration-sql.ts
   _utils.ts
 data/
@@ -613,6 +617,8 @@ schemas.ts
 | `pnpm db:seed-media` |
 | `pnpm db:sync` |
 | `pnpm db:cleanup-audit` |
+| `pnpm db:backup` |
+| `pnpm db:restore-test` |
 | `pnpm db:backfill-variants` |
 
 ### Tests
@@ -1529,6 +1535,7 @@ skills/
 workflows/
   ci.yml
   codeql.yml
+  restore-drill.yml
   voyage-cron.yml
 ```
 

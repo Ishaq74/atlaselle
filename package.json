@@ -25,6 +25,8 @@
     "db:seed-media": "npx tsx src/database/commands/db.seed-media.ts",
     "db:sync": "npx tsx src/database/commands/db.sync.ts",
     "db:cleanup-audit": "npx tsx src/database/commands/db.cleanup-audit.ts",
+    "db:backup": "npx tsx src/database/commands/db.backup.ts",
+    "db:restore-test": "npx tsx src/database/commands/db.restore-test.ts",
     "db:backfill-variants": "npx tsx src/database/commands/db.backfill-variants.ts",
     "smtp:check": "npx tsx src/smtp/commands/smtp.check.ts",
     "logs:rotate": "npx tsx src/smtp/commands/logs.rotate.ts",
