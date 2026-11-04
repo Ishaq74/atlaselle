@@ -110,6 +110,12 @@ export function parseMajor(versionText: string): number {
   return match ? Number(match[1]) : 0;
 }
 
+/** `pg_dump (PostgreSQL) 16.15 (Ubuntu 16.15-1.pgdg24.04+2)` → 16 */
+export function parseToolMajor(versionLine: string): number {
+  const match = /\(PostgreSQL\)\s+(\d+)/i.exec(versionLine);
+  return match ? Number(match[1]) : 0;
+}
+
 export async function sha256File(file: string): Promise<string> {
   const hash = createHash('sha256');
   await new Promise<void>((resolve, reject) => {
@@ -168,7 +174,7 @@ export async function locatePgTool(tool: 'pg_dump' | 'pg_restore', minMajor = 0)
     try {
       const { stdout } = await execFileAsync(candidate, ['--version']);
       const version = stdout.trim();
-      found.push({ path: candidate, version, major: parseMajor(version.replace(/^.*\)\s*/, '')) });
+      found.push({ path: candidate, version, major: parseToolMajor(version) });
     } catch {
       tried.push(candidate);
     }

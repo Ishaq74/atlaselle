@@ -5,7 +5,7 @@ import {
   compareSnapshots,
   parseDbUrl,
   parseMajor,
-  pgEnv,
+  parseToolMajor,
   pgToolCandidates,
   pickTool,
   scratchDatabaseName,
@@ -75,6 +75,14 @@ describe('outils PostgreSQL', () => {
     expect(parseMajor('17.2')).toBe(17);
     expect(parseMajor('16.4 (Debian 16.4-1)')).toBe(16);
     expect(parseMajor('n/a')).toBe(0);
+  });
+
+  it('lit la version majeure d’une ligne --version, y compris celle des paquets Debian/Ubuntu', () => {
+    expect(parseToolMajor('pg_dump (PostgreSQL) 17.6')).toBe(17);
+    expect(parseToolMajor('pg_dump (PostgreSQL) 16.15 (Ubuntu 16.15-1.pgdg24.04+2)')).toBe(16);
+    expect(parseToolMajor('pg_restore (PostgreSQL) 14.19 (Debian 14.19-1.pgdg12+1)')).toBe(14);
+    expect(parseToolMajor('pg_dump (PostgreSQL) 18beta1')).toBe(18);
+    expect(parseToolMajor('inconnu')).toBe(0);
   });
 
   it('choisit la version majeure la plus proche du serveur, jamais la plus récente', () => {

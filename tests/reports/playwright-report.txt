@@ -1,6 +1,6 @@
 ════════════════════════════════════════════════════════════════════════════════
   PLAYWRIGHT E2E TEST REPORT
-  Generated: 2026-10-25 15:17:31
+  Generated: 2026-10-25 20:12:35
 ════════════════════════════════════════════════════════════════════════════════
 
   ❌ actions-admin.spec.ts  (81/108 tests passed)
@@ -31,17 +31,18 @@
   ❌ services-lifecycle.spec.ts  (0/3 tests passed)
   ❌ services.spec.ts  (0/30 tests passed)
   ❌ ux-flows.spec.ts  (0/15 tests passed)
+  ❌ voyage-waitlist.spec.ts  (0/9 tests passed)
   ❌ voyage.spec.ts  (0/45 tests passed)
 
 ════════════════════════════════════════════════════════════════════════════════
   SUMMARY
 ════════════════════════════════════════════════════════════════════════════════
 
-  Total tests:   1644
+  Total tests:   1653
   Passed:        951  
-  Failed:        639  ❌
-  Skipped:       54
-  Duration:      750.6s
+  Failed:        642  ❌
+  Skipped:       60
+  Duration:      1006.7s
 
 ════════════════════════════════════════════════════════════════════════════════
   FAILURES
@@ -1095,134 +1096,6 @@
 ║ Looks like Playwright was just installed or upda
 
 
-  Suite: admin-pages.spec.ts > Admin — Stats page
-  Test:  stats page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Stats page
-  Test:  stats page displays dashboard content
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Stats page
-  Test:  stats page exposes its own level-1 heading in each of the 4 locales
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Media page
-  Test:  media page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Roles page
-  Test:  roles page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Users page
-  Test:  users page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Pages page
-  Test:  pages page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Audit log page
-  Test:  audit page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Audit log page
-  Test:  audit page shows audit log table
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Emails page
-  Test:  emails page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Policies page
-  Test:  policies page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Travelers page
-  Test:  travelers page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Applications page
-  Test:  applications page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Reservations page
-  Test:  reservations page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Payments page
-  Test:  payments page loads successfully
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: admin-pages.spec.ts > Admin — Blog edit page
-  Test:  blog new post page loads
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
   Suite: admin-pages.spec.ts > Admin pages — access guards
   Test:  unauthenticated user is redirected from admin pages
 ────────────────────────────────────────────────────────────────────────────────
@@ -1244,6 +1117,14 @@
   Suite: admin-pages.spec.ts > Admin — Stats page
   Test:  stats page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Stats page
+  Test:  stats page loads successfully
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1262,6 +1143,14 @@
   Suite: admin-pages.spec.ts > Admin — Stats page
   Test:  stats page displays dashboard content
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Stats page
+  Test:  stats page displays dashboard content
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1280,6 +1169,14 @@
   Suite: admin-pages.spec.ts > Admin — Stats page
   Test:  stats page exposes its own level-1 heading in each of the 4 locales
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Stats page
+  Test:  stats page exposes its own level-1 heading in each of the 4 locales
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1298,6 +1195,14 @@
   Suite: admin-pages.spec.ts > Admin — Media page
   Test:  media page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Media page
+  Test:  media page loads successfully
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1316,6 +1221,14 @@
   Suite: admin-pages.spec.ts > Admin — Roles page
   Test:  roles page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Roles page
+  Test:  roles page loads successfully
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1334,6 +1247,14 @@
   Suite: admin-pages.spec.ts > Admin — Users page
   Test:  users page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Users page
+  Test:  users page loads successfully
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1352,6 +1273,14 @@
   Suite: admin-pages.spec.ts > Admin — Pages page
   Test:  pages page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Pages page
+  Test:  pages page loads successfully
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1370,6 +1299,14 @@
   Suite: admin-pages.spec.ts > Admin — Audit log page
   Test:  audit page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Audit log page
+  Test:  audit page loads successfully
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1388,6 +1325,14 @@
   Suite: admin-pages.spec.ts > Admin — Audit log page
   Test:  audit page shows audit log table
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Audit log page
+  Test:  audit page shows audit log table
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1406,6 +1351,14 @@
   Suite: admin-pages.spec.ts > Admin — Emails page
   Test:  emails page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Emails page
+  Test:  emails page loads successfully
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1424,6 +1377,14 @@
   Suite: admin-pages.spec.ts > Admin — Policies page
   Test:  policies page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Policies page
+  Test:  policies page loads successfully
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1442,6 +1403,14 @@
   Suite: admin-pages.spec.ts > Admin — Travelers page
   Test:  travelers page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Travelers page
+  Test:  travelers page loads successfully
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1460,6 +1429,14 @@
   Suite: admin-pages.spec.ts > Admin — Applications page
   Test:  applications page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Applications page
+  Test:  applications page loads successfully
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1478,6 +1455,14 @@
   Suite: admin-pages.spec.ts > Admin — Reservations page
   Test:  reservations page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Reservations page
+  Test:  reservations page loads successfully
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1496,6 +1481,14 @@
   Suite: admin-pages.spec.ts > Admin — Payments page
   Test:  payments page loads successfully
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Payments page
+  Test:  payments page loads successfully
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -1514,6 +1507,14 @@
   Suite: admin-pages.spec.ts > Admin — Blog edit page
   Test:  blog new post page loads
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: admin-pages.spec.ts > Admin — Blog edit page
+  Test:  blog new post page loads
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -4875,91 +4876,6 @@
 
 
   Suite: services-deep.spec.ts > Services — admin CRUD & editor
-  Test:  service edit form loads for a fixture service
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: services-deep.spec.ts > Services — admin CRUD & editor
-  Test:  service edit form loads for a fixture service
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or updated.       ║
-║ Please run the following command to
-
-
-  Suite: services-deep.spec.ts > Services — admin CRUD & editor
-  Test:  services admin supports search + status + sort query params
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: services-deep.spec.ts > Services — admin CRUD & editor
-  Test:  services admin supports search + status + sort query params
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or updated.       ║
-║ Please run the following command to
-
-
-  Suite: services-deep.spec.ts > Services — public surfaces
-  Test:  services list responds to search query
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: services-deep.spec.ts > Services — public surfaces
-  Test:  services list responds to search query
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or updated.       ║
-║ Please run the following command to
-
-
-  Suite: services-deep.spec.ts > Services — public surfaces
-  Test:  services list renders in all 4 locales
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: services-deep.spec.ts > Services — public surfaces
-  Test:  services list renders in all 4 locales
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or updated.       ║
-║ Please run the following command to
-
-
-  Suite: services-deep.spec.ts > Services — public surfaces
-  Test:  unknown service slug redirects to the list
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or upda
-
-
-  Suite: services-deep.spec.ts > Services — public surfaces
-  Test:  unknown service slug redirects to the list
-────────────────────────────────────────────────────────────────────────────────
-  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or updated.       ║
-║ Please run the following command to
-
-
-  Suite: services-deep.spec.ts > Services — admin CRUD & editor
   Test:  service create form exposes required fields
 ────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
@@ -4971,10 +4887,44 @@
   Suite: services-deep.spec.ts > Services — admin CRUD & editor
   Test:  service edit form loads for a fixture service
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: services-deep.spec.ts > Services — admin CRUD & editor
+  Test:  service edit form loads for a fixture service
+────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to
+
+
+  Suite: services-deep.spec.ts > Services — admin CRUD & editor
+  Test:  service edit form loads for a fixture service
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
 ║ Please run the following command to downl
+
+
+  Suite: services-deep.spec.ts > Services — admin CRUD & editor
+  Test:  services admin supports search + status + sort query params
+────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: services-deep.spec.ts > Services — admin CRUD & editor
+  Test:  services admin supports search + status + sort query params
+────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to
 
 
   Suite: services-deep.spec.ts > Services — admin CRUD & editor
@@ -4989,6 +4939,23 @@
   Suite: services-deep.spec.ts > Services — public surfaces
   Test:  services list responds to search query
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: services-deep.spec.ts > Services — public surfaces
+  Test:  services list responds to search query
+────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to
+
+
+  Suite: services-deep.spec.ts > Services — public surfaces
+  Test:  services list responds to search query
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
@@ -4998,10 +4965,44 @@
   Suite: services-deep.spec.ts > Services — public surfaces
   Test:  services list renders in all 4 locales
 ────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: services-deep.spec.ts > Services — public surfaces
+  Test:  services list renders in all 4 locales
+────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to
+
+
+  Suite: services-deep.spec.ts > Services — public surfaces
+  Test:  services list renders in all 4 locales
+────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
 ╔════════════════════════════════════════════════════════════╗
 ║ Looks like Playwright was just installed or updated.       ║
 ║ Please run the following command to downl
+
+
+  Suite: services-deep.spec.ts > Services — public surfaces
+  Test:  unknown service slug redirects to the list
+────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: services-deep.spec.ts > Services — public surfaces
+  Test:  unknown service slug redirects to the list
+────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to
 
 
   Suite: services-deep.spec.ts > Services — public surfaces
@@ -5188,6 +5189,32 @@
 
   Suite: ux-flows.spec.ts > Locale switcher
   Test:  the locale switcher exposes all 4 locales
+────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to downl
+
+
+  Suite: voyage-waitlist.spec.ts > Voyage — inscription automatique, liste d’attente et soldes
+  Test:  inscription → checkout → acompte payé → réservation confirmée, puis rappel J+2 et solde payé
+────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or upda
+
+
+  Suite: voyage-waitlist.spec.ts > Voyage — inscription automatique, liste d’attente et soldes
+  Test:  inscription → checkout → acompte payé → réservation confirmée, puis rappel J+2 et solde payé
+────────────────────────────────────────────────────────────────────────────────
+  Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\firefox-1555\firefox\firefox.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to
+
+
+  Suite: voyage-waitlist.spec.ts > Voyage — inscription automatique, liste d’attente et soldes
+  Test:  inscription → checkout → acompte payé → réservation confirmée, puis rappel J+2 et solde payé
 ────────────────────────────────────────────────────────────────────────────────
   Error: browserType.launch: Executable doesn't exist at C:\Users\Utilisateur\AppData\Local\ms-playwright\webkit-2370\Playwright.exe
 ╔════════════════════════════════════════════════════════════╗
@@ -5586,5 +5613,5 @@
 
 
 ════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 951/1644 passed
+  END OF REPORT — 951/1653 passed
 ════════════════════════════════════════════════════════════════════════════════
