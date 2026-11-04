@@ -1,6 +1,6 @@
 ════════════════════════════════════════════════════════════════════════════════
   VITEST UNIT & INTEGRATION TEST REPORT
-  Generated: 2026-10-25 19:55:27
+  Generated: 2026-10-25 15:04:42
 ════════════════════════════════════════════════════════════════════════════════
 
   ✅ tests\integration\admin-trips.test.ts  (4/4 passed)
@@ -45,11 +45,10 @@
   ✅ tests\integration\voyage-finition.test.ts  (10/10 passed)
   ✅ tests\integration\voyage-loaders2.test.ts  (13/13 passed)
   ✅ tests\integration\voyage-moderation.test.ts  (8/8 passed)
-  ✅ tests\integration\voyage-pages.test.ts  (10/10 passed)
+  ✅ tests\integration\voyage-pages.test.ts  (9/9 passed)
   ✅ tests\integration\voyage-payments.test.ts  (16/16 passed)
   ✅ tests\integration\voyage-refund-passthrough.test.ts  (1/1 passed)
   ✅ tests\integration\voyage-services.test.ts  (16/16 passed)
-  ✅ tests\integration\waitlist-engine.test.ts  (12/12 passed)
   ✅ tests\unit\admin-consent.test.ts  (5/5 passed)
   ✅ tests\unit\admin-contact.test.ts  (10/10 passed)
   ✅ tests\unit\admin-dirty-guard.test.ts  (6/6 passed)
@@ -86,7 +85,7 @@
   ✅ tests\unit\blog-taxonomy-actions.test.ts  (9/9 passed)
   ✅ tests\unit\blog-validation.test.ts  (3/3 passed)
   ✅ tests\unit\booking-consent-i18n.test.ts  (8/8 passed)
-  ✅ tests\unit\cache.test.ts  (14/14 passed)
+  ✅ tests\unit\cache.test.ts  (13/13 passed)
   ✅ tests\unit\cli-utils.test.ts  (12/12 passed)
   ✅ tests\unit\cms-audit.test.ts  (1/1 passed)
   ✅ tests\unit\cms-i18n.test.ts  (16/16 passed)
@@ -169,7 +168,6 @@
   ✅ tests\unit\voyage\admin-resource.test.ts  (3/3 passed)
   ✅ tests\unit\voyage\admin-resources.test.ts  (7/7 passed)
   ✅ tests\unit\voyage\auth-guards.test.ts  (5/5 passed)
-  ✅ tests\unit\voyage\balance-reminders.test.ts  (8/8 passed)
   ✅ tests\unit\voyage\cancellation.test.ts  (4/4 passed)
   ✅ tests\unit\voyage\completeness.test.ts  (35/35 passed)
   ✅ tests\unit\voyage\core-templates.test.ts  (20/20 passed)
@@ -183,20 +181,20 @@
   ✅ tests\unit\voyage\seed-content.test.ts  (8/8 passed)
   ✅ tests\unit\voyage\smtp-dead-letter.test.ts  (1/1 passed)
   ✅ tests\unit\voyage\stripe-provider.test.ts  (8/8 passed)
-  ✅ tests\unit\voyage\templates.test.ts  (66/66 passed)
+  ✅ tests\unit\voyage\templates.test.ts  (58/58 passed)
   ✅ tests\unit\voyage\transitions.test.ts  (11/11 passed)
   ✅ tests\unit\voyage\trip-engagement.test.ts  (16/16 passed)
-  ✅ tests\unit\voyage\voyage-email.test.ts  (16/16 passed)
+  ✅ tests\unit\voyage\voyage-email.test.ts  (14/14 passed)
 
 ════════════════════════════════════════════════════════════════════════════════
   SUMMARY
 ════════════════════════════════════════════════════════════════════════════════
 
-  Total tests:   2061
-  Passed:        2061  ✅
+  Total tests:   2029
+  Passed:        2029  ✅
   Failed:        0  
-  Duration:      145s
+  Duration:      139s
 
 ════════════════════════════════════════════════════════════════════════════════
-  END OF REPORT — 2061/2061 passed
+  END OF REPORT — 2029/2029 passed
 ════════════════════════════════════════════════════════════════════════════════

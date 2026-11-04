@@ -6,6 +6,7 @@ import {
   parseDbUrl,
   parseMajor,
   parseToolMajor,
+  pgEnv,
   pgToolCandidates,
   pickTool,
   scratchDatabaseName,
