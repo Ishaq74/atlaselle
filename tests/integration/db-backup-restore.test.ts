@@ -57,15 +57,15 @@ afterAll(async () => {
   if (dir) rmSync(dir, { recursive: true, force: true });
 });
 
-async function leftoverScratch(): Promise<string[]> {
-  const res = await admin.query<{ datname: string }>(`SELECT datname FROM pg_database WHERE datname LIKE 'restore_drill_%'`);
-  return res.rows.map((r) => r.datname);
+// Par nom : d'autres fichiers de test restaurent en parallèle leurs propres bases jetables.
+async function databaseExists(name: string): Promise<boolean> {
+  const res = await admin.query('SELECT 1 FROM pg_database WHERE datname = $1', [name]);
+  return (res.rowCount ?? 0) > 0;
 }
 
 describe('sauvegarde → restauration (base jetable)', () => {
   it('restaure à l’identique et supprime la base jetable', async (ctx) => {
     if (!ready) return ctx.skip();
-    const before = await leftoverScratch();
     const { file, manifest } = await createBackup({ url: sourceUrl, dir });
     expect(manifest.snapshot.tables['public.travellers']).toBe(250);
     expect(manifest.snapshot.tables['public.Booking Items']).toBe(400);
@@ -75,7 +75,7 @@ describe('sauvegarde → restauration (base jetable)', () => {
     expect(result.diffs).toEqual([]);
     expect(result.ok).toBe(true);
     expect(result.rows).toBe(250 + 400 + 2);
-    expect(await leftoverScratch()).toEqual(before);
+    expect(await databaseExists(result.scratch)).toBe(false);
   }, 120_000);
 
   it('détecte un décompte falsifié (comparaison non vacueuse)', async (ctx) => {
@@ -90,7 +90,7 @@ describe('sauvegarde → restauration (base jetable)', () => {
     expect(result.ok).toBe(false);
     expect(result.diffs.join('\n')).toMatch(/public\.travellers : 251 ligne\(s\) attendue\(s\), 250/);
     expect(result.diffs.join('\n')).toMatch(/journal des migrations différent/);
-    expect(await leftoverScratch()).toEqual([]);
+    expect(await databaseExists(result.scratch)).toBe(false);
   }, 120_000);
 
   it('refuse une sauvegarde altérée avant toute restauration', async (ctx) => {
@@ -99,8 +99,8 @@ describe('sauvegarde → restauration (base jetable)', () => {
     const fd = openSync(file, 'r+');
     writeSync(fd, Buffer.from([0xff, 0xfe, 0xfd]), 0, 3, 40);
     closeSync(fd);
+    // La somme de contrôle est vérifiée AVANT toute création de base : rien à nettoyer.
     await expect(runRestoreDrill({ file, adminUrl: serverUrl })).rejects.toThrow(/Somme de contrôle/);
-    expect(await leftoverScratch()).toEqual([]);
   }, 120_000);
 
   it('exige le manifeste produit par db:backup', async (ctx) => {

@@ -32,7 +32,7 @@ Application web SSR multi-langue avec authentification complète, gestion d'orga
 - 📁 **Médias** — Upload, traitement Sharp, organisation en dossiers
 - 📧 **SMTP** — Brevo / Resend / Nodemailer + file morte de mails
 - 🛡️ **Sécurité** — Audit trail, rate limiting, sanitization des inputs
-- ✅ **Tests** — 190 Vitest + 31 E2E × 3 navigateurs
+- ✅ **Tests** — 192 Vitest + 31 E2E × 3 navigateurs
 
 ### Stack technique
 
