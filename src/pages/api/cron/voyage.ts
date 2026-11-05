@@ -9,10 +9,14 @@ import { markBalanceDue } from "@/modules/reservations/domain/reservation-servic
 import { processEmailOutboxBatch } from "@/modules/email-voyage/domain/voyage-email-worker";
 import { sendBalanceReminders, sendTripReminders } from "@/modules/email-voyage/domain/reminders";
 import { purgeOldOutbox } from "@/modules/outbox/domain/retention";
+import { captureError, startCronCheckIn } from "@/lib/monitoring";
 
 export const prerender = false;
 
 const CRON_SECRET = process.env.CRON_SECRET;
+
+// Doit correspondre à la planification de .github/workflows/voyage-cron.yml (et au service cron de docker-compose.yml).
+const CRON_MONITOR = { slug: "voyage-cron", schedule: "*/5 * * * *" } as const;
 
 function isAuthorized(request: Request): boolean {
   if (!CRON_SECRET) {
@@ -33,12 +37,14 @@ export const POST: APIRoute = async ({ request }) => {
   if (!isAuthorized(request)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const checkIn = startCronCheckIn(CRON_MONITOR.slug, CRON_MONITOR.schedule);
   const errors: Record<string, string> = {};
   async function run<T>(name: string, fallback: T, fn: () => Promise<T>): Promise<T> {
     try {
       return await fn();
     } catch (err) {
       errors[name] = err instanceof Error ? err.message : "unknown";
+      captureError(err, { tags: { source: "cron", job: name } });
       return fallback;
     }
   }
@@ -57,6 +63,8 @@ export const POST: APIRoute = async ({ request }) => {
     checkouts: await purgeExpiredCheckoutSessions(),
     holds: await purgeTerminalHolds(),
   }));
+  // Le moniteur alerte si une tâche a échoué OU si le cron n'arrive plus.
+  checkIn.done(Object.keys(errors).length === 0);
   return Response.json({
     expiredPaymentAttempts,
     expiredHolds,

@@ -141,6 +141,8 @@ Condition : les migrations de la release sont additives, donc l'ancien code tour
 
 ## 6. Pannes de fournisseurs
 
+Détection : alertes Sentry (`source:session-check`, `db-pool`, `smtp`, moniteur `voyage-cron`) et sonde externe sur `/api/health` — [monitoring.md](monitoring.md) §5 et §6.
+
 | Panne | Comportement | Action |
 | :-- | :-- | :-- |
 | Base indisponible | `/api/health` répond 503 ; la vérification de session expire après 5 s et répond 503 avec `Retry-After: 5` (`src/middleware.ts`) | restaurer ou basculer (§4.2) |

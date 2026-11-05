@@ -889,6 +889,7 @@ Analytics : mesure agrégée du comportement. Jamais de PII sensible.
 Notification : alerte interne à l'équipe pour action humaine rapide. ❌ à étendre (le repo a blog_notifications, service_notifications — pattern à réutiliser).
 
 20.2 Logs et erreurs
+✅ Suivi d'erreurs serveur (Sentry, inactif sans `SENTRY_DSN`) : exceptions inattendues des pages, endpoints, actions et jobs, webhook Stripe, registre d'effacements, moniteur de cron ; données personnelles coupées à la source et nettoyées avant envoi (docs/operations/monitoring.md). Pas de SDK navigateur, pas de traces, pas de source maps.
 Événements structurés JSON. Jamais : CB, jetons, mots de passe, PII inutiles. Erreurs typées : ValidationError, UnauthorizedError, ForbiddenError, NotFoundError, ConflictError, CapacityError, PaymentError, ExternalServiceError.
 
 20.3 Événements analytics autorisés
@@ -897,8 +898,8 @@ page_view, trip_view, trip_filter, apply_start, apply_submit, checkout_start,
 payment_start, purchase, contact_submit, newsletter_signup
 Jamais : motivation, régime, médical/accessibilité, notes internes.
 
-20.4 Request ID — ❌ à créer
-Corrélation via requestId (middleware → Astro.locals → log, action, service, job email, paiement) — sans données sensibles. Absent aujourd'hui (vérifié middleware).
+20.4 Request ID — ✅
+Corrélation via requestId (middleware → Astro.locals → en-tête de réponse `X-Request-Id`, métadonnées d'audit, événements Sentry) — UUID entrant validé, sinon régénéré, sans données sensibles. Pas encore propagé dans les logs console ni dans les jobs e-mail et paiement.
 
 21. BASE DE DONNÉES
 21.1 Organisation réelle des schémas
@@ -1329,8 +1330,8 @@ text
 [~] sauvegarde base de données — outillage + CI prêts ; planification, chiffrement, hors site et sauvegardes continues de l'hébergeur à mettre en place (docs/operations/backup-restore-rollback.md §3, §8)
 [~] test de restauration (réel) — exercé et automatisé (hebdomadaire en CI) ; reste l'exercice à taille de production
 [x] validation des migrations — migrate + infra + seed depuis une base vide à chaque job CI ; journal comparé par l'exercice de restauration ; règle additive/destructive en deux releases : docs/operations/backup-restore-rollback.md §5
-[ ] monitoring — sonde `/api/health` (jeton) et `X-Request-Id` existent ; ni collecte de métriques, ni alertes, ni supervision externe de la sonde
-[ ] error tracking — aucun service branché (choix de l'outil et de l'hébergement des données à décider) ; les erreurs vont en console et dans l'audit
+[~] monitoring — sonde `/api/health` (jeton), `X-Request-Id` et moniteur de cron Sentry (`voyage-cron`) en place ; alertes et sonde externe à créer à la mise en service (docs/operations/monitoring.md §5, §6)
+[~] error tracking — Sentry serveur branché et testé avec le vrai SDK (aucune donnée personnelle sur le réseau) ; **inactif tant que `SENTRY_DSN` n'est pas renseigné** : créer l'organisation en région UE, signer le DPA, `pnpm monitoring:check` (docs/operations/monitoring.md §4)
 [x] plan de retour arrière (rollback) — docs/operations/backup-restore-rollback.md §5 (à répéter à blanc lors du premier déploiement)
 35. PRINCIPES ULTIMES & DÉFINITION FINALE
 35.1 Architecture finale

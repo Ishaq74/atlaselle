@@ -5,6 +5,7 @@ import { deleteUpload } from '@/media/delete';
 import { UPLOAD_DIRS, type UploadType } from '@/media/types';
 import { logAuditEvent, extractIp } from '@/lib/audit';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { captureError } from '@/lib/monitoring';
 
 export const prerender = false;
 
@@ -91,6 +92,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       return Response.json({ error: err.message, code: err.code }, { status: 400 });
     }
     console.error('[upload] Erreur inattendue:', err);
+    captureError(err, { tags: { source: 'upload' } });
     return Response.json({ error: 'Erreur serveur lors de l\'upload' }, { status: 500 });
   }
 };

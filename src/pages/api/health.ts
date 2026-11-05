@@ -4,6 +4,7 @@ import { access, constants } from "node:fs/promises";
 import { checkConnection } from "@database/drizzle";
 import { getCacheStats } from "@database/cache";
 import { checkSmtpConfig } from "@/smtp/env";
+import { isMonitoringEnabled } from "@/lib/monitoring";
 
 export const prerender = false;
 
@@ -71,6 +72,8 @@ export const GET: APIRoute = async ({ request }) => {
       smtp: { ok: smtp.ok, provider: smtp.provider },
       disk: { uploadsWritable: uploadsOk },
       cache: { size: cache.size, hits: cache.hits, misses: cache.misses },
+      // Informatif : un suivi d'erreurs inactif n'est pas une panne (statut inchangé).
+      monitoring: { errorTracking: isMonitoringEnabled() },
     }, allOk ? 200 : 503);
   } catch (err) {
     console.error('[health] Check failed:', err);

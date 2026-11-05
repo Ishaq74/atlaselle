@@ -6,6 +6,7 @@ import { sendEmail } from '@smtp/send';
 import { contactFormTemplate } from '@smtp/templates/contact-form';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { LOCALES, type Locale } from '@i18n/config';
+import { captureError } from '@/lib/monitoring';
 
 export const prerender = false;
 
@@ -79,6 +80,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     });
   } catch (err) {
     console.error('[contact] Failed to send contact email:', err);
+    captureError(err, { tags: { source: 'contact-form' } });
     return Response.json({ error: 'SEND_FAILED' }, { status: 500 });
   }
 

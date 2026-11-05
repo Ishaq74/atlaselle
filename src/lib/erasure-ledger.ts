@@ -16,6 +16,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, open, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { captureError } from '@/lib/monitoring';
 
 export const ERASURE_KINDS = ['traveler.anonymize', 'user.delete'] as const;
 export type ErasureKind = (typeof ERASURE_KINDS)[number];
@@ -171,6 +172,7 @@ export async function recordErasureSafe(input: ErasureInput, file: string | null
     return true;
   } catch (error) {
     console.error(`[erasure-ledger] CRITIQUE : effacement ${input.kind} non enregistré (${input.subject}) :`, error);
+    captureError(error, { level: 'fatal', alwaysReport: true, tags: { source: 'erasure-ledger', kind: input.kind } });
     return false;
   }
 }

@@ -3,6 +3,7 @@ import { auditLog } from "@database/schemas";
 import { appendFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { isIP } from "node:net";
+import { captureError } from "@/lib/monitoring";
 
 export type AuditAction =
   | "SIGN_IN" | "SIGN_IN_FAILED" | "SIGN_UP" | "SIGN_UP_FAILED" | "SIGN_OUT"
@@ -38,6 +39,7 @@ export async function logAuditEvent(input: AuditEventInput): Promise<void> {
     await db.insert(auditLog).values({ userId: input.userId ?? null, action: input.action, resource: input.resource ?? null, resourceId: input.resourceId ?? null, metadata: safeMetadata(input.metadata), ipAddress: input.ipAddress ?? null, userAgent: input.userAgent ?? null });
   } catch (err) {
     console.error("[audit] Failed to log event:", err);
+    captureError(err, { tags: { source: "audit", action: input.action } });
     const date = new Date().toISOString().slice(0, 10);
     const logsDir = join(process.cwd(), "logs");
     const fallbackPath = join(logsDir, `audit-fallback-${date}.jsonl`);
