@@ -3,6 +3,7 @@ import { Pool, type PoolClient } from 'pg';
 import * as schema from './schemas';
 import { getDbUrl, getPoolConfig } from './env';
 import { shutdownCache } from './cache';
+import { captureError } from '@/lib/monitoring';
 
 export type DrizzleDB = NodePgDatabase<typeof schema>;
 export interface DbActorContext {
@@ -50,6 +51,7 @@ function createPool(): { pool: Pool; db: DrizzleDB; isHealthy: boolean } {
   p.on('error', (err) => {
     console.error('[DB] Erreur de pool inattendue:', err.stack ?? err.message);
     entry.isHealthy = false;
+    captureError(err, { tags: { source: 'db-pool' } });
   });
 
   return entry;

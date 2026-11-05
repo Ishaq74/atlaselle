@@ -11,6 +11,7 @@
  * Le CSRF est couvert par `security.checkOrigin` d'Astro, avant le middleware.
  */
 import type { APIContext } from "astro";
+import { captureError } from "@/lib/monitoring";
 import { FORM_ACTION_PARAM } from "./action-url";
 import { FORM_ADAPTERS } from "./adapters";
 import { getFormCompanion } from "./companion";
@@ -119,6 +120,7 @@ export async function handleFormFallback(
     result = (await context.callAction(callable as never, input as never)) as unknown as ActionResultLike;
   } catch (err) {
     console.error("[form-fallback] action failed:", name, err);
+    captureError(err, { tags: { source: "form-fallback", action: name } });
     return fail(t.generic);
   }
 

@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { selectPaymentProvider, UnhandledWebhookError } from "@/modules/payments/domain/providers";
 import { processProviderSuccess, failPaymentByProviderId } from "@/modules/payments/domain/payment-service";
+import { captureError } from "@/lib/monitoring";
 
 export const prerender = false;
 
@@ -33,6 +34,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
   } catch (err) {
     console.error("[payments] Webhook processing failed:", err);
+    // Paiement encaissé mais non enregistré = incident prioritaire (Stripe réessaie, mais il faut le savoir).
+    captureError(err, { level: "fatal", alwaysReport: true, tags: { source: "stripe-webhook", outcome: event.outcome } });
     return new Response("Internal Server Error", { status: 500 });
   }
   return new Response("OK", { status: 200 });

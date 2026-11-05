@@ -2,6 +2,7 @@ import type { EmailPayload, EmailFrom, SmtpProvider } from './types';
 import { getSmtpProvider, getSmtpFrom } from './env';
 import { appendFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { captureEvent } from '@/lib/monitoring';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_RETRIES = 3;
@@ -98,7 +99,8 @@ export async function sendEmail(payload: EmailPayload): Promise<void> {
       return await callProvider(provider, payload, from);
     } catch (err) {
       if (attempt === MAX_RETRIES || !isRetryable(err)) {
-        // Dead-letter: log failed email for manual retry
+        // Dead-letter: log failed email for manual retry (signalé sans adresse ni objet : seulement le fournisseur et le code)
+        captureEvent('Email moved to dead-letter', { level: 'error', tags: { source: 'smtp', provider, code: String((err as NodeJS.ErrnoException).code ?? 'none') } });
         const logsDir = join(process.cwd(), 'logs');
         const dlPath = join(logsDir, `email-dead-letter-${new Date().toISOString().slice(0, 10)}.jsonl`);
         const record = JSON.stringify({

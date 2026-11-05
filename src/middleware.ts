@@ -5,6 +5,7 @@ import { newRequestId } from "@/lib/request-id";
 import { bootstrapModules } from "@/lib/cms/bootstrap";
 import { extractIp, logAuditEvent, type AuditAction } from "@/lib/audit";
 import { handleFormFallback } from "@/lib/form-fallback/handler";
+import { captureError, captureEvent, initMonitoring } from "@/lib/monitoring";
 import { FLASH_COOKIE, decodeFlash } from "@/lib/form-fallback/flash";
 import { defineMiddleware } from "astro:middleware";
 import type { APIContext, MiddlewareNext } from "astro";
@@ -158,6 +159,7 @@ async function runRequestChain(context: APIContext, next: MiddlewareNext, url: U
     ]);
   } catch (err) {
     console.error('[middleware] Session check failed:', err);
+    captureError(err, { requestId: context.locals.requestId, path: url.pathname, tags: { source: 'session-check' } });
     isAuthed = null;
   }
 
@@ -171,6 +173,7 @@ async function runRequestChain(context: APIContext, next: MiddlewareNext, url: U
 
   if (timedOut) {
     console.warn(`[middleware] Session check timed out (${SESSION_TIMEOUT_MS / 1000}s) — returning 503`);
+    captureEvent('Session check timed out (database unavailable?)', { requestId: context.locals.requestId, path: url.pathname, tags: { source: 'session-check' } });
     return new Response(SESSION_UNAVAILABLE_BODY, {
       status: 503,
       headers: { 'Retry-After': SESSION_RETRY_AFTER, 'Content-Type': 'application/json' },
@@ -200,7 +203,23 @@ async function runRequestChain(context: APIContext, next: MiddlewareNext, url: U
     }
   }
 
-  const response = await next();
+  let response: Response;
+  try {
+    response = await next();
+  } catch (error) {
+    // Exception non gérée d'une page ou d'un endpoint : signalée (si le suivi est actif) puis relancée telle quelle.
+    captureError(error, { requestId: context.locals.requestId, userId: context.locals.user?.id ?? null, path: url.pathname, tags: { source: 'request' } });
+    throw error;
+  }
+  if (response.status >= 500) {
+    // Réponse 5xx produite sans exception (endpoint qui renvoie 500, base indisponible) : un événement au message fixe
+    captureEvent(`HTTP ${response.status} response`, {
+      requestId: context.locals.requestId,
+      userId: context.locals.user?.id ?? null,
+      path: url.pathname,
+      tags: { source: 'response', status: String(response.status), method: context.request.method },
+    });
+  }
   const lowerPath = url.pathname.toLowerCase();
   if (lowerPath.startsWith('/uploads/') && (lowerPath.endsWith('.svg') || lowerPath.endsWith('.svgz'))) {
     response.headers.set('Content-Disposition', 'attachment');
@@ -212,6 +231,8 @@ async function runRequestChain(context: APIContext, next: MiddlewareNext, url: U
 
 export const onRequest = defineMiddleware(async (context, next) => {
   bootstrapModules();
+  // Idempotent et sans effet sans SENTRY_DSN : capte aussi les exceptions non gérées du processus.
+  initMonitoring();
 
   // ─── Request ID — corrélation transverse (TODO §20.4, opaque, sans PII) ──
   // P0-M9 : n'accepte que les UUID valides, sinon régénère (anti-poisoning/collision).

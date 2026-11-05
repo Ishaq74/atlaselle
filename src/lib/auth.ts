@@ -15,6 +15,7 @@ import { deleteAccountTemplate } from "@smtp/templates/delete-account";
 import { deleteUpload } from "@/media/delete";
 import { logAuditEvent, extractIp, type AuditAction } from "@/lib/audit";
 import { recordErasureSafe } from "@/lib/erasure-ledger";
+import { captureError } from "@/lib/monitoring";
 
 /** Inscrit une suppression de compte au registre hors base ; alerte l'audit si l'écriture échoue. */
 async function recordUserErasure(subject: string, actor: string | null): Promise<void> {
@@ -212,7 +213,10 @@ export const auth = betterAuth({
             .delete(sessionTable)
             .where(eq(sessionTable.userId, body.userId))
             .then(() => { /* sessions revoked */ })
-            .catch((err) => console.error('[AUTH] Failed to revoke sessions after', ctx.path, err)),
+            .catch((err) => {
+              console.error('[AUTH] Failed to revoke sessions after', ctx.path, err);
+              captureError(err, { level: 'fatal', alwaysReport: true, tags: { source: 'auth', step: 'revoke-sessions' } });
+            }),
         );
       }
     }),
