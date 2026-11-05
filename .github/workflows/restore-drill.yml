@@ -16,6 +16,10 @@ on:
       - "src/database/commands/_backup.ts"
       - "src/database/commands/db.backup.ts"
       - "src/database/commands/db.restore-test.ts"
+      - "src/database/commands/_erasure.ts"
+      - "src/lib/erasure-ledger.ts"
+      - "src/modules/travelers/domain/travelers-service.ts"
+      - "tests/integration/erasure-restore-e2e.test.ts"
       - ".github/workflows/restore-drill.yml"
 
 concurrency:
@@ -88,3 +92,8 @@ jobs:
 
       - name: Backup then restore into a scratch database
         run: pnpm db:restore-test
+
+      # Scénario complet avec le client 16 exact : sauvegarde → effacement RGPD → restauration → rejeu.
+      # Ignoré ailleurs (client de version différente) : seul ce job le fait réellement tourner.
+      - name: Erasure survives a restore (backup → erase → restore → replay)
+        run: pnpm exec vitest run tests/integration/erasure-restore-e2e.test.ts

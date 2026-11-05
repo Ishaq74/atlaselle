@@ -2,11 +2,11 @@
  * Rejeu des effacements RGPD après une restauration, et import de l'historique depuis l'audit.
  * Fonctions testables : la base est passée en paramètre, aucune lecture de l'environnement ici.
  */
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, TransactionRollbackError } from 'drizzle-orm';
 import type { getDrizzle } from '../drizzle';
-import { applications, reservations, travelers, user } from '../schemas';
+import { applications, reservations, user } from '../schemas';
 import { ACTIVE_APPLICATION_STATUSES } from '@/modules/applications/domain/application-transitions';
-import { ACTIVE_RESERVATION_STATUSES, anonymizeTravelerRecord, anonymizedEmail } from '@/modules/travelers/domain/travelers-service';
+import { ACTIVE_RESERVATION_STATUSES, anonymizeTravelerRecord, type AnonymizeResult } from '@/modules/travelers/domain/travelers-service';
 import type { ErasureEntry, ErasureKind } from '@/lib/erasure-ledger';
 
 type Db = ReturnType<typeof getDrizzle>;
@@ -26,23 +26,34 @@ export interface ReplayOptions {
   dryRun?: boolean;
 }
 
+/** Exécute la vraie fonction d'effacement puis annule : la simulation ne peut pas diverger du rejeu réel. */
+async function simulateAnonymize(travelerId: string, db: Db): Promise<AnonymizeResult> {
+  let result: AnonymizeResult = { found: false, scrubbed: 0 };
+  try {
+    await db.transaction(async (tx) => {
+      result = await anonymizeTravelerRecord(travelerId, tx);
+      tx.rollback();
+    });
+  } catch (error) {
+    if (!(error instanceof TransactionRollbackError)) throw error;
+  }
+  return result;
+}
+
 async function replayTraveler(entry: ErasureEntry, { db, dryRun }: ReplayOptions): Promise<Pick<ReplayRow, 'outcome' | 'warnings'>> {
-  const [row] = await db.select({ id: travelers.id, email: travelers.email }).from(travelers).where(eq(travelers.id, entry.subject)).limit(1);
-  if (!row) return { outcome: 'absent', warnings: [] };
-  if (row.email === anonymizedEmail(row.id)) return { outcome: 'already', warnings: [] };
+  const result = dryRun ? await simulateAnonymize(entry.subject, db) : await anonymizeTravelerRecord(entry.subject, db);
+  if (!result.found) return { outcome: 'absent', warnings: [] };
+  if (result.scrubbed === 0) return { outcome: 'already', warnings: [] };
 
   // Le dossier restauré peut être plus ancien que l'effacement : il a pu être « en cours » à l'époque.
   // L'effacement demandé prime ; on le signale pour examen (réservation ou candidature à clarifier).
   const warnings: string[] = [];
-  const apps = await db.select({ status: applications.status }).from(applications).where(eq(applications.travelerId, row.id));
-  const reservationRows = await db.select({ status: reservations.status }).from(reservations).where(eq(reservations.travelerId, row.id));
+  const apps = await db.select({ status: applications.status }).from(applications).where(eq(applications.travelerId, entry.subject));
+  const reservationRows = await db.select({ status: reservations.status }).from(reservations).where(eq(reservations.travelerId, entry.subject));
   if (apps.some((a) => (ACTIVE_APPLICATION_STATUSES as readonly string[]).includes(a.status))) warnings.push('candidature en cours dans la base restaurée');
   if (reservationRows.some((r) => (ACTIVE_RESERVATION_STATUSES as readonly string[]).includes(r.status))) warnings.push('réservation en cours dans la base restaurée');
-
-  if (!dryRun) await anonymizeTravelerRecord(row.id, db);
   return { outcome: 'applied', warnings };
 }
-
 async function replayUser(entry: ErasureEntry, { db, dryRun }: ReplayOptions): Promise<Pick<ReplayRow, 'outcome' | 'warnings'>> {
   const [row] = await db.select({ id: user.id }).from(user).where(eq(user.id, entry.subject)).limit(1);
   if (!row) return { outcome: 'absent', warnings: [] };

@@ -876,7 +876,7 @@ Contenu culturel/religieux du Trip = public multilingue. Préférences personnel
 Notes internes (application_internal_notes, reservation_internal_notes, traveler_internal_notes) jamais sérialisées dans les pages publiques.
 
 ✅ Effacement et restauration : registre hors base (`src/lib/erasure-ledger.ts`, sans donnée personnelle) alimenté par `anonymizeTraveler`, `adminRemoveUser` et l'auto-suppression de compte ; `pnpm db:replay-erasures` ré-efface après une restauration, `pnpm db:erasure-ledger -- --import-audit` reconstitue l'historique (docs/database/erasure-ledger.md).
-🟡 À trancher (décision juridique) : `anonymizeTravelerRecord` n'efface que les champs de `travelers`. Subsistent `applications.dietary_requirements`, `accessibility_needs`, `motivation`, `expectations`, les notes internes et l'adresse réelle dans `email_deliveries.to_email`. Le rejeu appliquera automatiquement toute extension de cette fonction.
+✅ Périmètre de l'effacement d'un dossier : identité, lien compte, textes libres des candidatures, notes internes, adresses des e-mails envoyés ; transactions conservées sans donnée personnelle. Non couvert (documenté) : compte utilisateur lié, newsletter, avis/commentaires du compte, Stripe, audit (rétention), sauvegardes (docs/database/erasure-ledger.md).
 
 20. OBSERVABILITÉ
 20.1 Quatre concepts à ne jamais confondre

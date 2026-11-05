@@ -280,6 +280,8 @@ export interface RestoreDrillOptions {
   /** URL d'un serveur (n'importe quelle base) sur lequel créer la base jetable. */
   adminUrl: string;
   keep?: boolean;
+  /** Appelé avec l'URL de la base restaurée, avant sa suppression (vérifications supplémentaires). */
+  inspect?: (scratchUrl: string) => Promise<void>;
   log?: (message: string) => void;
 }
 
@@ -301,7 +303,7 @@ export function loadManifest(file: string): BackupManifest {
   return manifest;
 }
 
-export async function runRestoreDrill({ file, adminUrl, keep = false, log = () => {} }: RestoreDrillOptions): Promise<RestoreDrillResult> {
+export async function runRestoreDrill({ file, adminUrl, keep = false, inspect, log = () => {} }: RestoreDrillOptions): Promise<RestoreDrillResult> {
   const startedAt = Date.now();
   const manifest = loadManifest(file);
 
@@ -355,6 +357,7 @@ export async function runRestoreDrill({ file, adminUrl, keep = false, log = () =
       } finally {
         await scratchClient.end().catch(() => {});
       }
+      if (inspect) await inspect(scratchUrl);
     } finally {
       if (!keep) {
         assertScratchName(scratch, admin.database);

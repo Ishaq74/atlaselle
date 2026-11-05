@@ -65,14 +65,29 @@ Un dossier restauré peut être « en cours » alors qu'il ne l'était plus au m
 
 Un registre vide ou absent produit un avertissement explicite : vérifier qu'on utilise bien celui de **production**.
 
+## Périmètre de l'effacement d'un dossier
+
+`anonymizeTravelerRecord` (`src/modules/travelers/domain/travelers-service.ts`) est transactionnel et idempotent.
+
+| | Données |
+| :-- | :-- |
+| **Effacé** | identité et coordonnées (`travelers` : e-mail remplacé par `deleted-<id>@deleted.local`, téléphone, noms, date de naissance), lien vers le compte (`user_id`), textes libres des candidatures (régime, accessibilité, motivation, attentes), notes internes (dossier, candidature, réservation) et note de décision, adresse et dernière erreur des e-mails envoyés (`email_deliveries`, retrouvés par dossier, par réservation et par adresse) |
+| **Conservé** (obligations comptables) | réservations, paiements, montants, statuts, dates, numéros de réservation — sans donnée personnelle |
+| **Non couvert** | le **compte utilisateur** lié (le supprimer : `adminRemoveUser` ou auto-suppression) ; abonnements newsletter ; avis et commentaires du compte ; données chez Stripe ; `audit_log` (adresse IP, agent : rétention `db:cleanup-audit`) ; sauvegardes |
+
+**Dossiers anonymisés avec l'ancienne version** (qui n'effaçait que `travelers`) : leurs textes libres subsistent. Rattrapage : `pnpm db:erasure-ledger -- --import-audit` puis `pnpm db:replay-erasures` (le rejeu relance la fonction et ne modifie que ce qui reste). Un e-mail sans aucun rattachement (ni dossier, ni réservation) et dont l'adresse a déjà été effacée n'est plus identifiable : seule une base restaurée non effacée le permet.
+
+Le rejeu et sa simulation (`--dry-run`) exécutent **la même fonction** (la simulation annule la transaction) : « déjà effacé » signifie que plus rien ne reste à effacer.
 ## Limites
 
 - **Sauvegarde du registre obligatoire** : une troncature en fin de fichier n'est pas détectable (les sommes de contrôle détectent corruption, modification et écriture partielle, pas l'ajout/suppression de lignes complètes). Le sauvegarder avec les dumps et le conserver **au moins aussi longtemps que la plus ancienne sauvegarde** (c'est la durée pendant laquelle une restauration peut ressusciter quelqu'un) ; il ne contient aucune donnée personnelle, sa conservation n'ajoute pas de risque.
 - **Écritures concurrentes de plusieurs instances** : un doublon est possible, sans effet (rejeu idempotent).
 - **Fichiers téléversés** : l'image de profil d'un compte supprimé est effacée à la suppression ; une restauration du volume `uploads/` plus ancien peut la rapporter. Non rejoué.
-- **Complétude de l'anonymisation** (antérieure au registre, non modifiée ici) : `anonymizeTravelerRecord` n'efface que les champs de `travelers` (e-mail, téléphone, noms, date de naissance). Subsistent notamment `applications.dietary_requirements`, `accessibility_needs`, `motivation`, `expectations`, les notes internes, et l'adresse réelle dans `email_deliveries.to_email`. Le rejeu applique exactement la même fonction : étendre l'anonymisation étendra le rejeu. Décision juridique à prendre (TODO §19).
+- **Ce qui n'est pas dans le dossier voyageuse** (compte lié, newsletter, Stripe, audit…) : voir « Périmètre de l'effacement d'un dossier ».
 
 ## Tests
 
 - `tests/unit/erasure-ledger.test.ts` — format, refus des données personnelles, concurrence, altérations détectées, import d'audit
+- `tests/integration/traveler-anonymization.test.ts` — chaque emplacement de données personnelles, ce qui est conservé, isolation des autres personnes, idempotence, atomicité, rattrapage de l'ancienne version
+- `tests/integration/erasure-restore-e2e.test.ts` — scénario complet avec les vrais `pg_dump`/`pg_restore` : sauvegarde → effacement → restauration (la personne revient) → rejeu (effacée) ; exécuté par le job `Restore drill` avec le client 16 exact
 - `tests/integration/erasure-replay.test.ts` — base réelle : rejeu après « restauration » simulée, idempotence, dossier en cours, erreur isolée ; effacements réels (`anonymizeTraveler`, suppression admin via better-auth, `afterDelete`) alimentent le registre
