@@ -1309,28 +1309,28 @@ Pattern content-locking (src/core/locks/) réutilisable pour verrouillage optimi
 Pas de mise en production tant que : tests échouent ; traduction manquante dans une langue prévue ; paiement non vérifié en bac à sable ; concurrence capacité non résolue ; audit indisponible ; sauvegarde indisponible ; mentions légales provisoires ; défaillances accessibilité critiques.
 
 text
-[ ] build
-[ ] typecheck (astro check)
-[ ] lint (ESLint)
-[ ] tests unitaires (Vitest)
-[ ] tests d'intégration
-[ ] tests e2e (Playwright 3 navigateurs)
-[ ] QA FR
-[ ] QA EN
-[ ] QA AR (incl. RTL visuel)
-[ ] QA ES
-[ ] QA SEO
-[ ] QA accessibilité (Pa11y WCAG AAA + Lighthouse CI)
-[ ] QA mobile
-[ ] QA paiement en bac à sable
-[ ] QA webhook
-[ ] QA capacité/concurrence
-[ ] QA email
+[x] build — `pnpm build` exécuté par les jobs « Accessibility & Performance » et « Build & Deploy » (CI)
+[x] typecheck (astro check) — job « Lint & Type Check » (CI), 0 erreur
+[x] lint (ESLint) — job « Lint & Type Check » (CI), 0 erreur
+[x] tests unitaires (Vitest) — job « Unit & Integration Tests » (CI)
+[x] tests d'intégration — idem, base PostgreSQL 16 migrée + seedée à chaque exécution
+[x] tests e2e (Playwright 3 navigateurs) — chromium, firefox, webkit (CI)
+[~] QA FR — automatisée (e2e, 28 URL Pa11y) ; relecture humaine non faite
+[~] QA EN — automatisée (e2e, 28 URL Pa11y) ; relecture humaine non faite
+[~] QA AR (incl. RTL visuel) — automatisée (28 URL Pa11y, e2e `dir="rtl"`) ; relecture par natifs et contrôle visuel RTL non faits
+[~] QA ES — automatisée (e2e, 28 URL Pa11y) ; relecture par natifs non faite
+[x] QA SEO — Lighthouse CI SEO ≥ 0,9 (bloquant) + tests hreflang/sitemap
+[~] QA accessibilité (Pa11y WCAG AAA + Lighthouse CI) — en CI (Pa11y WCAG2AAA, Lighthouse ≥ 0,9) mais Pa11y **ignore la règle `color-contrast`** : contrastes à contrôler à part ; pas d'audit lecteur d'écran manuel
+[ ] QA mobile — non vérifiée : Lighthouse tourne en preset `desktop` uniquement
+[ ] QA paiement en bac à sable — exige des clés de test Stripe (`PAYMENT_PROVIDER=stripe`) ; seul le fournisseur simulé et l'adaptateur contre des réponses simulées sont testés
+[~] QA webhook — signature, idempotence et rejeu testés en intégration ; pas de test contre un vrai webhook Stripe (CLI Stripe)
+[x] QA capacité/concurrence — concurrence prouvée en intégration (`FOR UPDATE`, holds, liste d'attente)
+[~] QA email — 16 modèles × 4 langues, worker, dead-letter testés ; envoi réel via le fournisseur SMTP de production non vérifié
 [~] sauvegarde base de données — outillage + CI prêts ; planification, chiffrement, hors site et sauvegardes continues de l'hébergeur à mettre en place (docs/operations/backup-restore-rollback.md §3, §8)
 [~] test de restauration (réel) — exercé et automatisé (hebdomadaire en CI) ; reste l'exercice à taille de production
-[ ] validation des migrations
-[ ] monitoring
-[ ] error tracking
+[x] validation des migrations — migrate + infra + seed depuis une base vide à chaque job CI ; journal comparé par l'exercice de restauration ; règle additive/destructive en deux releases : docs/operations/backup-restore-rollback.md §5
+[ ] monitoring — sonde `/api/health` (jeton) et `X-Request-Id` existent ; ni collecte de métriques, ni alertes, ni supervision externe de la sonde
+[ ] error tracking — aucun service branché (choix de l'outil et de l'hébergement des données à décider) ; les erreurs vont en console et dans l'audit
 [x] plan de retour arrière (rollback) — docs/operations/backup-restore-rollback.md §5 (à répéter à blanc lors du premier déploiement)
 35. PRINCIPES ULTIMES & DÉFINITION FINALE
 35.1 Architecture finale
